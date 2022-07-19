@@ -18,10 +18,6 @@ set(INCLUDE_COMMON ../../include/common)
 set(INCLUDE_SERVER ../../include/server)
 
 # Set the include directory path
-target_include_directories( ${PROJECT_NAME} 
-                            PRIVATE 
-                            ${INCLUDE_COMMON}
-                            ${INCLUDE_SERVER}
-                        )
+target_include_directories( ${PROJECT_NAME} PRIVATE ${INCLUDE_COMMON} ${INCLUDE_SERVER})
 
 
