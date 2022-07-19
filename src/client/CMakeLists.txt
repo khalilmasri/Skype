@@ -18,10 +18,6 @@ set(INCLUDE_COMMON ../../include/common)
 set(INCLUDE_CLIENT ../../include/client)
 
 # Set the include directory path
-target_include_directories( ${PROJECT_NAME} 
-                            PRIVATE 
-                            ${INCLUDE_COMMON}
-                            ${INCLUDE_CLIENT}
-                        )
+target_include_directories( ${PROJECT_NAME} PRIVATE ${INCLUDE_COMMON} ${INCLUDE_CLIENT})
 
 
