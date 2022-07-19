@@ -18,18 +18,18 @@ enum logPriority{
 
 #define DEBUG_ENABLED 1
 
-#define LOG_TRACE(format...)        Logger::Trace(__FILE__,__FUNCTION__, __LINE__, format);
-#define LOG_INFO(format...)         Logger::Info(__FILE__, __FUNCTION__, __LINE__, format);
+#define LOG_TRACE(...)        Logger::Trace(__FILE__,__FUNCTION__, __LINE__, __VA_ARGS__);
+#define LOG_INFO(...)         Logger::Info(__FILE__, __FUNCTION__, __LINE__, __VA_ARGS__);
 
 #if DEBUG_ENABLED
-    #define LOG_DEBUG(format...)    Logger::Debug(__FILE__, __FUNCTION__, __LINE__, format);
+    #define LOG_DEBUG(...)    Logger::Debug(__FILE__, __FUNCTION__, __LINE__, __VA_ARGS__);
 #else
-    #define LOG_DEBUG(format...)
+    #define LOG_DEBUG(...)
 #endif
 
-#define LOG_WARN(format...)         Logger::warning(__FILE__, __FUNCTION__, __LINE__, format);
-#define LOG_ERR(format...)          Logger::Error(__FILE__, __FUNCTION__, __LINE__,  format);
-#define LOG_CRIT(format...)         Logger::Critical(__FILE__, __FUNCTION__, __LINE__, format);
+#define LOG_WARN(...)         Logger::warning(__FILE__, __FUNCTION__, __LINE__, __VA_ARGS__);
+#define LOG_ERR(...)          Logger::Error(__FILE__, __FUNCTION__, __LINE__,  __VA_ARGS__);
+#define LOG_CRIT(...)         Logger::Critical(__FILE__, __FUNCTION__, __LINE__, __VA_ARGS__);
 
 #define __FILENAME__(file) (std::strrchr(file, '/') ? std::strrchr(file, '/') + 1 : file)
 
