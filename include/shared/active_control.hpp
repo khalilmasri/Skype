@@ -2,7 +2,6 @@
 #define ACTIVE_CONTROL_H
 #include "connection_strategy.hpp"
 
-
 class ActiveControl : public ConnectionStrategy {
 
 public:

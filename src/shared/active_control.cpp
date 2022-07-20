@@ -9,3 +9,6 @@ bool ActiveControl::connect_socket(int t_socket, sockaddr_in t_addr){
   return connect(t_socket, addr_ref , sizeof(t_addr));
  
 }
+
+
+ActiveControl::~ActiveControl(){}
