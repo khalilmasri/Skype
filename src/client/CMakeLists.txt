@@ -4,8 +4,11 @@ project(client)
 # Include all the source code with cpp extension
 file(GLOB CLIENT_SOURCES "*.cpp")
 
-# Include all the source code with cpp extension
-file(GLOB COMMON_SOURCES "../shared/*.cpp")
+ # shared/connection
+file(GLOB SHARED_CONN_SOURCES "../shared/connection/*.cpp")
+
+# include tests
+file(GLOB TEST_SOURCES "../shared/connection/*.cpp")
 
 # Define CMAKE_BINARY_DIR for the destination of the binary 
 set(CMAKE_BINARY_DIR "../../bin")
@@ -14,11 +17,14 @@ set(CMAKE_BINARY_DIR "../../bin")
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
 # Executs the client the CLIENT_SOURCES
-add_executable(${PROJECT_NAME} ${CLIENT_SOURCES} ${COMMON_SOURCES})
+add_executable(${PROJECT_NAME} ${CLIENT_SOURCES} ${SHARED_CONN_SOURCES})
 
-# Define the include path
-set(INCLUDE_COMMON ../../include/shared)
+
+#  shared/connection include
+set(INCLUDE_CONNECTION ../../include/shared/connection/)
+#  test include
+set(INCLUDE_TEST ../../include/shared/test/)
 set(INCLUDE_CLIENT ../../include/client)
 
 # Set the include directory path
-target_include_directories( ${PROJECT_NAME} PRIVATE ${INCLUDE_COMMON} ${INCLUDE_CLIENT})
+target_include_directories( ${PROJECT_NAME} PRIVATE ${INCLUDE_CLIENT} ${INCLUDE_CONNECTION} ${INCLUDE_TEST})
