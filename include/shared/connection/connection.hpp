@@ -4,25 +4,28 @@
 #include <string>
 
 class Connection {
- 
-   int         m_port;
-   int         m_socket;
-   sockaddr_in m_address;
+   int          m_port;
+   int          m_socket;
+   bool         m_is_setup = false;
+   sockaddr_in  m_address;
 
 public:
-  Connection(int _port);
-  ~Connection();
+  explicit Connection(int t_port)
+    : m_port(t_port){};
 
   bool         setup(const std::string &_address);
   int          get_socket() const;
   sockaddr_in  get_address() const;
-  bool         is_valid(int _result, const char* _msg) const;
+  int          get_port() const;
+  bool         is_valid(int t_result, const char *t_msg) const;
+  bool         is_setup() const;
 
 private:
   bool         create_socket();
   bool         set_options();
   bool         set_address(const std::string &_address);
-
 };
 
 #endif //
+
+
