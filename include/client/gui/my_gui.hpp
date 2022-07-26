@@ -9,6 +9,7 @@ class SkypeGui
         void ImGuiInit();
         void WindowInit();
         void Run();
+        void LoginWindow();
         virtual void Update();
         void Render();
         void ShutDown();
@@ -16,9 +17,14 @@ class SkypeGui
         SDL_WindowFlags window_flags;
         SDL_Window *window;
         SDL_GLContext gl_context;
+        
         ImVec4 clear_color;
-        int display_size_x;
-        int display_size_y;
+        bool logged_in = false;
+        //buffers for the logins
+        char username[20];
+        char password[20];
+
+        //other bools
         bool video_call;
         bool done;
         bool show_another_window = false;
