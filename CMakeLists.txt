@@ -9,11 +9,19 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 project(skype)
 
 # Default dev flags
-# set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wcast-qual -Wnon-virtual-dtor -Woverloaded-virtual -Wold-style-cast")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra")
 
-set(SERVER_PATH src/server)
+# Add the option to use more flags
+option(CMAKE_EXTRA_FLAGS "Add extra flags" OFF)
+if(CMAKE_EXTRA_FLAGS)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wpedantic -Wcast-qual -Wnon-virtual-dtor -Woverloaded-virtual -Wold-style-cast")
+endif()
+    
+message("Enabled flags = ${CMAKE_CXX_FLAGS}")
 
 # Define the path to server source code
+set(SERVER_PATH src/server)
+
 # Add it as a subdirectory
 add_subdirectory(${SERVER_PATH})
 

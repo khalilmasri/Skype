@@ -5,9 +5,14 @@ mkdir -p build
 if [ "$1" == "--gen" ]; then
     cd build; cmake ../; make; cd .. 
 
+elif [ "$1" == "--gen-extra" ]; then
+    cd build; cmake -DCMAKE_EXTRA_FLAGS=ON ../; make; cd ..
+
+elif [ "$1" == "--gen-base" ]; then
+    cd build; cmake -DCMAKE_EXTRA_FLAGS=OFF ../; make; cd ..
+
 elif [ "$1" == "--make" ]; then
     cd build; make; cd .. 
-
 
 elif [ "$1" == "--run" ]; then
     
