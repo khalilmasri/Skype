@@ -19,12 +19,11 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 # Executs the client the CLIENT_SOURCES
 add_executable(${PROJECT_NAME} ${CLIENT_SOURCES} ${SHARED_CONN_SOURCES})
 
-
-#  shared/connection include
+# Includes
 set(INCLUDE_CONNECTION ../../include/shared/connection/)
-#  test include
 set(INCLUDE_TEST ../../include/shared/test/)
 set(INCLUDE_CLIENT ../../include/client)
+set(INCLUDE_SHARED ../../include/shared)
 
 # Set the include directory path
-target_include_directories( ${PROJECT_NAME} PRIVATE ${INCLUDE_CLIENT} ${INCLUDE_CONNECTION} ${INCLUDE_TEST})
+target_include_directories( ${PROJECT_NAME} PRIVATE ${INCLUDE_CLIENT} ${INCLUDE_CONNECTION} ${INCLUDE_TEST} ${INCLUDE_SHARED})

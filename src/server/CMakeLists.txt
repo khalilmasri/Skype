@@ -19,14 +19,13 @@ set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 # Executes the server the SERVER_SOURCES & COMMON SOURCES
 add_executable(${PROJECT_NAME} ${SERVER_SOURCES} ${CONNECTION_SOURCES} ${TEST_SOURCES})
 
-#  shared/connection include
+# Includes
 set(INCLUDE_CONNECTION ../../include/shared/connection/)
-#  text include
 set(INCLUDE_TEST ../../include/shared/test/)
-
 set(INCLUDE_SERVER ../../include/server)
+set(INCLUDE_SHARED ../../include/shared)
 
 # Set the include directory path
-target_include_directories( ${PROJECT_NAME} PRIVATE  ${INCLUDE_SERVER} ${INCLUDE_CONNECTION} ${INCLUDE_TEST})
+target_include_directories( ${PROJECT_NAME} PRIVATE  ${INCLUDE_SERVER} ${INCLUDE_CONNECTION} ${INCLUDE_TEST} ${INCLUDE_SHARED})
 
 
