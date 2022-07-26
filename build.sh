@@ -15,8 +15,14 @@ elif [ "$1" == "--run" ]; then
     else cd build; cmake ../; make; ./bin/"$2" cd .. 
     fi
 
-elif [ "$1" == "--run-client" ]; then
-    cd build; make; ./bin/ cd .. 
+elif [ "$1" == "--clean" ]; then
+    cd build; make clean; cd .. 
+
+elif [ "$1" == "--clean-bin" ]; then
+    cd build; rm -rf bin; cd ..
+
+elif [ "$1" == "--clean-all" ]; then
+    rm -rf build
 
 elif [ "$1" == "-h"  ] || [ "$1" == "--help" ];  then
    echo "--gen:  Generate make files with CMakeLists.txt and make."

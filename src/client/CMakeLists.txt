@@ -1,14 +1,15 @@
 # Sets project name
 project(client)
 
+# Find the packages needed
+find_package(SDL2 REQUIRED)
+find_package(OpenGL REQUIRED)
+include_directories(${SDL2_INCLUDE_DIRS})
+
 # Include all the source code with cpp extension
-file(GLOB CLIENT_SOURCES "*.cpp")
-
- # shared/connection
-file(GLOB SHARED_CONN_SOURCES "../shared/connection/*.cpp")
-
-# include tests
-file(GLOB TEST_SOURCES "../shared/connection/*.cpp")
+file(GLOB CLIENT_SOURCES "*.cpp" 
+"../shared/connection/*.cpp" 
+"gui/*.cpp")
 
 # Define CMAKE_BINARY_DIR for the destination of the binary 
 set(CMAKE_BINARY_DIR "../../bin")
@@ -17,13 +18,28 @@ set(CMAKE_BINARY_DIR "../../bin")
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
 # Executs the client the CLIENT_SOURCES
-add_executable(${PROJECT_NAME} ${CLIENT_SOURCES} ${SHARED_CONN_SOURCES})
+add_executable(${PROJECT_NAME} ${CLIENT_SOURCES})
 
-# Includes
-set(INCLUDE_CONNECTION ../../include/shared/connection/)
-set(INCLUDE_TEST ../../include/shared/test/)
-set(INCLUDE_CLIENT ../../include/client)
-set(INCLUDE_SHARED ../../include/shared)
+
+# Define the include path
+set(INCLUDE_DIRS    ../../include/client 
+                    ../../include/client/gui 
+                    ../../include/shared     
+                    ../../include/shared/test
+                    ../../include/shared/connection 
+                ) 
 
 # Set the include directory path
-target_include_directories( ${PROJECT_NAME} PRIVATE ${INCLUDE_CLIENT} ${INCLUDE_CONNECTION} ${INCLUDE_TEST} ${INCLUDE_SHARED})
+target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDE_DIRS})
+include_directories(${DOCTEST_INCLUDE_DIR})
+
+# Setting preferance on OpenGL
+set(OpenGL_GL_PREFERENCE LEGACY)
+
+# Linking the libraries
+target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})
+target_link_libraries(${PROJECT_NAME} OpenGL::GL)
+
+
+
+    
