@@ -10,6 +10,8 @@ class Connection {
    sockaddr_in  m_address;
 
 public:
+  enum ValidationLog { Info, Error, Debug, Critical };
+
   explicit Connection(int t_port)
     : m_port(t_port){};
 
@@ -17,7 +19,7 @@ public:
   int          get_socket() const;
   sockaddr_in  get_address() const;
   int          get_port() const;
-  bool         is_valid(int t_result, const char *t_msg) const;
+  bool         is_valid(int t_result, const char *t_msg, ValidationLog t_log = Error) const;
   bool         is_setup() const;
 
 private:

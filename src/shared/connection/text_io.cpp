@@ -50,7 +50,7 @@ int TextIO::read_header(int t_socket) const {
   char header[HEADER_LENGTH] = {0};
   int res = recv(t_socket, header, HEADER_LENGTH, 0);
 
-  if (is_valid(res, "Could not receive message header.")) {
+  if (res == HEADER_LENGTH) { // read size must be the header length
     return std::stoi(header);
   }
 

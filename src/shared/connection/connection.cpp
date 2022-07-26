@@ -13,10 +13,24 @@ bool Connection::setup(const std::string &t_address) {
   return m_is_setup;
 }
 
-bool Connection::is_valid(int t_result, const char *t_msg) const {
-  if (t_result < 0) {
+bool Connection::is_valid(int t_result, const char *t_msg, ValidationLog t_log) const {
+
+  if (t_result < 0 && t_log == Error) {
     LOG_ERR(t_msg);
   }
+
+  else if (t_result < 0 && t_log == Debug) {
+    LOG_DEBUG(t_msg);
+  }
+
+  else if (t_result < 0 && t_log == Info) {
+    LOG_INFO(t_msg);
+  }
+
+  else if (t_result < 0 && t_log == Critical) {
+    LOG_CRIT(t_msg);
+  }
+
   return t_result >= 0;
 }
 
@@ -27,7 +41,6 @@ bool Connection::is_setup() const {
 
   return m_is_setup;
 }
-
 
 int Connection::get_socket() const { return m_socket; }
 sockaddr_in Connection::get_address() const { return m_address; }

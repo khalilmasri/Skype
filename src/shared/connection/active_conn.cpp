@@ -28,8 +28,7 @@ bool ActiveConn::connect_socket(std::string &t_address) {
 bool ActiveConn::receive(std::string &t_data) { return m_io->receive(get_socket(), t_data); }
 bool ActiveConn::respond(std::string &t_data) { return m_io->respond(get_socket(), t_data); }
 
-/* TEST
- */
+/* TEST */
 
 TEST_CASE("Active Connection"){
     
