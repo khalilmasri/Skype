@@ -1,29 +1,31 @@
-#include <iostream>
-#include "logger.hpp"
+#include "imgui.h"
+#include "imgui_impl_sdl.h"
+#include "imgui_impl_opengl2.h"
+#include <stdio.h>
+
 #define DOCTEST_CONFIG_IMPLEMENT
 #include "doctest.h"
 
-int test()
+#include "SDL.h"
+#include "SDL_opengl.h"
+
+#include "my_gui.hpp"
+
+//client --> call ImGui context initialisation --> then initialise chat windows
+
+// Main code
+int main(int, char **)
 {
- doctest::Context ctx;
- ctx.setOption("abort-after", 5);
- ctx.setOption("no-breaks", true);
+    SkypeGui skype_gui;
+    skype_gui.ImGuiInit();
+    skype_gui.WindowInit();
+   
 
- int res = ctx.run();
+    skype_gui.done = false;
+    //Run() executes the loop until 'done'
+    skype_gui.Run();
 
- if(ctx.shouldExit())
-     return res;
+    skype_gui.ShutDown();
 
-  return -1;
-}
-
-int main(void){
-
-     int res = test();
-
-      if(res > 0){
-         return res;
-      }
     return 0;
 }
-
