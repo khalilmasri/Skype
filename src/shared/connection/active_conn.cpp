@@ -17,9 +17,9 @@ bool ActiveConn::connect_socket(std::string &t_address) {
     return setup_result;
   }
 
-  auto address = get_address();
+  sockaddr_in address = get_address();
 
-  auto *addr_ref = reinterpret_cast<struct sockaddr *>(&address);
+  struct sockaddr *addr_ref = reinterpret_cast<struct sockaddr *>(&address);
   int res = connect(get_socket(), addr_ref, sizeof(address));
 
   return is_valid(res, "Could not connect to socket");

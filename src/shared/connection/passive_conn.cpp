@@ -10,7 +10,7 @@ bool PassiveConn::bind_and_listen(const std::string &t_address) {
 
   setup(t_address);
 
-  auto address = get_address();
+  sockaddr_in address = get_address();
 
   int res = bind(get_socket(), reinterpret_cast<struct sockaddr *>(&address),
                  sizeof(address));
@@ -33,7 +33,7 @@ bool PassiveConn::accept_connection() {
     return false;
   }
 
-  auto address = get_address();
+  sockaddr_in address = get_address();
   socklen_t addr_len = sizeof(address);
   int res = accept(get_socket(), reinterpret_cast<struct sockaddr *>(&address),
                    &addr_len);
