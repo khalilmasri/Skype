@@ -4,10 +4,10 @@
 
 #include <unistd.h>
 
-ConnectionPoll::ConnectionPoll(int t_timeout)
-    : m_timeout(t_timeout){
+ConnectionPoll::ConnectionPoll(int t_timeout) : m_timeout(t_timeout) {
 
-  for (std::size_t i = m_poll_index; i < m_max; i++) { /* initialize fds to -1 */
+  for (std::size_t i = m_poll_index; i < m_max;
+       i++) { /* initialize fds to -1 */
     m_poll[i].fd = -1;
   }
 }
@@ -30,16 +30,17 @@ bool ConnectionPoll::add_socket(int t_socket_fd) {
 
 bool ConnectionPoll::accept_awaits() {
 
-  if (poll(m_poll, 1, m_timeout) > 0) {
-    return true;
-  }
+  int res = poll(m_poll, ZERO, m_timeout);
 
-  return false;
+  return res > 0 ? true : false;
 }
 
 int ConnectionPoll::select_socket_with_events() {
   for (std::size_t i = OFFSET; i < m_max; i++) {
-    if (poll(m_poll, i + 1, m_timeout) > 0) {
+
+    int res = poll(m_poll, i + ZERO, m_timeout);
+
+    if (res > 0) {
 
       if (m_poll[i].fd == -1) {
         continue;
@@ -61,20 +62,21 @@ void ConnectionPoll::remove_socket(int t_socket_fd) {
     }
   }
 
-  reposition_poll(); // reposition if removing from the middle
-  count_poll_index();  // re_count m_poll_index
+  reposition_poll();  // reposition if removing from the middle
+  count_poll_index(); // recount m_poll_index
 }
 
 void ConnectionPoll::reposition_poll() {
 
   for (std::size_t i = OFFSET; i < m_max; i++) {
 
-    if (i == m_max - 1){ // last one break
+    if (i == m_max - 1) { // break on last one
       break;
     }
 
-    if (m_poll[i].fd == -1 && m_poll[i + 1].fd != -1) { // move existing fd rightwards
-      m_poll[i].fd = m_poll[i + 1].fd;
+    if (m_poll[i].fd == -1 &&
+        m_poll[i + 1].fd != -1) { // if current fd is invalid and next is valid
+      m_poll[i].fd = m_poll[i + 1].fd; // move existing fd rightwards
       m_poll[i + 1].fd = -1;
     }
   }
@@ -85,7 +87,7 @@ void ConnectionPoll::count_poll_index() {
 
   for (std::size_t i = OFFSET; i < m_max; i++) {
 
-    if (m_poll[i].fd == -1){
+    if (m_poll[i].fd == -1) {
       break;
     }
 
@@ -104,7 +106,9 @@ void ConnectionPoll::set_timeout(int t_timeout) { m_timeout = t_timeout; }
 
 bool ConnectionPoll::has_timeout(const char t_type[]) {
 
-  if (poll(m_poll, 1, m_timeout) == 0) {
+   int res = poll(m_poll, ZERO, m_timeout);
+
+  if (res == 0) {
     LOG_INFO("%s timeout.", t_type);
     return true;
   }

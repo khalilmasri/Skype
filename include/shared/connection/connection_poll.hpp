@@ -3,12 +3,15 @@
 #include <poll.h>
 #include <iostream>
 
-#define MAX_CONNECTIONS 10
-#define OFFSET 1 // 0 is the local socket.
-
+// TODO: Macros to global config object.
+#define MAX_CONNECTIONS 10 
+#define ZERO 1 // poll is not zero index.
+               
 /* m_poll[0] is the local socket for accept_awaits.
- * And m_poll[n] where n > 0 are the connected sockets */
-
+ * And m_poll[n] where n > 0 are the connected sockets 
+ * We then set an offset of 1 for the 'for' loops.
+ */
+#define OFFSET 1 
 
 class ConnectionPoll {
 
