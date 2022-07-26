@@ -10,7 +10,8 @@ class SkypeGui
         void WindowInit();
         void Run();
         void LoginWindow();
-        virtual void Update();
+        void ContactsList();
+        void Update();
         void Render();
         void ShutDown();
 
@@ -23,6 +24,8 @@ class SkypeGui
         //buffers for the logins
         char username[20];
         char password[20];
+        
+
 
         //other bools
         bool video_call;
