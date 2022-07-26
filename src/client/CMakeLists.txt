@@ -11,6 +11,7 @@ include_directories(${SDL2_INCLUDE_DIRS})
 file(GLOB CLIENT_SOURCES    "*.cpp" 
                             "gui/*.cpp"
                             "../shared/connection/*.cpp"
+                            "../shared/config/*.cpp"
                         ) 
 
 # Define CMAKE_BINARY_DIR for the destination of the binary 
@@ -27,8 +28,9 @@ add_executable(${PROJECT_NAME} ${CLIENT_SOURCES})
 # Define the include path
 set(INCLUDE_DIRS    ../../include/client 
                     ../../include/client/gui 
-                    ../../include/shared     
+                    ../../include/shared
                     ../../include/shared/test
+                    ../../include/shared/config         
                     ../../include/shared/connection 
                 ) 
 
