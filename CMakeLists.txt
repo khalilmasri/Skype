@@ -11,9 +11,9 @@ project(skype)
 # Default dev flags
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -Wcast-qual -Wnon-virtual-dtor -Woverloaded-virtual -Wold-style-cast")
 
-# Define the path to server source code
 set(SERVER_PATH src/server)
 
+# Define the path to server source code
 # Add it as a subdirectory
 add_subdirectory(${SERVER_PATH})
 
