@@ -8,7 +8,31 @@ LINUX - sudo apt-get install libsdl2-2.0 libsdl2-dev
 
 OSX - homebrew install sdl2
 
-###Build shell script
+### Cmake
+Cmake has 2 types of compiler flags
+
+base flags
+```
+-Wall -Wextra
+```
+
+Extra flags
+```
+ -Wpedantic -Wcast-qual -Wnon-virtual-dtor -Woverloaded-virtual -Wold-style-cast
+```
+
+To enable extra flags 
+```
+cd build; cmake -DCMAKE_EXTRA_FLAGS=ON ../; 
+```
+
+To disable extra flags
+```
+cd build; cmake -DCMAKE_EXTRA_FLAGS=OFF ../; 
+
+```
+
+### Build shell script
 
 1. To generate the CMake and build it (No extra flags)
 ```
