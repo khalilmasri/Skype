@@ -6,6 +6,12 @@
 #include <filesystem>
 #include <cstdlib>
 
+#if __linux__
+namespace fs = std::filesystem;
+#elif __APPLE__ || __MACH__
+namespace fs = std::__fs::filesystem;
+#endif
+
 /* Public */
 
 Config::Config() {
@@ -13,21 +19,33 @@ Config::Config() {
    m_user_dir = std::string(getenv("HOME")) + "/.config/my_skype";
    m_user_conf = m_user_dir + "/config.conf";
 
-   bool res = compare_files();
+   // bool res = compare_files();
+   bool res = fs::is_directory(m_user_dir);
    if ( false == res) {
       create();
    }
 
    res = load();
+   if ( false == res ) {
+      create();
+      load();
+   }
+
+   print_table(m_conf_table);
 }
 
+Config& Config::get_instance() {
+   
+   static Config m_instance;
+
+   return m_instance;
+}
 
 bool Config::create(){
 
    LOG_INFO("Creating skype directory and config file");
-
-   std::cout << m_user_dir << std::endl;
-   bool res = std::filesystem::is_directory(m_user_dir);
+   
+   bool res = fs::is_directory(m_user_dir);
    if ( false == res ){
       res = create_conf_directory();
    }
@@ -67,17 +85,79 @@ bool Config::load(){
       return is_valid(NEG, "Couldn't open file", Error);
    }
 
-   for ( auto it : m_conf_table){
-      std::cout << to_string(it.first) << " " << it.second << std::endl;
-   }
 
    return true;  
 }
 
 bool Config::save(){
-   return false;
+
+   std::ofstream user_file;
+   user_file.open(m_user_conf, std::ios::out | std::ofstream::trunc | std::ios::binary);
+   
+   std::string buffer = "";
+
+   for ( auto it : m_conf_table ){
+     user_file << to_string(it.first) + "=" + it.second + "\n";
+   }
+
+   user_file.close();
+
+   return true;
 }
 
+bool Config::update_variable(Configuration t_variable, std::string t_value) {
+
+   bool res = (t_variable == SERVER_IP && t_variable < LAST) ? true : false;
+
+   if ( false == res || t_value.empty() ) {
+      return is_valid(NEG, "Couldn't update variable", Error);
+   }
+
+   m_conf_table.at(t_variable) = t_value;
+
+   return true;
+}
+
+bool Config::corrupted_conf() {
+
+   LOG_ERR("Corrupted config file, fixing it");
+   
+   bool res = create();
+   if ( false == res ){
+      return is_valid(NEG, "Could'nt fix config file", Error);
+   }
+
+   return true;
+}
+
+bool Config::corrupted_variable(Configuration t_variable){
+
+   std::ifstream file(m_base_conf);
+   std::string line;
+   
+   int res = file.good();
+   if ( true == res){
+
+      while (std::getline(file,line)){
+
+         std::string variable = parse_line(line);
+         if ( variable == to_string(t_variable)) {
+            
+            m_conf_table.at(t_variable) = line;
+         }         
+      }
+      
+      file.close();
+   }
+   else 
+   {
+      return is_valid(NEG, "Couldn't open file", Error);
+   }
+
+
+   return true; 
+
+}
 /* Private */
 
 bool Config::compare_files(){
@@ -93,9 +173,10 @@ bool Config::compare_files(){
       is_valid(NEG, "Config files have different sizes", Error);
    }
 
+   
    base.seekg(0);
    user.seekg(0);
-
+   
    std::istreambuf_iterator<char> base_begin(base);  
    std::istreambuf_iterator<char> user_begin(user);
   
@@ -120,10 +201,11 @@ bool Config::append_to_map(std::string& t_line){
       std::string conf = to_string(Configuration(conf_int));
       if ( variable == conf ){
          m_conf_table.at(Configuration(conf_int)) = value;
+         return true;
       }      
    }
 
-   return true;
+   return false;
 }
 
 void Config::init_conf_table() {
@@ -132,7 +214,6 @@ void Config::init_conf_table() {
       m_conf_table.emplace(Configuration(conf_int), "");
    }
 }
-
 
 std::string Config::parse_line(std::string& t_line){
 
@@ -166,7 +247,7 @@ std::string Config::to_string(Configuration t_value) const{
 
 bool Config::create_conf_directory(){
    
-   return std::filesystem::create_directory(m_user_dir);
+   return fs::create_directory(m_user_dir);
 }
 
 void Config::copy_conf() {
@@ -181,6 +262,14 @@ void Config::copy_conf() {
    std::ostreambuf_iterator<char> user_begin(&user_file);
 
    std::copy(base_begin, {}, user_begin);
+}
+
+template<typename T, typename B>
+void Config::print_table(std::map<T, B>&  t_table) {
+
+    for ( auto it : t_table){
+      std::cout << to_string(it.first) << " " << it.second << std::endl;
+   }
 }
 
 bool Config::is_valid(int t_result, const char *t_msg, ValidationLog t_log) const{
