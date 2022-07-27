@@ -17,17 +17,17 @@
 // Main code
 int main(int, char **)
 {
-    SkypeGui skype_gui;
-    skype_gui.ImGuiInit();
-    skype_gui.WindowInit();
+    // SkypeGui skype_gui;
+    // skype_gui.ImGuiInit();
+    // skype_gui.WindowInit();
     
     Config *conf = new Config();
 
-    skype_gui.done = false;
-    //Run() executes the loop until 'done'
-    skype_gui.Run();
+    // skype_gui.done = false;
+    // //Run() executes the loop until 'done'
+    // skype_gui.Run();
 
-    skype_gui.ShutDown();
+    // skype_gui.ShutDown();
 
     return 0;
 }

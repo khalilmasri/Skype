@@ -1,5 +1,8 @@
 #!/bin/bash
 
+export CC=/usr/bin/clang
+export CXX=/usr/bin/clang++
+
 mkdir -p build
 
 if [ "$1" == "--gen" ]; then

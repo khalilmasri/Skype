@@ -43,7 +43,7 @@ class Logger
         template<typename... Args>
         static void log(const char* msg_prio_str, logPriority msg_prio, const char* file,  int line, const char* func, const char* msg, Args... args)
         {
-                        
+         
             if(msg_prio <= getInstance().priority){
                 {
                     std::unique_lock<std::mutex> lock(getInstance().log_mutex);
