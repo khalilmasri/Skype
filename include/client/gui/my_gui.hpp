@@ -1,6 +1,15 @@
 #include "imgui.h"
 #include <SDL.h>
 
+#include <string>
+#include <stdio.h>
+#include <iostream>
+#include <vector>
+#include <fstream>
+
+#define MAX_MESSAGE_LENGTH 1000
+#define MAX_HISTORY_LENGTH 2048
+
 class SkypeGui
 {
     
@@ -21,7 +30,8 @@ class SkypeGui
         void AddUser(std::string new_username);
 
         //Chats functionality
-        void ChatWindow(std::string contact);
+        void ChatWindow(const std::string contact);
+        void ChatHistoryToBuffer();
         
 
         
@@ -31,15 +41,18 @@ class SkypeGui
         
         ImVec4 clear_color;
         bool logged_in = false;
-        //buffers for the logins
+        //buffers
         char username[20];
         char password[20];
+        char message[MAX_MESSAGE_LENGTH];
         std::vector<std::string> contacts;
     
         //other bools
         bool video_call;
         bool done;
         bool show_another_window = false;
+
+        //chat variables
+        std::string current_contact; //to decide which contact was selected last
+        char chat_history[MAX_HISTORY_LENGTH]; //buffer to write the current contacts chat history into
 };
-
-

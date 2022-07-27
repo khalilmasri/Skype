@@ -11,6 +11,10 @@
 
 #include "my_gui.hpp"
 
+#include <iostream>
+#include <string>
+#include <vector>
+
 //client --> call ImGui context initialisation --> then initialise chat windows
 
 // Main code
