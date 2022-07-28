@@ -11,6 +11,7 @@ class PassiveConn : public Connection {
   int            m_client_socket;
 
 public:
+  PassiveConn() {};
   PassiveConn(int t_port ,IOStrategy* t_io) : Connection(t_port), m_io(t_io), m_client_socket(-1){};
 
   ~PassiveConn() {
