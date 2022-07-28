@@ -2,6 +2,7 @@
 #define ACTIVE_CONN_H
 #include "connection.hpp"
 #include "IO_strategy.hpp"
+#include "request.hpp"
 #include <unistd.h>
 
 class ActiveConn : public Connection {
@@ -17,10 +18,9 @@ public:
     delete m_io;
 }
 
-  bool connect_socket(std::string &address);
-  bool receive(std::string &t_data);
-  bool respond(std::string &t_data);
-
+  Request connect_socket(std::string &address);
+  bool receive(Request &t_req);
+  bool respond(Request &t_req);
 };
 
 #endif

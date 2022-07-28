@@ -2,8 +2,9 @@
 #include "logger.hpp"
 // -- test only
 #include "active_conn.hpp"
-#include "passive_conn.hpp"
 #include "doctest.h"
+#include "passive_conn.hpp"
+#include "request.hpp"
 //
 #include <arpa/inet.h>
 #include <sys/socket.h>
@@ -17,13 +18,13 @@ bool TextIO::receive(int t_socket, std::string &t_data) const {
 
   const int msg_length = read_header(t_socket);
 
-  bool valid_header    = is_valid(msg_length, "Could not receive message header.");
+  bool valid_header = is_valid(msg_length, "Could not receive message header.");
   bool valid_msg;
 
   if (valid_header) {
 
-    char* msg = new char[msg_length];
-    int res   = recv(t_socket, msg, msg_length, 0);
+    char *msg = new char[msg_length];
+    int res = recv(t_socket, msg, msg_length, 0);
     valid_msg = is_valid(res, "could not receive message.");
 
     if (valid_msg) {
@@ -68,34 +69,39 @@ bool TextIO::is_valid(int t_result, const char *t_msg) const {
 
 /* TESTS */
 
-TEST_CASE("Text IO"){
+TEST_CASE("Text IO") {
 
   ActiveConn aconn(4000, new TextIO());
-  auto ip = std::string("127.0.0.1");
 
+  auto ip = std::string("127.0.0.1");
   PassiveConn pconn(4000, new TextIO);
   pconn.bind_and_listen("127.0.0.1");
 
   aconn.connect_socket(ip);
-  pconn.accept_connection();
 
-  std::string msg("0000000012hello,world!");
+  Request req = pconn.accept_connection();
+  req.m_data = "0000000012hello,world!";
+  aconn.respond(req); // active initiates with msg
 
-  aconn.respond(msg); // active initiates with msg
-  
-  std::string received;
-  pconn.receive(received);
+  req.m_data = "";
+  pconn.receive(req);
 
-  CHECK(received == "hello,world!"); // received by passive
-  
-  msg = "0000000016hello,indeed :)";
-  pconn.respond(msg); // can only respond after it receives a msg from active.
-  
-  received = "";
-  aconn.receive(received);
+  SUBCASE("Passive Receives from valid IP adddress.") {
+    CHECK(req.m_address == "127.0.0.1");
+  }
 
-  CHECK(received == "hello,indeed :)"); // received by active
+  SUBCASE("Passive receives valid message.") {
+    CHECK(req.m_data == "hello,world!"); // received by passive
+    CHECK(req.m_valid == true);
+  }
+
+  req.m_data = "0000000016hello,indeed :)";
+  pconn.respond(req); // can only respond after it receives a msg from active.
+
+  req.m_data = "";
+  aconn.receive(req);
+
+  SUBCASE("Active receives valid message.") {
+    CHECK(req.m_data == "hello,indeed :)"); // received by active
+  }
 };
-
-
-

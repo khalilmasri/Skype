@@ -9,43 +9,63 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
-bool ActiveConn::connect_socket(std::string &t_address) {
+Request ActiveConn::connect_socket(std::string &t_address) {
+  Request req;
 
-  bool setup_result = setup(t_address);
+  req.m_valid = setup(t_address);
 
-  if (!setup_result) {
-    return setup_result;
+  if (!req.m_valid) {
+    return req;
   }
 
   sockaddr_in address = get_address();
+  req.m_address       = address_tostring(address);
+  req.m_socket        = get_socket();
 
   struct sockaddr *addr_ref = reinterpret_cast<struct sockaddr *>(&address);
-  int res = connect(get_socket(), addr_ref, sizeof(address));
+  int res                   = connect(get_socket(), addr_ref, sizeof(address));
+  req.m_valid               = is_valid(res, "Could not connect to socket");
 
-  return is_valid(res, "Could not connect to socket");
+  return req;
 }
 
-bool ActiveConn::receive(std::string &t_data) { return m_io->receive(get_socket(), t_data); }
-bool ActiveConn::respond(std::string &t_data) { return m_io->respond(get_socket(), t_data); }
+bool ActiveConn::receive(Request &t_req) {
+  t_req.m_socket = get_socket(); // just to keep convention as ActiveConn
+                                 // handles only a single socket.
+
+  if (t_req.m_valid) {
+    t_req.m_valid = m_io->receive(get_socket(), t_req.m_data);
+  }
+  return t_req.m_valid;
+}
+bool ActiveConn::respond(Request &t_req) {
+
+  if (t_req.m_valid) {
+    t_req.m_valid = m_io->respond(get_socket(), t_req.m_data);
+  }
+
+  return t_req.m_valid;
+}
 
 /* TEST */
 
-TEST_CASE("Active Connection"){
-    
+TEST_CASE("Active Connection") {
+
   ActiveConn aconn(4000, new TextIO());
   auto ip = std::string("127.0.0.1");
 
-  SUBCASE("PassiveConn fails connection to bad server."){
-     int res = aconn.connect_socket(ip);
-     CHECK(res == false);
+  SUBCASE("PassiveConn fails connection to bad server.") {
+    Request req = aconn.connect_socket(ip);
+    CHECK(req.m_valid == false);
   }
 
-  SUBCASE("PassiveConn connects successfully"){
-     PassiveConn pconn(4000, new TextIO);
-     pconn.bind_and_listen("127.0.0.1");
-     int res = aconn.connect_socket(ip);
-     pconn.accept_connection();
-     
-     CHECK(res == true);
+  SUBCASE("PassiveConn connects successfully") {
+    PassiveConn pconn(4000, new TextIO);
+    pconn.bind_and_listen("127.0.0.1");
+    Request req = aconn.connect_socket(ip);
+    pconn.accept_connection();
+
+    CHECK(req.m_valid == true);
+    CHECK(req.m_address == "127.0.0.1");
   }
 };
