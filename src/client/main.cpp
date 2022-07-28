@@ -21,13 +21,13 @@ int main(int, char **)
     // skype_gui.ImGuiInit();
     // skype_gui.WindowInit();
     
-    Config *conf = new Config;
+    Config *conf;
+    conf = conf->get_instance();
 
     std::string s = "127.0.0.1";
-    conf->update_variable(SERVER_IP, s);
+    conf->update_variable(Config::Configuration::SERVER_IP, s);
 
     conf->corrupted_conf();
-    conf->save();
 
     // skype_gui.done = false;
     // //Run() executes the loop until 'done'

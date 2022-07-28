@@ -34,9 +34,11 @@ Config::Config() {
    print_table(m_conf_table);
 }
 
-Config& Config::get_instance() {
+Config* Config::get_instance() {
    
-   static Config m_instance;
+   if ( !m_instance ) {
+      m_instance = new Config;
+   }
 
    return m_instance;
 }
@@ -47,11 +49,11 @@ bool Config::create(){
    
    bool res = fs::is_directory(m_user_dir);
    if ( false == res ){
-      res = create_conf_directory();
+      res = fs::create_directory(m_user_dir);
    }
    
    if ( false == res ){
-      return is_valid(NEG, "Couldn't create directory", Error);
+      return is_valid(res, "Couldn't create directory", Error);
    }
  
    copy_conf();
@@ -73,7 +75,7 @@ bool Config::load(){
          
          res = append_to_map(line);
          if ( false == res){
-            return is_valid(NEG, "Parsing the config file failed!", Error);
+            return is_valid(res, "Parsing the config file failed!", Error);
          }
 
       }
@@ -82,27 +84,11 @@ bool Config::load(){
    }
    else 
    {
-      return is_valid(NEG, "Couldn't open file", Error);
+      return is_valid(res, "Couldn't open file", Error);
    }
 
 
    return true;  
-}
-
-bool Config::save(){
-
-   std::ofstream user_file;
-   user_file.open(m_user_conf, std::ios::out | std::ofstream::trunc | std::ios::binary);
-   
-   std::string buffer = "";
-
-   for ( auto it : m_conf_table ){
-     user_file << to_string(it.first) + "=" + it.second + "\n";
-   }
-
-   user_file.close();
-
-   return true;
 }
 
 bool Config::update_variable(Configuration t_variable, std::string t_value) {
@@ -110,7 +96,7 @@ bool Config::update_variable(Configuration t_variable, std::string t_value) {
    bool res = (t_variable == SERVER_IP && t_variable < LAST) ? true : false;
 
    if ( false == res || t_value.empty() ) {
-      return is_valid(NEG, "Couldn't update variable", Error);
+      return is_valid(res, "Couldn't update variable", Error);
    }
 
    m_conf_table.at(t_variable) = t_value;
@@ -124,7 +110,7 @@ bool Config::corrupted_conf() {
    
    bool res = create();
    if ( false == res ){
-      return is_valid(NEG, "Could'nt fix config file", Error);
+      return is_valid(res, "Could'nt fix config file", Error);
    }
 
    return true;
@@ -151,7 +137,7 @@ bool Config::corrupted_variable(Configuration t_variable){
    }
    else 
    {
-      return is_valid(NEG, "Couldn't open file", Error);
+      return is_valid(res, "Couldn't open file", Error);
    }
 
 
@@ -170,7 +156,7 @@ bool Config::compare_files(){
 
    if (user_size != base_size ){
 
-      is_valid(NEG, "Config files have different sizes", Error);
+      is_valid(false, "Config files have different sizes", Error);
    }
 
    
@@ -245,11 +231,6 @@ std::string Config::to_string(Configuration t_value) const{
    return table.at(t_value);
 }
 
-bool Config::create_conf_directory(){
-   
-   return fs::create_directory(m_user_dir);
-}
-
 void Config::copy_conf() {
 
    std::filebuf base_file;
@@ -274,21 +255,21 @@ void Config::print_table(std::map<T, B>&  t_table) {
 
 bool Config::is_valid(int t_result, const char *t_msg, ValidationLog t_log) const{
    
-   if (t_result < 0 && t_log == Error) {
+   if (t_result <= 0 && t_log == Error) {
     LOG_ERR("%s", t_msg);
   }
 
-  else if (t_result < 0 && t_log == Debug) {
+  else if (t_result <= 0 && t_log == Debug) {
     LOG_DEBUG("%s", t_msg);
   }
 
-  else if (t_result < 0 && t_log == Info) {
+  else if (t_result <= 0 && t_log == Info) {
     LOG_INFO("%s", t_msg);
   }
 
-  else if (t_result < 0 && t_log == Critical) {
+  else if (t_result <= 0 && t_log == Critical) {
     LOG_CRIT("%s", t_msg);
   }
 
-  return t_result >= 0;
+  return t_result > 0;
 }
