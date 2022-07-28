@@ -11,8 +11,8 @@
 bool User::register_user(int t_socket_fd) {
     
     std::string success_reply = "200";
-    std::string reply;
-    int pos = 0;
+    std::string reply = "";
+    auto pos = 0;
 
     std::string command = "REGISTER " + m_username + " " + m_password;
 
@@ -30,8 +30,8 @@ bool User::register_user(int t_socket_fd) {
 bool User::login(int t_socket_fd) {
 
     std::string success_reply = "200";
-    std::string reply;
-    int pos = 0;
+    std::string reply = "";
+    auto pos = 0;
 
     std::string command = "LOGIN " + m_username + " " + m_password;
 

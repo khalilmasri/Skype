@@ -11,11 +11,11 @@ public:
     bool register_user(int t_socket_fd);
     bool login(int t_socket_fd);
 
-    std::string get_username() const;
 
     bool set_username(std::string& t_username);
     bool set_password(std::string& t_password);
     
+    std::string get_username() const;
     bool get_logged_in() const;
 
 private:
