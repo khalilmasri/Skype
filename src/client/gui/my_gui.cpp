@@ -28,7 +28,7 @@ void SkypeGui::ImGuiInit()
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-    window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE);
+    window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI); // SDL_WINDOW_RESIZABLE);
     window = SDL_CreateWindow("My_Skype", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, window_flags);
     gl_context = SDL_GL_CreateContext(window);
     SDL_GL_MakeCurrent(window, gl_context);
@@ -108,6 +108,7 @@ void SkypeGui::Run()
             }
             if (current_contact != "")
                 ChatWindow(current_contact);
+                RunChatControls(current_contact);
             if (video_call)
                 RunVideoWindow();
         }
@@ -249,21 +250,42 @@ void SkypeGui::AddUser(std::string new_username)
 
 void SkypeGui::ChatWindow(const std::string contact)
 {
-    static std::string prev;
-    if (prev != contact)
+    static std::string prev_contact;
+    static int prev_len;
+    int new_len;
+    if((new_len = ChatHistoryToBuffer() > prev_len) && prev_contact == contact)
     {
-        // load chat for current_contact
-        ChatHistoryToBuffer();
-        prev = contact;
+        ImGui::SetScrollHereY(ImGui::GetScrollY());
     }
+    else if ((prev_contact != contact))
+    { 
+        ImGui::SetScrollHereY(ImGui::GetScrollY());
+    }
+    else
+    {
+        prev_len = new_len;
+    }
+    prev_len = new_len;
+    
     const ImGuiViewport *main_viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(ImVec2(main_viewport->WorkPos.x + 150, main_viewport->WorkPos.y), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(650, 600), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(650, 540), ImGuiCond_FirstUseEver);
 
-    ImGui::Begin(contact.c_str());
+    ImGui::Begin(contact.c_str(),NULL , ImGuiWindowFlags_NoBringToFrontOnFocus);
     ImGui::TextWrapped("%s", chat_history);  //chat history panel
 
-    ImGui::SetCursorPos(ImVec2(15, 560));
+    ImGui::SetScrollHereY(0.999f);
+    ImGui::End();
+};
+
+void SkypeGui::RunChatControls(const std::string contact)
+{
+    const ImGuiViewport *main_viewport = ImGui::GetMainViewport();
+    ImGui::SetNextWindowPos(ImVec2(main_viewport->WorkPos.x + 150, main_viewport->WorkPos.y + 520), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(650, 80), ImGuiCond_FirstUseEver);
+
+    ImGui::Begin("##MessagePanel", NULL, ImGuiWindowFlags_NoBringToFrontOnFocus);
+    
     ImGuiInputTextFlags enter_pressed = ImGuiInputTextFlags_EnterReturnsTrue;
     ImGui::PushItemWidth(440);
     if(ImGui::InputText("##ChatBox", message, 1000, enter_pressed)) 
@@ -279,7 +301,7 @@ void SkypeGui::ChatWindow(const std::string contact)
     ImGui::SameLine();
     if (ImGui::Button("SEND"))
     {
-        std::cout << "User Sent Message: " << message << std::endl;
+        std::cout << "User Sent Message: " << message << " to " << contact << std::endl;
         memset(message, '\0', strlen(message));
     }
     ImGui::SameLine();
@@ -295,11 +317,14 @@ void SkypeGui::ChatWindow(const std::string contact)
         audio_call = true;
         std::cout << "User Requested Video Call" << message << std::endl;
     }
+
     ImGui::End();
 };
 
-void SkypeGui::ChatHistoryToBuffer()
+
+int SkypeGui::ChatHistoryToBuffer()
 {
+    int length = 0;
     memset(chat_history, 0, sizeof(chat_history));
     std::string filename = "../chat_logs/" + current_contact + ".txt";
     std::fstream file;
@@ -311,11 +336,13 @@ void SkypeGui::ChatHistoryToBuffer()
     else
     {
         file.seekg(0, file.end);
-        int length = file.tellg();
+        length = file.tellg();
         file.seekg(0, file.beg);
         file.read(chat_history, length);
         file.close();
     }
+    return length;
+    
 };
 
 void SkypeGui::RunVideoWindow()

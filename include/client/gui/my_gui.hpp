@@ -10,7 +10,6 @@
 #define MAX_MESSAGE_LENGTH 1000
 #define MAX_HISTORY_LENGTH 2048
 
-
 class SkypeGui
 {
     
@@ -33,11 +32,10 @@ class SkypeGui
 
         //Chats functionality
         void ChatWindow(const std::string contact);
-        void ChatHistoryToBuffer();
+        void RunChatControls(const std::string contact);
+        int ChatHistoryToBuffer();
         void RunVideoWindow();
-        
-
-        
+                
         SDL_WindowFlags window_flags;
         SDL_Window *window;
         SDL_GLContext gl_context;
