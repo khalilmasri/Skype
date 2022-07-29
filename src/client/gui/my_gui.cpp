@@ -217,7 +217,7 @@ void SkypeGui::ContactsList()
         for (size_t n = 0; n < contacts.size(); n++)
         {
             const bool is_selected = (item_current_idx == (int)n);
-            if (ImGui::Selectable(contacts[n].c_str(), is_selected))
+            if (ImGui::Selectable(contacts[n].c_str(), is_selected) && video_call == false && audio_call == false)
             {
                 item_current_idx = n;
                 std::cout << "selected: " << contacts[n] << std::endl;
