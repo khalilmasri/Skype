@@ -269,7 +269,7 @@ void SkypeGui::ChatWindow(const std::string contact)
     
     const ImGuiViewport *main_viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(ImVec2(main_viewport->WorkPos.x + 150, main_viewport->WorkPos.y), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(650, 540), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(650, 520), ImGuiCond_FirstUseEver);
 
     ImGui::Begin(contact.c_str(),NULL , ImGuiWindowFlags_NoBringToFrontOnFocus);
     ImGui::TextWrapped("%s", chat_history);  //chat history panel
