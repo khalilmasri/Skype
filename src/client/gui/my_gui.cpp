@@ -108,6 +108,8 @@ void SkypeGui::Run()
             }
             if (current_contact != "")
                 ChatWindow(current_contact);
+            if (video_call)
+                RunVideoWindow();
         }
 
         Render();
@@ -259,12 +261,12 @@ void SkypeGui::ChatWindow(const std::string contact)
     ImGui::SetNextWindowSize(ImVec2(650, 600), ImGuiCond_FirstUseEver);
 
     ImGui::Begin(contact.c_str());
-    ImGui::TextWrapped("%s", chat_history);
+    ImGui::TextWrapped("%s", chat_history);  //chat history panel
 
     ImGui::SetCursorPos(ImVec2(15, 560));
     ImGuiInputTextFlags enter_pressed = ImGuiInputTextFlags_EnterReturnsTrue;
-    ImGui::PushItemWidth(550);
-    if(ImGui::InputText("##ChatBox", message, 1000, enter_pressed))
+    ImGui::PushItemWidth(440);
+    if(ImGui::InputText("##ChatBox", message, 1000, enter_pressed)) 
     {  
         ImGui::SetItemDefaultFocus(); 
         if(enter_pressed)
@@ -279,6 +281,19 @@ void SkypeGui::ChatWindow(const std::string contact)
     {
         std::cout << "User Sent Message: " << message << std::endl;
         memset(message, '\0', strlen(message));
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("CALL"))
+    {
+        audio_call = true;
+        std::cout << "User Requested Audio Call" << message << std::endl;
+    }
+    ImGui::SameLine();
+    if (ImGui::Button("VIDEO"))
+    {
+        video_call = true;
+        audio_call = true;
+        std::cout << "User Requested Video Call" << message << std::endl;
     }
     ImGui::End();
 };
@@ -302,6 +317,27 @@ void SkypeGui::ChatHistoryToBuffer()
         file.close();
     }
 };
+
+void SkypeGui::RunVideoWindow()
+{
+    const ImGuiViewport *main_viewport = ImGui::GetMainViewport();
+    ImGui::SetNextWindowPos(ImVec2(main_viewport->WorkPos.x + 500, main_viewport->WorkPos.y + 0), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(300, 300), ImGuiCond_FirstUseEver);
+
+    std::string str = "Video Call with " + current_contact;
+    ImGui::Begin(str.c_str());
+        //Put video stream here;
+        if(ImGui::Button("CLOSE VIDEO"))
+        {
+            video_call = false;
+            //close video stream and close window!
+            std::cout << "Close Video Stream" << std::endl;
+        }
+    ImGui::End();
+
+}
+
+
 
 void SkypeGui::Render()
 {
