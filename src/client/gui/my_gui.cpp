@@ -28,7 +28,7 @@ void SkypeGui::ImGuiInit()
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-    window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI);
+    window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE);
     window = SDL_CreateWindow("My_Skype", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, window_flags);
     gl_context = SDL_GL_CreateContext(window);
     SDL_GL_MakeCurrent(window, gl_context);
@@ -85,9 +85,13 @@ void SkypeGui::Run()
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
 
-        if (!logged_in)
+        if (!logged_in && !new_user)
         {
             LoginWindow();
+        }
+        else if (new_user)
+        {
+            NewUser();
         }
         else
         {
@@ -114,20 +118,81 @@ void SkypeGui::LoginWindow()
 {
     const ImGuiViewport *main_viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(ImVec2(main_viewport->WorkPos.x + 300, main_viewport->WorkPos.y + 50), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(200, 200), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(220, 200), ImGuiCond_FirstUseEver);
     ImGui::Begin("My_Skype: Login");
 
     ImGui::Text("Username");
+    ImGui::PushItemWidth(200);
     ImGui::InputText("##usernameField", username, sizeof(username), ImGuiInputTextFlags_CharsNoBlank);
 
     ImGui::Text("Password");
+    ImGui::PushItemWidth(200);
     ImGui::InputText("##passwordField", password, sizeof(password), ImGuiInputTextFlags_Password);
 
-    if (ImGui::Button("LOG IN"))
+    //conditions for login here necessary
+    if (ImGui::Button(" LOGIN "))
     {
         std::cout << "User Logged Into Skype" << std::endl;
         logged_in = true;
     }
+    ImGui::SameLine();
+    if (ImGui::Button("NEW USER"))
+    {
+        std::cout << "New User Window" << std::endl;
+        new_user = true;
+    }
+    if (username_error)
+        ImGui::Text("Username Not Found");
+    if (!username_error && password_error)
+        ImGui::Text("Incorrect Password");
+    ImGui::End();
+}
+
+void SkypeGui::NewUser()
+{
+    const ImGuiViewport *main_viewport = ImGui::GetMainViewport();
+    ImGui::SetNextWindowPos(ImVec2(main_viewport->WorkPos.x + 300, main_viewport->WorkPos.y + 50), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(220, 270), ImGuiCond_FirstUseEver);
+    //window size is longer to account for both 2 separate error messages possible simultaneously
+    ImGui::Begin("My_Skype:New User");
+
+    ImGui::Text("Username");
+    ImGui::PushItemWidth(200);
+    ImGui::InputText("##usernameField", username, sizeof(username), ImGuiInputTextFlags_CharsNoBlank);
+
+    ImGui::Text("New Password");
+    ImGui::PushItemWidth(200);
+    ImGui::InputText("##passwordField", password, sizeof(password), ImGuiInputTextFlags_Password);
+
+    ImGui::Text("Confirm Password");
+    ImGui::PushItemWidth(200);
+    ImGui::InputText("##confirmpasswordField", confirm_password, sizeof(confirm_password), ImGuiInputTextFlags_Password);
+
+    if (ImGui::Button(" NEW USER LOGIN "))
+    {
+
+        //need also condition for username available/taken with bool username_error
+        if ((strcmp(confirm_password, password) == 0) && (strcmp(password, "\0") != 0))
+        {
+            std::cout << "New User Successfully Logged in" << std::endl;
+            logged_in = true;
+            new_user = false;
+            password_error = false;
+        }
+        else
+        {
+            password_error = true;
+            memset(confirm_password, '\0', sizeof(confirm_password));
+            memset(password, '\0', sizeof(password));
+        }
+    }
+    //window sized to account for only one of these errors at a time
+    //i.e if username doesnt exist then that displays first
+    if (password_error)
+        ImGui::Text("Incorrect Password");
+    if (username_error)
+        ImGui::Text("Username Taken");
+
     ImGui::End();
 }
 
@@ -197,12 +262,23 @@ void SkypeGui::ChatWindow(const std::string contact)
     ImGui::TextWrapped("%s", chat_history);
 
     ImGui::SetCursorPos(ImVec2(15, 560));
+    ImGuiInputTextFlags enter_pressed = ImGuiInputTextFlags_EnterReturnsTrue;
     ImGui::PushItemWidth(550);
-    ImGui::InputText("##ChatBox", message, 1000, 0);
+    if(ImGui::InputText("##ChatBox", message, 1000, enter_pressed))
+    {  
+        ImGui::SetItemDefaultFocus(); 
+        if(enter_pressed)
+        {
+            std::cout << "User Sent Message: " << message << std::endl;
+            memset(message, '\0', strlen(message));
+            ImGui::SetKeyboardFocusHere(-1); //returns focus to InputText always
+        }
+    }
     ImGui::SameLine();
     if (ImGui::Button("SEND"))
     {
         std::cout << "User Sent Message: " << message << std::endl;
+        memset(message, '\0', strlen(message));
     }
     ImGui::End();
 };

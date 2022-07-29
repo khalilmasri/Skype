@@ -25,6 +25,7 @@ class SkypeGui
 
         //specific skype functionality
         void LoginWindow();
+        void NewUser();
         void ContactsList();
         void LoadContacts();
         void AddUser(std::string new_username);
@@ -40,10 +41,16 @@ class SkypeGui
         SDL_GLContext gl_context;
         
         ImVec4 clear_color;
+        //login bools
         bool logged_in = false;
+        bool new_user = false;
+        bool password_error = false;
+        bool username_error = false;
+        
         //buffers
         char username[20];
         char password[20];
+        char confirm_password[20];
         char message[MAX_MESSAGE_LENGTH];
         std::vector<std::string> contacts;
     
