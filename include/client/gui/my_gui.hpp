@@ -34,7 +34,7 @@ class SkypeGui
         void ChatWindow(const std::string contact);
         void RunChatControls(const std::string contact);
         int ChatHistoryToBuffer();
-        void RunVideoWindow();
+        void RunCallWindow();
                 
         SDL_WindowFlags window_flags;
         SDL_Window *window;
