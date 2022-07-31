@@ -52,13 +52,13 @@ Request PassiveConn::accept_connection() {
   return req;
 }
 
-bool PassiveConn::receive(Request &t_req) {
 
+bool PassiveConn::receive(Request &t_req) {
   t_req.m_socket = m_poll.select_socket_with_events();
   t_req.m_valid  = is_valid(t_req.m_socket, "Nothing to receive.", Connection::Debug);
 
   if (t_req.m_valid) { // only receive when pending msg exists.
-    t_req.m_valid = m_io->receive(t_req.m_socket, t_req.m_data);
+    t_req.m_valid = m_io->receive(t_req);
     t_req.m_address = m_addresses.at(t_req.m_socket); // req has now the socket IP address.
   }
 
@@ -68,7 +68,7 @@ bool PassiveConn::receive(Request &t_req) {
 bool PassiveConn::respond(Request &t_req) {
 
   if (t_req.m_valid) {
-    t_req.m_valid = m_io->respond(t_req.m_socket, t_req.m_data);
+    t_req.m_valid = m_io->respond(t_req);
   }
 
   return t_req.m_valid;

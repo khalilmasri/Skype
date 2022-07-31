@@ -10,6 +10,7 @@
 #include <unistd.h>
 
 Request ActiveConn::connect_socket(std::string &t_address) {
+
   Request req;
 
   req.m_valid = setup(t_address);
@@ -34,14 +35,16 @@ bool ActiveConn::receive(Request &t_req) {
                                  // handles only a single socket.
 
   if (t_req.m_valid) {
-    t_req.m_valid = m_io->receive(get_socket(), t_req.m_data);
+    t_req.m_valid = m_io->receive(t_req);
   }
   return t_req.m_valid;
 }
+
 bool ActiveConn::respond(Request &t_req) {
+   t_req.m_socket = get_socket();
 
   if (t_req.m_valid) {
-    t_req.m_valid = m_io->respond(get_socket(), t_req.m_data);
+    t_req.m_valid = m_io->respond(t_req);
   }
 
   return t_req.m_valid;
