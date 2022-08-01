@@ -5,7 +5,7 @@
 #include <unordered_map>
 
 struct ServerCommand {
-  enum name {Create, Login, List, Search, Add, Remove, Ping, Available, Invalid};
+  enum name {Create, Login, List, Search, Add, Remove, Ping, Available, None};
 
   static name get(const std::string &t_command);
 

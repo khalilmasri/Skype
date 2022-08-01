@@ -4,6 +4,7 @@
 #include "passive_conn.hpp"
 #include "text_io.hpp"
 #include <string>
+#include <functional>
 
 #define SERVER_ADDRESS "127.0.0.1"
 
@@ -16,6 +17,12 @@ public:
 private:
   PassiveConn m_conn;
   std::string m_address;
+
+  void accept();
+  void receive(Request &t_req);
+
+
+
 };
 
 #endif

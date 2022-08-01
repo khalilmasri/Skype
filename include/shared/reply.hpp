@@ -7,7 +7,7 @@
 class Reply {
 
 public:
-  enum code { r_200, r_201, r_300, r_301, r_500, r_501 };
+  enum code { r_200, r_201, r_300, r_301, r_500, r_501, None };
   static std::string get_message(const code t_code);
   static std::string append_message(const code t_code, const std::string &t_msg);
 

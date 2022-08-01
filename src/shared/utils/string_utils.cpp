@@ -23,15 +23,19 @@ StringUtils::StringVector StringUtils::split(const std::string &s,
 StringUtils::StringTuple StringUtils::split_first(const std::string &s,
                                                    const std::string &delim) {
   int start = 0;
-  int end = s.find(delim);
+  std::size_t end = s.find(delim);
+
+   if(end == std::string::npos){
+       return StringTuple { s, "" };
+   }
+
   StringTuple result;
 
-  std::string first = (s.substr(start, end - start));
+  std::string first = (s.substr(start, end));
   start = end + delim.size();
   end = s.size();
 
-  std::string second = (s.substr(start, end - start));
-
+  std::string second = (s.substr(start, end));
   return StringTuple { first, second };
 }
 

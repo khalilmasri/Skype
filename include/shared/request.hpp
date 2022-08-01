@@ -18,6 +18,7 @@ struct Request {
   Data::type  data_type();
   bool        data_empty();
   const Data* data() const; // data returns const to prevent being modified anywhere else.
+                            //
 
 private:
   Data *m_data;
