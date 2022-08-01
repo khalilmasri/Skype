@@ -5,6 +5,7 @@
 
 #define DOCTEST_CONFIG_IMPLEMENT
 #include "doctest.h"
+#include "events.hpp"
 #include "client.hpp"
 #include "user.hpp"
 #include "contacts.hpp"
@@ -15,6 +16,7 @@
 #include "my_gui.hpp"
 
 //client --> call ImGui context initialisation --> then initialise chat windows
+Events* Events::m_events_ = nullptr;
 
 // Main code
 int main(int, char **)
@@ -52,6 +54,8 @@ int main(int, char **)
     for (auto it : client.contact_get_contacts()){
         std::cout << it << std::endl;
     }
+
+    Events *event = Events::get_instance(Events::SERVER);
 
     // skype_gui.done = false;
     // //Run() executes the loop until 'done'
