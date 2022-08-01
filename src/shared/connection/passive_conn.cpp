@@ -25,50 +25,53 @@ bool PassiveConn::bind_and_listen(const std::string &t_address) {
   return valid;
 }
 
-bool PassiveConn::accept_connection() {
 
-  // accepts only of there is an awaiting client trying to connect
-  // connection must also be set up.
+// TODO: TAKE REQ FOR ACCEPT AS WELL.
+
+Request PassiveConn::accept_connection() {
+
+  Request req;
+  // accepts only of there is an awaiting client trying to connect connection must also be set up.
   if (!is_setup() || !m_poll.accept_awaits()) {
-    return false;
+    return req;
   }
 
-  sockaddr_in address = get_address();
+  sockaddr_in address;
   socklen_t addr_len = sizeof(address);
-  int res = accept(get_socket(), reinterpret_cast<struct sockaddr *>(&address),
+  req.m_socket = accept(get_socket(), reinterpret_cast<struct sockaddr *>(&address),
                    &addr_len);
 
-  bool valid = is_valid(res, "Could not accept connection.", Connection::Debug);
+  req.m_valid = is_valid(req.m_socket, "Could not accept connection.", Connection::Debug);
 
-    if (valid) {
-      m_poll.add_socket(res); // add new connections to poll.
+  if (req.m_valid) {
+    m_poll.add_socket(req.m_socket); // add new connections to poll.
+    m_addresses.emplace(req.m_socket, address_tostring(address)); // store copy of IP address.
+    req.m_address = address_tostring(address);
   }
 
-  return valid;
+  return req;
 }
 
-bool PassiveConn::receive(std::string &t_data) {
-  m_client_socket = m_poll.select_socket_with_events();
 
-  bool valid = is_valid(m_client_socket, "Nothing to receive.", Connection::Debug);
+bool PassiveConn::receive(Request &t_req) {
+  t_req.m_socket = m_poll.select_socket_with_events();
+  t_req.m_valid  = is_valid(t_req.m_socket, "Nothing to receive.", Connection::Debug);
 
-  if (valid) { // only receive when pending msg exists.
-    return m_io->receive(m_client_socket, t_data);
-  } else {
-    return valid;
+  if (t_req.m_valid) { // only receive when pending msg exists.
+    t_req.m_valid = m_io->receive(t_req);
+    t_req.m_address = m_addresses.at(t_req.m_socket); // req has now the socket IP address.
   }
+
+  return t_req.m_valid;
 }
 
-bool PassiveConn::respond(std::string &t_data) {
+bool PassiveConn::respond(Request &t_req) {
 
-  // check if responding to an received client msg. ActiveConn must initiate msg exchange.
-  bool valid = is_valid(m_client_socket, "No valid client socket to respond.", Connection::Debug);
-
-  if (valid) {
-    bool res = m_io->respond(m_client_socket, t_data);
-    m_client_socket = -1; // reset
-    return res;
-  } else {
-    return valid;
+  if (t_req.m_valid) {
+    t_req.m_valid = m_io->respond(t_req);
   }
+
+  return t_req.m_valid;
 }
+
+

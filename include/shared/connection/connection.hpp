@@ -22,6 +22,7 @@ public:
   int          get_port() const;
   bool         is_valid(int t_result, const char *t_msg, ValidationLog t_log = Error) const;
   bool         is_setup() const;
+  std::string  address_tostring(sockaddr_in t_address);
 
 private:
   bool         create_socket();
