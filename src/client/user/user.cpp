@@ -12,7 +12,7 @@ bool User::register_user(int t_socket_fd) {
     
     std::string success_reply = "200";
     std::string reply = "";
-    auto pos = 0;
+    size_t pos = 0;
 
     std::string command = "REGISTER " + m_username + " " + m_password;
 
@@ -20,7 +20,7 @@ bool User::register_user(int t_socket_fd) {
 
     pos = reply.find(success_reply);
     if( pos == std::string::npos ) {
-        LOG_ERR("Register failed. Server reply => %s", reply);
+        LOG_ERR("Register failed. Server reply => %s", reply.c_str());
         return false;
     }
 
@@ -31,7 +31,7 @@ bool User::login(int t_socket_fd) {
 
     std::string success_reply = "200";
     std::string reply = "";
-    auto pos = 0;
+    size_t pos = 0;
 
     std::string command = "LOGIN " + m_username + " " + m_password;
 
@@ -39,7 +39,7 @@ bool User::login(int t_socket_fd) {
 
     pos = reply.find(success_reply);
     if( pos == std::string::npos ) {
-        LOG_ERR("Login failed. Server reply => %s", reply);
+        LOG_ERR("Login failed. Server reply => %s", reply.c_str());
         return false;
     }
 
@@ -83,8 +83,6 @@ bool User::get_logged_in() const {
 /* Private */
 
 bool User::handle_command(int t_socket_fd, std::string& t_cmd, std::string& t_reply){
-
-    int pos;
 
     char msg[MAX_MSG_LEN];
     std::memset(&msg, 0 ,sizeof(msg));
