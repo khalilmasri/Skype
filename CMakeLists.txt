@@ -16,7 +16,14 @@ option(CMAKE_EXTRA_FLAGS "Add extra flags" OFF)
 if(CMAKE_EXTRA_FLAGS)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wpedantic -Wcast-qual -Wnon-virtual-dtor -Woverloaded-virtual -Wold-style-cast")
 endif()
-    
+
+option(CMAKE_WARNING_FLAGS "Warning flags enabling" ON)
+if(NOT CMAKE_WARNING_FLAGS)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wformat=0")
+else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wformat=2")
+endif()
+
 message("Enabled flags = ${CMAKE_CXX_FLAGS}")
 
 # Define the path to server source code

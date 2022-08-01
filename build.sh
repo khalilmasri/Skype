@@ -6,10 +6,16 @@ if [ "$1" == "--gen" ]; then
     cd build; cmake ../; make; cd .. 
 
 elif [ "$1" == "--gen-extra" ]; then
-    cd build; cmake -DCMAKE_EXTRA_FLAGS=ON ../; make; cd ..
+    cd build; cmake -DCMAKE_EXTRA_FLAGS=ON -DCMAKE_WARNING_FLAGS=ON ../; make; cd ..
 
 elif [ "$1" == "--gen-base" ]; then
     cd build; cmake -DCMAKE_EXTRA_FLAGS=OFF ../; make; cd ..
+
+elif [ "$1" == "--gen-nowarning" ]; then
+    cd build; cmake -DCMAKE_WARNING_FLAGS=OFF ../; make; cd ..
+
+elif [ "$1" == "--gen-warning" ]; then
+    cd build; cmake -DCMAKE_WARNING_FLAGS=ON ../; make; cd ..
 
 elif [ "$1" == "--make" ]; then
     cd build; make; cd .. 
@@ -17,7 +23,7 @@ elif [ "$1" == "--make" ]; then
 elif [ "$1" == "--run" ]; then
     
     if [ "$#" -eq 1 ]; then echo "You must provide an binary name to run."
-    else cd build; cmake ../; make; ./bin/"$2" cd .. 
+    else cd build; cmake ../; make "$2"; ./bin/"$2" cd .. 
     fi
 
 elif [ "$1" == "--clean" ]; then
