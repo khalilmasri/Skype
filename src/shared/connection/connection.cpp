@@ -79,6 +79,16 @@ bool Connection::set_address(const std::string &_address) {
   return is_valid(res, "Invalid IP address.");
 };
 
+std::string Connection::address_tostring(sockaddr_in t_address){
+
+  char buffer[100] = {0};
+  const char *ip_address = inet_ntop(
+      AF_INET, reinterpret_cast<struct sockaddr *>(&t_address.sin_addr), buffer, 100);
+
+  return std::string(ip_address);
+
+}
+
 /* TEST
  *
  *  note that this is a base Connection class.
