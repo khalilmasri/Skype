@@ -3,6 +3,9 @@ project(server)
 
 # Include all the source code with cpp extension
 file(GLOB SERVER_SOURCES    "*.cpp"
+                            "../shared/*.cpp"
+                            "../shared/data/*.cpp"
+                            "../shared/utils/*.cpp"
                             "../shared/connection/*.cpp"
                         )
 
@@ -20,6 +23,8 @@ set(INCLUDE_DIRS    ../../include/server
                     ../../include/shared     
                     ../../include/shared/test
                     ../../include/shared/connection 
+                    ../../include/shared/data 
+                    ../../include/shared/utils 
                 ) 
     
 # Set the include directory path
