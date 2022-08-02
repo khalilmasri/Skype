@@ -13,7 +13,7 @@
 #include <string>
 #include <fstream>
 
-void SkypeGui::ImGuiInit()
+void SkypeGui::im_gui_init()
 {
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0)
     {
@@ -50,7 +50,7 @@ void SkypeGui::ImGuiInit()
     std::cout << "ImGui Initialized" << std::endl;
 };
 
-void SkypeGui::WindowInit()
+void SkypeGui::window_init()
 {
     ImGuiIO &io = ImGui::GetIO();
     // Setup Platform/Renderer backends
@@ -64,10 +64,9 @@ void SkypeGui::WindowInit()
     video_call = false;
 };
 
-void SkypeGui::Run()
+void SkypeGui::run()
 {
-    int i = 0;
-    LoadContacts();
+    load_contacts();
     while (!this->done)
     {
         SDL_Event event;
@@ -85,50 +84,48 @@ void SkypeGui::Run()
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
 
-        if (!logged_in && !new_user)
+        if (!logged_in && !new_user_login)
         {
-            LoginWindow();
+            login_window();
         }
-        else if (new_user)
+        else if (new_user_login)
         {
-            NewUser();
+            new_user_window();
         }
-        else
+        else if (logged_in)
         {
-            // simulating new users coming on
-            i++;
-            ContactsList();
-            if (i == 400)
-                AddUser("Johnny");
-            if (i == 800)
-                AddUser("BigChungus");
-            if (current_contact != "") //only after a contact is selected
+            contacts_list();
+            if (m_current_contact != "") // only after a contact is selected
             {
-                ChatWindow(current_contact);
-                RunChatControls(current_contact);
+                chat_window(m_current_contact);
+                run_chat_controls(m_current_contact);
                 if (video_call || audio_call)
-                    RunCallWindow();
+                    run_call_window();
             }
-            
         }
-        Render();
+        render();
     }
 }
 
-void SkypeGui::LoginWindow()
+void SkypeGui::set_panel(int pos_x, int pos_y, int size_x, int size_y)
 {
     const ImGuiViewport *main_viewport = ImGui::GetMainViewport();
-    ImGui::SetNextWindowPos(ImVec2(main_viewport->WorkPos.x + 300, main_viewport->WorkPos.y + 50), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(220, 200), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowPos(ImVec2(main_viewport->WorkPos.x + pos_x, main_viewport->WorkPos.y + pos_y), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(size_x, size_y), ImGuiCond_FirstUseEver);
+}
+
+void SkypeGui::login_window()
+{
+    set_panel(300, 50, 220, 220);
     ImGui::Begin("My_Skype: Login");
 
     ImGui::Text("Username");
     ImGui::PushItemWidth(200);
-    ImGui::InputText("##usernameField", username, sizeof(username), ImGuiInputTextFlags_CharsNoBlank);
+    ImGui::InputText("##usernameField", m_username, sizeof(m_username), ImGuiInputTextFlags_CharsNoBlank);
 
     ImGui::Text("Password");
     ImGui::PushItemWidth(200);
-    ImGui::InputText("##passwordField", password, sizeof(password), ImGuiInputTextFlags_Password);
+    ImGui::InputText("##passwordField", m_password, sizeof(m_password), ImGuiInputTextFlags_Password);
 
     // conditions for login here necessary
     if (ImGui::Button(" LOGIN "))
@@ -140,7 +137,7 @@ void SkypeGui::LoginWindow()
     if (ImGui::Button("NEW USER"))
     {
         std::cout << "New User Window" << std::endl;
-        new_user = true;
+        new_user_login = true;
     }
     if (username_error)
         ImGui::Text("Username Not Found");
@@ -149,42 +146,40 @@ void SkypeGui::LoginWindow()
     ImGui::End();
 }
 
-void SkypeGui::NewUser()
+void SkypeGui::new_user_window()
 {
-    const ImGuiViewport *main_viewport = ImGui::GetMainViewport();
-    ImGui::SetNextWindowPos(ImVec2(main_viewport->WorkPos.x + 300, main_viewport->WorkPos.y + 50), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(220, 270), ImGuiCond_FirstUseEver);
+    set_panel(300, 50, 220, 270);
     // window size is longer to account for both 2 separate error messages possible simultaneously
     ImGui::Begin("My_Skype:New User");
 
     ImGui::Text("Username");
     ImGui::PushItemWidth(200);
-    ImGui::InputText("##usernameField", username, sizeof(username), ImGuiInputTextFlags_CharsNoBlank);
+    ImGui::InputText("##usernameField", m_username, sizeof(m_username), ImGuiInputTextFlags_CharsNoBlank);
 
     ImGui::Text("New Password");
     ImGui::PushItemWidth(200);
-    ImGui::InputText("##passwordField", password, sizeof(password), ImGuiInputTextFlags_Password);
+    ImGui::InputText("##passwordField", m_password, sizeof(m_password), ImGuiInputTextFlags_Password);
 
     ImGui::Text("Confirm Password");
     ImGui::PushItemWidth(200);
-    ImGui::InputText("##confirmpasswordField", confirm_password, sizeof(confirm_password), ImGuiInputTextFlags_Password);
+    ImGui::InputText("##confirmpasswordField", m_confirm_password, sizeof(m_confirm_password), ImGuiInputTextFlags_Password);
 
     if (ImGui::Button(" NEW USER LOGIN "))
     {
 
         // need also condition for username available/taken with bool username_error
-        if ((strcmp(confirm_password, password) == 0) && (strcmp(password, "\0") != 0))
+        if ((strcmp(m_confirm_password, m_password) == 0) && (strcmp(m_password, "\0") != 0))
         {
             std::cout << "New User Successfully Logged in" << std::endl;
             logged_in = true;
-            new_user = false;
+            new_user_login = false;
             password_error = false;
         }
         else
         {
             password_error = true;
-            memset(confirm_password, '\0', sizeof(confirm_password));
-            memset(password, '\0', sizeof(password));
+            memset(m_confirm_password, '\0', sizeof(m_confirm_password));
+            memset(m_password, '\0', sizeof(m_password));
         }
     }
     // window sized to account for only one of these errors at a time
@@ -197,29 +192,26 @@ void SkypeGui::NewUser()
     ImGui::End();
 }
 
-void SkypeGui::Update(){
-
-};
-
-void SkypeGui::ContactsList()
+void SkypeGui::contacts_list()
 {
+    set_panel(0, 0, 150, 600);
     const ImGuiViewport *main_viewport = ImGui::GetMainViewport();
     ImGui::SetNextWindowPos(ImVec2(main_viewport->WorkPos.x, main_viewport->WorkPos.y), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(150, 600), ImGuiCond_FirstUseEver);
     ImGui::Begin("Contacts");
     ImGui::PushItemWidth(300);
 
-    static int item_current_idx = 0; // Here we store our selection data as an index.
+    static int index = 0; // Here we store our selection data as an index.
     if (ImGui::ListBoxHeader("##ContactList", ImVec2(150, 550)))
     {
-        for (size_t n = 0; n < contacts.size(); n++)
+        for (size_t n = 0; n < m_contacts.size(); n++)
         {
-            const bool is_selected = (item_current_idx == (int)n);
-            if (ImGui::Selectable(contacts[n].c_str(), is_selected) && video_call == false && audio_call == false) // block changing chats if on call
+            const bool is_selected = (index == (int)n);
+            if (ImGui::Selectable(m_contacts[n].c_str(), is_selected) && video_call == false && audio_call == false) // block changing chats if on call
             {
-                item_current_idx = n;
-                std::cout << "selected: " << contacts[n] << std::endl;
-                current_contact = contacts[n];
+                index = n;
+                std::cout << "selected: " << m_contacts[n] << std::endl;
+                m_current_contact = m_contacts[n];
             }
 
             // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
@@ -231,31 +223,31 @@ void SkypeGui::ContactsList()
     ImGui::End();
 };
 
-void SkypeGui::LoadContacts()
+void SkypeGui::load_contacts()
 {
     // manual for now, will reimplement when we figure how we are planning to store users
-    contacts.push_back("Khalil");
-    contacts.push_back("Pedro");
-    contacts.push_back("Chris");
+    m_contacts.push_back("Khalil");
+    m_contacts.push_back("Pedro");
+    m_contacts.push_back("Chris");
 }
 
-void SkypeGui::AddUser(std::string new_username)
+void SkypeGui::add_user(std::string &t_new_username)
 {
     // to add a new user while the program is running to simulate new user entering
-    contacts.push_back(new_username);
-    std::cout << "User Added: " << new_username << std::endl;
+    m_contacts.push_back(t_new_username);
+    std::cout << "User Added: " << t_new_username << std::endl;
 }
 
-void SkypeGui::ChatWindow(const std::string contact)
+void SkypeGui::chat_window(const std::string &t_contact)
 {
     static std::string prev_contact;
     static int prev_len;
     int new_len;
-    if ((new_len = ChatHistoryToBuffer() > prev_len) && prev_contact == contact)
+    if ((new_len = chat_history_to_buffer() > prev_len) && prev_contact == t_contact)
     {
         ImGui::SetScrollHereY(ImGui::GetScrollY());
     }
-    else if ((prev_contact != contact))
+    else if ((prev_contact != t_contact))
     {
         ImGui::SetScrollHereY(ImGui::GetScrollY());
     }
@@ -269,55 +261,53 @@ void SkypeGui::ChatWindow(const std::string contact)
     ImGui::SetNextWindowPos(ImVec2(main_viewport->WorkPos.x + 150, main_viewport->WorkPos.y), ImGuiCond_FirstUseEver);
     ImGui::SetNextWindowSize(ImVec2(650, 520), ImGuiCond_FirstUseEver);
 
-    ImGui::Begin(contact.c_str(), NULL, ImGuiWindowFlags_NoBringToFrontOnFocus);
-    ImGui::TextWrapped("%s", chat_history); // chat history panel
+    ImGui::Begin(t_contact.c_str(), NULL, ImGuiWindowFlags_NoBringToFrontOnFocus);
+    ImGui::TextWrapped("%s", m_chat_history); // chat history panel
 
     ImGui::SetScrollHereY(0.999f);
     ImGui::End();
 };
 
-void SkypeGui::RunChatControls(const std::string contact)
+void SkypeGui::run_chat_controls(const std::string &t_contact)
 {
-    const ImGuiViewport *main_viewport = ImGui::GetMainViewport();
-    ImGui::SetNextWindowPos(ImVec2(main_viewport->WorkPos.x + 150, main_viewport->WorkPos.y + 520), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(650, 80), ImGuiCond_FirstUseEver);
+    set_panel(150, 520, 650, 80);
 
     ImGui::Begin("##MessagePanel", NULL, ImGuiWindowFlags_NoBringToFrontOnFocus);
 
     ImGuiInputTextFlags enter_pressed = ImGuiInputTextFlags_EnterReturnsTrue;
     ImGui::PushItemWidth(440);
-    if (ImGui::InputText("##ChatBox", message, 1000, enter_pressed))
+    if (ImGui::InputText("##ChatBox", m_message, 1000, enter_pressed))
     {
         ImGui::SetItemDefaultFocus();
         if (enter_pressed)
         {
-            std::cout << "User Sent Message: " << message << std::endl;
-            memset(message, '\0', strlen(message));
+            std::cout << "User Sent Message: " << m_message << std::endl;
+            memset(m_message, '\0', strlen(m_message));
             ImGui::SetKeyboardFocusHere(-1); // returns focus to InputText always
         }
     }
     ImGui::SameLine();
     if (ImGui::Button("SEND"))
     {
-        std::cout << "User Sent Message: " << message << " to " << contact << std::endl;
-        memset(message, '\0', strlen(message));
+        std::cout << "User Sent Message: " << m_message << " to " << t_contact << std::endl;
+        memset(m_message, '\0', strlen(m_message));
     }
     ImGui::SameLine();
     if (ImGui::Button("CALL"))
     {
-        if(audio_call == false)
+        if (audio_call == false)
         {
             audio_call = true;
-            std::cout << "User Requested Audio Call" << message << std::endl;
+            std::cout << "User Requested Audio Call" << m_message << std::endl;
         }
     }
     ImGui::SameLine();
     if (ImGui::Button("VIDEO"))
     {
-        if(video_call == false)
+        if (video_call == false)
         {
             video_call = true;
-            std::cout << "User Requested Video Call" << message << std::endl;
+            std::cout << "User Requested Video Call" << m_message << std::endl;
         }
         audio_call = true;
     }
@@ -325,11 +315,11 @@ void SkypeGui::RunChatControls(const std::string contact)
     ImGui::End();
 };
 
-int SkypeGui::ChatHistoryToBuffer()
+int SkypeGui::chat_history_to_buffer()
 {
     int length = 0;
-    memset(chat_history, 0, sizeof(chat_history));
-    std::string filename = "../chat_logs/" + current_contact + ".txt";
+    memset(m_chat_history, 0, sizeof(m_chat_history));
+    std::string filename = "../chat_logs/" + m_current_contact + ".txt";
     std::fstream file;
     file.open(filename, std::fstream::in | std::fstream::out | std::fstream::app);
     if (!file)
@@ -341,22 +331,19 @@ int SkypeGui::ChatHistoryToBuffer()
         file.seekg(0, file.end);
         length = file.tellg();
         file.seekg(0, file.beg);
-        file.read(chat_history, length);
+        file.read(m_chat_history, length);
         file.close();
     }
     return length;
 };
 
-void SkypeGui::RunCallWindow()
+void SkypeGui::run_call_window()
 {
-    const ImGuiViewport *main_viewport = ImGui::GetMainViewport();
-    ImGui::SetNextWindowPos(ImVec2(main_viewport->WorkPos.x + 500, main_viewport->WorkPos.y + 0), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(300, 300), ImGuiCond_FirstUseEver);
+    set_panel(500, 0, 300, 300);
 
-    std::string str = "Call with " + current_contact;
+    std::string str = "Call with " + m_current_contact;
     ImGui::Begin(str.c_str());
 
-    //volume slider
     static int volume = 0;
     ImGui::VSliderInt("##volume_slider", ImVec2(20, 250), &volume, 0, 9);
     ImGui::SameLine();
@@ -366,13 +353,12 @@ void SkypeGui::RunCallWindow()
     {
         video_call = false;
         audio_call = false;
-        // close video stream and close window!
-        std::cout << "Close Call" << std::endl;
+        std::cout << "Close Call" << std::endl; // close video stream and close window!
     }
     ImGui::SameLine();
     if (ImGui::Button("VIDEO"))
     {
-        if(video_call == false)
+        if (video_call == false)
         {
             video_call = true;
             std::cout << "Open Video Stream" << std::endl;
@@ -386,13 +372,12 @@ void SkypeGui::RunCallWindow()
     ImGui::SameLine();
     if (ImGui::Button("MUTE"))
     {
-        //Code to Mute, either cut the audio completely or just stop sending...
-        std::cout << "User Muted/Unmuted" << std::endl;
+        std::cout << "User Muted/Unmuted" << std::endl; // Code to Mute, either cut the audio completely or just stop sending...
     }
     ImGui::End();
 }
 
-void SkypeGui::Render()
+void SkypeGui::render()
 {
     ImGuiIO &io = ImGui::GetIO();
     ImGui::Render();
@@ -405,7 +390,7 @@ void SkypeGui::Render()
     SDL_GL_SwapWindow(window);
 };
 
-void SkypeGui::ShutDown()
+void SkypeGui::shutdown()
 {
     ImGui_ImplOpenGL2_Shutdown();
     ImGui_ImplSDL2_Shutdown();
