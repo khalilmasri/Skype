@@ -26,6 +26,9 @@ set(INCLUDE_DIRS    ../../include/server
                     ../../include/shared/data 
                     ../../include/shared/utils 
                 ) 
+
+add_subdirectory(vendor/libpqxx build-pqxx)
+target_link_libraries(${PROJECT_NAME} PRIVATE pqxx)
     
 # Set the include directory path
 target_include_directories( ${PROJECT_NAME} PRIVATE  ${INCLUDE_DIRS})
