@@ -2,6 +2,7 @@
 #define CLIENT_H
 
 #include "active_conn.hpp"
+#include "passive_conn.hpp"
 #include "IO_strategy.hpp"
 #include "text_io.hpp"
 
@@ -14,7 +15,7 @@ public:
     
     bool ping();
 
-    bool server_send_request(Request&);
+    bool server_send_request(std::string&);
 
 private:
     // Server connection

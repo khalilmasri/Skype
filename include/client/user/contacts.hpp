@@ -16,7 +16,7 @@ public:
     bool remove_user(int t_socket_fd, std::string& t_cmd);
     bool available(int t_socket_fd, std::string& t_cmd);
 
-    std::vector<std::string> get_contacts() const;
+    std::map<std::string,bool> get_contacts() const;
 
 private:
     std::map<std::string /* Name */, bool /* Connected */> m_contacts;
