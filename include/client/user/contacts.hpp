@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include <string>
-#include <vector>
+#include <map>
 
 #define MAX_MSG_LEN 1024 
 
@@ -19,9 +19,8 @@ public:
     std::vector<std::string> get_contacts() const;
 
 private:
-    std::vector<std::string> m_contacts;
+    std::map<std::string /* Name */, bool /* Connected */> m_contacts;
 
-    bool handle_command(int t_socket_fd, std::string& t_cmd, std::string& t_reply);
 };
 
 #endif
