@@ -4,22 +4,17 @@
 Server::Server(int t_port): m_conn(t_port, new TextIO()), m_address(SERVER_ADDRESS) {
     m_conn.setup(m_address);
     m_conn.bind_and_listen(m_address);
+
   }
 
 void Server::main_loop(){
 
   while(true) {
-
-    accept(); // checks for connections
-    
+    accept(); // checks for connections connections
     Request req;
-
     m_conn.receive(req);
-    
-
   }
 }
-
 
 void Server::accept(){
   Request req  = m_conn.accept_connection();
@@ -29,9 +24,5 @@ void Server::accept(){
   req.set_data(new TextData(std::move(reply)));
   m_conn.respond(req);
   }
-
-}
-
-void Server::receive(Request &t_req){
 
 }
