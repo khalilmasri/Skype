@@ -46,27 +46,35 @@ cd build; cmake -DCMAKE_EXTRA_FLAGS=OFF ../;
 ```
 ./build.sh --gen-base
 ```
-4. To make
+4. To remove warning flags
+```
+./build.sh --gen-nowarning
+```
+5. To add back the warning flags
+```
+./build.sh --gen-warning
+```
+6. To make
 ```
 ./build.sh --make
 ```
-5. To run server
+7. To run server
 ```
 ./build.sh --run server
 ```
-6. To run client
+8. To run client
 ```
 ./build.sh --run client
 ```
-7. To make clean
+9. To make clean
 ```
 ./build.sh --clean
 ```
-8. To clean binary 
+10. To clean binary 
 ```
 ./build.sh --clean-bin
 ```
-9. To clean all including the directory `build`
+11. To clean all including the directory `build`
 ```
 ./build.sh --clean-all
 ```
