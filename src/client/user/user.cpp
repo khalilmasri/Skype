@@ -40,6 +40,7 @@ bool User::login(ActiveConn& t_conn, Request& t_req) {
 
     if ( false == t_req.m_valid ){
         LOG_ERR("Login request failed");
+        return t_req.m_valid;
     }
   
     std::string response = TextData::to_string(t_req.data());
