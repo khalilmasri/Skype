@@ -32,9 +32,10 @@ int main(int, char **)
     std::cout << "User test" << std::endl;
     client.user_set_password(password);
     client.user_set_username(contact1);
+    client.user_login();
 
-    std::cout << "User =>" << client.user_get_username() << std::endl;
-    std::cout << "Logged =>" << client.user_get_logged_in() << std::endl;
+    std::cout << "User => " << client.user_get_username() << std::endl;
+    std::cout << "Logged => " << client.user_get_logged_in() << std::endl;
     
     std::cout << "Contacts" << std::endl;
     

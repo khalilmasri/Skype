@@ -1,5 +1,8 @@
 #include "user.hpp"
 #include "logger.hpp"
+#include "reply.hpp"
+#include "string_utils.hpp"
+#include "text_data.hpp"
 
 #include <string>
 #include <sys/types.h>
@@ -8,44 +11,50 @@
 
 /* Public */
 
-bool User::register_user(int t_socket_fd) {
+bool User::register_user(ActiveConn& t_conn, Request& t_req) {
     
-    std::string success_reply = "200";
-    std::string reply = "";
-    auto pos = 0;
+    t_conn.respond(t_req);
+    t_conn.receive(t_req);
 
-    std::string command = "REGISTER " + m_username + " " + m_password;
+    if ( false == t_req.m_valid){
+        LOG_ERR("Register request failed");
+    }
 
-    handle_command(t_socket_fd, command, reply);
+    std::string response = TextData::to_string(t_req.data());
+    bool ret = valid_response(Reply::r_200, response);
 
-    pos = reply.find(success_reply);
-    if( pos == std::string::npos ) {
-        LOG_ERR("Register failed. Server reply => %s", reply);
+    if ( false == ret ){
+        LOG_INFO("Register user failed, server response => %s", response.c_str());
         return false;
     }
 
-    return true;
+    LOG_INFO("Register user %s successful", m_username.c_str());
+    
+    return t_req.m_valid; 
 }
 
-bool User::login(int t_socket_fd) {
+bool User::login(ActiveConn& t_conn, Request& t_req) {
 
-    std::string success_reply = "200";
-    std::string reply = "";
-    auto pos = 0;
+    t_conn.respond(t_req);
+    t_conn.receive(t_req);
 
-    std::string command = "LOGIN " + m_username + " " + m_password;
+    // if ( false == t_req.m_valid ){
+    //     LOG_ERR("Login request failed");
+    // }
+  
+    // std::string response = TextData::to_string(t_req.data());
+    // bool ret = valid_response(Reply::r_200, response);
 
-    handle_command(t_socket_fd, command, reply);
+    // if ( false == ret ){
+    //     LOG_INFO("Login failed, server response => %s", response.c_str());
+    //     return false;
+    // }
 
-    pos = reply.find(success_reply);
-    if( pos == std::string::npos ) {
-        LOG_ERR("Login failed. Server reply => %s", reply);
-        return false;
-    }
-
+    LOG_INFO("Login to user %s was successful", m_username.c_str());
     m_logged_in = true;
+    m_password = "";
 
-    return true;
+    return t_req.m_valid; 
 }
 
 bool User::set_username(std::string& t_username) {
@@ -81,30 +90,14 @@ bool User::get_logged_in() const {
 }
 
 /* Private */
+bool User::valid_response(Reply::Code t_code, std::string& t_res){
 
-bool User::handle_command(int t_socket_fd, std::string& t_cmd, std::string& t_reply){
+    std::string code = Reply::get_message(t_code);
+    auto found = t_res.find(code);
 
-    int pos;
-
-    char msg[MAX_MSG_LEN];
-    std::memset(&msg, 0 ,sizeof(msg));
-    
-    std::strcpy(msg, t_cmd.c_str());
-
-    int res = send(t_socket_fd, (char*)msg, std::strlen(msg), 0);
-    if( -1 == res ){
-        LOG_ERR("Wrong command, or arguments");
-        return false;
+    if ( found != std::string::npos){
+        return true;
     }
 
-    std::memset(&msg, 0 ,sizeof(msg));
-    res = recv(t_socket_fd, (char*)&msg, MAX_MSG_LEN, 0);
-    if( -1 == res ){
-        LOG_ERR("Server reply => %s", msg);
-        return false;
-    }
-
-    t_reply = msg;
-
-    return true;
+    return false;
 }

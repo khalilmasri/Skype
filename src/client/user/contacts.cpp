@@ -1,122 +1,96 @@
 #include "contacts.hpp"
 #include "logger.hpp"
+#include "reply.hpp"
+#include "string_utils.hpp"
+#include "text_data.hpp"
 
 #include <string>
 #include <sys/types.h>
 #include <vector>
 #include <sys/socket.h>
 #include <cstring>
+#include <algorithm>
 
 /* Public */
 
-bool Contacts::list(int t_socket_fd) {
- 
-    std::string success_reply = "201";
-    std::string reply = "";
-    auto pos = 0;
-
-    std::string command = "LIST";
-
-    handle_command(t_socket_fd, command, reply);
-
-    pos = reply.find(success_reply);
-    if( pos == std::string::npos ) {
-        LOG_ERR("List failed. Server reply => %s", reply);
-        return false;
-    }
-
-    std::cout << reply << std::endl;
-
-    return true;  
-}
-
-bool Contacts::search(int t_socket_fd, std::string& t_cmd){
+bool Contacts::list(ActiveConn& t_conn, Request& t_req) {
     
-    std::string success_reply = "201";
-    std::string reply = "";
-    auto pos = 0;
+    t_conn.respond(t_req);
+    t_conn.receive(t_req);
 
-    std::string command = "SEARCH " + t_cmd;
-
-    handle_command(t_socket_fd, command, reply);
-
-    pos = reply.find(success_reply);
-    if( pos == std::string::npos ) {
-        LOG_ERR("Search %s failed. Server reply => %s",t_cmd.c_str(), reply);
-        return false;
+    if ( false == t_req.m_valid ){
+        LOG_ERR("Listing request failed");
     }
-
-    std::cout << reply << std::endl;
-
-    return true;  
+    
+    return t_req.m_valid;
 }
 
-bool Contacts::add_user(int t_socket_fd, std::string& t_cmd){
+bool Contacts::search(ActiveConn& t_conn, Request& t_req){
+    
+    t_conn.respond(t_req);
+    t_conn.receive(t_req);
 
-    std::string success_reply = "200";
-    std::string reply = "";
-    auto pos = 0;
-
-    std::string command = "ADDUSER " + t_cmd;
-
-    handle_command(t_socket_fd, command, reply);
-
-    pos = reply.find(success_reply);
-    if( pos == std::string::npos ) {
-        LOG_ERR("Add %s failed. Server reply => %s", t_cmd.c_str(), reply);
-        return false;
+    if ( false == t_req.m_valid ){
+        LOG_ERR("Search request failed");
     }
-
-    m_contacts.push_back(t_cmd);
-    std::cout << reply << std::endl;
-
-    return true;  
+    
+    return t_req.m_valid; 
 }
 
-bool Contacts::remove_user(int t_socket_fd, std::string& t_cmd){
+bool Contacts::add_user(ActiveConn& t_conn, Request& t_req){
 
-    std::string success_reply = "200";
-    std::string reply = "";
-    auto pos = 0;
+    std::string user = StringUtils::last(TextData::to_string(t_req.data()));
+    
+    t_conn.respond(t_req);
+    t_conn.receive(t_req);
 
-    std::string command = "REMOVE " + t_cmd;
-
-    handle_command(t_socket_fd, command, reply);
-
-    pos = reply.find(success_reply);
-    if( pos == std::string::npos ) {
-        LOG_ERR("Remove %s failed. Server reply => %s", t_cmd.c_str(), reply);
+    if ( false == t_req.m_valid || user == ""){
+        LOG_ERR("Add user request failed");
+        return t_req.m_valid;  
+    }
+    
+    std::string response = TextData::to_string(t_req.data());
+    bool ret = valid_response(Reply::r_200, response);
+    
+    if ( false == ret ) {
+        LOG_INFO("Add user failed, server response => %s", response.c_str());
         return false;
     }
 
-    // m_contacts.pop();
-
-    std::cout << reply << std::endl;
-
-    return true;  
+    LOG_INFO("Added user %s", user.c_str());
+    
+    m_contacts.push_back(user);
+    return t_req.m_valid;
 }
 
+bool Contacts::remove_user(std::string& t_cmd){
 
-bool Contacts::available(int t_socket_fd, std::string& t_cmd){
+    std::string user = StringUtils::last(t_cmd);
 
-    std::string success_reply = "200";
-    std::string reply = "";
-    auto pos = 0;
-
-    std::string command = "REMOVE " + t_cmd;
-
-    handle_command(t_socket_fd, command, reply);
-
-    pos = reply.find(success_reply);
-    if( pos == std::string::npos ) {
-        LOG_ERR("Checking availabled failed. Server reply => %s", reply);
-        return false;
+    auto found = std::find(m_contacts.begin(), m_contacts.end(), user);
+    
+    if ( found != m_contacts.end()) {
+        m_contacts.erase(found);
+        LOG_INFO("Removed user %s", user.c_str());
+        return true;
     }
+    
+    return false;
+}
 
-    std::cout << reply << std::endl;
+bool Contacts::available(ActiveConn& t_conn, Request& t_req){
 
-    return true;  
-}   
+    t_conn.respond(t_req);
+    t_conn.receive(t_req);
+
+    if ( false == t_req.m_valid ){
+        LOG_ERR("Availabe request failed");
+    }
+    
+    std::cout << TextData::to_string(t_req.data()) << std::endl;
+
+    return t_req.m_valid;
+}
 
 std::vector<std::string> Contacts::get_contacts() const {
     return m_contacts;
@@ -124,27 +98,14 @@ std::vector<std::string> Contacts::get_contacts() const {
 
 /* Private */
 
-bool Contacts::handle_command(int t_socket_fd, std::string& t_cmd, std::string& t_reply){
+bool Contacts::valid_response(Reply::Code t_code, std::string& t_res){
 
-    char msg[MAX_MSG_LEN];
-    std::memset(&msg, 0 ,sizeof(msg));
-    
-    std::strcpy(msg, t_cmd.c_str());
+    std::string code = Reply::get_message(t_code);
+    auto found = t_res.find(code);
 
-    int res = send(t_socket_fd, (char*)msg, std::strlen(msg), 0);
-    if( -1 == res ){
-        LOG_ERR("Wrong command, or arguments");
-        return false;
+    if ( found != std::string::npos){
+        return true;
     }
 
-    std::memset(&msg, 0 ,sizeof(msg));
-    res = recv(t_socket_fd, (char*)&msg, MAX_MSG_LEN, 0);
-    if( -1 == res ){
-        LOG_ERR("Server reply => %s", msg);
-        return false;
-    }
-
-    t_reply = msg;
-
-    return true;
+    return false;
 }

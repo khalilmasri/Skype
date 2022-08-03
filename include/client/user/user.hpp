@@ -1,6 +1,9 @@
 #ifndef USER_H
 #define USER_H
 
+#include "active_conn.hpp"
+#include "request.hpp"
+
 #include <string>
 
 #define MAX_MSG_LEN 1024
@@ -8,8 +11,8 @@
 class User {
 
 public:
-    bool register_user(int t_socket_fd);
-    bool login(int t_socket_fd);
+    bool register_user(ActiveConn& t_conn, Request& t_req);
+    bool login(ActiveConn& t_conn, Request& t_req);
 
 
     bool set_username(std::string& t_username);
@@ -23,8 +26,7 @@ private:
     std::string m_password;
 
     bool m_logged_in = false;
-
-    bool handle_command(int t_socket_fd, std::string& t_cmd, std::string& t_reply);
+    bool valid_response(Reply::Code t_code, std::string& t_res);
 };
 
 #endif
