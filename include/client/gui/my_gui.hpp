@@ -12,29 +12,29 @@
 
 class SkypeGui
 {
-    
     public:
 
         //main Imgui path
-        void ImGuiInit();
-        void WindowInit();
-        void Run();
-        void Render();
-        void ShutDown();
-        void Update(); //not used currently
+        void im_gui_init();
+        void window_init();
+        void run();
+        void render();
+        void shutdown();
+        void update(); //not used currently
 
         //specific skype functionality
-        void LoginWindow();
-        void NewUser();
-        void ContactsList();
-        void LoadContacts();
-        void AddUser(std::string new_username);
+        void set_panel(int pos_x, int pos_y, int size_x, int size_y);
+        void login_window();
+        void new_user_window();
+        void contacts_list();
+        void load_contacts();
+        void add_user(std::string &t_new_username);
 
         //Chats functionality
-        void ChatWindow(const std::string contact);
-        void RunChatControls(const std::string contact);
-        int ChatHistoryToBuffer();
-        void RunCallWindow();
+        void chat_window(const std::string &t_contact);
+        void run_chat_controls(const std::string &t_contact);
+        int chat_history_to_buffer();
+        void run_call_window();
                 
         SDL_WindowFlags window_flags;
         SDL_Window *window;
@@ -43,16 +43,9 @@ class SkypeGui
         ImVec4 clear_color;
         //login bools
         bool logged_in = false;
-        bool new_user = false;
+        bool new_user_login = false;
         bool password_error = false;
         bool username_error = false;
-        
-        //buffers
-        char username[20];
-        char password[20];
-        char confirm_password[20];
-        char message[MAX_MESSAGE_LENGTH];
-        std::vector<std::string> contacts;
     
         //other bools
         bool video_call;
@@ -60,7 +53,14 @@ class SkypeGui
         bool done;
         bool show_another_window = false;
 
+        //buffers
+        char m_username[20];
+        char m_password[20];
+        char m_confirm_password[20];
+        char m_message[MAX_MESSAGE_LENGTH];
+        std::vector<std::string> m_contacts;
+
         //chat variables
-        std::string current_contact; //to decide which contact was selected last
-        char chat_history[MAX_HISTORY_LENGTH]; //buffer to write the current contacts chat history into
+        std::string m_current_contact; //to decide which contact was selected last
+        char m_chat_history[MAX_HISTORY_LENGTH]; //buffer to write the current contacts chat history into
 };

@@ -15,21 +15,20 @@
 #include <string>
 #include <vector>
 
-//client --> call ImGui context initialisation --> then initialise chat windows
+// client --> call ImGui context initialisation --> then initialise chat windows
 
 // Main code
 int main(int, char **)
 {
     SkypeGui skype_gui;
-    skype_gui.ImGuiInit();
-    skype_gui.WindowInit();
-   
+    skype_gui.im_gui_init();
+    skype_gui.window_init();
 
     skype_gui.done = false;
-    //Run() executes the loop until 'done'
-    skype_gui.Run();
+    // Run() executes the loop until 'done'
+    skype_gui.run();
 
-    skype_gui.ShutDown();
+    skype_gui.shutdown();
 
     return 0;
 }
