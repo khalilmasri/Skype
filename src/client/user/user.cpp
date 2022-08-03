@@ -38,17 +38,17 @@ bool User::login(ActiveConn& t_conn, Request& t_req) {
     t_conn.respond(t_req);
     t_conn.receive(t_req);
 
-    // if ( false == t_req.m_valid ){
-    //     LOG_ERR("Login request failed");
-    // }
+    if ( false == t_req.m_valid ){
+        LOG_ERR("Login request failed");
+    }
   
-    // std::string response = TextData::to_string(t_req.data());
-    // bool ret = valid_response(Reply::r_200, response);
+    std::string response = TextData::to_string(t_req.data());
+    bool ret = valid_response(Reply::r_200, response);
 
-    // if ( false == ret ){
-    //     LOG_INFO("Login failed, server response => %s", response.c_str());
-    //     return false;
-    // }
+    if ( false == ret ){
+        LOG_INFO("Login failed, server response => %s", response.c_str());
+        return false;
+    }
 
     LOG_INFO("Login to user %s was successful", m_username.c_str());
     m_logged_in = true;
