@@ -54,6 +54,8 @@ int main(int, char **)
         std::cout << it << std::endl;
     }
 
+    // Events *event = Events::get_instance(Events::SERVER);
+
     // skype_gui.done = false;
     // //Run() executes the loop until 'done'
     // skype_gui.Run();

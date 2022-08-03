@@ -11,7 +11,7 @@
 #include <cstring>
 #include <algorithm>
 
-/* Public */
+// /* Public */
 
 bool Contacts::list(ActiveConn& t_conn, Request& t_req) {
     
@@ -96,7 +96,7 @@ std::vector<std::string> Contacts::get_contacts() const {
     return m_contacts;
 }
 
-/* Private */
+// /* Private */
 
 bool Contacts::valid_response(Reply::Code t_code, std::string& t_res){
 
