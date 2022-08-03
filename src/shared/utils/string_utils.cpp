@@ -16,8 +16,23 @@ StringUtils::StringVector StringUtils::split(const std::string &s,
     start = end + delim.size();
   }
   result.push_back(s.substr(start, end - start));
-  return result;
   end = s.find(delim, start);
+  return result;
+}
+
+std::string StringUtils::last(const std::string &s, const std::string &delim){
+  
+  int start = 0;
+  int end = s.find(delim);
+  std::string result;
+
+  while (end != -1) {
+    start = end + delim.size();
+  }
+
+  result = s.substr(start, end - start);
+
+  return result;
 }
 
 StringUtils::StringTuple StringUtils::split_first(const std::string &s,

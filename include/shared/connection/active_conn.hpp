@@ -10,6 +10,7 @@ class ActiveConn : public Connection {
   IOStrategy  *m_io;
 
 public:
+  ActiveConn() {};
   ActiveConn(int t_port, IOStrategy *t_io): Connection(t_port), m_io(t_io){
   };
 

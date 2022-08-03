@@ -5,6 +5,9 @@
 
 #define DOCTEST_CONFIG_IMPLEMENT
 #include "doctest.h"
+#include "client.hpp"
+#include "user.hpp"
+#include "contacts.hpp"
 
 #include "SDL.h"
 #include "SDL_opengl.h"

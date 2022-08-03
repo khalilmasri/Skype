@@ -1,6 +1,6 @@
 #include "reply.hpp"
 
-const std::unordered_map<Reply::code, std::string> Reply::m_replies {
+const std::unordered_map<Reply::Code, std::string> Reply::m_replies {
   {r_200, "200 OK"},
   {r_201, "201"},
   {r_300, "300 Not OK"},
@@ -9,10 +9,10 @@ const std::unordered_map<Reply::code, std::string> Reply::m_replies {
   {r_501, "501 Invalid Command"},
 };
 
-std::string Reply::get_message(const code t_code){
-   return m_replies.at(t_code) + "\n";
+std::string Reply::get_message(const Code t_code){
+   return m_replies.at(t_code);
 }
 
-std::string Reply::append_message(code t_code, const std::string &t_msg){
+std::string Reply::append_message(Code t_code, const std::string &t_msg){
    return m_replies.at(t_code) + " " + t_msg + "\n";
 }

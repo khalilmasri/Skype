@@ -11,7 +11,8 @@ struct StringUtils {
   static StringVector split(const std::string &s, const std::string &delim = " ");
   static StringTuple split_first(const std::string &s, const std::string &delim = " ");
   static std::string  join(const StringVector &t_str_vec, const std::string &t_delim = " ");
-
+  static std::string  last(const std::string &s, const std::string &delim = " ");
+  
   /* manipulates the string in place */
   static void         to_upper(std::string &s);
   static void         trim(std::string &s);
