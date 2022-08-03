@@ -14,6 +14,6 @@ ServerCommand::name ServerCommand::get(const std::string &t_command) {
     return m_commands.at(t_command);
   } catch (...) {
 
-    return Invalid;
+    return None ;
   }
 }

@@ -37,6 +37,11 @@ std::string StringUtils::last(const std::string &s, const std::string &delim){
 
 StringUtils::StringTuple StringUtils::split_first(const std::string &s,
                                                    const std::string &delim) {
+
+  if(s.empty()){
+    return StringTuple { "", "" };
+  }
+
   int start = 0;
   int end = s.find(delim);
   StringTuple result;
