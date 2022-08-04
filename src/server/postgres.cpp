@@ -323,8 +323,6 @@ Postgres::search_contact_query(const User &t_user,
  *
  */
 
-// SELECT C.username, C.online, c.address FROM users U JOIN users C ON C.id =
-// U.contacts;
 
 TEST_CASE("Postgres (ensure that you have postgres setup)") {
 
