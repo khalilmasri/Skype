@@ -72,5 +72,7 @@ private:
     char m_password[MAX_USER_LEN];
     char m_confirm_password[MAX_USER_LEN];
 
+    void contacts_list();
+
     Client m_client;
 };

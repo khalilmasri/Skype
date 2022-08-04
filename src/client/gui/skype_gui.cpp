@@ -21,7 +21,15 @@ SkypeGui::SkypeGui() : m_client(4000){
 }
 
 SkypeGui::~SkypeGui(){
-    shutdown();
+    ImGui_ImplOpenGL2_Shutdown();
+    ImGui_ImplSDL2_Shutdown();
+    ImGui::DestroyContext();
+
+    SDL_GL_DeleteContext(m_gl_context);
+    SDL_DestroyWindow(m_window);
+    SDL_Quit();
+
+    LOG_DEBUG("Shuting down client");
 }
 
 bool SkypeGui::check_exit(SDL_Event& t_event){
@@ -103,8 +111,8 @@ void SkypeGui::run()
 
     while ( false == m_exit )
     {
-        
-        logged_in = m_client.user_get_logged_in();
+        // logged_in = m_client.user_get_logged_in();
+        logged_in = true;
 
         SDL_Event event;
         while (SDL_PollEvent(&event))
@@ -113,13 +121,14 @@ void SkypeGui::run()
             m_exit = check_exit(event);
         }
 
-        // Start the Dear ImGui frame
         ImGui_ImplOpenGL2_NewFrame();
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
 
         if ( false == logged_in ) {
             welcome_window();
+        } else {
+            contacts_list();
         }
 
         // else if (logged_in)
@@ -152,7 +161,6 @@ void SkypeGui::set_boxes(const char* t_field, float t_width, const char* t_label
 
 void SkypeGui::welcome_window()
 {
-
     if ( true == m_new_user ) {
         register_window();
     }
@@ -238,36 +246,36 @@ void SkypeGui::register_user(){
     memset_variables();
 }
 
-// void SkypeGui::contacts_list()
-// {
-//     set_panel(0, 0, 150, 600);
-//     const ImGuiViewport *main_viewport = ImGui::GetMainViewport();
-//     ImGui::SetNextWindowPos(ImVec2(main_viewport->WorkPos.x, main_viewport->WorkPos.y), ImGuiCond_FirstUseEver);
-//     ImGui::SetNextWindowSize(ImVec2(150, 600), ImGuiCond_FirstUseEver);
-//     ImGui::Begin("Contacts");
-//     ImGui::PushItemWidth(300);
+void SkypeGui::contacts_list()
+{
+    set_panel(0, 0, 150, 600);
+    const ImGuiViewport *main_viewport = ImGui::GetMainViewport();
+    ImGui::SetNextWindowPos(ImVec2(main_viewport->WorkPos.x, main_viewport->WorkPos.y), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(150, 600), ImGuiCond_FirstUseEver);
+    ImGui::Begin("Contacts");
+    ImGui::PushItemWidth(300);
 
-//     static int index = 0; // Here we store our selection data as an index.
-//     if (ImGui::ListBoxHeader("##ContactList", ImVec2(150, 550)))
-//     {
-//         for (size_t n = 0; n < m_contacts.size(); n++)
-//         {
-//             const bool is_selected = (index == (int)n);
-//             if (ImGui::Selectable(m_contacts[n].c_str(), is_selected) && video_call == false && audio_call == false) // block changing chats if on call
-//             {
-//                 index = n;
-//                 std::cout << "selected: " << m_contacts[n] << std::endl;
-//                 m_current_contact = m_contacts[n];
-//             }
+    static int index = 0; // Here we store our selection data as an index.
+    if (ImGui::ListBoxHeader("##ContactList", ImVec2(150, 550)))
+    {
+        for (size_t n = 0; n < m_contacts.size(); n++)
+        {
+            const bool is_selected = (index == (int)n);
+            if (ImGui::Selectable(m_contacts[n].c_str(), is_selected) && video_call == false && audio_call == false) // block changing chats if on call
+            {
+                index = n;
+                std::cout << "selected: " << m_contacts[n] << std::endl;
+                m_current_contact = m_contacts[n];
+            }
 
-//             // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-//             if (is_selected)
-//                 ImGui::SetItemDefaultFocus();
-//         }
-//         ImGui::EndListBox();
-//     }
-//     ImGui::End();
-// };
+            // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+            if (is_selected)
+                ImGui::SetItemDefaultFocus();
+        }
+        ImGui::EndListBox();
+    }
+    ImGui::End();
+};
 
 // void SkypeGui::load_contacts()
 // {
@@ -434,17 +442,4 @@ void SkypeGui::render()
 
     ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
     SDL_GL_SwapWindow(m_window);
-};
-
-void SkypeGui::shutdown()
-{
-    ImGui_ImplOpenGL2_Shutdown();
-    ImGui_ImplSDL2_Shutdown();
-    ImGui::DestroyContext();
-    std::cout << "ImGui Context Destroyed" << std::endl;
-
-    SDL_GL_DeleteContext(m_gl_context);
-    SDL_DestroyWindow(m_window);
-    SDL_Quit();
-    std::cout << "SDL Quit" << std::endl;
 };
