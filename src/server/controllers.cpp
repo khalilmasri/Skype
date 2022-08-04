@@ -15,7 +15,7 @@ void Controllers::create(std::string &m_arg, Request &t_req) {
   }
 
   User user(0, username, password, false, t_req.m_address);
-  bool result = m_pg.add(user);
+  bool result = m_pg.add_user(user);
 
   if (result) {
     set_request_reply(Reply::r_200, t_req);
@@ -33,7 +33,7 @@ void Controllers::login(std::string &m_arg, Request &t_req) {
     return;
   }
 
-  User user = m_pg.search(username);
+  User user = m_pg.search_user(username);
 
   if (!user.empty() && user.password() == password) {
     set_request_reply(Reply::r_200, t_req);

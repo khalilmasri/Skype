@@ -1,5 +1,4 @@
 --  LIST A USER CONTACTS
-
 SELECT U.username,
 
     (SELECT SRZ.id
@@ -36,8 +35,8 @@ SELECT U.username,
 FROM contacts C
 JOIN users U
 ON C.user_id = U.id
-WHERE U.username = 'khalil';
+WHERE U.username = 'khalil'; -- substitute username to search for
 
 
 
---  FIND A USER CONTACTS
+
