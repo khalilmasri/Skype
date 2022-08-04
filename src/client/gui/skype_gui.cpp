@@ -1,82 +1,116 @@
 #include "imgui.h"
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_opengl2.h"
-
+#include "logger.hpp"
 #include "SDL.h"
 #include "SDL_opengl.h"
-
-#include "my_gui.hpp"
+#include "skype_gui.hpp"
 
 #include <stdio.h>
 #include <iostream>
 #include <vector>
 #include <string>
 #include <fstream>
+#include <cstring>
+
+SkypeGui::SkypeGui() : m_client(4000){
+    im_gui_init();
+    window_init();
+
+    m_exit = false;
+}
+
+SkypeGui::~SkypeGui(){
+    shutdown();
+}
+
+bool SkypeGui::check_exit(SDL_Event& t_event){
+    if (t_event.type == SDL_QUIT)
+    {
+        return true;
+    }
+
+    if ((t_event.type == SDL_WINDOWEVENT) && (t_event.window.event == SDL_WINDOWEVENT_CLOSE) && (t_event.window.windowID == SDL_GetWindowID(m_window)))
+    {
+        return true;
+    }
+
+    return false;
+}
+
+void SkypeGui::memset_variables(){
+
+    std::memset(m_username, 0, sizeof(m_username));
+    std::memset(m_password, 0, sizeof(m_password));
+    std::memset(m_confirm_password, 0, sizeof(m_confirm_password));
+
+}
+
+void SkypeGui::set_attributes() {
+
+    // Setup m_window
+    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
+    m_window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI); // SDL_WINDOW_RESIZABLE);
+    m_window = SDL_CreateWindow("My_Skype", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, m_window_flags);
+    m_gl_context = SDL_GL_CreateContext(m_window);
+    SDL_GL_MakeCurrent(m_window, m_gl_context);
+    SDL_GL_SetSwapInterval(1); // Enable vsync
+}
 
 void SkypeGui::im_gui_init()
 {
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0)
     {
         std::string err = SDL_GetError();
-        std::cout << "Error: " << err << std::endl;
+        LOG_ERR("SDL error => %s", err.c_str());
     }
-    std::cout << "SDL initialization completed" << std::endl;
+    
+    LOG_DEBUG("SDL initialization completed");
 
-    // Setup window
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-    window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI); // SDL_WINDOW_RESIZABLE);
-    window = SDL_CreateWindow("My_Skype", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, window_flags);
-    gl_context = SDL_GL_CreateContext(window);
-    SDL_GL_MakeCurrent(window, gl_context);
-    SDL_GL_SetSwapInterval(1); // Enable vsync
+    set_attributes();
 
-    // Setup Dear ImGui context
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
     (void)io;
 
-    // io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    // io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-
-    // Setup Dear ImGui style (comment/uncomment)
     // ImGui::StyleColorsDark();
     ImGui::StyleColorsLight();
 
-    std::cout << "ImGui Initialized" << std::endl;
+    LOG_DEBUG("ImGui Initialized")
 };
 
 void SkypeGui::window_init()
 {
     ImGuiIO &io = ImGui::GetIO();
-    // Setup Platform/Renderer backends
-    ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
+    ImGui_ImplSDL2_InitForOpenGL(m_window, m_gl_context);
     ImGui_ImplOpenGL2_Init();
 
     io.Fonts->AddFontFromFileTTF("../misc/Cousine-Regular.ttf", 20.0f);
-    clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    m_clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
 
-    // maybe video call flag to trigger panel for video
-    video_call = false;
 };
 
 void SkypeGui::run()
-{
-    load_contacts();
-    while (!this->done)
+{   
+    memset_variables();
+    m_new_user = false;
+    bool logged_in;
+
+    while ( false == m_exit )
     {
+        
+        logged_in = m_client.user_get_logged_in();
+
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {
             ImGui_ImplSDL2_ProcessEvent(&event);
-            if (event.type == SDL_QUIT)
-                this->done = true;
-            if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE && event.window.windowID == SDL_GetWindowID(window))
-                this->done = true;
+            m_exit = check_exit(event);
         }
 
         // Start the Dear ImGui frame
@@ -84,25 +118,21 @@ void SkypeGui::run()
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
 
-        if (!logged_in && !new_user_login)
-        {
-            login_window();
+        if ( false == logged_in ) {
+            welcome_window();
         }
-        else if (new_user_login)
-        {
-            new_user_window();
-        }
-        else if (logged_in)
-        {
-            contacts_list();
-            if (m_current_contact != "") // only after a contact is selected
-            {
-                chat_window(m_current_contact);
-                run_chat_controls(m_current_contact);
-                if (video_call || audio_call)
-                    run_call_window();
-            }
-        }
+
+        // else if (logged_in)
+        // {
+        //     // contacts_list();
+        //     if (m_current_contact != "") // only after a contact is selected
+        //     {
+        //         chat_window(m_current_contact);
+        //         run_chat_controls(m_current_contact);
+        //         if (video_call || audio_call)
+        //             run_call_window();
+        //     }
+        // }
         render();
     }
 }
@@ -114,129 +144,145 @@ void SkypeGui::set_panel(int pos_x, int pos_y, int size_x, int size_y)
     ImGui::SetNextWindowSize(ImVec2(size_x, size_y), ImGuiCond_FirstUseEver);
 }
 
-void SkypeGui::login_window()
+void SkypeGui::set_boxes(const char* t_field, float t_width, const char* t_label, char* buf, ImGuiInputTextFlags t_flag){
+    ImGui::Text(t_field);
+    ImGui::PushItemWidth(t_width);
+    ImGui::InputText(t_label, buf, sizeof(buf), t_flag);
+}
+
+void SkypeGui::welcome_window()
 {
+
+    if ( true == m_new_user ) {
+        register_window();
+    }
+
     set_panel(300, 50, 220, 220);
     ImGui::Begin("My_Skype: Login");
 
-    ImGui::Text("Username");
-    ImGui::PushItemWidth(200);
-    ImGui::InputText("##usernameField", m_username, sizeof(m_username), ImGuiInputTextFlags_CharsNoBlank);
+    set_boxes("Username", 200, "##usernameField", m_username, ImGuiInputTextFlags_CharsNoBlank);
+    set_boxes("Password", 200, "##passwordField", m_password, ImGuiInputTextFlags_Password);
 
-    ImGui::Text("Password");
-    ImGui::PushItemWidth(200);
-    ImGui::InputText("##passwordField", m_password, sizeof(m_password), ImGuiInputTextFlags_Password);
-
-    // conditions for login here necessary
     if (ImGui::Button(" LOGIN "))
     {
-        std::cout << "User Logged Into Skype" << std::endl;
-        logged_in = true;
+        login();
     }
+    
     ImGui::SameLine();
     if (ImGui::Button("NEW USER"))
     {
-        std::cout << "New User Window" << std::endl;
-        new_user_login = true;
+        m_new_user = true;
     }
-    if (username_error)
-        ImGui::Text("Username Not Found");
-    if (!username_error && password_error)
-        ImGui::Text("Incorrect Password");
+
     ImGui::End();
 }
 
-void SkypeGui::new_user_window()
+void SkypeGui::register_window()
 {
     set_panel(300, 50, 220, 270);
-    // window size is longer to account for both 2 separate error messages possible simultaneously
     ImGui::Begin("My_Skype:New User");
 
-    ImGui::Text("Username");
-    ImGui::PushItemWidth(200);
-    ImGui::InputText("##usernameField", m_username, sizeof(m_username), ImGuiInputTextFlags_CharsNoBlank);
-
-    ImGui::Text("New Password");
-    ImGui::PushItemWidth(200);
-    ImGui::InputText("##passwordField", m_password, sizeof(m_password), ImGuiInputTextFlags_Password);
-
-    ImGui::Text("Confirm Password");
-    ImGui::PushItemWidth(200);
-    ImGui::InputText("##confirmpasswordField", m_confirm_password, sizeof(m_confirm_password), ImGuiInputTextFlags_Password);
+    set_boxes("Username", 200, "##usernameField", m_username, ImGuiInputTextFlags_CharsNoBlank);
+    set_boxes("Password", 200, "##passwordField", m_password, ImGuiInputTextFlags_Password);
+    set_boxes("Confirm Password", 200, "##confirmpasswordField", m_confirm_password, ImGuiInputTextFlags_Password);
 
     if (ImGui::Button(" NEW USER LOGIN "))
     {
-
-        // need also condition for username available/taken with bool username_error
-        if ((strcmp(m_confirm_password, m_password) == 0) && (strcmp(m_password, "\0") != 0))
-        {
-            std::cout << "New User Successfully Logged in" << std::endl;
-            logged_in = true;
-            new_user_login = false;
-            password_error = false;
-        }
-        else
-        {
-            password_error = true;
-            memset(m_confirm_password, '\0', sizeof(m_confirm_password));
-            memset(m_password, '\0', sizeof(m_password));
-        }
+        register_user();
     }
-    // window sized to account for only one of these errors at a time
-    // i.e if username doesnt exist then that displays first
-    if (password_error)
-        ImGui::Text("Incorrect Password");
-    if (username_error)
-        ImGui::Text("Username Taken");
 
     ImGui::End();
 }
 
-void SkypeGui::contacts_list()
-{
-    set_panel(0, 0, 150, 600);
-    const ImGuiViewport *main_viewport = ImGui::GetMainViewport();
-    ImGui::SetNextWindowPos(ImVec2(main_viewport->WorkPos.x, main_viewport->WorkPos.y), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(150, 600), ImGuiCond_FirstUseEver);
-    ImGui::Begin("Contacts");
-    ImGui::PushItemWidth(300);
+void SkypeGui::login() {
 
-    static int index = 0; // Here we store our selection data as an index.
-    if (ImGui::ListBoxHeader("##ContactList", ImVec2(150, 550)))
-    {
-        for (size_t n = 0; n < m_contacts.size(); n++)
-        {
-            const bool is_selected = (index == (int)n);
-            if (ImGui::Selectable(m_contacts[n].c_str(), is_selected) && video_call == false && audio_call == false) // block changing chats if on call
-            {
-                index = n;
-                std::cout << "selected: " << m_contacts[n] << std::endl;
-                m_current_contact = m_contacts[n];
-            }
+    std::string password = m_password;
+    std::string username = m_username;
+    
+    m_client.user_set_username(username);
+    m_client.user_set_password(password);
 
-            // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-            if (is_selected)
-                ImGui::SetItemDefaultFocus();
-        }
-        ImGui::EndListBox();
+    m_client.user_login();
+
+    memset_variables();
+}
+
+void SkypeGui::register_user(){
+    
+    std::string password = m_password;
+    std::string username = m_username;
+    std::string confirm_password = m_confirm_password;
+
+    bool res = false;
+    
+    if ( confirm_password == password ) {
+        LOG_INFO("Registering user...");
+
+        m_client.user_set_username(username);
+        m_client.user_set_password(password);
+
+        res = m_client.user_register_user();
     }
-    ImGui::End();
-};
+    else {
+        LOG_INFO("Error registering user, check credintials");
+        return;
+    }
 
-void SkypeGui::load_contacts()
-{
-    // manual for now, will reimplement when we figure how we are planning to store users
-    m_contacts.push_back("Khalil");
-    m_contacts.push_back("Pedro");
-    m_contacts.push_back("Chris");
+    if ( true == res ) {
+        LOG_INFO("Register user was successful");
+        m_new_user = false;
+    } else {
+        LOG_INFO("Error registering user");
+    }
+
+    memset_variables();
 }
 
-void SkypeGui::add_user(std::string &t_new_username)
-{
-    // to add a new user while the program is running to simulate new user entering
-    m_contacts.push_back(t_new_username);
-    std::cout << "User Added: " << t_new_username << std::endl;
-}
+// void SkypeGui::contacts_list()
+// {
+//     set_panel(0, 0, 150, 600);
+//     const ImGuiViewport *main_viewport = ImGui::GetMainViewport();
+//     ImGui::SetNextWindowPos(ImVec2(main_viewport->WorkPos.x, main_viewport->WorkPos.y), ImGuiCond_FirstUseEver);
+//     ImGui::SetNextWindowSize(ImVec2(150, 600), ImGuiCond_FirstUseEver);
+//     ImGui::Begin("Contacts");
+//     ImGui::PushItemWidth(300);
+
+//     static int index = 0; // Here we store our selection data as an index.
+//     if (ImGui::ListBoxHeader("##ContactList", ImVec2(150, 550)))
+//     {
+//         for (size_t n = 0; n < m_contacts.size(); n++)
+//         {
+//             const bool is_selected = (index == (int)n);
+//             if (ImGui::Selectable(m_contacts[n].c_str(), is_selected) && video_call == false && audio_call == false) // block changing chats if on call
+//             {
+//                 index = n;
+//                 std::cout << "selected: " << m_contacts[n] << std::endl;
+//                 m_current_contact = m_contacts[n];
+//             }
+
+//             // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+//             if (is_selected)
+//                 ImGui::SetItemDefaultFocus();
+//         }
+//         ImGui::EndListBox();
+//     }
+//     ImGui::End();
+// };
+
+// void SkypeGui::load_contacts()
+// {
+//     // manual for now, will reimplement when we figure how we are planning to store users
+//     m_contacts.push_back("Khalil");
+//     m_contacts.push_back("Pedro");
+//     m_contacts.push_back("Chris");
+// }
+
+// void SkypeGui::add_user(std::string &t_new_username)
+// {
+//     // to add a new user while the program is running to simulate new user entering
+//     m_contacts.push_back(t_new_username);
+//     std::cout << "User Added: " << t_new_username << std::endl;
+// }
 
 void SkypeGui::chat_window(const std::string &t_contact)
 {
@@ -353,7 +399,7 @@ void SkypeGui::run_call_window()
     {
         video_call = false;
         audio_call = false;
-        std::cout << "Close Call" << std::endl; // close video stream and close window!
+        std::cout << "Close Call" << std::endl; // close video stream and close m_window!
     }
     ImGui::SameLine();
     if (ImGui::Button("VIDEO"))
@@ -383,11 +429,11 @@ void SkypeGui::render()
     ImGui::Render();
 
     glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
-    glClearColor(clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w);
+    glClearColor(m_clear_color.x * m_clear_color.w, m_clear_color.y * m_clear_color.w, m_clear_color.z * m_clear_color.w, m_clear_color.w);
     glClear(GL_COLOR_BUFFER_BIT);
 
     ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
-    SDL_GL_SwapWindow(window);
+    SDL_GL_SwapWindow(m_window);
 };
 
 void SkypeGui::shutdown()
@@ -397,8 +443,8 @@ void SkypeGui::shutdown()
     ImGui::DestroyContext();
     std::cout << "ImGui Context Destroyed" << std::endl;
 
-    SDL_GL_DeleteContext(gl_context);
-    SDL_DestroyWindow(window);
+    SDL_GL_DeleteContext(m_gl_context);
+    SDL_DestroyWindow(m_window);
     SDL_Quit();
     std::cout << "SDL Quit" << std::endl;
 };
