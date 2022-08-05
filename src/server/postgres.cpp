@@ -377,7 +377,9 @@ TEST_CASE("Postgres (ensure that you have postgres setup)") {
         {"id:1,username:khalil,password:1234,online:false,address:123.453.3.1"},
         {"id:2,username:mario,password:1234,online:false,address:1.453.32.1"},
         {"id:3,username:shakira,password:1234,online:false,address:53.423.4.1"},
-        {"id:4,username:dubius,password:1234,online:false,address:33.53.3.1"}};
+        {"id:4,username:dubius,password:1234,online:false,address:33.53.3.1"},
+        {"id:5,username:martha,password:1234,online:true,address:127.0.0.1"}
+    };
 
     Users users = pg.list_users();
     int i = 0;
@@ -393,12 +395,7 @@ TEST_CASE("Postgres (ensure that you have postgres setup)") {
     User user(0, "khalil", "123", true, "123");
 
     Users users = pg.list_user_contacts(user);
-
-    for (auto &user : users) {
-
-      std::cout << user.username() << "\n";
-    }
-  }
+   }
 
   SUBCASE("Search users by username") {
 

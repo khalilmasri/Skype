@@ -34,6 +34,10 @@ VALUES ('shakira', '1234', FALSE , '53.423.4.1');
 INSERT INTO users(username, password, online, address)
 VALUES ('dubius', '1234', FALSE , '33.53.3.1');
 
+INSERT INTO users(username, password, online, address)
+VALUES ('martha', '1234', TRUE , '127.0.0.1');
+
+
 INSERT INTO contacts(user_id, contact_id)
 VALUES (1, 2);
 
