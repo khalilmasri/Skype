@@ -28,6 +28,7 @@ class User {
   bool        online() const;
   std::string address() const;
   bool        update(std::string &t_value, Field t_field);
+  bool        update(const char *t_value, Field t_field);
 
   UpdatedFields updated_fields() const;
 

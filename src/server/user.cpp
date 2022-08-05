@@ -31,6 +31,12 @@ std::string User::address() const { return m_address; }
 
 User::UpdatedFields User::updated_fields() const { return m_updated_fields; }
 
+
+bool User::update(const char *t_value, Field t_field){
+   std::string to_update(t_value);
+   return update(to_update, t_field);
+}
+
 bool User::update(std::string &t_value, User::Field t_field) {
 
   switch (t_field) {
@@ -53,19 +59,19 @@ bool User::update(std::string &t_value, User::Field t_field) {
     return true;
   }
 
+  return false;
 }
 
 
 std::string User::to_string() const {
-  std::string id = "| id: ";
-  std::string pw = " | password: ";
-  std::string user = " | username: ";
-  std::string online = " | online: ";
-  std::string address = " | address:";
-  std::string end = " |\n";
+  std::string id = "id:";
+  std::string pw = ",password:";
+  std::string user = ",username:";
+  std::string online = ",online:";
+  std::string address = ",address:";
 
   return id + std::to_string(m_id) + user + m_username + pw + m_password +
-         online + (m_online ? "true" : "false") + address + m_address + end;
+         online + (m_online ? "true" : "false") + address + m_address;
 }
 
 bool User::empty() const { return m_empty; }

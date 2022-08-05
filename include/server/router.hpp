@@ -21,6 +21,7 @@ public:
 private:
   ControllersMap    m_controllers;
   CmdTuple          parse(Request &t_req);
+  bool              validate_argument(ServerCommand::name t_cmd, std::string &t_arg);
 
 };
 
