@@ -2,6 +2,7 @@
 #include "logger.hpp"
 #define DOCTEST_CONFIG_IMPLEMENT
 #include "doctest.h"
+#include "server.hpp"
 
 bool do_test(std::string &&t_av){
    if(t_av == "--test"){
@@ -33,9 +34,13 @@ int test(bool do_test)
 int main(int ac, char *av[]){
 
      int res = test(ac > 1 && do_test(std::string(av[1])));
+
       if(res > 0){
          return res;
       }
+
+    Server server(4000);
+    server.main_loop();
 
     return 0;
 }

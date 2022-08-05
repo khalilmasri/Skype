@@ -21,6 +21,10 @@ Router::Router()
 
 void Router::route(Request &t_req) {
 
+  if(!t_req.m_valid){ // invalid requests are not routed
+      return;
+  }
+
   auto [command, arguments] = parse(t_req);
 
   if (validate_argument(command, arguments)) {
@@ -53,8 +57,7 @@ bool Router::validate_argument(ServerCommand::name t_cmd, std::string &t_arg) {
 
 /** TESTS **/
 
-TEST_CASE(
-    "Router & Controllers (Postgres must be install to run these tests)") {
+TEST_CASE( "Router & Controllers (Postgres must be install to run these tests)") {
 
   Router router;
   Postgres pg; // just to check was written to database
@@ -62,6 +65,7 @@ TEST_CASE(
   SUBCASE("LIST Users contacts") {
     Request req;
     req.m_address = "123.453.3.1"; // must match user IP
+    req.m_valid = true;
     req.set_data(new TextData("LIST"));
 
     router.route(req);
@@ -77,6 +81,7 @@ TEST_CASE(
 
     Request req;
     req.m_address = "127.0.0.1";
+    req.m_valid = true;
     req.set_data(new TextData("CREATE pedro 1234"));
 
     // route to the correct controler Controllers::create
@@ -99,6 +104,7 @@ TEST_CASE(
 
     Request req;
     req.m_address = "127.0.0.1"; //  must match
+    req.m_valid = true;
     req.set_data(new TextData("LOGIN marcos 1234"));
     router.route(req);
 
@@ -113,6 +119,7 @@ TEST_CASE(
 
     Request req;
     req.m_address = "127.0.0.1";
+    req.m_valid = true;
     req.set_data(new TextData("LOGIN shakira wrong_pass"));
     router.route(req);
 
@@ -123,6 +130,7 @@ TEST_CASE(
   SUBCASE("SEARCH user") {
 
     Request req;
+    req.m_valid = true;
     req.set_data(new TextData("SEARCH mario"));
     router.route(req);
 
@@ -134,6 +142,7 @@ TEST_CASE(
   SUBCASE("SEARCH unexisting user") {
 
     Request req;
+    req.m_valid = true;
     req.set_data(new TextData("SEARCH abdulah"));
     router.route(req);
 
@@ -146,6 +155,7 @@ TEST_CASE(
 
     // add
     Request req;
+    req.m_valid = true;
     req.m_address =
         "33.53.3.1"; // ip for dubius. must match in the database to find user.
     req.set_data(new TextData("ADD shakira")); // shakira is now dubius friend.
@@ -178,6 +188,7 @@ TEST_CASE(
 
   SUBCASE("ADD unexisting contact") {
     Request req;
+    req.m_valid = true;
     req.m_address = "33.53.3.1";                    // dubius IP address
     req.set_data(new TextData("ADD I_dont_exist")); //
     router.route(req);
@@ -188,6 +199,7 @@ TEST_CASE(
 
   SUBCASE("REMOVE unexisting contact") {
     Request req;
+    req.m_valid = true;
     req.m_address = "33.53.3.1";                       // dubius IP address
     req.set_data(new TextData("REMOVE I_dont_exist")); //
     router.route(req);
@@ -197,27 +209,20 @@ TEST_CASE(
   }
 
   SUBCASE("PING user") {
-
-    // create an online users. Test data only has offline users
-    User user(0, "pedro", "1234", true, "1.1.1.1");
-    pg.add_user(user);
-
     Request req;
-    req.m_address = "1.1.1.1"; // new user IP address
+    req.m_valid = true;
+    req.m_address = "127.0.0.1"; // Martha IP. she is online.
     req.set_data(new TextData("PING"));
 
     router.route(req);
 
     auto reply = TextData::to_string(req.data());
     CHECK(reply == Reply::get_message(Reply::r_200));
-
-    // clean up
-    user = pg.search_user_by("pedro", "username");
-    pg.remove_user(user);
   }
 
   SUBCASE("PING offline user") {
     Request req;
+    req.m_valid = true;
     req.m_address = "123.453.3.1"; // khalil IP address
     req.set_data(new TextData("PING"));
 
@@ -229,6 +234,7 @@ TEST_CASE(
 
   SUBCASE("PING unexisting user") {
     Request req;
+    req.m_valid = true;
     req.m_address = "0.0.0.0"; // not  unexisting IP address
     req.set_data(new TextData("PING"));
 
@@ -239,31 +245,20 @@ TEST_CASE(
   }
 
   SUBCASE("AVAILABLE online user") {
-
-    User user(0, "pedro", "1234", true, "1.1.1.1");
-    pg.add_user(user);
-
     Request req;
-    req.set_data(new TextData("AVAILABLE pedro"));
+    req.m_valid = true;
+    req.set_data(new TextData("AVAILABLE martha"));
 
     router.route(req);
-
     auto reply = TextData::to_string(req.data());
 
-    auto[code, msg] = StringUtils::split_first(reply);
-    std::string message = msg;
-
-   // msg will change everytime because of postgres will increment the id as we add in new use to test
-   CHECK(reply == Reply::append_message(Reply::r_201, message)); 
-
-    // clean up
-    user = pg.search_user_by("pedro", "username");
-    pg.remove_user(user);
+   CHECK(reply == Reply::append_message(Reply::r_201, "id:5,username:martha,password:1234,online:true,address:127.0.0.1")); 
   }
 
   SUBCASE("AVAILABLE offline user") {
 
     Request req;
+    req.m_valid = true;
     req.set_data(new TextData("AVAILABLE khalil"));
 
     router.route(req);
@@ -276,6 +271,7 @@ TEST_CASE(
   SUBCASE("AVAILABLE unexisting user") {
 
     Request req;
+    req.m_valid = true;
     req.set_data(new TextData("AVAILABLE jonas"));
 
     router.route(req);
@@ -286,6 +282,7 @@ TEST_CASE(
 
   SUBCASE("Bad command") {
     Request req;
+    req.m_valid = true;
     req.set_data(new TextData("BAD COMMAND"));
     router.route(req);
 
