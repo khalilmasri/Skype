@@ -8,12 +8,30 @@ const std::unordered_map<std::string, ServerCommand::name>
         {"ADD", Add},       {"REMOVE", Remove},
         {"PING", Ping},     {"AVAILABLE", Available},
     };
-
 ServerCommand::name ServerCommand::get(const std::string &t_command) {
   try {
+
     return m_commands.at(t_command);
   } catch (...) {
 
-    return None ;
+    return None;
+  }
+}
+
+bool ServerCommand::has_argument(name t_cmd) {
+  return t_cmd < List ? true : false;
+}
+
+int ServerCommand::argument_count(name t_cmd) {
+  if (t_cmd >= List) {
+    return 0;
+  }
+
+  else if (t_cmd < List && t_cmd >= Search) {
+    return 1;
+  }
+
+  else {
+    return 2;
   }
 }

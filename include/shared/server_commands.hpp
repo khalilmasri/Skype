@@ -5,15 +5,30 @@
 #include <unordered_map>
 
 struct ServerCommand {
-  enum name {Create, Login, List, Search, Add, Remove, Ping, Available, None};
+  enum name {
+
+    /* two argument */
+    Create = 0,
+    Login = 1,
+
+    /* one argument */
+    Search = 10,
+    Add = 11,
+    Remove = 12,
+    Available = 13,
+
+    /* no argument */
+    List = 20,
+    Ping = 21,
+    None = 22
+  };
 
   static name get(const std::string &t_command);
+  static bool has_argument(name t_cmd);
+  static int  argument_count(name t_cmd);
 
-  private:
+private:
   const static std::unordered_map<std::string, name> m_commands;
-
 };
-
-
 
 #endif // !SERVER_COMMANDS_H

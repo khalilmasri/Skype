@@ -49,7 +49,13 @@ class Logger
                     std::unique_lock<std::mutex> lock(getInstance().log_mutex);
                     std::cout << msg_prio_str;
                     std::cout << __FILENAME__(file) << "||" << func << "||" << line << "||";
+
+                    #pragma clang diagnostic push // disabling warnings here
+                    #pragma clang diagnostic ignored "-Wformat"
+                    #pragma clang diagnostic ignored "-Wformat-nonliteral"
                     std::printf(msg, args...);
+                    #pragma clang diagnostic pop
+
                     std::cout << std::endl;
                 }
             }
