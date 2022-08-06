@@ -16,8 +16,8 @@ Router::Router()
           {ServerCommand::Remove, Controllers::remove},
           {ServerCommand::Ping, Controllers::ping},
           {ServerCommand::Available, Controllers::available},
-          {ServerCommand::None,
-           Controllers::none}, // this when calling unexisting command
+          {ServerCommand::Exit, Controllers::exit}, // this when calling unexisting command
+          {ServerCommand::None, Controllers::none},
       }){};
 
 void Router::route(Request &t_req) {

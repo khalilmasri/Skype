@@ -20,13 +20,14 @@ struct ServerCommand {
     /* no argument */
     List = 20,
     Ping = 21,
-    None = 22
+    Exit = 23,
+    None = 24
   };
 
   static name get(const std::string &t_command);
   static bool has_argument(name t_cmd);
-  static int  argument_count(name t_cmd);
 
+  static int  argument_count(name t_cmd);
 private:
   const static std::unordered_map<std::string, name> m_commands;
 };

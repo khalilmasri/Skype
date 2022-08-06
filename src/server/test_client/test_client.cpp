@@ -23,7 +23,6 @@ int main(void) {
   }
 
   else {
-
       std::cout << "Connected. Waiting for server response..." << std::endl;
       conn.receive(req);
       std::string handshake = TextData::to_string(req.data());

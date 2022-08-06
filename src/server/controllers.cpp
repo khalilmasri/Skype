@@ -146,9 +146,17 @@ void Controllers::available(std::string &t_username, Request &t_req) {
   }
 }
 
-void Controllers::none(std::string &_, Request &t_req) {
 
+void Controllers::exit(std::string &_, Request &t_req) {
+    UNUSED_PARAMS(_);
+
+     t_req.m_exit = true;
+     set_request_reply(Reply::r_201, "Goodbye", t_req);
+}
+
+void Controllers::none(std::string &_, Request &t_req) {
   UNUSED_PARAMS(_);
+
   set_request_reply(Reply::r_501, t_req); // invalid command
 }
 

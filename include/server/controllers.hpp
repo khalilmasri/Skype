@@ -14,7 +14,8 @@ struct Controllers {
   static void  add       (std::string &t_contact_username, Request &t_req);
   static void  remove    (std::string &t_contact_username, Request &t_req);
   static void  ping      (std::string &_, Request &t_req);
-  static void  available (std::string &t_arg, Request &t_req);
+  static void  available (std::string &_, Request &t_req);
+  static void  exit      (std::string &_, Request &t_req);
 
   // this is called when router fails to parse the command. Return 500.
   static void  none      (std::string &_, Request &t_req); 
