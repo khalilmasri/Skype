@@ -61,7 +61,10 @@ bool Router::validate_argument(ServerCommand::name t_cmd, std::string &t_arg) {
 
 bool Router::is_loggedin(ServerCommand::name t_cmd, Request &t_req) {
 
-  if (t_cmd != ServerCommand::Login && t_cmd != ServerCommand::Create) {
+  if (t_cmd != ServerCommand::Login && 
+      t_cmd != ServerCommand::Create && 
+       t_cmd != ServerCommand::Exit // exit command is allowed when not loggedin
+      ) {
     return Controllers::ip_exists(t_req);
   }
 

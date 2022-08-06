@@ -119,10 +119,12 @@ void Controllers::ping(std::string &_, Request &t_req) {
   User user = m_pg.search_user_by(t_req.m_address, "address");
 
   if (user.empty()) {
-    set_request_reply(Reply::r_301, t_req); // didn't find a user. return not found
+    set_request_reply(Reply::r_301,
+                      t_req); // didn't find a user. return not found
 
   } else if (!user.online()) {
-    set_request_reply(Reply::r_202, t_req); // user is not online. Ask to login again.
+    set_request_reply(Reply::r_202,
+                      t_req); // user is not online. Ask to login again.
 
   } else {
     set_request_reply(Reply::r_200, t_req); // user is online. return OK
@@ -135,9 +137,9 @@ void Controllers::available(std::string &t_username, Request &t_req) {
 
   if (user.empty()) {
     set_request_reply(Reply::r_301, t_req); // not found
-  } 
+  }
 
-  else if(!user.online()){
+  else if (!user.online()) {
     set_request_reply(Reply::r_300, t_req); // not online
   }
 
@@ -146,12 +148,18 @@ void Controllers::available(std::string &t_username, Request &t_req) {
   }
 }
 
-
 void Controllers::exit(std::string &_, Request &t_req) {
-    UNUSED_PARAMS(_);
+  UNUSED_PARAMS(_);
 
-     t_req.m_exit = true;
-     set_request_reply(Reply::r_201, "Goodbye", t_req);
+  User user = m_pg.search_user_by(t_req.m_address, "address");
+
+  // logoff sets address column to NULL online to FALSE.
+   if(!user.empty()) { // if user is logged in then logoff.
+     m_pg.logoff(user);
+   }
+
+    t_req.m_exit = true;
+    set_request_reply(Reply::r_201, "Goodbye", t_req);
 }
 
 void Controllers::none(std::string &_, Request &t_req) {
@@ -164,13 +172,12 @@ bool Controllers::ip_exists(Request &t_req) {
 
   User user = m_pg.search_user_by(t_req.m_address, "address");
 
-  if(user.empty()){
+  if (user.empty()) {
     set_request_reply(Reply::r_202, t_req);
   }
 
   return !user.empty();
 }
-
 
 /**************** PRIVATE ****************/
 

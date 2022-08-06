@@ -27,6 +27,8 @@ public:
   bool        remove_user_contact(const User &t_user, const User &t_contact);
   bool        update(const User &t_user);
 
+  bool        logoff(const User &t_user);
+
 private:
   pqxx::connection m_conn;
   std::string      m_table;

@@ -230,14 +230,32 @@ bool Postgres::remove_user_contact(const User &t_user, const User &t_contact) {
 /* */
 
 bool Postgres::update(const User &t_user) {
-
   if (t_user.empty()) {
     LOG_ERR("Cannot remove an empty user.");
+
     return false;
   }
   try {
     pqxx::work transaction(m_conn);
     transaction.exec(update_query(t_user, transaction));
+    transaction.commit();
+
+  } catch (const std::exception &err) {
+    LOG_ERR("%s", err.what());
+    return false;
+  }
+
+  return true;
+}
+
+bool Postgres::logoff(const User &t_user){
+
+  try {
+    pqxx::work transaction(m_conn);
+    std::string query = "UPDATE users set address = NULL, online = FALSE where id = " +
+                                 transaction.quote(t_user.id()) + ";";
+
+    transaction.exec(query);
     transaction.commit();
 
   } catch (const std::exception &err) {
