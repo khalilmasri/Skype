@@ -1,9 +1,49 @@
 # Skype Server
 
-The server 
+The server leverages an `PassiveConn` and `ConnectionPoll` to listen, accept and receive and respond to multiple client connections. 
+Because server has a mere supporting role proving basic user information accross the wire, read and write operations will be sparse and the amount
+of data transfered small. For that reason, the server was implemented to run on a single thread to avoid an 
+overly complicated design unnecessarily.
+
+The maximum number of connected clients managed by the `ConnectionPoll` may be increased using the `MAX_CONNECTIONS`
+macro in `include/shared/connection/connection_poll.hpp`.
+
+
+## Request
+
+The server uses a `Request` object to pass around information. An `ActiveConn::accept` will create a `Request`
+and which will be used to send back a `200 OK` response to the connected client.
+
+           accept  -> | request |  -> respond(request) -> OK 200
+
+After the connection is established the server will loop in `Server::main_loop` listen to messages from all connected clients or
+for new connection requests from other clients.
+
+When a message is detected `ActiveConn::receive` will populate the request with the client information such as 
+`Request.m_address`, `Request.m_socket` etc and pass that to the `Router`.
 
 
 
+## Router and Controllers  
+
+The router is responsible for parsing the command and arguments from the client message and route it to the
+relevant `Controller`.  So a message like so
+
+
+      LOGIN khalil 1234
+
+will be routed as follows
+
+      Controllers::login("Khalil 1234", Request req);
+
+The controller in question will modify the `Request.data()` with with a `Reply`. The `Request` is then 
+used by `ActiveConn::respond` to respond to the client.
+
+
+## Database
+
+The server persists user data user [Postgres](https://www.postgresql.org/). Please visit the [postgres/](postgres/) directory
+for more information on how to install Postgres locally as well as examples of queries the server using in the implementation.
 
 
 ## Commands & Replies
