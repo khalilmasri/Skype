@@ -10,6 +10,7 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <unistd.h>
+#include <cstring>
 
 #define HEADER_LENGTH 10
 
@@ -24,7 +25,8 @@ bool TextIO::receive(Request &t_req) const {
 
   if (valid_header) {
 
-    char *received = new char[msg_length];
+    char *received = new char[msg_length + 1]; // +1 for \0
+    memset(received, 0, msg_length + 1);
     int res = recv(t_req.m_socket, received, msg_length, 0);
     valid_msg = is_valid(res, "could not receive message.");
 
@@ -48,7 +50,6 @@ bool TextIO::receive(Request &t_req) const {
     std::string header = create_header(msg.size());
     header.append(msg);
 
-    res = send(t_req.m_socket, header.c_str(), header.size(), 0);
   }
 
   return is_valid(res, "Could not repond.");
@@ -58,8 +59,9 @@ bool TextIO::receive(Request &t_req) const {
 
 int TextIO::read_header(int t_socket) const {
 
-  char header[HEADER_LENGTH] = {0};
+  char header[HEADER_LENGTH + 1] = {0}; // + 1 must add one for \0
   int res = recv(t_socket, header, HEADER_LENGTH, 0);
+  std::string s(header);
 
   if (res == HEADER_LENGTH) { // read size must be the header length
     return std::stoi(header);
