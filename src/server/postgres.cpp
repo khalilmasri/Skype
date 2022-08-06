@@ -73,8 +73,8 @@ User Postgres::search_user_by(const std::string &t_term, const char *t_field) {
   std::string field(t_field);
 
   try {
-    pqxx::work transaction(m_conn);
-    pqxx::row row = transaction.exec1("SELECT * FROM users WHERE " + field + " = " +
+    pqxx::work transaction(m_conn);   // COALESCE substitute NULL with empty string
+    pqxx::row row = transaction.exec1("SELECT id, username, password, online, COALESCE(address, ' ') FROM users WHERE " + field + " = " +
                                       transaction.quote(t_term));
 
     transaction.commit();
@@ -327,7 +327,7 @@ std::string Postgres::list_contacts_query(const User &t_user,
        "WHERE U.id = C4.user_id "
      "), "
      "( "
-       "SELECT DISTINCT STRING_AGG(U3.address, ',') AS address "
+       "SELECT DISTINCT STRING_AGG(COALESCE(U3.address, ' '), ',') AS address "
        "FROM contacts C3 "
        "INNER JOIN users U3 "
        "ON C3.contact_id = U3.id "

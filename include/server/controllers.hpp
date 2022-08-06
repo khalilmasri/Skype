@@ -19,6 +19,9 @@ struct Controllers {
   // this is called when router fails to parse the command. Return 500.
   static void  none      (std::string &_, Request &t_req); 
 
+  // helper to check if user is logged in 
+  static bool ip_exists(Request &t_req); 
+
   private:
     static Postgres m_pg;
 

@@ -149,8 +149,20 @@ void Controllers::available(std::string &t_username, Request &t_req) {
 void Controllers::none(std::string &_, Request &t_req) {
 
   UNUSED_PARAMS(_);
-  set_request_reply(Reply::r_500, t_req);
+  set_request_reply(Reply::r_501, t_req); // invalid command
 }
+
+bool Controllers::ip_exists(Request &t_req) {
+
+  User user = m_pg.search_user_by(t_req.m_address, "address");
+
+  if(user.empty()){
+    set_request_reply(Reply::r_202, t_req);
+  }
+
+  return !user.empty();
+}
+
 
 /**************** PRIVATE ****************/
 

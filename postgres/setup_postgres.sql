@@ -7,10 +7,10 @@ CREATE TABLE IF NOT EXISTS contacts (
 
 CREATE TABLE IF NOT EXISTS users (
      id BIGSERIAL NOT NULL PRIMARY KEY,
-     username VARCHAR(100) NOT NULL,
-     password VARCHAR(100) NOT NULL,
+     username VARCHAR(100) NOT NULL UNIQUE, -- username must be unique
+     password VARCHAR(100) NOT NULL, 
      online BOOLEAN NOT NULL,
-     address VARCHAR(100) NOT NULL
+     address VARCHAR(100) UNIQUE -- IP must be unique
 );
 
 ALTER TABLE contacts 

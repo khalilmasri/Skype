@@ -22,6 +22,8 @@ private:
   ControllersMap    m_controllers;
   CmdTuple          parse(Request &t_req);
   bool              validate_argument(ServerCommand::name t_cmd, std::string &t_arg);
+  bool              is_loggedin(ServerCommand::name t_cmd, Request &t_req);
+  void              invalid_command(Request &t_req);
 
 };
 

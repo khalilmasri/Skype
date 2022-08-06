@@ -16,24 +16,28 @@ Router::Router()
           {ServerCommand::Remove, Controllers::remove},
           {ServerCommand::Ping, Controllers::ping},
           {ServerCommand::Available, Controllers::available},
-          {ServerCommand::None, Controllers::none}, // this when calling unexisting command
+          {ServerCommand::None,
+           Controllers::none}, // this when calling unexisting command
       }){};
 
 void Router::route(Request &t_req) {
 
-  if(!t_req.m_valid){ // invalid requests are not routed
-      return;
+  if (!t_req.m_valid) { // invalid requests are not routed
+    invalid_command(t_req);
+    return;
   }
 
   auto [command, arguments] = parse(t_req);
+
+  if (!is_loggedin(command, t_req)) { // checks if IP address exists in the database. If not, user has not logged in
+    return;
+  }
 
   if (validate_argument(command, arguments)) {
     m_controllers[command](arguments, t_req);
 
   } else {
-    std::string reply = Reply::get_message(Reply::r_501);
-
-    t_req.set_data(new TextData(reply));
+    invalid_command(t_req);
   }
 }
 
@@ -55,9 +59,25 @@ bool Router::validate_argument(ServerCommand::name t_cmd, std::string &t_arg) {
   }
 }
 
+bool Router::is_loggedin(ServerCommand::name t_cmd, Request &t_req) {
+
+  if (t_cmd != ServerCommand::Login && t_cmd != ServerCommand::Create) {
+    return Controllers::ip_exists(t_req);
+  }
+
+  return true;
+}
+
+void Router::invalid_command(Request &t_req){
+    std::string reply = Reply::get_message(Reply::r_501);
+    t_req.set_data(new TextData(reply));
+}
+  
+
 /** TESTS **/
 
-TEST_CASE( "Router & Controllers (Postgres must be install to run these tests)") {
+TEST_CASE(
+    "Router & Controllers (Postgres must be install to run these tests)") {
 
   Router router;
   Postgres pg; // just to check was written to database
@@ -136,7 +156,9 @@ TEST_CASE( "Router & Controllers (Postgres must be install to run these tests)")
 
     auto reply = TextData::to_string(req.data());
 
-    CHECK(reply == Reply::append_message(Reply::r_201, "id:2,username:mario,password:1234,online:false,address:1.453.32.1"));
+    CHECK(reply == Reply::append_message(Reply::r_201,
+                                         "id:2,username:mario,password:1234,"
+                                         "online:false,address:1.453.32.1"));
   }
 
   SUBCASE("SEARCH unexisting user") {
@@ -147,7 +169,7 @@ TEST_CASE( "Router & Controllers (Postgres must be install to run these tests)")
     router.route(req);
 
     auto reply = TextData::to_string(req.data());
-  
+
     CHECK(reply == Reply::get_message(Reply::r_301));
   }
 
@@ -252,7 +274,9 @@ TEST_CASE( "Router & Controllers (Postgres must be install to run these tests)")
     router.route(req);
     auto reply = TextData::to_string(req.data());
 
-   CHECK(reply == Reply::append_message(Reply::r_201, "id:5,username:martha,password:1234,online:true,address:127.0.0.1")); 
+    CHECK(reply == Reply::append_message(Reply::r_201,
+                                         "id:5,username:martha,password:1234,"
+                                         "online:true,address:127.0.0.1"));
   }
 
   SUBCASE("AVAILABLE offline user") {
@@ -265,7 +289,6 @@ TEST_CASE( "Router & Controllers (Postgres must be install to run these tests)")
 
     auto reply = TextData::to_string(req.data());
     CHECK(reply == Reply::get_message(Reply::r_300));
-
   }
 
   SUBCASE("AVAILABLE unexisting user") {
