@@ -1,6 +1,6 @@
 # Skype Server
 
-The server leverages an `PassiveConn` and `ConnectionPoll` to listen, accept and receive and respond to multiple client connections. 
+The server leverages an `PassiveConn` and `ConnectionPoll` to `listen`, `accept` and `receive`, `respond` to multiple client connections. 
 Because server has a mere supporting role proving basic user information accross the wire, read and write operations will be sparse and the amount
 of data transfered small. For that reason, the server was implemented to run on a single thread to avoid an 
 overly complicated design unnecessarily.
@@ -23,6 +23,8 @@ When a message is detected `ActiveConn::receive` will populate the request with 
 `Request.m_address`, `Request.m_socket` etc and pass that to the `Router`.
 
 
+          request -> receive(populates info) ->  route -> respond
+
 
 ## Router and Controllers  
 
@@ -30,14 +32,18 @@ The router is responsible for parsing the command and arguments from the client 
 relevant `Controller`.  So a message like so
 
 
-      LOGIN khalil 1234
+            LOGIN khalil 1234
 
 will be routed as follows
 
-      Controllers::login("Khalil 1234", Request req);
+            Controllers::login("Khalil 1234", Request req);
 
-The controller in question will modify the `Request.data()` with with a `Reply`. The `Request` is then 
-used by `ActiveConn::respond` to respond to the client.
+The controller in question will add a `Reply` to `Request.data()` depending on the result of the operation.
+
+           // Login was succesfull then
+            Request.set_data(new TextData(Reply::get_message(Reply::r_200)));
+
+The `Request`is then passed to `ActiveConn::respond` to respond to the client.
 
 
 ## Database
