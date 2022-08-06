@@ -20,6 +20,7 @@ private:
   Router m_router;
 
   void accept_connection();
+  void disconnect_client_on_failure(Request &t_req);
 };
 
 #endif

@@ -28,6 +28,7 @@ public:
   Request accept_connection() ;
   bool receive(Request &t_req);
   bool respond(Request &t_req);
+  void disconnect_client(Request &t_req);
 
 private:
   std::string get_client_address(sockaddr_in t_address);

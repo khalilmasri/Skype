@@ -17,6 +17,7 @@ void Server::main_loop() {
     m_conn.receive(req);
     m_router.route(req);
     m_conn.respond(req);
+    disconnect_client_on_failure(req);
   }
 }
 
@@ -28,5 +29,14 @@ void Server::accept_connection() {
     std::string reply = Reply::get_message(Reply::r_200);
     req.set_data(new TextData(reply));
     m_conn.respond(req);
+  }
+}
+
+void Server::disconnect_client_on_failure(Request &t_req) {
+  //  valid received always yields m_socket >= 0
+  //  only disconnections on errors for valid receives.
+  if(!t_req.m_valid && t_req.m_socket >= 0){
+    LOG_ERR("Client %s communication failed. Closing connection...", t_req.m_address.c_str());
+   m_conn.disconnect_client(t_req);
   }
 }
