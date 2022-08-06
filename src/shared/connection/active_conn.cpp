@@ -9,6 +9,22 @@
 #include <sys/socket.h>
 #include <unistd.h>
 
+ActiveConn::ActiveConn() : Connection(), m_io(nullptr) {}; 
+
+ActiveConn::ActiveConn(int t_port, IOStrategy *t_io): Connection(t_port), m_io(t_io){
+  };
+
+
+ActiveConn::~ActiveConn() {
+  if(m_io != nullptr){
+    delete m_io;
+  }
+
+  int socket = get_socket();
+  if(socket > 0)
+    close(socket);
+}
+
 Request ActiveConn::connect_socket(std::string &t_address) {
 
   Request req;

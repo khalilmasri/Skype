@@ -12,7 +12,7 @@ class Connection {
 public:
   enum ValidationLog { Info, Error, Debug, Critical };
 
-  Connection(){};
+  Connection(): m_port(-1){}; 
   explicit Connection(int t_port)
     : m_port(t_port){};
 
