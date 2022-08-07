@@ -6,7 +6,6 @@
 
 StringUtils::StringVector StringUtils::split(const std::string &s,
                                              const std::string &delim) {
-
   int start = 0;
   int end = s.find(delim);
   StringVector result;
@@ -14,11 +13,12 @@ StringUtils::StringVector StringUtils::split(const std::string &s,
   while (end != -1) {
     result.push_back(s.substr(start, end - start));
     start = end + delim.size();
+    end = s.find(delim, start);
   }
   result.push_back(s.substr(start, end - start));
-  end = s.find(delim, start);
+
   return result;
-}
+ }
 
 std::string StringUtils::last(const std::string &s, const std::string &delim){
   
@@ -37,6 +37,11 @@ std::string StringUtils::last(const std::string &s, const std::string &delim){
 
 StringUtils::StringTuple StringUtils::split_first(const std::string &s,
                                                    const std::string &delim) {
+
+  if(s.empty()){
+    return StringTuple { "", "" };
+  }
+
   int start = 0;
   int end = s.find(delim);
   StringTuple result;

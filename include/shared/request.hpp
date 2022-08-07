@@ -10,8 +10,9 @@ struct Request {
   int         m_socket;
   std::string m_address;
   bool        m_valid;
+  bool        m_exit;
 
-  Request(bool t_valid = false);
+  Request(bool t_valid = false, bool t_exit = false);
   ~Request();
 
   void        set_data(Data *t_data) ;

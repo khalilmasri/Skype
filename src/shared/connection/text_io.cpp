@@ -8,6 +8,7 @@
 #include "text_data.hpp"
 //
 #include <arpa/inet.h>
+#include <cstring>
 #include <sys/socket.h>
 #include <unistd.h>
 
@@ -24,7 +25,8 @@ bool TextIO::receive(Request &t_req) const {
 
   if (valid_header) {
 
-    char *received = new char[msg_length];
+    char *received = new char[msg_length + 1]; // +1 for \0
+    memset(received, 0, msg_length + 1);
     int res = recv(t_req.m_socket, received, msg_length, 0);
     valid_msg = is_valid(res, "could not receive message.");
 
@@ -38,13 +40,12 @@ bool TextIO::receive(Request &t_req) const {
   return valid_header && valid_msg;
 }
 
-
-  int res = -1;
-  bool TextIO::respond(Request &t_req) const {
+int res = -1;
+bool TextIO::respond(Request &t_req) const {
 
   if (!t_req.data_empty() && t_req.data_type() == Data::Text) {
 
-    std::string msg    = TextData::to_string(t_req.data());
+    std::string msg = TextData::to_string(t_req.data());
     std::string header = create_header(msg.size());
     header.append(msg);
 
@@ -58,8 +59,9 @@ bool TextIO::receive(Request &t_req) const {
 
 int TextIO::read_header(int t_socket) const {
 
-  char header[HEADER_LENGTH] = {0};
+  char header[HEADER_LENGTH + 1] = {0}; // + 1 must add one for \0
   int res = recv(t_socket, header, HEADER_LENGTH, 0);
+  std::string s(header);
 
   if (res == HEADER_LENGTH) { // read size must be the header length
     return std::stoi(header);
@@ -70,16 +72,16 @@ int TextIO::read_header(int t_socket) const {
 
 std::string TextIO::create_header(int t_msg_length) const {
 
-   std::string msg_length = std::to_string(t_msg_length);
-   std::string padding(HEADER_LENGTH - msg_length.size(), '0');
+  std::string msg_length = std::to_string(t_msg_length);
+  std::string padding(HEADER_LENGTH - msg_length.size(), '0');
 
-   return padding + msg_length;
+  return padding + msg_length;
 }
-
 
 bool TextIO::is_valid(int t_result, const char *t_msg) const {
 
-  if (t_result < 0) {
+  // 0 means socket disconnected
+  if (t_result <= 0) {
     LOG_ERR(t_msg);
   }
 
@@ -98,7 +100,7 @@ TEST_CASE("Text IO & Connection") {
   aconn.connect_socket(ip);
 
   Request req = pconn.accept_connection();
-  
+
   std::string msg("hello,world!");
 
   req.set_data(new TextData(msg));
@@ -115,7 +117,7 @@ TEST_CASE("Text IO & Connection") {
     CHECK(req.m_valid == true);
   }
 
-   msg = "hello,indeed";
+  msg = "hello,indeed";
   req.set_data(new TextData(msg));
   pconn.respond(req); // can only respond after it receives a msg from active.
 
