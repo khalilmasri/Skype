@@ -7,7 +7,7 @@
 #include <vector>
 #include "supress_unused_params_warnings.hpp"
 
-#define DB "postgresql://localhost:5432/skype"
+#define DB "postgresql://postgres:postgres@localhost:5432/skype"
 
 typedef std::vector<std::string > StringVector;
 

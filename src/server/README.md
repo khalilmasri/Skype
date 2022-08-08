@@ -9,6 +9,17 @@ The maximum number of connected clients managed by the `ConnectionPoll` may be i
 macro in `include/shared/connection/connection_poll.hpp`.
 
 
+## Server Setup
+
+On a ubutu box ensure you have all postgres dev libraries install
+
+        sudo apt-get install libpq-dev postgresql-server-dev-all
+
+It might be necessary to add you postgres version (`psql --verion`) to `libpqxx` CMakeLists.txt in `src/server/vendor/libpqxx/CMakeLists.txt`. 
+For postgres v12.11 for example.
+
+           set(PostgreSQL_ADDITIONAL_VERSIONS "12" "12.11") 
+
 ## Request
 
 The server uses a `Request` object to pass around information. An `ActiveConn::accept` will create a `Request`
