@@ -16,8 +16,8 @@ bool PassiveConn::bind_and_listen(const std::string &t_address) {
                  sizeof(address));
 
   bool valid = is_valid(res, "Could not bind to socket.");
-
   if (valid) {
+
     listen(get_socket(), QUEUE_SIZE);
     m_poll.add_socket(get_socket());
     LOG_INFO("Listening on %d.", get_port())
@@ -72,6 +72,12 @@ bool PassiveConn::respond(Request &t_req) {
   }
 
   return t_req.m_valid;
+}
+
+
+void PassiveConn::disconnect_client(Request &t_req){
+   m_poll.remove_socket(t_req.m_socket);
+   close(t_req.m_socket);
 }
 
 

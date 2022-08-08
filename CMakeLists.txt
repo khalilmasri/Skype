@@ -37,3 +37,7 @@ set(CLIENT_PATH src/client)
 
 # Add it as a subdirectory
 add_subdirectory(${CLIENT_PATH})
+
+# this is a server only used to test the server locally.
+set(SERVER_TESTER_PATH src/server/test_client)
+add_subdirectory(${SERVER_TESTER_PATH})

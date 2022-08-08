@@ -16,7 +16,7 @@ enum logPriority{
     critical    = 5
 };
 
-#define DEBUG_ENABLED 1
+#define DEBUG_ENABLED 0
 
 #define LOG_TRACE(...)        Logger::Trace(__FILE__,__FUNCTION__, __LINE__, __VA_ARGS__);
 #define LOG_INFO(...)         Logger::Info(__FILE__, __FUNCTION__, __LINE__, __VA_ARGS__);
@@ -49,7 +49,13 @@ class Logger
                     std::unique_lock<std::mutex> lock(getInstance().log_mutex);
                     std::cout << msg_prio_str;
                     std::cout << __FILENAME__(file) << "||" << func << "||" << line << "||";
+
+                    #pragma clang diagnostic push // disabling warnings here
+                    #pragma clang diagnostic ignored "-Wformat"
+                    #pragma clang diagnostic ignored "-Wformat-nonliteral"
                     std::printf(msg, args...);
+                    #pragma clang diagnostic pop
+
                     std::cout << std::endl;
                 }
             }

@@ -1,4 +1,6 @@
 #!/bin/bash
+export CC=/usr/bin/clang
+export CXX=/usr/bin/clang++
 
 mkdir -p build
 
@@ -24,7 +26,13 @@ elif [ "$1" == "--run" ]; then
     
     if [ "$#" -eq 1 ]; then echo "You must provide an binary name to run."
     else cd build; cmake ../; make "$2"; ./bin/"$2" cd .. 
-    fi
+fi
+
+elif [ "$1" == "--test" ]; then
+    
+    if [ "$#" -eq 1 ]; then echo "You must provide an binary name to run."
+    else cd build; cmake ../; make "$2"; ./bin/"$2" --test cd .. 
+fi
 
 elif [ "$1" == "--clean" ]; then
     cd build; make clean; cd .. 

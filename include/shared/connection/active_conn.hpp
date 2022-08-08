@@ -10,14 +10,10 @@ class ActiveConn : public Connection {
   IOStrategy  *m_io;
 
 public:
-  ActiveConn() {};
-  ActiveConn(int t_port, IOStrategy *t_io): Connection(t_port), m_io(t_io){
-  };
+  ActiveConn();
+  ActiveConn(int t_port, IOStrategy *t_io);
 
- ~ActiveConn() {
-   close(get_socket());
-    delete m_io;
-}
+ ~ActiveConn();
 
   Request connect_socket(std::string &address);
   bool receive(Request &t_req);

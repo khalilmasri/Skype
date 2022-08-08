@@ -1,5 +1,7 @@
 # Sets project name
 project(client)
+set(CMAKE_CXX_COMPILER_ID "clang")
+set(CMAKE_CXX_COMPILER_VERSION "13.0.1")
 
 # Find the packages needed
 set(OpenGL_GL_PREFERENCE LEGACY)

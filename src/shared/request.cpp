@@ -1,8 +1,8 @@
 #include "request.hpp"
 #include "doctest.h"
 
-Request::Request(bool t_valid)
-    : m_socket(-1), m_valid(t_valid), m_data(nullptr){};
+Request::Request(bool t_valid, bool t_exit)
+    : m_socket(-1), m_valid(t_valid), m_exit(t_exit), m_data(nullptr){};
 
 Request::~Request() { delete m_data; }
 
