@@ -1,0 +1,3 @@
+[submodule "path/to/submodule"] 
+  path = src/server/vendor/libpqxx
+   url = git@github.com:jtv/libpqxx.git
