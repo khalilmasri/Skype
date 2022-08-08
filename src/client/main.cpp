@@ -2,9 +2,6 @@
 #include "doctest.h"
 #include "skype_gui.hpp"
 
-
-// client --> call ImGui context initialisation --> then initialise chat windows
-
 // Main code
 int main(int, char **)
 {

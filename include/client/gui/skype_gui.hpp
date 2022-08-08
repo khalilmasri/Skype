@@ -38,7 +38,6 @@ class SkypeGui
 private:
     bool m_exit;
     bool check_exit(SDL_Event& t_event);
-    void memset_variables();
 
     void im_gui_init();
     void window_init();
@@ -61,16 +60,6 @@ private:
     //specific skype functionality
     void set_panel(int pos_x, int pos_y, int size_x, int size_y);
     void set_boxes(const char* t_field, float t_width, const char* t_label, char* buf, ImGuiInputTextFlags t_flag);
-    
-    // User login/register specifics 
-    void welcome_window();
-    void login();
-    void register_window();
-    void register_user();
-    bool m_new_user;
-    char m_username[MAX_USER_LEN];
-    char m_password[MAX_USER_LEN];
-    char m_confirm_password[MAX_USER_LEN];
 
     void contacts_list();
 

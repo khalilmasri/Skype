@@ -52,7 +52,7 @@ bool TextIO::respond(Request &t_req) const {
     res = send(t_req.m_socket, header.c_str(), header.size(), 0);
   }
 
-  return is_valid(res, "Could not repond.");
+  return is_valid(res, "Could not respond.");
 };
 
 /* Private */

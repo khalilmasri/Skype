@@ -11,7 +11,7 @@
 /* Public */
 
 Client::Client(int t_port) : server_conn(t_port, new TextIO()){
-   auto ip = std::string("127.0.0.1");
+   auto ip = std::string("206.189.0.154");
    req = server_conn.connect_socket(ip);
 }
 
