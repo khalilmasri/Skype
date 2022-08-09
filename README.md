@@ -1,80 +1,60 @@
 # Skype
 
-GUI:
+The Skype application is divided between two building blocks - [Client](https://github.com/khalilmasri/Skype/tree/main/src/client) and [server](https://github.com/khalilmasri/Skype/tree/main/src/server).
 
-To use the imgui GUI you need to install SDL2 framework:
+The client runs on the user machine.  Data connections such as audio, video and chat are peer to peer; clients connect directly to each other with the support of a server that provides information about
+other clients in the Skype network. The client has a graphic user interface as well as a backend that responsible for communicating with the server, establishing data connections and data processing.
 
-LINUX - sudo apt-get install libsdl2-2.0 libsdl2-dev
+More details on the [client here](https://github.com/khalilmasri/Skype/tree/main/src/client).
 
-OSX - homebrew install sdl2
+The server runs on a remote computer and is responsible for authenticating users, retrieving a users contacts list, either if they are online or not and their public IP address on the web.
+The server is necessary because there is not way for a client to know other clients public IP address when most IP addresses on the web are dynamic and may change from time to time.
 
-### Cmake
-Cmake has 2 types of compiler flags
+More on on the [server here](https://github.com/khalilmasri/Skype/tree/main/src/server).
 
-* base flags
-```
--Wall -Wextra
-```
 
-* Extra flags
-```
- -Wpedantic -Wcast-qual -Wnon-virtual-dtor -Woverloaded-virtual -Wold-style-cast
-```
+###  Build System
 
-* To enable extra flags 
-```
-cd build; cmake -DCMAKE_EXTRA_FLAGS=ON ../; 
-```
+The build is done using CMake and to facilitate this process we use the script `./build.sh`. This script will
+produce and run 3 binaries - ./build/bin/server`,  `./build/bin/client` and `./build/bin/test_client`. 
 
-* To disable extra flags
-```
-cd build; cmake -DCMAKE_EXTRA_FLAGS=OFF ../; 
+`test_client` is used to test the communication with a deployed `server`. More in the [server readme](https://github.com/khalilmasri/Skype/tree/main/src/server).
 
-```
+To generate the build files please run
 
-### Build shell script
+            ./build.sh --gen
 
-1. To generate the CMake and build it (No extra flags)
-```
-./build.sh --gen
-```
-2. To generate the CMake with extra flags
-```
-./build.sh --gen-extra
-```
-3. To generate CMake without extra flags
-```
-./build.sh --gen-base
-```
-4. To remove warning flags
-```
-./build.sh --gen-nowarning
-```
-5. To add back the warning flags
-```
-./build.sh --gen-warning
-```
-6. To make
-```
-./build.sh --make
-```
-7. To run server
-```
-./build.sh --run server
-```
-8. To run client
-```
-./build.sh --run client
-```
-9. To make clean
-```
-./build.sh --clean
-```
-10. To clean binary 
-```
-./build.sh --clean-bin
-```
-11. To clean all including the directory `build`
-```
-./build.sh --clean-all
-```
+
+To build all above mentioned binaries
+
+            ./build.sh --make
+
+
+To build and run specific binaries
+
+            ./build.sh --run client
+            ./build.sh --run server
+            ./build.sh --run test_client
+
+Unit tests will run with the `--test` option
+
+            ./build.sh --test server
+
+Cleaning. Clean all will remove all build files requiring  `./build.sh --gen`.
+
+           ./build.sh --clean
+           ./build.sh --clean-bin
+           ./build.sh --clean-all
+
+### Share code
+
+The code in `src/shared` and `include/shared` is shared between the client and server.
+
+### Deps
+
+This application depends on the following packages
+
+1. [iamgui](https://github.com/ocornut/imgui)
+2. [sdl2] (https://github.com/libsdl-org/SDL)
+3. [libpqxx](https://github.com/jtv/libpqxx) (Postgres client)
+3. [ffmpeg](https://github.com/FFmpeg/FFmpeg)
