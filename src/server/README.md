@@ -59,8 +59,8 @@ The `Request`is then passed to `ActiveConn::respond` to respond to the client.
 
 ## Database
 
-The server persists user data user [Postgres](https://www.postgresql.org/). Please visit the [postgres/](postgres/) directory
-for more information on how to install Postgres locally as well as examples of queries the server using in the implementation.
+The server persists user data user [Postgres](https://www.postgresql.org/). Please visit the [postgres directory
+for more information on how to install Postgres locally as well as examples of queries the server using in the implementation.](https://github.com/khalilmasri/Skype/tree/main/postgres)
 
 
 ## Commands & Replies

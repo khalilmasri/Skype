@@ -11,12 +11,13 @@ The server runs on a remote computer and is responsible for authenticating users
 The server is necessary because there is not way for a client to know other clients public IP address when most IP addresses on the web are dynamic and may change from time to time.
 
 More on on the [server here](https://github.com/khalilmasri/Skype/tree/main/src/server).
+More on on the [setting up Postgres](https://github.com/khalilmasri/Skype/tree/main/postgres).
 
 
 ###  Build System
 
 The build is done using CMake and to facilitate this process we use the script `./build.sh`. This script will
-produce and run 3 binaries - ./build/bin/server`,  `./build/bin/client` and `./build/bin/test_client`. 
+produce and run 3 binaries - `./build/bin/server`,  `./build/bin/client` and `./build/bin/test_client`. 
 
 `test_client` is used to test the communication with a deployed `server`. More in the [server readme](https://github.com/khalilmasri/Skype/tree/main/src/server).
 
@@ -40,13 +41,13 @@ Unit tests will run with the `--test` option
 
             ./build.sh --test server
 
-Cleaning. Clean all will remove all build files requiring  `./build.sh --gen`.
+Cleaning. `clean-all` will remove all build files requiring  `./build.sh --gen`.
 
            ./build.sh --clean
            ./build.sh --clean-bin
            ./build.sh --clean-all
 
-### Share code
+### Shared code
 
 The code in `src/shared` and `include/shared` is shared between the client and server.
 
@@ -55,6 +56,6 @@ The code in `src/shared` and `include/shared` is shared between the client and s
 This application depends on the following packages
 
 1. [iamgui](https://github.com/ocornut/imgui)
-2. [sdl2] (https://github.com/libsdl-org/SDL)
+2. [sdl2](https://github.com/libsdl-org/SDL)
 3. [libpqxx](https://github.com/jtv/libpqxx) (Postgres client)
 3. [ffmpeg](https://github.com/FFmpeg/FFmpeg)
