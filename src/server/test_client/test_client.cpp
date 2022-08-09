@@ -10,9 +10,11 @@
 
 int main(void) {
 
-  ActiveConn conn(4000, new TextIO());
+  ActiveConn conn(5000, new TextIO());
 
-  std::string addr = "127.0.0.1";
+  std::cout << "attempting to connect to server..." << std::endl;
+  // this is the server address
+  std::string addr = "206.189.0.154";
   Request req = conn.connect_socket(addr);
 
   if (!req.m_valid) {
