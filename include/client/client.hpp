@@ -22,6 +22,8 @@ public:
 
     // Contacts commands
     std::vector<std::string> contact_get_contacts() const;
+    std::string contact_get_current_contact();
+    void contact_set_current_contact(std::string &t_current_contact);
 
     bool contact_list();
     bool contact_search(std::string& t_cmd);

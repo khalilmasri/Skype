@@ -96,6 +96,14 @@ std::vector<std::string> Contacts::get_contacts() const {
     return m_contacts;
 }
 
+void Contacts::set_current_contact(std::string &t_current_contact){
+    m_current_contact = t_current_contact;
+}
+
+std::string Contacts::get_current_contact(){
+    return m_current_contact;
+}
+
 // /* Private */
 
 bool Contacts::valid_response(Reply::Code t_code, std::string& t_res){

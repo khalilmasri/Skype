@@ -6,6 +6,7 @@
 #include "SDL_opengl.h"
 #include "skype_gui.hpp"
 #include "login_gui.hpp"
+#include "sidebar.hpp"
 
 #include <stdio.h>
 #include <iostream>
@@ -99,6 +100,7 @@ void SkypeGui::window_init()
 void SkypeGui::run()
 {   
     LoginGui login_window;
+    SideBar sidebar;
     bool logged_in = false;
 
     while ( false == m_exit )
@@ -118,7 +120,7 @@ void SkypeGui::run()
             login_window.welcome(m_client);
             logged_in = m_client.user_get_logged_in();
         } else {
-           // sidebar(contacts);
+           sidebar.display_sidebar(m_client); //display contacts list 
            // chat(m_current_contact);
         }
 
@@ -151,50 +153,19 @@ void SkypeGui::render()
 };
 
 
-// void SkypeGui::set_panel(int pos_x, int pos_y, int size_x, int size_y)
-// {
-//     const ImGuiViewport *main_viewport = ImGui::GetMainViewport();
-//     ImGui::SetNextWindowPos(ImVec2(main_viewport->WorkPos.x + pos_x, main_viewport->WorkPos.y + pos_y), ImGuiCond_FirstUseEver);
-//     ImGui::SetNextWindowSize(ImVec2(size_x, size_y), ImGuiCond_FirstUseEver);
-// }
-
-// void SkypeGui::set_boxes(const char* t_field, float t_width, const char* t_label, char* buf, ImGuiInputTextFlags t_flag){
-//     ImGui::Text("%s", t_field);
-//     ImGui::PushItemWidth(t_width);
-//     ImGui::InputText(t_label, buf, sizeof(buf), t_flag);
-// }
-
-
-void SkypeGui::contacts_list()
+void SkypeGui::set_panel(int pos_x, int pos_y, int size_x, int size_y)
 {
-    set_panel(0, 0, 150, 600);
     const ImGuiViewport *main_viewport = ImGui::GetMainViewport();
-    ImGui::SetNextWindowPos(ImVec2(main_viewport->WorkPos.x, main_viewport->WorkPos.y), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(150, 600), ImGuiCond_FirstUseEver);
-    ImGui::Begin("Contacts");
-    ImGui::PushItemWidth(300);
+    ImGui::SetNextWindowPos(ImVec2(main_viewport->WorkPos.x + pos_x, main_viewport->WorkPos.y + pos_y), ImGuiCond_FirstUseEver);
+    ImGui::SetNextWindowSize(ImVec2(size_x, size_y), ImGuiCond_FirstUseEver);
+}
 
-    static int index = 0; // Here we store our selection data as an index.
-    if (ImGui::ListBoxHeader("##ContactList", ImVec2(150, 550)))
-    {
-        for (size_t n = 0; n < m_contacts.size(); n++)
-        {
-            const bool is_selected = (index == (int)n);
-            if (ImGui::Selectable(m_contacts[n].c_str(), is_selected) && video_call == false && audio_call == false) // block changing chats if on call
-            {
-                index = n;
-                std::cout << "selected: " << m_contacts[n] << std::endl;
-                m_current_contact = m_contacts[n];
-            }
+void SkypeGui::set_boxes(const char* t_field, float t_width, const char* t_label, char* buf, ImGuiInputTextFlags t_flag){
+    ImGui::Text("%s", t_field);
+    ImGui::PushItemWidth(t_width);
+    ImGui::InputText(t_label, buf, sizeof(buf), t_flag);
+}
 
-            // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-            if (is_selected)
-                ImGui::SetItemDefaultFocus();
-        }
-        ImGui::EndListBox();
-    }
-    ImGui::End();
-};
 
 // // void SkypeGui::load_contacts()
 // // {

@@ -23,6 +23,14 @@ std::vector<std::string> Client::contact_get_contacts() const {
    return m_contacts.get_contacts();
 }
 
+std::string Client::contact_get_current_contact() {
+   return m_contacts.get_current_contact();
+}
+
+void Client::contact_set_current_contact(std::string &t_current_contact) {
+   m_contacts.set_current_contact(t_current_contact);
+}
+
 bool Client::contact_list() {
    return m_contacts.list(server_conn, req);
 }
@@ -45,6 +53,7 @@ bool Client::contact_available(std::string& t_cmd) {
    req.set_data(new TextData(t_cmd));
    return m_contacts.available(server_conn, req);
 }
+
 
 /* User direct */
 bool Client::user_set_username(std::string& t_username){
