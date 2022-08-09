@@ -17,7 +17,7 @@ public:
     bool list(ActiveConn& t_conn, Request& t_req);
     bool search(ActiveConn& t_conn, Request& t_req);
     bool add_user(ActiveConn& t_conn, Request& t_req);
-    bool remove_user(std::string& t_cmd);
+    bool remove_user(ActiveConn& t_conn, Request& t_req);
     bool available(ActiveConn& t_conn, Request& t_req);
 
     std::vector<std::string> get_contacts() const;

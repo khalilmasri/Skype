@@ -17,6 +17,7 @@ class Client {
 
 public:
     Client(int t_port);
+    ~Client();
     
     bool ping();
 
@@ -47,6 +48,8 @@ private:
     Contacts m_contacts;
 
     std::map<std::string, Request> m_contacts_request;
+
+    bool valid_response(Reply::Code t_code, std::string& t_res);
 };
 
 #endif

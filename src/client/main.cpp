@@ -18,20 +18,40 @@
 #include <string>
 #include <vector>
 
+#include "client.hpp"
+#include "user.hpp"
+#include "contacts.hpp"
+#include "fail_if.hpp"
+
+#include <cstdio>
 // client --> call ImGui context initialisation --> then initialise chat windows
 
 // Main code
 int main(int, char **)
-{
-    SkypeGui skype_gui;
-    skype_gui.im_gui_init();
-    skype_gui.window_init();
+{   
+    
+    Client client(5000);
+    std::string name = "";
+    std::string username_wrong = "khalil";
+    std::string password_wrong = "1234";
 
-    skype_gui.done = false;
-    // Run() executes the loop until 'done'
-    skype_gui.run();
+    FAIL_IF( false == client.user_set_password(password_wrong));
+    FAIL_IF( false == client.user_set_username(username_wrong));
 
-    skype_gui.shutdown();
+    // client.user_register_user();
 
+    client.user_login();
+
+    name = "khalil";
+
+    client.contact_search(name);
+    client.contact_add_user(name);
+    client.contact_list();
+// // while(true){
+//     sleep(5);
+// }
+    return 1;
+
+fail:
     return 0;
 }
