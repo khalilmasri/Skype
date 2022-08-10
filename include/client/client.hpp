@@ -22,6 +22,8 @@ public:
     bool ping();
 
     // Contacts commands
+    std::string contact_get_current_contact();
+    void contact_set_current_contact(std::string &t_current_contact);
     std::vector<std::string> contact_get_contacts();
 
     bool contact_list();

@@ -161,6 +161,13 @@ fail:
     return {};
 }
 
+void Contacts::set_current_contact(std::string &t_current_contact){
+    m_current_contact = t_current_contact;
+}
+
+std::string Contacts::get_current_contact(){
+    return m_current_contact;
+}
 
 // /* Private */
 
@@ -217,7 +224,7 @@ void Contacts::pair_contact_details(std::string t_user) {
         }
     }
 
-    if ( username != "" && details.online == true ){
+    if ( username != "" /* && details.online == true */ ){
         m_online_contacts.emplace(username, details);            
     }
 }
