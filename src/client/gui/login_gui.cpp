@@ -4,6 +4,7 @@
 #include "logger.hpp"
 #include "skype_gui.hpp"
 #include "login_gui.hpp"
+#include "fail_if.hpp"
 
 LoginGui::LoginGui() 
 {
@@ -47,6 +48,7 @@ void LoginGui::welcome(Client& t_client)
     if (ImGui::Button(" LOGIN "))
     {
         login(t_client);
+        memset_variables();
     }
     
     ImGui::SameLine();
@@ -70,6 +72,7 @@ void LoginGui::register_window(Client& t_client)
     if (ImGui::Button(" NEW USER LOGIN "))
     {
         register_user(t_client);
+        memset_variables();
     }
 
     ImGui::End();
@@ -79,13 +82,15 @@ void LoginGui::login(Client& t_client) {
 
     std::string password = m_password;
     std::string username = m_username;
-    
-    t_client.user_set_username(username);
-    t_client.user_set_password(password);
+
+    FAIL_IF( false == t_client.user_set_username(username));
+    FAIL_IF( false == t_client.user_set_password(password));
 
     t_client.user_login();
 
-    memset_variables();
+fail:
+    // Let's display a message for the user @Chris
+    return;
 }
 
 void LoginGui::register_user(Client& t_client)
@@ -94,28 +99,19 @@ void LoginGui::register_user(Client& t_client)
     std::string password = m_password;
     std::string username = m_username;
     std::string confirm_password = m_confirm_password;
-
-    bool res = false;
     
-    if ( confirm_password == password ) {
-        LOG_INFO("Registering user...");
+    FAIL_IF(confirm_password != password);
+   
+    FAIL_IF( false == t_client.user_set_username(username));
+    FAIL_IF( false == t_client.user_set_password(password));
+   
+    FAIL_IF( false == t_client.user_register_user());
 
-        t_client.user_set_username(username);
-        t_client.user_set_password(password);
+    m_new_user = false;
+    
+    LOG_INFO("Register user was successful");
 
-        res = t_client.user_register_user();
-    }
-    else {
-        LOG_INFO("Error registering user, check credintials");
-        return;
-    }
-
-    if ( true == res ) {
-        LOG_INFO("Register user was successful");
-        m_new_user = false;
-    } else {
-        LOG_INFO("Error registering user");
-    }
-
-    memset_variables();
+fail:
+    LOG_INFO("Registering user failed!");
+    return;
 }

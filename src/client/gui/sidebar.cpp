@@ -33,6 +33,7 @@ void SideBar::make_list_box(std::string &t_list_name, Client &t_client, int x_si
     static int index = 0; // Here we store our selection data as an index.
     if (ImGui::ListBoxHeader(t_list_name.c_str(), ImVec2(150, 550)))
     {
+
         for (size_t n = 0; n < contacts.size(); n++)
         {
             const bool is_selected = (index == (int)n);
@@ -50,6 +51,7 @@ void SideBar::make_list_box(std::string &t_list_name, Client &t_client, int x_si
         }
         ImGui::EndListBox();
     }
+
 }
 
 void SideBar::set_panel(int pos_x, int pos_y, int size_x, int size_y)
