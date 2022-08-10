@@ -79,6 +79,16 @@ void Controllers::add(std::string &t_contact_username, Request &t_req) {
   User user = m_pg.search_user_by(t_req.m_address, "address");
   User contact = m_pg.search_user_by(t_contact_username, "username");
 
+  if(user.username() == contact.username()){ // user cannot add itself.
+     set_request_reply(Reply::r_300, t_req);
+     return;
+  }
+
+  if(m_pg.user_contact_exists(user, contact)){
+     set_request_reply(Reply::r_302, t_req);
+     return;
+  }
+
   if (!user.empty() && !contact.empty()) {
 
     bool res = m_pg.add_user_contact(user, contact);

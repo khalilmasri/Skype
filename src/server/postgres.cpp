@@ -2,14 +2,14 @@
 #include "doctest.h"
 #include "logger.hpp"
 #include "string_utils.hpp"
+#include "supress_unused_params_warnings.hpp"
 #include <exception>
 #include <tuple>
 #include <vector>
-#include "supress_unused_params_warnings.hpp"
 
 #define DB "postgresql://localhost:5432/skype"
 
-typedef std::vector<std::string > StringVector;
+typedef std::vector<std::string> StringVector;
 
 Postgres::Postgres() : m_conn(DB) {
   LOG_INFO("Connected to database: %s", m_conn.dbname());
@@ -25,7 +25,7 @@ Users Postgres::list_users() {
 
     res.for_each([&users](int id, std::string username, std::string _,
                           bool online, std::string address) {
-        UNUSED_PARAMS(_);
+      UNUSED_PARAMS(_);
       users.push_back(User(id, username, online, address));
     });
 
@@ -46,7 +46,7 @@ Users Postgres::list_user_contacts(const User &t_user) {
     pqxx::work transaction(m_conn);
 
     std::string query = list_contacts_query(t_user, transaction);
-    pqxx::row row     = transaction.exec1(query);
+    pqxx::row row = transaction.exec1(query);
 
     transaction.commit();
     row.to(result);
@@ -56,13 +56,12 @@ Users Postgres::list_user_contacts(const User &t_user) {
     return Users(); // returns empty User vector
   }
 
-    return result_to_users(std::move(result));
+  return result_to_users(std::move(result));
 }
 
-
 User Postgres::search_user_by(const char *t_term, const char *t_field) {
-  std::string term (t_term);
-  return search_user_by(term, t_field );
+  std::string term(t_term);
+  return search_user_by(term, t_field);
 }
 
 /* */
@@ -73,9 +72,12 @@ User Postgres::search_user_by(const std::string &t_term, const char *t_field) {
   std::string field(t_field);
 
   try {
-    pqxx::work transaction(m_conn);   // COALESCE substitute NULL with empty string
-    pqxx::row row = transaction.exec1("SELECT id, username, password, online, COALESCE(address, ' ') FROM users WHERE " + field + " = " +
-                                      transaction.quote(t_term));
+    pqxx::work transaction(
+        m_conn); // COALESCE substitute NULL with empty string
+    pqxx::row row =
+        transaction.exec1("SELECT id, username, password, online, "
+                          "COALESCE(address, ' ') FROM users WHERE " +
+                          field + " = " + transaction.quote(t_term));
 
     transaction.commit();
     row.to(results);
@@ -90,7 +92,8 @@ User Postgres::search_user_by(const std::string &t_term, const char *t_field) {
   return User(id, username, password, online, address);
 }
 
-User Postgres::search_user_contact(const User &t_user, const char* t_contact_username) {
+User Postgres::search_user_contact(const User &t_user,
+                                   const char *t_contact_username) {
   std::string contact(t_contact_username);
   return search_user_contact(t_user, contact);
 }
@@ -120,6 +123,25 @@ User Postgres::search_user_contact(const User &t_user,
   auto [id, username, password, online, address] = results;
 
   return User(id, username, password, online, address);
+}
+
+bool Postgres::user_contact_exists(const User &t_user, const User &t_contact) {
+  pqxx::row row;
+  try {
+    pqxx::work transaction(m_conn);
+    std::string query = "SELECT id FROM contacts WHERE user_id = " +
+                        transaction.quote(t_user.id()) + "AND contact_id = " +
+                        transaction.quote(t_contact.id()) + ";";
+
+    row = transaction.exec1(query);
+    transaction.commit();
+
+  } catch (const std::exception &err) {
+    LOG_ERR("%s", err.what());
+    return false;
+  }
+
+    return row.size() == 0 ? false : true;
 }
 
 /* */
@@ -212,9 +234,9 @@ bool Postgres::remove_user_contact(const User &t_user, const User &t_contact) {
   }
   try {
     pqxx::work transaction(m_conn);
-    std::string query =
-        "DELETE FROM contacts where user_id = " + transaction.quote(t_user.id())
-         + " AND contact_id = " + transaction.quote(t_contact.id()) + ";";
+    std::string query = "DELETE FROM contacts where user_id = " +
+                        transaction.quote(t_user.id()) + " AND contact_id = " +
+                        transaction.quote(t_contact.id()) + ";";
 
     transaction.exec(query);
     transaction.commit();
@@ -248,12 +270,13 @@ bool Postgres::update(const User &t_user) {
   return true;
 }
 
-bool Postgres::logoff(const User &t_user){
+bool Postgres::logoff(const User &t_user) {
 
   try {
     pqxx::work transaction(m_conn);
-    std::string query = "UPDATE users set address = NULL, online = FALSE where id = " +
-                                 transaction.quote(t_user.id()) + ";";
+    std::string query =
+        "UPDATE users set address = NULL, online = FALSE where id = " +
+        transaction.quote(t_user.id()) + ";";
 
     transaction.exec(query);
     transaction.commit();
@@ -268,24 +291,25 @@ bool Postgres::logoff(const User &t_user){
 
 /**** PRIVATE ****/
 
-Users Postgres::result_to_users(AggregatedQueryResult &&t_result){
-    auto [_, ids, contacts, onlines, addreses] = t_result;
+Users Postgres::result_to_users(AggregatedQueryResult &&t_result) {
+  auto [_, ids, contacts, onlines, addreses] = t_result;
 
-    StringVector ids_vec       = StringUtils::split(ids, ",");
-    StringVector contacts_vec  = StringUtils::split(contacts, ",");
-    StringVector onlines_vec   = StringUtils::split(onlines, ",");
-    StringVector addresses_vec = StringUtils::split(addreses, ",");
+  StringVector ids_vec = StringUtils::split(ids, ",");
+  StringVector contacts_vec = StringUtils::split(contacts, ",");
 
-    Users users;
+  StringVector onlines_vec = StringUtils::split(onlines, ",");
+  StringVector addresses_vec = StringUtils::split(addreses, ",");
+  Users users;
 
-    for(std::size_t i = 0; i < ids_vec.size(); i++){ // vector will always have the same length
-       bool online = onlines_vec.at(i) == "true" ? true : false;
-       int id      = std::stoi(ids_vec.at(i));
-       User user   = User(id, contacts_vec.at(i), online, addresses_vec.at(i));
-       users.push_back(std::move(user));
-    }
+  for (std::size_t i = 0; i < ids_vec.size();
+       i++) { // vector will always have the same length
+    bool online = onlines_vec.at(i) == "true" ? true : false;
+    int id = std::stoi(ids_vec.at(i));
+    User user = User(id, contacts_vec.at(i), online, addresses_vec.at(i));
+    users.push_back(std::move(user));
+  }
 
-    return users;
+  return users;
 }
 
 /* */
@@ -320,41 +344,41 @@ std::string Postgres::update_query(const User &t_user,
 std::string Postgres::list_contacts_query(const User &t_user,
                                           pqxx::work &t_transaction) const {
 
-
- std::string query =
-   "SELECT DISTINCT U.username, "
-     "("
-       "SELECT STRING_AGG(U1.id::VARCHAR, ',') AS id "
-       "FROM contacts C1 "
-       "INNER JOIN users U1 "
-       "ON C1.contact_id = U1.id "
-       "WHERE U.id = C1.user_id "
-     "), "
-     "( " 
-       "SELECT DISTINCT STRING_AGG(U2.username, ',') AS contacts "
-       "FROM contacts C2 "
-       "INNER JOIN users U2 "
-       "ON C2.contact_id = U2.id "
-       "WHERE U.id = C2.user_id "
-     "), "
-     "( "
-       "SELECT DISTINCT STRING_AGG(U4.online::VARCHAR, ',') AS online "
-       "FROM contacts C4 "
-       "INNER JOIN users U4 "
-       "ON C4.contact_id = U4.id "
-       "WHERE U.id = C4.user_id "
-     "), "
-     "( "
-       "SELECT DISTINCT STRING_AGG(COALESCE(U3.address, ' '), ',') AS address "
-       "FROM contacts C3 "
-       "INNER JOIN users U3 "
-       "ON C3.contact_id = U3.id "
-       "WHERE U.id = C3.user_id "
-     ") "
-    "FROM contacts C "
-    "JOIN users U "
-    "ON C.user_id = U.id "
-    "WHERE U.username = "  + t_transaction.quote(t_user.username()) + ";";
+  std::string query =
+      "SELECT DISTINCT U.username, "
+      "("
+      "SELECT STRING_AGG(U1.id::VARCHAR, ',') AS id "
+      "FROM contacts C1 "
+      "INNER JOIN users U1 "
+      "ON C1.contact_id = U1.id "
+      "WHERE U.id = C1.user_id "
+      "), "
+      "( "
+      "SELECT DISTINCT STRING_AGG(U2.username, ',') AS contacts "
+      "FROM contacts C2 "
+      "INNER JOIN users U2 "
+      "ON C2.contact_id = U2.id "
+      "WHERE U.id = C2.user_id "
+      "), "
+      "( "
+      "SELECT DISTINCT STRING_AGG(U4.online::VARCHAR, ',') AS online "
+      "FROM contacts C4 "
+      "INNER JOIN users U4 "
+      "ON C4.contact_id = U4.id "
+      "WHERE U.id = C4.user_id "
+      "), "
+      "( "
+      "SELECT DISTINCT STRING_AGG(COALESCE(U3.address, ' '), ',') AS address "
+      "FROM contacts C3 "
+      "INNER JOIN users U3 "
+      "ON C3.contact_id = U3.id "
+      "WHERE U.id = C3.user_id "
+      ") "
+      "FROM contacts C "
+      "JOIN users U "
+      "ON C.user_id = U.id "
+      "WHERE U.username = " +
+      t_transaction.quote(t_user.username()) + ";";
 
   return query;
 }
@@ -385,7 +409,6 @@ Postgres::search_contact_query(const User &t_user,
  *
  */
 
-
 TEST_CASE("Postgres (ensure that you have postgres setup)") {
 
   Postgres pg;
@@ -396,8 +419,7 @@ TEST_CASE("Postgres (ensure that you have postgres setup)") {
         {"id:2,username:mario,password:1234,online:false,address:1.453.32.1"},
         {"id:3,username:shakira,password:1234,online:false,address:53.423.4.1"},
         {"id:4,username:dubius,password:1234,online:false,address:33.53.3.1"},
-        {"id:5,username:martha,password:1234,online:true,address:127.0.0.1"}
-    };
+        {"id:5,username:martha,password:1234,online:true,address:127.0.0.1"}};
 
     Users users = pg.list_users();
     int i = 0;
@@ -413,7 +435,7 @@ TEST_CASE("Postgres (ensure that you have postgres setup)") {
     User user(0, "khalil", "123", true, "123");
 
     Users users = pg.list_user_contacts(user);
-   }
+  }
 
   SUBCASE("Search users by username") {
 
@@ -428,7 +450,6 @@ TEST_CASE("Postgres (ensure that you have postgres setup)") {
     CHECK(u.empty() == false);
     CHECK(u.username() == "shakira");
   }
-
 
   SUBCASE("Search for unexisting user") {
 
@@ -461,10 +482,9 @@ TEST_CASE("Postgres (ensure that you have postgres setup)") {
     User dubius = pg.search_user_contact(user, contact.username());
 
     CHECK(dubius.username() == contact.username());
-
   }
 
-SUBCASE("Remove user contact") {
+  SUBCASE("Remove user contact") {
 
     User user = pg.search_user_by("khalil", "username");
     User contact = pg.search_user_contact(user, "dubius");
@@ -477,7 +497,6 @@ SUBCASE("Remove user contact") {
     User dubius = pg.search_user_contact(user, contact.username());
     CHECK(dubius.empty());
   }
-
 
   SUBCASE("Add and Remove new user") {
 
@@ -502,8 +521,8 @@ SUBCASE("Remove user contact") {
     std::string username = "pedro";
     std::string to_update = "marco";
 
-    User u = pg.search_user_by("pedro", "username");              // search for user we added
-    bool res = u.update(to_update, User::Username); // update object
+    User u = pg.search_user_by("pedro", "username"); // search for user we added
+    bool res = u.update(to_update, User::Username);  // update object
     CHECK(res == true);
     pg.update(u); // update record
 
