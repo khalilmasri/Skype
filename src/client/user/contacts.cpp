@@ -149,7 +149,7 @@ std::vector<std::string> Contacts::display_contacts() {
 
     std::vector<std::string> contacts;
 
-    FAIL_IF ( true == m_online_contacts.empty() );
+    FAIL_IF_SILENT ( true == m_online_contacts.empty() );
 
     for ( auto &[username, details] : m_online_contacts ) {
         contacts.push_back(username);

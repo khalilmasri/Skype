@@ -17,3 +17,10 @@
 			goto fail;			                                                            \
 		}							                                                            \
 	} while (0)
+
+#define FAIL_IF_SILENT(cond, ...)						                                             \
+	do {								                                                         \
+		if (cond) {						                                                      \
+			goto fail;			                                                            \
+		}							                                                            \
+	} while (0)
