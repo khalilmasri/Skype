@@ -89,3 +89,8 @@ There are also some test queries in the `postgres/` directory. You can ran these
 
     skype=# \i postgres/list_user_contacts.sql
 
+## Resetting database with test data
+
+You can reset the database and seed the test data by simply running
+
+     skype=# \i postgres/setup_postgres.sql
