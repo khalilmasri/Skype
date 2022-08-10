@@ -9,6 +9,7 @@
 LoginGui::LoginGui() 
 {
    m_new_user = false;
+   error_clear();
    memset_variables();
 }
 
@@ -34,7 +35,7 @@ void LoginGui::set_boxes(const char* t_field, float t_width, const char* t_label
 }
 
 void LoginGui::welcome(Client& t_client)
-{
+{  
     if ( true == m_new_user ) {
         register_window(t_client);
     }
@@ -56,6 +57,7 @@ void LoginGui::welcome(Client& t_client)
     {
         m_new_user = true;
     }
+    error_display();
 
     ImGui::End();
 }
@@ -70,16 +72,18 @@ void LoginGui::register_window(Client& t_client)
     set_boxes("Confirm Password", 200, "##confirmpasswordField", m_confirm_password, ImGuiInputTextFlags_Password);
 
     if (ImGui::Button(" NEW USER LOGIN "))
-    {
+    {   
         register_user(t_client);
         memset_variables();
     }
+    error_display();
 
     ImGui::End();
 }
 
 void LoginGui::login(Client& t_client) {
 
+    error_clear();
     std::string password = m_password;
     std::string username = m_username;
 
@@ -89,19 +93,28 @@ void LoginGui::login(Client& t_client) {
     t_client.user_login();
 
 fail:
-    // Let's display a message for the user @Chris
+
+    if(false == t_client.user_set_password(password))
+    {
+        error_set("Wrong Password");
+    }
+    if(false == t_client.user_set_username(username))
+    {
+        error_set("Invalid Username");
+    }
+    
     return;
 }
 
 void LoginGui::register_user(Client& t_client)
 {
-    
+    error_clear();
     std::string password = m_password;
     std::string username = m_username;
     std::string confirm_password = m_confirm_password;
     
     FAIL_IF(confirm_password != password);
-   
+    
     FAIL_IF( false == t_client.user_set_username(username));
     FAIL_IF( false == t_client.user_set_password(password));
    
@@ -112,6 +125,30 @@ void LoginGui::register_user(Client& t_client)
     LOG_INFO("Register user was successful");
 
 fail:
+    if (confirm_password != password)
+    {
+        error_set("No Match Password");
+    }
+    if(false == t_client.user_set_username(username)) //i assume this is the check for valid username
+    {
+        error_set("Username Taken");
+    }
+    
     LOG_INFO("Registering user failed!");
     return;
+}
+
+void LoginGui::error_set(std::string err)
+{
+    m_current_error = err;
+}
+
+void LoginGui::error_display()
+{
+    ImGui::Text("%s", m_current_error.c_str());
+}
+
+void LoginGui::error_clear()
+{
+    m_current_error = ""; 
 }
