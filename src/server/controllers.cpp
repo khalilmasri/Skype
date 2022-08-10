@@ -15,19 +15,9 @@ void Controllers::list(std::string &_, Request &t_req) {
   User user = m_pg.search_user_by(t_req.m_address, "address");
 
   if (!user.empty()) {
-    Users contacts = m_pg.list_user_contacts(
-        user); // TODO: what if user doesnt have contacts
-               //
-    std::string reply_msg;
-
-    for (auto &contact : contacts) {
-      reply_msg += contact.to_string() + CONTACT_DELIM;
-    }
-
-    reply_msg.pop_back(); // remove last delim
-
-    set_request_reply(Reply::r_201, std::move(reply_msg), t_req);
-
+    Users contacts = m_pg.list_user_contacts( user); 
+    list_contacts(contacts, t_req);
+     
   } else {
     set_request_reply(Reply::r_500, t_req);
   }
@@ -154,12 +144,12 @@ void Controllers::exit(std::string &_, Request &t_req) {
   User user = m_pg.search_user_by(t_req.m_address, "address");
 
   // logoff sets address column to NULL online to FALSE.
-   if(!user.empty()) { // if user is logged in then logoff.
-     m_pg.logoff(user);
-   }
+  if (!user.empty()) { // if user is logged in then logoff.
+    m_pg.logoff(user);
+  }
 
-    t_req.m_exit = true;
-    set_request_reply(Reply::r_201, "Goodbye", t_req);
+  t_req.m_exit = true;
+  set_request_reply(Reply::r_201, "Goodbye", t_req);
 }
 
 void Controllers::none(std::string &_, Request &t_req) {
@@ -191,6 +181,24 @@ void Controllers::login_user(User &t_user, Request &t_req) {
   set_request_reply(res, t_req);
 }
 
+void Controllers::list_contacts(Users &t_contacts, Request &t_req) {
+
+  if (has_contacts(t_contacts)) {
+
+    std::string reply_msg;
+
+    for (auto &contact : t_contacts) {
+      reply_msg += contact.to_string() + CONTACT_DELIM;
+    }
+
+    reply_msg.pop_back(); // remove last delim
+    set_request_reply(Reply::r_201, std::move(reply_msg), t_req);
+  } else {
+
+    set_request_reply(Reply::r_301, t_req);
+  }
+}
+
 bool Controllers::is_empty(std::string &t_user, std::string &t_password,
                            Request &t_req) {
 
@@ -201,6 +209,10 @@ bool Controllers::is_empty(std::string &t_user, std::string &t_password,
   }
 
   return res;
+}
+
+bool Controllers::has_contacts(Users &t_contacts) {
+  return 0 < t_contacts.size();
 }
 
 void Controllers::set_request_reply(Reply::Code t_reply, Request &t_req) {

@@ -23,9 +23,10 @@ Users Postgres::list_users() {
     pqxx::result res = transaction.exec("SELECT * FROM users;");
     transaction.commit();
 
-    res.for_each([&users](int id, std::string username, std::string password,
+    res.for_each([&users](int id, std::string username, std::string _,
                           bool online, std::string address) {
-      users.push_back(User(id, username, password, online, address));
+        UNUSED_PARAMS(_);
+      users.push_back(User(id, username, online, address));
     });
 
   } catch (const std::exception &err) {
@@ -46,7 +47,6 @@ Users Postgres::list_user_contacts(const User &t_user) {
 
     std::string query = list_contacts_query(t_user, transaction);
     pqxx::row row     = transaction.exec1(query);
-
 
     transaction.commit();
     row.to(result);

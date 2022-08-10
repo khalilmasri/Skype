@@ -24,17 +24,21 @@ struct Controllers {
   static bool ip_exists(Request &t_req); 
 
   private:
-    static Postgres m_pg;
+  static Postgres m_pg;
 
-    /* login */
-   static void login_user(User &t_user, Request &t_req);
-    
+   /* list */
+  static void  list_contacts(Users &t_contacts, Request &t_req);
 
-    /* helpers */
-    static bool is_empty(std::string &t_user, std::string &t_password, Request &t_req);
-    static void set_request_reply(Reply::Code t_reply, Request &t_req);
-    static void set_request_reply(Reply::Code t_reply, std::string &&t_msg, Request &t_req);
-    static void set_request_reply(bool t_valid, Request &t_req);
+   /* login */
+  static void  login_user(User &t_user, Request &t_req);
+   
+
+   /* helpers */
+  static bool  is_empty(std::string &t_user, std::string &t_password, Request &t_req);
+  static bool  has_contacts(Users &t_contacts);
+  static void  set_request_reply(Reply::Code t_reply, Request &t_req);
+  static void  set_request_reply(Reply::Code t_reply, std::string &&t_msg, Request &t_req);
+  static void  set_request_reply(bool t_valid, Request &t_req);
 };
 
 #endif // !CONTROLLERS_H
