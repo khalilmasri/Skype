@@ -22,6 +22,7 @@ int User::id() const { return m_id; }
 std::string User::username() const { return m_username; }
 
 std::string User::password() const { return m_password; }
+void        User::remove_password() { m_password = ""; };
 
 bool User::online() const { return m_online; }
 

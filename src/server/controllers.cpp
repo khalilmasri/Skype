@@ -64,6 +64,7 @@ void Controllers::search(std::string &t_username, Request &t_req) {
   User user = m_pg.search_user_by(t_username, "username");
 
   if (!user.empty()) {
+    user.remove_password(); // do not return user password to client
     set_request_reply(Reply::r_201, user.to_string(), t_req);
     std::string reply = Reply::append_message(Reply::r_201, user.to_string());
 
