@@ -54,12 +54,20 @@ Client::~Client(){
    LOG_INFO("Client disconnected\n");
 }
 
-bool Client::ping() { return true; }
-
+bool Client::ping() { 
+  req.set_data(new TextData("PING"));
+   
+   server_conn.respond(req);
+   server_conn.receive(req);
+   
+   std::cout << "server reply => " << TextData::to_string(req.data());
+   
+   return true; 
+}
 
 /* Contact direct */
-std::vector<std::string> Client::contact_get_contacts() const {
-   return m_contacts.get_contacts();
+std::vector<std::string> Client::contact_get_contacts() {
+   return m_contacts.display_contacts();
 }
 
 bool Client::contact_list() {

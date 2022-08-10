@@ -22,7 +22,7 @@ public:
     bool ping();
 
     // Contacts commands
-    std::vector<std::string> contact_get_contacts() const;
+    std::vector<std::string> contact_get_contacts();
 
     bool contact_list();
     bool contact_search(std::string& t_cmd);
@@ -46,8 +46,6 @@ private:
     
     User m_user;
     Contacts m_contacts;
-
-    std::map<std::string, Request> m_contacts_request;
 
     bool valid_response(Reply::Code t_code, std::string& t_res);
 };
