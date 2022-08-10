@@ -36,6 +36,7 @@ set(INCLUDE_DIRS    ../../include/client
                     ../../include/client/gui 
                     ../../include/client/gui/base 
                     ../../include/client/user 
+                    ../../include/client/job 
                     ../../include/shared     
                     ../../include/shared/test
                     ../../include/shared/connection 
