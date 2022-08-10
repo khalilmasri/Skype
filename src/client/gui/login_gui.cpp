@@ -27,7 +27,7 @@ void LoginGui::set_panel(int pos_x, int pos_y, int size_x, int size_y)
 }
 
 void LoginGui::set_boxes(const char* t_field, float t_width, const char* t_label, char* buf, ImGuiInputTextFlags t_flag){
-    ImGui::Text(t_field);
+    ImGui::Text("%s", t_field);
     ImGui::PushItemWidth(t_width);
     ImGui::InputText(t_label, buf, sizeof(buf), t_flag);
 }

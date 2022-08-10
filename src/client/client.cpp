@@ -5,22 +5,69 @@
 #include "passive_conn.hpp"
 #include "request.hpp"
 #include "text_data.hpp"
+#include "logger.hpp"
+#include "fail_if.hpp"
 
+#include <iostream>
 #include <vector>
 
 /* Public */
 
 Client::Client(int t_port) : server_conn(t_port, new TextIO()){
+   
+   std::string response = "";
+   LOG_INFO("Connecting to server...");
+
    auto ip = std::string("206.189.0.154");
    req = server_conn.connect_socket(ip);
+   
+   server_conn.receive(req);
+   
+   FAIL_IF( false == req.m_valid);
+   
+   response = TextData::to_string(req.data());
+
+   FAIL_IF_MSG( false == valid_response(Reply::r_200, response),"Client didn't connect to the server");
+
+   LOG_INFO("%s! Client connected to server succesfully", response.c_str());
+
+   return;
+
+fail:
+   exit(1);
 }
 
-bool Client::ping() { return true; }
+Client::~Client(){
+   LOG_INFO("Disconnecting from server");
+   
+   std::string command = "EXIT";
+   req.set_data(new TextData(command));
 
+   server_conn.respond(req);
+   server_conn.receive(req);
+
+   std::string response = TextData::to_string(req.data());
+   LOG_INFO("Server reply => %s", response.c_str());
+
+   close(server_conn.get_socket());
+
+   LOG_INFO("Client disconnected\n");
+}
+
+bool Client::ping() { 
+  req.set_data(new TextData("PING"));
+   
+   server_conn.respond(req);
+   server_conn.receive(req);
+   
+   std::cout << "server reply => " << TextData::to_string(req.data());
+   
+   return true; 
+}
 
 /* Contact direct */
-std::vector<std::string> Client::contact_get_contacts() const {
-   return m_contacts.get_contacts();
+std::vector<std::string> Client::contact_get_contacts() {
+   return m_contacts.display_contacts();
 }
 
 std::string Client::contact_get_current_contact() {
@@ -46,7 +93,8 @@ bool Client::contact_add_user(std::string& t_cmd) {
 }
 
 bool Client::contact_remove_user(std::string& t_cmd) {
-   return m_contacts.remove_user(t_cmd);
+   req.set_data(new TextData(t_cmd));
+   return m_contacts.remove_user(server_conn,req);
 }
 
 bool Client::contact_available(std::string& t_cmd) {
@@ -78,4 +126,16 @@ std::string Client::user_get_username() const {
 
 bool Client::user_get_logged_in() const {
    return m_user.get_logged_in();
+}
+
+bool Client::valid_response(Reply::Code t_code, std::string& t_res) {
+   
+   std::string code = Reply::get_message(t_code);
+    auto found = t_res.find(code);
+
+    if ( found != std::string::npos){
+        return true;
+    }
+
+    return false;
 }

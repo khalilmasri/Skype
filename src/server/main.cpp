@@ -4,6 +4,8 @@
 #include "doctest.h"
 #include "server.hpp"
 
+#define PORT 5000
+
 bool do_test(std::string &&t_av){
    if(t_av == "--test"){
      return true;
@@ -39,7 +41,7 @@ int main(int ac, char *av[]){
          return res;
       }
 
-    Server server(4000);
+    Server server(PORT);
     server.main_loop();
 
     return 0;
