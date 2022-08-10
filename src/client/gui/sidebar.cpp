@@ -22,7 +22,7 @@ void SideBar::contacts_sidebar(Client &t_client)
     set_panel(0, 0, 150, 600);
     ImGui::Begin("Contacts");
     ImGui::PushItemWidth(300);
-    std::string list_name;
+    std::string list_name = "##Contacts";
     make_list_box(list_name, t_client, 150, 550);
     ImGui::End();
 };

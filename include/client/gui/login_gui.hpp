@@ -16,15 +16,18 @@ private:
    void register_window(Client& t_client);
    void register_user(Client& t_client);
    void memset_variables();
+   void error_set(std::string err);
+   void error_display();
+   void error_clear();
    
    bool m_new_user;
    char m_username[MAX_USER_LEN];
    char m_password[MAX_USER_LEN];
    char m_confirm_password[MAX_USER_LEN];
+   std::string m_current_error;
 
    void set_panel(int pos_x, int pos_y, int size_x, int size_y);
    void set_boxes(const char* t_field, float t_width, const char* t_label, char* buf, ImGuiInputTextFlags t_flag);
-
 };
 
 #endif // LOGINGUI_H
