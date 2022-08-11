@@ -27,12 +27,13 @@ JobBus::JobBus(int t_port) {
 void JobBus::main_loop() {
 
     while( false == m_exit_loop ) {
-        
+        std::cout << "here\n";
         if ( false == jobQ.jobs.empty()){
             Job job;
             jobQ.pop_job(job);
             m_JobBus_map[job.command](job.argument);
         }
+        sleep(1);
     }
 }
 
