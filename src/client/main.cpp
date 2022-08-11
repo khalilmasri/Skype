@@ -10,9 +10,6 @@ int main(int, char **)
 {   
     Program program(5000);
 
-    while(true){
-        
-    }
 //     Client client(5000);
 //     std::string name = "";
 //     std::vector<std::string> contacts = {};

@@ -8,7 +8,7 @@
 #include <functional>
 #include <queue>
 
-struct JobBus{
+class JobBus{
 
     typedef Job::Type Type;
     typedef std::function<bool (std::string&)> JobsMethod;
@@ -18,8 +18,9 @@ public:
 
     JobBus(int t_port);
     
-    // Main job loop
+    // Job functionality 
     static void main_loop();
+    static void set_exit();
 
     // Contacts 
     static bool contact_list(std::string &_);
@@ -27,9 +28,10 @@ public:
     static bool contact_add_user(std::string &t_arg);
     static bool contact_remove_user(std::string &t_arg);
     static bool contact_available(std::string &t_arg);
+    static std::vector<std::string> contact_get_contacts();
 
     // User
-    static bool user_set_usernamae(std::string &t_arg);
+    static bool user_set_username(std::string &t_arg);
     static bool user_set_password(std::string &t_arg);
 
     static bool user_register_user(std::string &_);
@@ -40,7 +42,9 @@ public:
 
 private:
     static Client           m_client;
-    const static JobsMap    m_JobBus_map; 
+    static bool             m_exit_loop;
+    static JobsMap          m_JobBus_map; 
 };
+
 
 #endif // JBUS_H

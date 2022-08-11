@@ -13,6 +13,7 @@ include_directories(${SDL2_INCLUDE_DIRS})
 file(GLOB CLIENT_SOURCES    "*.cpp" 
                             "gui/*.cpp"
                             "gui/base/*.cpp"
+                            "job/*.cpp"
                             "user/*.cpp"
                             "../shared/*.cpp"
                             "../shared/data/*.cpp"

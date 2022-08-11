@@ -4,8 +4,7 @@
 #include <string>
 
 struct Job {
-
-    enum Type {
+     enum Type {
         // Contacts
         LIST,
         SEARCH,

@@ -13,7 +13,7 @@ public:
 
 private:
     SkypeGui    m_skype;
-    // JobBus      m_bus;
+    JobBus      m_bus;
 };
 
 #endif // PROGRAM_H

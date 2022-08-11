@@ -11,6 +11,6 @@ struct JobQueue {
     bool pop_job(Job& t_job);
 };
 
-static JobQueue jobQ = {};
+static JobQueue jobQ;
 
 #endif // JOB_QUEUE_H

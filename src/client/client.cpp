@@ -15,6 +15,10 @@
 
 Client::Client(int t_port) : server_conn(t_port, new TextIO()){
    
+   if ( t_port == 0 ) {
+      return;
+   }
+   
    std::string response = "";
    LOG_INFO("Connecting to server...");
 
