@@ -7,6 +7,7 @@
 #include "text_data.hpp"
 #include "logger.hpp"
 #include "fail_if.hpp"
+#include "job_bus.hpp"
 
 #include <iostream>
 #include <vector>
@@ -43,6 +44,8 @@ fail:
 
 Client::~Client(){
    LOG_INFO("Disconnecting from server");
+   
+   // JobBus::set_exit();
    
    std::string command = "EXIT";
    req.set_data(new TextData(command));

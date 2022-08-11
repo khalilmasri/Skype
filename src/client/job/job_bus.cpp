@@ -3,6 +3,7 @@
 #include "supress_unused_params_warnings.hpp"
 
 #include <vector>
+#include <ctime>
 
 Client JobBus::m_client = Client(0);
 bool JobBus::m_exit_loop = false;
@@ -26,14 +27,22 @@ JobBus::JobBus(int t_port) {
 
 void JobBus::main_loop() {
 
+    time_t now;
+    time(&now);
+    
     while( false == m_exit_loop ) {
-        std::cout << "here\n";
+        
         if ( false == jobQ.jobs.empty()){
             Job job;
             jobQ.pop_job(job);
             m_JobBus_map[job.command](job.argument);
         }
-        sleep(1);
+
+        if (difftime(time(NULL), now) > 3){ // Run this task every 3 seconds
+            std::string me = "";
+            contact_list(me);
+            time(&now);
+        }
     }
 }
 
