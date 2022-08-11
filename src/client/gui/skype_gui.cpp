@@ -7,6 +7,7 @@
 #include "skype_gui.hpp"
 #include "login_gui.hpp"
 #include "sidebar.hpp"
+#include "chat_history.hpp"
 
 #include <stdio.h>
 #include <iostream>
@@ -101,6 +102,7 @@ void SkypeGui::run()
 {   
     LoginGui login_window;
     SideBar sidebar;
+    ChatHistory chat_history;
 
     bool logged_in = false;
 
@@ -186,36 +188,6 @@ void SkypeGui::set_boxes(const char* t_field, float t_width, const char* t_label
 // //     std::cout << "User Added: " << t_new_username << std::endl;
 // // }
 
-// void SkypeGui::chat_window(const std::string &t_contact)
-// {
-//     static std::string prev_contact;
-//     static int prev_len;
-//     int new_len;
-//     if ((new_len = chat_history_to_buffer() > prev_len) && prev_contact == t_contact)
-//     {
-//         ImGui::SetScrollHereY(ImGui::GetScrollY());
-//     }
-//     else if ((prev_contact != t_contact))
-//     {
-//         ImGui::SetScrollHereY(ImGui::GetScrollY());
-//     }
-//     else
-//     {
-//         prev_len = new_len;
-//     }
-//     prev_len = new_len;
-
-//     const ImGuiViewport *main_viewport = ImGui::GetMainViewport();
-//     ImGui::SetNextWindowPos(ImVec2(main_viewport->WorkPos.x + 150, main_viewport->WorkPos.y), ImGuiCond_FirstUseEver);
-//     ImGui::SetNextWindowSize(ImVec2(650, 520), ImGuiCond_FirstUseEver);
-
-//     ImGui::Begin(t_contact.c_str(), NULL, ImGuiWindowFlags_NoBringToFrontOnFocus);
-//     ImGui::TextWrapped("%s", m_chat_history); // chat history panel
-
-//     ImGui::SetScrollHereY(0.999f);
-//     ImGui::End();
-// };
-
 // void SkypeGui::run_chat_controls(const std::string &t_contact)
 // {
 //     set_panel(150, 520, 650, 80);
@@ -261,28 +233,6 @@ void SkypeGui::set_boxes(const char* t_field, float t_width, const char* t_label
 //     }
 
 //     ImGui::End();
-// };
-
-// int SkypeGui::chat_history_to_buffer()
-// {
-//     int length = 0;
-//     memset(m_chat_history, 0, sizeof(m_chat_history));
-//     std::string filename = "../chat_logs/" + m_current_contact + ".txt";
-//     std::fstream file;
-//     file.open(filename, std::fstream::in | std::fstream::out | std::fstream::app);
-//     if (!file)
-//     {
-//         std::cout << "Chat History Could Not Be Found!" << std::endl;
-//     }
-//     else
-//     {
-//         file.seekg(0, file.end);
-//         length = file.tellg();
-//         file.seekg(0, file.beg);
-//         file.read(m_chat_history, length);
-//         file.close();
-//     }
-//     return length;
 // };
 
 // void SkypeGui::run_call_window()
