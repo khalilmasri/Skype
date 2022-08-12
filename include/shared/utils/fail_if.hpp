@@ -1,3 +1,5 @@
+#include "gui_message.hpp"
+
 #include <cstdio>
 
 #define __FILENAME__(file) (std::strrchr(file, '/') ? std::strrchr(file, '/') + 1 : file)
@@ -18,9 +20,17 @@
 		}							                                                            \
 	} while (0)
 
-#define FAIL_IF_SILENT(cond, ...)						                                             \
+#define FAIL_IF_SILENT(cond, ...)						                                    \
 	do {								                                                         \
 		if (cond) {						                                                      \
 			goto fail;			                                                            \
 		}							                                                            \
 	} while (0)
+
+#define FAIL_IF_GUI(cond, MSG, ...)																								\
+	do {																																	\
+		if (cond) {																														\
+			GuiMsg::set_msg(MSG);																								\
+			goto fail;																													\
+		}																																	\
+	} while(0)
