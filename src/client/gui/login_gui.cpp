@@ -6,6 +6,8 @@
 #include "login_gui.hpp"
 #include "fail_if.hpp"
 #include "gui_message.hpp"
+#include "job.hpp"
+#include "job_queue.hpp"
 
 LoginGui::LoginGui() 
 {
@@ -85,14 +87,21 @@ void LoginGui::register_window(Client& t_client)
 
 void LoginGui::login(Client& t_client) {
 
+    Job job;
     std::string password = m_password;
     std::string username = m_username;
 
-    FAIL_IF_GUI( false == t_client.user_set_username(username), "Invalid Username");
-    FAIL_IF_GUI( false == t_client.user_set_password(password), "Wrong Password");
+    // job = {Job::SETUSER, username};
+    jobQ.add_job({Job::SETUSER, username});
+    // FAIL_IF_GUI( false == t_client.user_set_username(username), "Invalid Username");
+    job = {Job::SETPASS, password};
+    jobQ.add_job(job);
+    // FAIL_IF_GUI( false == t_client.user_set_password(password), "Wrong Password");
 
-    t_client.user_login();
+    job = {Job::LOGIN, ""};
+    jobQ.add_job(job);
 
+    return;
 fail:
 
     LOG_INFO("Login error");
