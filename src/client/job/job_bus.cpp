@@ -38,11 +38,11 @@ void JobBus::main_loop() {
             m_JobBus_map[job.command](job.argument);
         }
 
-        if (difftime(time(NULL), now) > 3){ // Run this task every 3 seconds
-            std::string me = "";
-            contact_list(me);
-            time(&now);
-        }
+        // if (difftime(time(NULL), now) > 3){ // Run this task every 3 seconds
+        //     std::string me = "";
+        //     contact_list(me);
+        //     time(&now);
+        // }
     }
 }
 

@@ -8,7 +8,7 @@ Program::Program(int t_port) : m_skype() , m_bus(t_port) {
     
     m_skype.run();
 
-    bus_loop.join();
+    bus_loop.detach();
 }
 
 Program::~Program() {};

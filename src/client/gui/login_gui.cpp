@@ -5,11 +5,12 @@
 #include "skype_gui.hpp"
 #include "login_gui.hpp"
 #include "fail_if.hpp"
+#include "gui_message.hpp"
 
 LoginGui::LoginGui() 
 {
    m_new_user = false;
-   error_clear();
+
    memset_variables();
 }
 
@@ -38,6 +39,7 @@ void LoginGui::welcome(Client& t_client)
 {  
     if ( true == m_new_user ) {
         register_window(t_client);
+        return;
     }
 
     set_panel(300, 50, 220, 220);
@@ -56,8 +58,8 @@ void LoginGui::welcome(Client& t_client)
     if (ImGui::Button("NEW USER"))
     {
         m_new_user = true;
-    }
-    error_display();
+    }  
+    GuiMsg::display();
 
     ImGui::End();
 }
@@ -76,79 +78,46 @@ void LoginGui::register_window(Client& t_client)
         register_user(t_client);
         memset_variables();
     }
-    error_display();
+    GuiMsg::display();
 
     ImGui::End();
 }
 
 void LoginGui::login(Client& t_client) {
 
-    error_clear();
     std::string password = m_password;
     std::string username = m_username;
 
-    FAIL_IF( false == t_client.user_set_username(username));
-    FAIL_IF( false == t_client.user_set_password(password));
+    FAIL_IF_GUI( false == t_client.user_set_username(username), "Invalid Username");
+    FAIL_IF_GUI( false == t_client.user_set_password(password), "Wrong Password");
 
     t_client.user_login();
 
 fail:
 
-    if(false == t_client.user_set_password(password))
-    {
-        error_set("Wrong Password");
-    }
-    if(false == t_client.user_set_username(username))
-    {
-        error_set("Invalid Username");
-    }
-    
+    LOG_INFO("Login error");
     return;
 }
 
 void LoginGui::register_user(Client& t_client)
 {
-    error_clear();
     std::string password = m_password;
     std::string username = m_username;
     std::string confirm_password = m_confirm_password;
     
-    FAIL_IF(confirm_password != password);
+    FAIL_IF_GUI(confirm_password != password, "No match password");
     
-    FAIL_IF( false == t_client.user_set_username(username));
-    FAIL_IF( false == t_client.user_set_password(password));
+    FAIL_IF_GUI( false == t_client.user_set_username(username), "Invalid Username");
+    FAIL_IF_GUI( false == t_client.user_set_password(password), "Wrong Password");
    
-    FAIL_IF( false == t_client.user_register_user());
+    FAIL_IF_GUI( false == t_client.user_register_user(), "Registration error");
 
     m_new_user = false;
     
     LOG_INFO("Register user was successful");
 
 fail:
-    if (confirm_password != password)
-    {
-        error_set("No Match Password");
-    }
-    if(false == t_client.user_set_username(username)) //i assume this is the check for valid username
-    {
-        error_set("Username Taken");
-    }
     
     LOG_INFO("Registering user failed!");
     return;
-}
-
-void LoginGui::error_set(std::string err)
-{
-    m_current_error = err;
-}
-
-void LoginGui::error_display()
-{
-    ImGui::Text("%s", m_current_error.c_str());
-}
-
-void LoginGui::error_clear()
-{
-    m_current_error = ""; 
 }
