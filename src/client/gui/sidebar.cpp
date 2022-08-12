@@ -1,7 +1,6 @@
 #include "sidebar.hpp"
 #include "skype_gui.hpp"
 
-
 SideBar::SideBar() 
 {
     std::cout << "Sidebar Constructed" << std::endl;
@@ -29,29 +28,31 @@ void SideBar::contacts_sidebar(Client &t_client)
 
 void SideBar::make_list_box(std::string &t_list_name, Client &t_client, int x_size, int y_size)
 {
-    std::vector<std::string> contacts = t_client.contact_get_contacts();
-    static int index = 0; // Here we store our selection data as an index.
     if (ImGui::ListBoxHeader(t_list_name.c_str(), ImVec2(150, 550)))
     {
-
-        for (size_t n = 0; n < contacts.size(); n++)
-        {
-            const bool is_selected = (index == (int)n);
-            // TEMP booleans needed toblock changing chats if on call
-            if (ImGui::Selectable(contacts[n].c_str(), is_selected)) // && video_call == false && audio_call == false)
-            {
-                index = n;
-                std::cout << "selected: " << contacts[n] << std::endl;
-                t_client.contact_set_current_contact(contacts[n]); // need to write getters and setters for this
-            }
-
-            // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
-            if (is_selected)
-                ImGui::SetItemDefaultFocus();
-        }
+        selectable_list(t_client);
         ImGui::EndListBox();
     }
+}
 
+void SideBar::selectable_list(Client &t_client)
+{
+    static int index = 0;
+    std::vector<std::string> contacts = t_client.contact_get_contacts();
+    for (size_t n = 0; n < contacts.size(); n++)
+    {
+        const bool is_selected = (index == (int)n);
+        // TEMP booleans needed toblock changing chats if on call
+        if (ImGui::Selectable(contacts[n].c_str(), is_selected)) // && video_call == false && audio_call == false)
+        {
+            index = n;
+            std::cout << "selected: " << contacts[n] << std::endl;
+            t_client.contact_set_current_contact(contacts[n]); // need to write getters and setters for this
+        }
+        // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
+        if (is_selected)
+            ImGui::SetItemDefaultFocus();
+    }
 }
 
 void SideBar::set_panel(int pos_x, int pos_y, int size_x, int size_y)

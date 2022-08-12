@@ -18,6 +18,7 @@ class SideBar {
         //setup and fill contacts list
         void contacts_sidebar(Client &t_client);
         void make_list_box(std::string &t_list_name, Client &t_client, int x_size, int y_size);
+        void selectable_list(Client &t_client);
 
         void set_panel(int pos_x, int pos_y, int size_x, int size_y);
 
