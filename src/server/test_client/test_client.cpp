@@ -14,6 +14,7 @@ int main(void) {
 
   std::cout << "attempting to connect to server..." << std::endl;
   // this is the server address
+// >>>>>>> client_to_server
   std::string addr = "206.189.0.154";
   Request req = conn.connect_socket(addr);
 

@@ -12,6 +12,8 @@ include_directories(${SDL2_INCLUDE_DIRS})
 # Include all the source code with cpp extension
 file(GLOB CLIENT_SOURCES    "*.cpp" 
                             "gui/*.cpp"
+                            "gui/base/*.cpp"
+                            "job/*.cpp"
                             "user/*.cpp"
                             "../shared/*.cpp"
                             "../shared/data/*.cpp"
@@ -33,7 +35,9 @@ add_executable(${PROJECT_NAME} ${CLIENT_SOURCES})
 # Define the include path
 set(INCLUDE_DIRS    ../../include/client 
                     ../../include/client/gui 
+                    ../../include/client/gui/base 
                     ../../include/client/user 
+                    ../../include/client/job 
                     ../../include/shared     
                     ../../include/shared/test
                     ../../include/shared/connection 
