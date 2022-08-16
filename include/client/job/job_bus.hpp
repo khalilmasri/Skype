@@ -12,7 +12,7 @@ class JobBus{
     typedef Job::Type Type;
     
     // Bool jobs handling
-    typedef std::function<void (std::string &t_arg, bool t_ret)> b_JobsMethod;
+    typedef std::function<void (std::string &t_arg, bool &t_ret)> b_JobsMethod;
     typedef std::unordered_map<Type, b_JobsMethod> b_JobsMap;
 
     // std::string job handling

@@ -27,21 +27,21 @@ public:
     static void contact_set_current_contact (std::string &t_arg, bool t_ret);
     static void contact_get_contacts        (std::string &t_arg, std::vector<std::string> &t_ret);
 
-    static void contact_list                (std::string &t_arg, bool t_ret);
-    static void contact_search              (std::string &t_arg, bool t_ret);
-    static void contact_add_user            (std::string &t_arg, bool t_ret);
-    static void contact_remove_user         (std::string &t_arg, bool t_ret);
-    static void contact_available           (std::string &t_arg, bool t_ret);
+    static void contact_list                (std::string &t_arg, bool &t_ret);
+    static void contact_search              (std::string &t_arg, bool &t_ret);
+    static void contact_add_user            (std::string &t_arg, bool &t_ret);
+    static void contact_remove_user         (std::string &t_arg, bool &t_ret);
+    static void contact_available           (std::string &t_arg, bool &t_ret);
 
     // User commands
-    static void user_set_username           (std::string &t_arg, bool t_ret);
-    static void user_set_password           (std::string &t_arg, bool t_ret);
+    static void user_set_username           (std::string &t_arg, bool &t_ret);
+    static void user_set_password           (std::string &t_arg, bool &t_ret);
 
-    static void user_register_user          (std::string &t_arg, bool t_ret);
-    static void user_login                  (std::string &t_arg, bool t_ret);
+    static void user_register_user          (std::string &t_arg, bool &t_ret);
+    static void user_login                  (std::string &t_arg, bool &t_ret);
 
     static void user_get_username           (std::string &t_arg, std::string &t_ret);
-    static void user_get_logged_in          (std::string &t_arg, bool t_ret);
+    static void user_get_logged_in          (std::string &t_arg, bool &t_ret);
 
 private:
     inline static ActiveConn server_conn = ActiveConn(SERVER_PORT, new TextIO());

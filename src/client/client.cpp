@@ -42,7 +42,7 @@ fail:
 Client::~Client(){
    LOG_INFO("Disconnecting from server");
    
-   // JobBus::set_exit();
+   JobBus::set_exit();
    
    std::string command = "EXIT";
    server_req.set_data(new TextData(command));
@@ -74,47 +74,47 @@ void Client::contact_get_contacts(std::string &t_arg, std::vector<std::string> &
    t_ret = m_contacts.display_contacts();
 }
 
-void Client::contact_list(std::string &t_arg, bool t_ret) {
+void Client::contact_list(std::string &t_arg, bool &t_ret) {
    UNUSED_PARAMS(t_arg);
    t_ret = m_contacts.list(server_conn, server_req);
 }
 
-void Client::contact_search(std::string &t_arg, bool t_ret) {
+void Client::contact_search(std::string &t_arg, bool &t_ret) {
    server_req.set_data(new TextData(t_arg));
    t_ret = m_contacts.search(server_conn, server_req);
 }
 
-void Client::contact_add_user(std::string &t_arg, bool t_ret) {
+void Client::contact_add_user(std::string &t_arg, bool &t_ret) {
    server_req.set_data(new TextData(t_arg));
    t_ret = m_contacts.add_user(server_conn, server_req);
 }
 
-void Client::contact_remove_user(std::string &t_arg, bool t_ret) {
+void Client::contact_remove_user(std::string &t_arg, bool &t_ret) {
    server_req.set_data(new TextData(t_arg));
    t_ret = m_contacts.remove_user(server_conn,server_req);
 }
 
-void Client::contact_available(std::string &t_arg, bool t_ret) {
+void Client::contact_available(std::string &t_arg, bool &t_ret) {
    server_req.set_data(new TextData(t_arg));
    t_ret = m_contacts.available(server_conn, server_req);
 }
 
 
 /* User direct */
-void Client::user_set_username(std::string &t_arg, bool t_ret){
+void Client::user_set_username(std::string &t_arg, bool &t_ret){
    t_ret = m_user.set_username(t_arg);
 }
 
-void Client::user_set_password(std::string &t_arg, bool t_ret){
+void Client::user_set_password(std::string &t_arg, bool &t_ret){
    t_ret = m_user.set_password(t_arg);
 }
 
-void Client::user_register_user(std::string &t_arg, bool t_ret){
+void Client::user_register_user(std::string &t_arg, bool &t_ret){
    UNUSED_PARAMS(t_arg);
    t_ret = m_user.register_user(server_conn, server_req);
 }
 
-void Client::user_login(std::string &t_arg, bool t_ret) {
+void Client::user_login(std::string &t_arg, bool &t_ret) {
    UNUSED_PARAMS(t_arg);
    t_ret = m_user.login(server_conn, server_req);
 }
@@ -124,7 +124,7 @@ void Client::user_get_username(std::string &t_arg, std::string &t_ret){
    t_ret = m_user.get_username();
 }
 
-void Client::user_get_logged_in(std::string &t_arg, bool t_ret) {
+void Client::user_get_logged_in(std::string &t_arg, bool &t_ret) {
    UNUSED_PARAMS(t_arg);
    t_ret = m_user.get_logged_in();
 }

@@ -35,19 +35,27 @@ void JobBus::main_loop() {
     time_t now;
     time(&now);
 
+    Job job;
     while( false == m_exit_loop ) {
 
         if ( false == jobQ.empty()){
-            Job job;
             jobQ.pop_try(job);
 
             if (job.command <= 19){
                 m_JobBus_map_bool[job.command](job.argument, job.bool_value);
+                jobQ.push_res(job);
             }else if (job.command <= 29) {
                 m_JobBus_map_string[job.command](job.argument, job.s_value);
-                std::cout << job.s_value << std::endl;
+                 if(true == job.s_value.empty()){
+                    job.bool_value = true;
+                }
+                jobQ.push_res(job);
             }else if (job.command <= 30) {
                 m_JobBus_map_vector[job.command](job.argument, job.v_value);
+                if(true == job.v_value.empty()){
+                    job.bool_value = true;
+                }
+                jobQ.push_res(job);
             }
         }
 

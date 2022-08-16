@@ -2,7 +2,16 @@
 #include "client.hpp"
 #include "job.hpp"
 #include "job_queue.hpp"
+#include "fail_if.hpp"
+
 #include <thread>
+
+bool JobHandle(Job & t_job){
+    jobQ.push(t_job);
+    jobQ.pop_res(t_job);
+
+    return t_job.bool_value;
+}
 
 Program::Program() : m_bus() {
 
@@ -16,20 +25,27 @@ Program::Program() : m_bus() {
     std::string password = "1234";
     
     Job job = {Job::SETUSER, "khalil"};
-    jobQ.push(job);
+    FAIL_IF_MSG(false == JobHandle(job), "Failed to set user");
+    std::cout << "Set user = > " << job.bool_value << std::endl;
     
     job = {Job::SETPASS, "1234"};
     jobQ.push(job);
+    jobQ.pop_res(job);
+    std::cout << "Set pass = > " << job.bool_value << std::endl;
 
     job = {Job::LOGIN};
     jobQ.push(job);
+    jobQ.pop_res(job);
+    std::cout << "Login = > " << job.bool_value << std::endl;
     
     job = {Job::GETUSER};
     jobQ.push(job);
+    jobQ.pop_res(job);
+    std::cout << "Get user = > " << job.s_value << std::endl;
 
-    sleep(3);
-
-    JobBus::set_exit();
+    bus_loop.detach();
+    return;
+fail:
     bus_loop.detach();
 }
 
