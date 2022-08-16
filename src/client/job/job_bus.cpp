@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <ctime>
+#include <iostream>
 
 bool JobBus::m_exit_loop = false;
 JobBus::JobsMap JobBus::m_JobBus_map = {};
@@ -31,12 +32,14 @@ void JobBus::main_loop() {
 
     while( false == m_exit_loop ) {
 
-        if ( 1 <= jobQ.size){
-            std::cout << "Size " <<jobQ.jobs.size() << std::endl;
+
+        if ( false == jobQ.empty()){
             Job job;
-            jobQ.pop_job(job);
-            std::cout << job.command << std::endl;
+            jobQ.pop_try(job);
+
             m_JobBus_map[job.command](job.argument, job.return_value);
+
+
         }
 
         // if (difftime(time(NULL), now) > 3){ // Run this task every 3 seconds

@@ -16,7 +16,7 @@ Program::Program() : m_bus() {
     std::string password = "1234";
     void* noth = nullptr;
     Job job1 = {Job::SETUSER, username, noth};
-    jobQ.add_job(job1);
+    jobQ.push(job1);
     sleep(5);
     std::cout << "Add user" << job1.return_value << std::endl;
     Job job2 = {Job::SETPASS, password, noth};

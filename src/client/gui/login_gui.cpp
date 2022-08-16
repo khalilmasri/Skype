@@ -92,14 +92,14 @@ void LoginGui::login(Client& t_client) {
     std::string username = m_username;
 
     job = {Job::SETUSER, username};
-    jobQ.add_job(job);
+    jobQ.push(job);
     // FAIL_IF_GUI( false == t_client.user_set_username(username), "Invalid Username");
     job = {Job::SETPASS, password};
-    jobQ.add_job(job);
+    jobQ.push(job);
     // FAIL_IF_GUI( false == t_client.user_set_password(password), "Wrong Password");
 
     job = {Job::LOGIN, ""};
-    jobQ.add_job(job);
+    jobQ.push(job);
 
     return;
 fail:
