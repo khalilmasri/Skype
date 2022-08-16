@@ -14,14 +14,22 @@ Program::Program() : m_bus() {
     std::thread bus_loop(&JobBus::main_loop);
     std::string username = "khalil";
     std::string password = "1234";
-    void* noth = nullptr;
-    Job job1 = {Job::SETUSER, username, noth};
-    jobQ.push(job1);
-    sleep(5);
-    std::cout << "Add user" << job1.return_value << std::endl;
-    Job job2 = {Job::SETPASS, password, noth};
+    
+    Job job = {Job::SETUSER, "khalil"};
+    jobQ.push(job);
+    
+    job = {Job::SETPASS, "1234"};
+    jobQ.push(job);
 
-    while (true){}
+    job = {Job::LOGIN};
+    jobQ.push(job);
+    
+    job = {Job::GETUSER};
+    jobQ.push(job);
+
+    sleep(3);
+
+    JobBus::set_exit();
     bus_loop.detach();
 }
 

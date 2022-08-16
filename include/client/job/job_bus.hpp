@@ -10,9 +10,18 @@
 
 class JobBus{
     typedef Job::Type Type;
-    typedef std::function<void (std::string &t_arg, void* t_ret)> JobsMethod;
-    typedef std::unordered_map<Type, JobsMethod> JobsMap;
+    
+    // Bool jobs handling
+    typedef std::function<void (std::string &t_arg, bool t_ret)> b_JobsMethod;
+    typedef std::unordered_map<Type, b_JobsMethod> b_JobsMap;
 
+    // std::string job handling
+    typedef std::function<void (std::string &t_arg, std::string &t_ret)> s_JobsMethod;
+    typedef std::unordered_map<Type, s_JobsMethod> s_JobsMap;
+
+    // std::vector<std::string> job handling
+    typedef std::function<void (std::string &t_arg, std::vector<std::string> &t_ret)> v_JobsMethod;
+    typedef std::unordered_map<Type, v_JobsMethod> v_JobsMap;
 public:
 
     JobBus();
@@ -23,7 +32,9 @@ public:
 
 private:
     static bool             m_exit_loop;
-    static JobsMap          m_JobBus_map; 
+    static b_JobsMap        m_JobBus_map_bool; 
+    static s_JobsMap        m_JobBus_map_string; 
+    static v_JobsMap        m_JobBus_map_vector; 
 
 };
 

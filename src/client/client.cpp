@@ -102,7 +102,6 @@ void Client::contact_available(std::string &t_arg, bool t_ret) {
 
 /* User direct */
 void Client::user_set_username(std::string &t_arg, bool t_ret){
-   std::cout << "here\n";
    t_ret = m_user.set_username(t_arg);
 }
 

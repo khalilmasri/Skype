@@ -2,7 +2,7 @@
 #define JOB_H
 
 #include <string>
-
+#include <vector>
 struct Job {
      enum Type {
 
@@ -29,9 +29,11 @@ struct Job {
     };
 
     Type command;
-    std::string argument;
+    std::string argument = "";
 
-    void* return_value;
+    bool bool_value = false;
+    std::string s_value = "";
+    std::vector<std::string> v_value = {};
 };
 
 
