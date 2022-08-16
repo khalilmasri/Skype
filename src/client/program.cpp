@@ -29,24 +29,22 @@ Program::Program() : m_bus() {
     std::cout << "Set user = > " << job.bool_value << std::endl;
     
     job = {Job::SETPASS, "1234"};
-    jobQ.push(job);
-    jobQ.pop_res(job);
+    FAIL_IF_MSG(false == JobHandle(job), "Failed to set password");
     std::cout << "Set pass = > " << job.bool_value << std::endl;
 
     job = {Job::LOGIN};
-    jobQ.push(job);
-    jobQ.pop_res(job);
+    FAIL_IF_MSG(false == JobHandle(job), "Failed to login");
     std::cout << "Login = > " << job.bool_value << std::endl;
     
     job = {Job::GETUSER};
-    jobQ.push(job);
-    jobQ.pop_res(job);
+    FAIL_IF_MSG(false == JobHandle(job), "Failed to get username");
     std::cout << "Get user = > " << job.s_value << std::endl;
 
     bus_loop.detach();
     return;
 fail:
     bus_loop.detach();
+    return;
 }
 
 Program::~Program() {};

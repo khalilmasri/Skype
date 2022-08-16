@@ -46,13 +46,13 @@ void JobBus::main_loop() {
                 jobQ.push_res(job);
             }else if (job.command <= 29) {
                 m_JobBus_map_string[job.command](job.argument, job.s_value);
-                 if(true == job.s_value.empty()){
+                 if(false == job.s_value.empty()){
                     job.bool_value = true;
                 }
                 jobQ.push_res(job);
             }else if (job.command <= 30) {
                 m_JobBus_map_vector[job.command](job.argument, job.v_value);
-                if(true == job.v_value.empty()){
+                if(false == job.v_value.empty()){
                     job.bool_value = true;
                 }
                 jobQ.push_res(job);
