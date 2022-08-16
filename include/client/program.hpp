@@ -8,11 +8,11 @@
 class Program{
 
 public:
-    Program(int t_port);
+    Program();
     ~Program();
 
 private:
-    SkypeGui    m_skype;
+    // SkypeGui    m_skype;
     JobBus      m_bus;
 };
 

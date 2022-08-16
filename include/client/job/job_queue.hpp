@@ -7,8 +7,9 @@
 
 struct JobQueue {
     std::queue<Job> jobs;
-    void add_job(Job& t_job);
-    bool pop_job(Job& t_job);
+    size_t size = 0;
+    void add_job(Job &t_job);
+    bool pop_job(Job &t_job);
 };
 
 static JobQueue jobQ;

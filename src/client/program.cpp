@@ -1,13 +1,27 @@
 #include "program.hpp"
-
+#include "client.hpp"
+#include "job.hpp"
+#include "job_queue.hpp"
 #include <thread>
 
-Program::Program(int t_port) : m_skype() , m_bus(t_port) {
+Program::Program() : m_bus() {
 
-    std::thread bus_loop(&JobBus::main_loop);
     
-    m_skype.run();
+    // m_skype.run();
 
+    Client client;
+    
+    std::thread bus_loop(&JobBus::main_loop);
+    std::string username = "khalil";
+    std::string password = "1234";
+    void* noth = nullptr;
+    Job job1 = {Job::SETUSER, username, noth};
+    jobQ.add_job(job1);
+    sleep(5);
+    std::cout << "Add user" << job1.return_value << std::endl;
+    Job job2 = {Job::SETPASS, password, noth};
+
+    while (true){}
     bus_loop.detach();
 }
 

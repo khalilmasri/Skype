@@ -46,6 +46,8 @@ Request ActiveConn::connect_socket(std::string &t_address) {
   return req;
 }
 
+#include <iostream>
+
 bool ActiveConn::receive(Request &t_req) {
   t_req.m_socket = get_socket(); // just to keep convention as ActiveConn
                                  // handles only a single socket.
@@ -53,6 +55,7 @@ bool ActiveConn::receive(Request &t_req) {
   if (t_req.m_valid) {
     t_req.m_valid = m_io->receive(t_req);
   }
+
   return t_req.m_valid;
 }
 
