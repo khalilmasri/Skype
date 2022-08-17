@@ -6,42 +6,27 @@
 
 #include <thread>
 
-bool JobHandle(Job & t_job){
-    jobQ.push(t_job);
-    jobQ.pop_res(t_job);
-
-    return t_job.bool_value;
-}
 
 Program::Program() {
 
-    
     // m_skype.run();
-
     Client client;
+    Job job;
     
     std::thread bus_loop(&JobBus::main_loop);
-    std::string username = "khalil";
-    std::string password = "1234";
     
-    Job job = {Job::SETUSER, "khalil"};
-    FAIL_IF_MSG(false == JobHandle(job), "Failed to set user");
-    std::cout << "Set user = > " << job.bool_value << std::endl;
+    FAIL_IF_MSG(false == JobBus::handle({Job::SETUSER, "khalil"}), "Failed to set user");
     
-    job = {Job::SETPASS, "1234"};
-    FAIL_IF_MSG(false == JobHandle(job), "Failed to set password");
-    std::cout << "Set pass = > " << job.bool_value << std::endl;
+    FAIL_IF_MSG(false == JobBus::handle({Job::SETPASS, "1234"}), "Failed to set password");
 
-    job = {Job::LOGIN};
-    FAIL_IF_MSG(false == JobHandle(job), "Failed to login");
-    std::cout << "Login = > " << job.bool_value << std::endl;
+    FAIL_IF_MSG(false == JobBus::handle({Job::LOGIN}), "Failed to login");
     
     job = {Job::GETUSER};
-    FAIL_IF_MSG(false == JobHandle(job), "Failed to get username");
-    std::cout << "Get user = > " << job.s_value << std::endl;
+    FAIL_IF_MSG(false == JobBus::handle(job), "Failed to get user");
+    std::cout << "username => " << job.m_string << std::endl;
 
-    bus_loop.detach();
-    return;
+    sleep(8);
+
 fail:
     bus_loop.detach();
     return;

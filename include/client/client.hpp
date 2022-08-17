@@ -23,25 +23,25 @@ public:
     ~Client();
     
     // Contacts commands
-    static void contact_get_current_contact (std::string &t_arg, std::string &t_ret);
-    static void contact_set_current_contact (std::string &t_arg, bool t_ret);
-    static void contact_get_contacts        (std::string &t_arg, std::vector<std::string> &t_ret);
+    static void contact_get_current_contact (Job &t_job);
+    static void contact_set_current_contact (Job &t_job);
+    static void contact_get_contacts        (Job &t_job);
 
-    static void contact_list                (std::string &t_arg, bool &t_ret);
-    static void contact_search              (std::string &t_arg, bool &t_ret);
-    static void contact_add_user            (std::string &t_arg, bool &t_ret);
-    static void contact_remove_user         (std::string &t_arg, bool &t_ret);
-    static void contact_available           (std::string &t_arg, bool &t_ret);
+    static void contact_list                (Job &t_job);
+    static void contact_search              (Job &t_job);
+    static void contact_add_user            (Job &t_job);
+    static void contact_remove_user         (Job &t_job);
+    static void contact_available           (Job &t_job);
 
     // User commands
-    static void user_set_username           (std::string &t_arg, bool &t_ret);
-    static void user_set_password           (std::string &t_arg, bool &t_ret);
+    static void user_set_username           (Job &t_job);
+    static void user_set_password           (Job &t_job);
 
-    static void user_register_user          (std::string &t_arg, bool &t_ret);
-    static void user_login                  (std::string &t_arg, bool &t_ret);
+    static void user_register_user          (Job &t_job);
+    static void user_login                  (Job &t_job);
 
-    static void user_get_username           (std::string &t_arg, std::string &t_ret);
-    static void user_get_logged_in          (std::string &t_arg, bool &t_ret);
+    static void user_get_username           (Job &t_job);
+    static void user_get_logged_in          (Job &t_job);
 
 private:
     inline static ActiveConn server_conn = ActiveConn(SERVER_PORT, new TextIO());

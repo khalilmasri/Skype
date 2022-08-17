@@ -28,12 +28,12 @@ struct Job {
         NONE            = 50,
     };
 
-    Type command;
-    std::string argument = "";
+    Type m_command;
+    std::string m_argument = "";
 
-    bool bool_value = false;
-    std::string s_value = "";
-    std::vector<std::string> v_value = {};
+    bool m_valid = false;
+    std::string m_string = "";
+    std::vector<std::string> m_vector = {};
 };
 
 

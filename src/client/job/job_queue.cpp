@@ -12,7 +12,7 @@ JobQueue::JobQueue(){};
 void JobQueue::push(Job &t_job){
 
     std::shared_ptr<Job> job(std::make_shared<Job>(std::move(t_job)));
-    std::lock_guard<std::mutex> lock_guard(m_job_mutex);
+    std::lock_guard<std::mutex> lock_guard(jobQ.m_job_mutex);
     
     m_queue.push(job);
 }

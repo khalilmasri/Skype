@@ -5,6 +5,8 @@
 #include "skype_gui.hpp"
 #include "job_bus.hpp"
 
+#include <thread>
+
 class Program{
 
 public:
