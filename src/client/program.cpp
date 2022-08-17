@@ -14,10 +14,9 @@ Program::Program(){
     
     // std::thread skype_loop([this]{m_skype.run();});
     m_skype.run();
-    sleep(10);
+
 fail:
     bus_loop.detach();
-    // skype_loop.detach();
     return;
 }
 

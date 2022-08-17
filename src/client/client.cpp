@@ -41,9 +41,7 @@ fail:
 
 Client::~Client(){
    LOG_INFO("Disconnecting from server");
-   
-   JobBus::set_exit();
-   
+      
    std::string command = "EXIT";
    server_req.set_data(new TextData(command));
 

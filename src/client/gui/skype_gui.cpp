@@ -35,6 +35,7 @@ SkypeGui::~SkypeGui(){
     SDL_Quit();
 
     LOG_DEBUG("Shuting down client");
+    JobBus::set_exit();
 }
 
 bool SkypeGui::check_exit(SDL_Event& t_event){
@@ -129,19 +130,9 @@ void SkypeGui::run()
            // chat(m_current_contact);
         }
 
-        // else if (logged_in)
-        // {
-        //     // contacts_list();
-        //     if (m_current_contact != "") // only after a contact is selected
-        //     {
-        //         chat_window(m_current_contact);
-        //         run_chat_controls(m_current_contact);
-        //         if (video_call || audio_call)
-        //             run_call_window();
-        //     }
-        // }
         render();
     }
+
 }
 
 void SkypeGui::render()
@@ -170,107 +161,3 @@ void SkypeGui::set_boxes(const char* t_field, float t_width, const char* t_label
     ImGui::PushItemWidth(t_width);
     ImGui::InputText(t_label, buf, sizeof(buf), t_flag);
 }
-
-
-// // void SkypeGui::load_contacts()
-// // {
-// //     // manual for now, will reimplement when we figure how we are planning to store users
-// //     m_contacts.push_back("Khalil");
-// //     m_contacts.push_back("Pedro");
-// //     m_contacts.push_back("Chris");
-// // }
-
-// // void SkypeGui::add_user(std::string &t_new_username)
-// // {
-// //     // to add a new user while the program is running to simulate new user entering
-// //     m_contacts.push_back(t_new_username);
-// //     std::cout << "User Added: " << t_new_username << std::endl;
-// // }
-
-// void SkypeGui::run_chat_controls(const std::string &t_contact)
-// {
-//     set_panel(150, 520, 650, 80);
-
-//     ImGui::Begin("##MessagePanel", NULL, ImGuiWindowFlags_NoBringToFrontOnFocus);
-
-//     ImGuiInputTextFlags enter_pressed = ImGuiInputTextFlags_EnterReturnsTrue;
-//     ImGui::PushItemWidth(440);
-//     if (ImGui::InputText("##ChatBox", m_message, 1000, enter_pressed))
-//     {
-//         ImGui::SetItemDefaultFocus();
-//         if (enter_pressed)
-//         {
-//             std::cout << "User Sent Message: " << m_message << std::endl;
-//             memset(m_message, '\0', strlen(m_message));
-//             ImGui::SetKeyboardFocusHere(-1); // returns focus to InputText always
-//         }
-//     }
-//     ImGui::SameLine();
-//     if (ImGui::Button("SEND"))
-//     {
-//         std::cout << "User Sent Message: " << m_message << " to " << t_contact << std::endl;
-//         memset(m_message, '\0', strlen(m_message));
-//     }
-//     ImGui::SameLine();
-//     if (ImGui::Button("CALL"))
-//     {
-//         if (audio_call == false)
-//         {
-//             audio_call = true;
-//             std::cout << "User Requested Audio Call" << m_message << std::endl;
-//         }
-//     }
-//     ImGui::SameLine();
-//     if (ImGui::Button("VIDEO"))
-//     {
-//         if (video_call == false)
-//         {
-//             video_call = true;
-//             std::cout << "User Requested Video Call" << m_message << std::endl;
-//         }
-//         audio_call = true;
-//     }
-
-//     ImGui::End();
-// };
-
-// void SkypeGui::run_call_window()
-// {
-//     set_panel(500, 0, 300, 300);
-
-//     std::string str = "Call with " + m_current_contact;
-//     ImGui::Begin(str.c_str());
-
-//     static int volume = 0;
-//     ImGui::VSliderInt("##volume_slider", ImVec2(20, 250), &volume, 0, 9);
-//     ImGui::SameLine();
-
-//     // Put video stream here;
-//     if (ImGui::Button("CLOSE"))
-//     {
-//         video_call = false;
-//         audio_call = false;
-//         std::cout << "Close Call" << std::endl; // close video stream and close m_window!
-//     }
-//     ImGui::SameLine();
-//     if (ImGui::Button("VIDEO"))
-//     {
-//         if (video_call == false)
-//         {
-//             video_call = true;
-//             std::cout << "Open Video Stream" << std::endl;
-//         }
-//         else
-//         {
-//             video_call = false;
-//             std::cout << "Close Video Stream" << std::endl;
-//         }
-//     }
-//     ImGui::SameLine();
-//     if (ImGui::Button("MUTE"))
-//     {
-//         std::cout << "User Muted/Unmuted" << std::endl; // Code to Mute, either cut the audio completely or just stop sending...
-//     }
-//     ImGui::End();
-// }
-
