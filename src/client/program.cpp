@@ -13,7 +13,7 @@ bool JobHandle(Job & t_job){
     return t_job.bool_value;
 }
 
-Program::Program() : m_bus() {
+Program::Program() {
 
     
     // m_skype.run();
