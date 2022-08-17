@@ -8,6 +8,7 @@
 
 SideBar::SideBar() 
 {
+    JobBus::handle({Job::LIST});
     std::cout << "Sidebar Constructed" << std::endl;
 }
 

@@ -75,7 +75,7 @@ void JobBus::repeat_job(Job &t_job){
         return;
     }
 
-    if (difftime(time(NULL), now) > 3){ // Run this task every 3 seconds
+    if (difftime(time(NULL), now) > 10){ // Run this task every 3 seconds
             std::string me = "";
             m_JobBus_map[Job::LIST](t_job);
             time(&now);

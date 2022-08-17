@@ -126,7 +126,8 @@ void SkypeGui::run()
             login_window.welcome();
             logged_in = login_window.get_logged();
         } else {
-           sidebar.display_sidebar(); //display contacts list 
+            SideBar sidebar;
+            sidebar.display_sidebar(); //display contacts list 
            // chat(m_current_contact);
         }
 
