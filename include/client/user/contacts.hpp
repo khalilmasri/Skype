@@ -19,7 +19,7 @@ public:
     bool available(ActiveConn& t_conn, Request& t_req);
 
     //contacts retrieval
-    void set_current_contact(std::string &t_current_contact);
+    bool set_current_contact(std::string &t_current_contact);
     std::string get_current_contact();
     std::vector<std::string> display_contacts();
 

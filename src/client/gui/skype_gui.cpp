@@ -8,6 +8,8 @@
 #include "login_gui.hpp"
 #include "sidebar.hpp"
 #include "chat_history.hpp"
+#include "job_bus.hpp"
+#include "job.hpp"
 
 #include <stdio.h>
 #include <iostream>
@@ -16,7 +18,7 @@
 #include <fstream>
 #include <cstring>
 
-SkypeGui::SkypeGui() : m_client(5000){
+SkypeGui::SkypeGui(){
     im_gui_init();
     window_init();
 
@@ -101,8 +103,8 @@ void SkypeGui::window_init()
 void SkypeGui::run()
 {   
     LoginGui login_window;
-    SideBar sidebar;
-    ChatHistory chat_history;
+    // SideBar sidebar;
+    // ChatHistory chat_history;
 
     bool logged_in = false;
 
@@ -120,13 +122,10 @@ void SkypeGui::run()
         ImGui::NewFrame();
 
         if ( false == logged_in ) {
-            login_window.welcome(m_client);
-            logged_in = m_client.user_get_logged_in();
-            if ( logged_in == true ){
-                m_client.contact_list();
-            }
+            login_window.welcome();
+            logged_in = login_window.get_logged();
         } else {
-           sidebar.display_sidebar(m_client); //display contacts list 
+        //    sidebar.display_sidebar(m_client); //display contacts list 
            // chat(m_current_contact);
         }
 

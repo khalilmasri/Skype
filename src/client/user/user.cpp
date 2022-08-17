@@ -85,11 +85,11 @@ bool User::set_password(std::string& t_password) {
     return true;
 }
 
-std::string User::get_username() const {
+std::string User::get_username(){
     return m_username;
 }
 
-bool User::get_logged_in() const {
+bool User::get_logged_in(){
     return m_logged_in;
 }
 

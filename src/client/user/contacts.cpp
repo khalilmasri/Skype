@@ -149,7 +149,7 @@ std::vector<std::string> Contacts::display_contacts() {
 
     std::vector<std::string> contacts;
 
-    FAIL_IF ( true == m_online_contacts.empty() );
+    FAIL_IF_SILENT ( true == m_online_contacts.empty() );
 
     for ( auto &[username, details] : m_online_contacts ) {
         contacts.push_back(username);
@@ -161,8 +161,9 @@ fail:
     return {};
 }
 
-void Contacts::set_current_contact(std::string &t_current_contact){
+bool Contacts::set_current_contact(std::string &t_current_contact){
     m_current_contact = t_current_contact;
+    return true;
 }
 
 std::string Contacts::get_current_contact(){

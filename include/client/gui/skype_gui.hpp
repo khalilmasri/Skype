@@ -57,6 +57,4 @@ private:
     //specific skype functionality
     void set_panel(int pos_x, int pos_y, int size_x, int size_y);
     void set_boxes(const char* t_field, float t_width, const char* t_label, char* buf, ImGuiInputTextFlags t_flag);
-
-    Client m_client;
 };

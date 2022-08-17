@@ -6,6 +6,7 @@ const std::unordered_map<Reply::Code, std::string> Reply::m_replies {
   {r_202, "202 Please login"},
   {r_300, "300 Not OK"},
   {r_301, "301 Not found"},
+  {r_302, "302 Already exist"},
   {r_500, "500 Internal server error"},
   {r_501, "501 Invalid command"},
 };

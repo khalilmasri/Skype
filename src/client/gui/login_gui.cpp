@@ -6,10 +6,13 @@
 #include "login_gui.hpp"
 #include "fail_if.hpp"
 #include "gui_message.hpp"
+#include "job.hpp"
+#include "job_bus.hpp"
 
 LoginGui::LoginGui() 
 {
    m_new_user = false;
+   m_logged = false;
 
    memset_variables();
 }
@@ -35,10 +38,10 @@ void LoginGui::set_boxes(const char* t_field, float t_width, const char* t_label
     ImGui::InputText(t_label, buf, sizeof(buf), t_flag);
 }
 
-void LoginGui::welcome(Client& t_client)
+void LoginGui::welcome()
 {  
     if ( true == m_new_user ) {
-        register_window(t_client);
+        register_window();
         return;
     }
 
@@ -50,7 +53,7 @@ void LoginGui::welcome(Client& t_client)
 
     if (ImGui::Button(" LOGIN "))
     {
-        login(t_client);
+        login();
         memset_variables();
     }
     
@@ -62,9 +65,10 @@ void LoginGui::welcome(Client& t_client)
     GuiMsg::display();
 
     ImGui::End();
+
 }
 
-void LoginGui::register_window(Client& t_client)
+void LoginGui::register_window()
 {
     set_panel(300, 50, 220, 270);
     ImGui::Begin("My_Skype:New User");
@@ -75,7 +79,7 @@ void LoginGui::register_window(Client& t_client)
 
     if (ImGui::Button(" NEW USER LOGIN "))
     {   
-        register_user(t_client);
+        register_user();
         memset_variables();
     }
     GuiMsg::display();
@@ -83,34 +87,39 @@ void LoginGui::register_window(Client& t_client)
     ImGui::End();
 }
 
-void LoginGui::login(Client& t_client) {
+void LoginGui::login() {
 
     std::string password = m_password;
     std::string username = m_username;
 
-    FAIL_IF_GUI( false == t_client.user_set_username(username), "Invalid Username");
-    FAIL_IF_GUI( false == t_client.user_set_password(password), "Wrong Password");
+    FAIL_IF_GUI( false == JobBus::handle({Job::SETUSER, username}), "Invalid Username");
 
-    t_client.user_login();
+    FAIL_IF_GUI( false == JobBus::handle({Job::SETPASS, password}), "Wrong Password");
 
+    FAIL_IF_GUI( false == JobBus::handle({Job::LOGIN}), "Login failed");
+
+    m_logged = true;
+
+    return;
 fail:
 
     LOG_INFO("Login error");
     return;
 }
 
-void LoginGui::register_user(Client& t_client)
+void LoginGui::register_user()
 {
     std::string password = m_password;
     std::string username = m_username;
     std::string confirm_password = m_confirm_password;
     
-    FAIL_IF_GUI(confirm_password != password, "No match password");
-    
-    FAIL_IF_GUI( false == t_client.user_set_username(username), "Invalid Username");
-    FAIL_IF_GUI( false == t_client.user_set_password(password), "Wrong Password");
-   
-    FAIL_IF_GUI( false == t_client.user_register_user(), "Registration error");
+    FAIL_IF_GUI(confirm_password != password, "No match password"); 
+
+    FAIL_IF_GUI( false == JobBus::handle({Job::SETUSER, username}), "Invalid Username");
+
+    FAIL_IF_GUI( false == JobBus::handle({Job::SETPASS, password}), "Wrong Password");
+
+    FAIL_IF_GUI( false == JobBus::handle({Job::CREATE}), "Register failed");
 
     m_new_user = false;
     
@@ -120,4 +129,8 @@ fail:
     
     LOG_INFO("Registering user failed!");
     return;
+}
+
+bool LoginGui::get_logged(){
+    return m_logged;
 }

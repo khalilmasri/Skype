@@ -1,4 +1,7 @@
 
+DROP TABLE IF EXISTS contacts;
+DROP TABLE IF EXISTS users;
+
 CREATE TABLE IF NOT EXISTS contacts (
      id BIGSERIAL NOT NULL PRIMARY KEY,
      user_id INT,
@@ -21,22 +24,17 @@ ALTER TABLE contacts
      ADD FOREIGN KEY (contact_id)
      REFERENCES users (id);
 
--- seed some values to start with
 INSERT INTO users(username, password, online, address)
-VALUES ('khalil', '1234', FALSE , '123.453.3.1');
+VALUES ('john', '1234', FALSE , NULL);
 
 INSERT INTO users(username, password, online, address)
-VALUES ('mario', '1234', FALSE , '1.453.32.1');
+VALUES ('mario', '1234', FALSE , NULL);
 
 INSERT INTO users(username, password, online, address)
-VALUES ('shakira', '1234', FALSE , '53.423.4.1');
+VALUES ('shakira', '1234', FALSE , NULL);
 
 INSERT INTO users(username, password, online, address)
-VALUES ('dubius', '1234', FALSE , '33.53.3.1');
-
-INSERT INTO users(username, password, online, address)
-VALUES ('martha', '1234', TRUE , '127.0.0.1');
-
+VALUES ('marcos', '1234', FALSE , NULL );
 
 INSERT INTO contacts(user_id, contact_id)
 VALUES (1, 2);
@@ -47,7 +45,8 @@ VALUES (1, 3);
 INSERT INTO contacts(user_id, contact_id)
 VALUES (3, 1);
 
+INSERT INTO contacts(user_id, contact_id)
+VALUES (3, 2);
 
-
-
-
+INSERT INTO contacts(user_id, contact_id)
+VALUES (2, 1);

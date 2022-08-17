@@ -19,6 +19,7 @@ public:
   User        search_user_by(const char *t_term, const char *t_field);
   User        search_user_contact(const User &t_user, const std::string &t_contact_username);
   User        search_user_contact(const User &t_user, const char *t_contact_username);
+  bool        user_contact_exists(const User &t_user, const User &t_contact);
 
   bool        add_user(const User &t_user);
   bool        add_user_contact(const User &t_user, const User &t_contact);
