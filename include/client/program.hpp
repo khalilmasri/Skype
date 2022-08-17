@@ -3,7 +3,6 @@
 
 #include "client.hpp"
 #include "skype_gui.hpp"
-#include "job_bus.hpp"
 
 #include <thread>
 
@@ -14,7 +13,8 @@ public:
     ~Program();
 
 private:
-    SkypeGui    m_skype;
+    // SkypeGui    m_skype;
+    Client      m_client;
 };
 
 #endif // PROGRAM_H

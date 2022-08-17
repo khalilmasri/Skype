@@ -2,7 +2,6 @@
 #include "imgui_impl_sdl.h"
 #include "imgui_impl_opengl2.h"
 #include "logger.hpp"
-#include "skype_gui.hpp"
 #include "login_gui.hpp"
 #include "fail_if.hpp"
 #include "gui_message.hpp"
