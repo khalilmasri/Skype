@@ -17,9 +17,11 @@ struct Job {
         CREATE          = 7,
         LOGIN           = 8,
         LOGGED          = 9,
+        SELCONT         = 10,
 
         // std::string return from 20 - 29
         GETUSER         = 20,
+        GETCONT         = 21,
 
         // std::vector return values from 30 - 39
         DISP_CONTACTS   = 30,
