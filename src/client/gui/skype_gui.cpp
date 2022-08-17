@@ -18,6 +18,8 @@
 #include <fstream>
 #include <cstring>
 
+time_t now;
+
 SkypeGui::SkypeGui(){
     im_gui_init();
     window_init();
@@ -103,10 +105,34 @@ void SkypeGui::window_init()
 
 void SkypeGui::run()
 {   
-    LoginGui login_window;
-    SideBar sidebar;
-    // ChatHistory chat_history;
+    welcome();
 
+    SideBar sidebar;
+    time(&now);
+
+    while ( false == m_exit )
+    {
+        SDL_Event event;
+        while (SDL_PollEvent(&event))
+        {
+            ImGui_ImplSDL2_ProcessEvent(&event);
+            m_exit = check_exit(event);
+        }
+
+        ImGui_ImplOpenGL2_NewFrame();
+        ImGui_ImplSDL2_NewFrame();
+        ImGui::NewFrame();
+
+        sidebar.display_sidebar(); //display contacts list 
+
+        render();
+    }
+
+}
+
+void SkypeGui::welcome(){
+    
+    LoginGui login_window;
     bool logged_in = false;
 
     while ( false == m_exit )
@@ -122,18 +148,17 @@ void SkypeGui::run()
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
 
-        if ( false == logged_in ) {
-            login_window.welcome();
-            logged_in = login_window.get_logged();
-        } else {
-            SideBar sidebar;
-            sidebar.display_sidebar(); //display contacts list 
-           // chat(m_current_contact);
+        if ( true == logged_in ) {
+            break;
         }
-
+        
+        login_window.welcome();
+        logged_in = login_window.get_logged();
+    
         render();
     }
 
+    render();
 }
 
 void SkypeGui::render()
@@ -149,6 +174,13 @@ void SkypeGui::render()
     SDL_GL_SwapWindow(m_window);
 };
 
+void SkypeGui::repeat_job(){
+
+    if (difftime(time(NULL), now) > 3){ // Run this task every 3 seconds
+        JobBus::handle({Job::LIST});
+        time(&now);
+    }  
+}
 
 void SkypeGui::set_panel(int pos_x, int pos_y, int size_x, int size_y)
 {

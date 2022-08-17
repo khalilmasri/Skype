@@ -43,6 +43,8 @@ private:
     void render();
     void shutdown();
     void update(); //not used currently
+    void welcome();
+    void repeat_job();
 
     //Chats functionality
     void chat_window(const std::string &t_contact);

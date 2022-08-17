@@ -7,10 +7,9 @@ class SideBar {
 //TO DO 
     public:
         SideBar();
-        ~SideBar();
+
         //main method to display sidebar
         void display_sidebar();
-
 
     private:
 

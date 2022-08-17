@@ -6,15 +6,8 @@
 
 #include <string>
 
-SideBar::SideBar() 
-{
+SideBar::SideBar() {
     JobBus::handle({Job::LIST});
-    std::cout << "Sidebar Constructed" << std::endl;
-}
-
-SideBar::~SideBar()
-{
-    std::cout << "Sidebar Destructed" << std::endl;
 }
 
 void SideBar::display_sidebar()
@@ -32,9 +25,9 @@ void SideBar::contacts_sidebar()
     ImGui::End();
 };
 
-void SideBar::make_list_box(std::string &t_list_name, int x_size, int y_size)
+void SideBar::make_list_box(std::string &t_list_name, int t_x_size, int t_y_size)
 {
-    if (ImGui::ListBoxHeader(t_list_name.c_str(), ImVec2(150, 550)))
+    if (ImGui::ListBoxHeader(t_list_name.c_str(), ImVec2(t_x_size, t_y_size)))
     {
         selectable_list();
         ImGui::EndListBox();
@@ -47,20 +40,18 @@ void SideBar::selectable_list()
     bool is_selected = false;
     size_t n = 0;
     Job job;
-    std::vector<std::string> contacts;
 
     job = {Job::DISP_CONTACTS};
     FAIL_IF_MSG( false == JobBus::handle(job), "Couldn't load contacts");
-    contacts = job.m_vector;
 
-    for (; n < contacts.size(); n++)
+    for (; n < job.m_vector.size(); n++)
     {
         is_selected = (index == (int)n);
         // TEMP booleans needed toblock changing chats if on call
-        if (ImGui::Selectable(contacts[n].c_str(), is_selected)) // && video_call == false && audio_call == false)
+        if (ImGui::Selectable(job.m_vector[n].c_str(), is_selected)) // && video_call == false && audio_call == false)
         {
             index = n;
-            FAIL_IF_MSG( false == JobBus::handle({Job::SELCONT, contacts[n]}), "Couldn't select contact");
+            JobBus::handle({Job::SELCONT, job.m_vector[n]});
         }
         // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
         if (is_selected)
@@ -70,6 +61,7 @@ void SideBar::selectable_list()
     }
 
 fail:
+
     return;
 }
 

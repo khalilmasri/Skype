@@ -26,7 +26,6 @@ private:
     static bool             m_exit_loop;
     static JobsMap          m_JobBus_map; 
 
-    static void repeat_job(Job &t_job);
 };
 
 

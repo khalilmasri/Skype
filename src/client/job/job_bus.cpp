@@ -8,7 +8,6 @@
 #include <vector>
 
 bool JobBus::m_exit_loop = false;
-time_t now;
 
 JobBus::JobsMap JobBus::m_JobBus_map {
 
@@ -44,7 +43,6 @@ bool JobBus::handle(Job &t_job){
 
 void JobBus::main_loop() {
    
-    time(&now);
     Job job;
 
     while (false == m_exit_loop) {
@@ -61,25 +59,9 @@ void JobBus::main_loop() {
             jobQ.push_res(job);
             
         }
-
-        repeat_job(job);    
     }
   
 }
 
-void JobBus::repeat_job(Job &t_job){
-    
-    m_JobBus_map[Job::LOGGED](t_job);
-
-    if ( false == t_job.m_valid){
-        return;
-    }
-
-    if (difftime(time(NULL), now) > 10){ // Run this task every 3 seconds
-            std::string me = "";
-            m_JobBus_map[Job::LIST](t_job);
-            time(&now);
-    }  
-}
 
 void JobBus::set_exit() { m_exit_loop = true; }
