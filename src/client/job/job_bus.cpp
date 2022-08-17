@@ -22,9 +22,9 @@ JobBus::JobsMap JobBus::m_JobBus_map {
     {Job::CREATE,           Client::user_register_user},
     {Job::LOGIN,            Client::user_login}, 
     {Job::LOGGED,           Client::user_get_logged_in},
-    {Job::GETUSER,          Client::user_get_username },
+    {Job::GETUSER,          Client::user_get_username},
     {Job::GETCONT,          Client::contact_get_current_contact},
-    {Job::DISP_CONTACTS,    Client::contact_get_contacts }
+    {Job::DISP_CONTACTS,    Client::contact_get_contacts}
 };
 
 bool JobBus::handle(Job &&t_job){

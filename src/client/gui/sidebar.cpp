@@ -42,7 +42,7 @@ void SideBar::selectable_list()
     Job job;
 
     job = {Job::DISP_CONTACTS};
-    FAIL_IF_MSG( false == JobBus::handle(job), "Couldn't load contacts");
+    FAIL_IF_SILENT( false == JobBus::handle(job)/*, "Couldn't load contacts"*/);
 
     for (; n < job.m_vector.size(); n++)
     {

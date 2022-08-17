@@ -225,7 +225,7 @@ void Contacts::pair_contact_details(std::string t_user) {
         }
     }
 
-    if ( username != "" /* && details.online == true */ ){
+    if ( username != "" && details.online == true  ){
         m_online_contacts.emplace(username, details);            
     }
 }
