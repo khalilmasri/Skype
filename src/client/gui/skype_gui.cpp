@@ -100,7 +100,7 @@ void SkypeGui::window_init()
 void SkypeGui::run()
 {   
     LoginGui login_window;
-    SideBar sidebar;
+    // SideBar sidebar;
 
     bool logged_in = false;
 
@@ -119,12 +119,12 @@ void SkypeGui::run()
 
         if ( false == logged_in ) {
             login_window.welcome(m_client);
-            logged_in = m_client.user_get_logged_in();
+            // logged_in = m_client.user_get_logged_in();
             if ( logged_in == true ){
-                m_client.contact_list();
+                // m_client.contact_list();
             }
         } else {
-           sidebar.display_sidebar(m_client); //display contacts list 
+        //    sidebar.display_sidebar(m_client); //display contacts list 
            // chat(m_current_contact);
         }
 

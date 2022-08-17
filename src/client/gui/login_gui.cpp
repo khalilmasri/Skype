@@ -91,15 +91,15 @@ void LoginGui::login(Client& t_client) {
     std::string password = m_password;
     std::string username = m_username;
 
-    // job = {Job::SETUSER, username};
-    jobQ.add_job({Job::SETUSER, username});
+    job = {Job::SETUSER, username};
+    jobQ.push(job);
     // FAIL_IF_GUI( false == t_client.user_set_username(username), "Invalid Username");
     job = {Job::SETPASS, password};
-    jobQ.add_job(job);
+    jobQ.push(job);
     // FAIL_IF_GUI( false == t_client.user_set_password(password), "Wrong Password");
 
     job = {Job::LOGIN, ""};
-    jobQ.add_job(job);
+    jobQ.push(job);
 
     return;
 fail:
@@ -116,10 +116,10 @@ void LoginGui::register_user(Client& t_client)
     
     FAIL_IF_GUI(confirm_password != password, "No match password");
     
-    FAIL_IF_GUI( false == t_client.user_set_username(username), "Invalid Username");
-    FAIL_IF_GUI( false == t_client.user_set_password(password), "Wrong Password");
+    // FAIL_IF_GUI( false == t_client.user_set_username(username), "Invalid Username");
+    // FAIL_IF_GUI( false == t_client.user_set_password(password), "Wrong Password");
    
-    FAIL_IF_GUI( false == t_client.user_register_user(), "Registration error");
+    // FAIL_IF_GUI( false == t_client.user_register_user(), "Registration error");
 
     m_new_user = false;
     

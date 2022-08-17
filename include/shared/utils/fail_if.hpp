@@ -1,6 +1,7 @@
 #include "gui_message.hpp"
 
 #include <cstdio>
+#include <cstring>
 
 #define __FILENAME__(file) (std::strrchr(file, '/') ? std::strrchr(file, '/') + 1 : file)
 
