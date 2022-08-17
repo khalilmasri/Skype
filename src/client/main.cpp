@@ -1,37 +1,24 @@
-#include "imgui.h"
-#include "imgui_impl_sdl.h"
-#include "imgui_impl_opengl2.h"
-#include <stdio.h>
-
 #define DOCTEST_CONFIG_IMPLEMENT
 #include "doctest.h"
+#include "program.hpp"
 #include "client.hpp"
-#include "user.hpp"
-#include "contacts.hpp"
+#include "job.hpp"
+#include "job_queue.hpp"
 
-#include "SDL.h"
-#include "SDL_opengl.h"
-
-#include "my_gui.hpp"
-
-#include <iostream>
-#include <string>
-#include <vector>
 
 // client --> call ImGui context initialisation --> then initialise chat windows
 
 // Main code
 int main(int, char **)
-{
-    SkypeGui skype_gui;
-    skype_gui.im_gui_init();
-    skype_gui.window_init();
+{   
+//     Client client;
 
-    skype_gui.done = false;
-    // Run() executes the loop until 'done'
-    skype_gui.run();
+//     std::string username = "khalil";
+//     std::string password = "1234";
+//     Job job = {Job::SETUSER, username, (void*)false};
 
-    skype_gui.shutdown();
-
-    return 0;
+//     std::cout << "Set username => " << job.return_value << std::endl;
+//     job = {Job::SETPASS, password, (void*)false};
+    Program program;
 }
+

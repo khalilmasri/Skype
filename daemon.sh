@@ -25,6 +25,10 @@ if [  $1 == 'log' ];then
 	sudo journalctl -u skype.service --since "1 hour ago"
 fi
 
+if [  $1 == 'watch' ];then
+	sudo journalctl -u skype.service -f --since "1 hour ago"
+fi
+
 if [  $1 == 'config' ];then
 
 	echo "-- COPY BELOW"

@@ -52,17 +52,16 @@ bool TextIO::respond(Request &t_req) const {
     res = send(t_req.m_socket, header.c_str(), header.size(), 0);
   }
 
-  return is_valid(res, "Could not repond.");
+  return is_valid(res, "Could not respond.");
 };
 
 /* Private */
 
 int TextIO::read_header(int t_socket) const {
-
   char header[HEADER_LENGTH + 1] = {0}; // + 1 must add one for \0
   int res = recv(t_socket, header, HEADER_LENGTH, 0);
   std::string s(header);
-
+  
   if (res == HEADER_LENGTH) { // read size must be the header length
     return std::stoi(header);
   }

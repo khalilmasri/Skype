@@ -3,6 +3,8 @@
 #include "reply.hpp"
 #include "string_utils.hpp"
 #include "text_data.hpp"
+#include "server_commands.hpp"
+#include "fail_if.hpp"
 
 #include <string>
 #include <sys/types.h>
@@ -13,49 +15,50 @@
 
 bool User::register_user(ActiveConn& t_conn, Request& t_req) {
     
+    std::string response = "";
+    std::string command = "CREATE " + m_username + " " + m_password; 
+    t_req.set_data(new TextData(command));
+    
     t_conn.respond(t_req);
     t_conn.receive(t_req);
 
-    if ( false == t_req.m_valid){
-        LOG_ERR("Register request failed");
-    }
+    FAIL_IF(false == t_req.m_valid);
+    
+    response = TextData::to_string(t_req.data());
 
-    std::string response = TextData::to_string(t_req.data());
-    bool ret = valid_response(Reply::r_200, response);
-
-    if ( false == ret ){
-        LOG_INFO("Register user failed, server response => %s", response.c_str());
-        return false;
-    }
+    FAIL_IF_MSG( false == valid_response(Reply::r_200, response), response.c_str());
 
     LOG_INFO("Register user %s successful", m_username.c_str());
     
     return t_req.m_valid; 
+    
+fail:
+    return false;
 }
 
 bool User::login(ActiveConn& t_conn, Request& t_req) {
 
+    std::string response = "";
+    std::string command = "LOGIN " + m_username + " " + m_password; 
+    t_req.set_data(new TextData(command));
+
     t_conn.respond(t_req);
     t_conn.receive(t_req);
 
-    if ( false == t_req.m_valid ){
-        LOG_ERR("Login request failed");
-        return t_req.m_valid;
-    }
-  
-    std::string response = TextData::to_string(t_req.data());
-    bool ret = valid_response(Reply::r_200, response);
+    FAIL_IF(false == t_req.m_valid);
+    
+    response = TextData::to_string(t_req.data());
 
-    if ( false == ret ){
-        LOG_INFO("Login failed, server response => %s", response.c_str());
-        return false;
-    }
+    FAIL_IF_MSG( false == valid_response(Reply::r_200, response), response.c_str());
 
     LOG_INFO("Login to user %s was successful", m_username.c_str());
+    
     m_logged_in = true;
     m_password = "";
-
+    
     return t_req.m_valid; 
+fail:
+    return false;
 }
 
 bool User::set_username(std::string& t_username) {
@@ -82,11 +85,11 @@ bool User::set_password(std::string& t_password) {
     return true;
 }
 
-std::string User::get_username() const {
+std::string User::get_username(){
     return m_username;
 }
 
-bool User::get_logged_in() const {
+bool User::get_logged_in(){
     return m_logged_in;
 }
 

@@ -18,8 +18,8 @@ public:
     bool set_username(std::string& t_username);
     bool set_password(std::string& t_password);
     
-    std::string get_username() const;
-    bool get_logged_in() const;
+    std::string get_username();
+    bool get_logged_in();
 
 private:
     std::string m_username;
