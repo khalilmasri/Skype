@@ -5,11 +5,10 @@
 #include "SDL.h"
 #include "SDL_opengl.h"
 #include "skype_gui.hpp"
-#include "login_gui.hpp"
-#include "sidebar.hpp"
 #include "chat_history.hpp"
 #include "job_bus.hpp"
 #include "job.hpp"
+#include "fail_if.hpp"
 
 #include <stdio.h>
 #include <iostream>
@@ -20,7 +19,13 @@
 
 time_t now;
 
-SkypeGui::SkypeGui(){
+
+SkypeGui::SkypeGui() :m_map {
+    {Job::LOGIN,            [this](Job &t_job){m_login.set_logged(t_job);}},
+    {Job::CREATE,           [this](Job &t_job){m_login.set_new_user(t_job);}},
+    {Job::DISP_CONTACTS,    [this](Job &t_job){m_sidebar.set_contact_list(t_job);}}
+}
+{
     im_gui_init();
     window_init();
 
@@ -107,7 +112,6 @@ void SkypeGui::run()
 {   
     welcome();
 
-    SideBar sidebar;
     time(&now);
 
     while ( false == m_exit )
@@ -122,9 +126,13 @@ void SkypeGui::run()
         ImGui_ImplOpenGL2_NewFrame();
         ImGui_ImplSDL2_NewFrame();
         ImGui::NewFrame();
-
-        sidebar.display_sidebar(); //display contacts list 
-
+        
+        job_dispatch();
+        
+        m_sidebar.display_sidebar(); //display contacts list     
+        
+        repeat_job();
+        
         render();
     }
 
@@ -132,7 +140,6 @@ void SkypeGui::run()
 
 void SkypeGui::welcome(){
     
-    LoginGui login_window;
     bool logged_in = false;
 
     while ( false == m_exit )
@@ -152,8 +159,11 @@ void SkypeGui::welcome(){
             break;
         }
         
-        login_window.welcome();
-        logged_in = login_window.get_logged();
+        m_login.welcome();
+        
+        job_dispatch();
+        
+        logged_in = m_login.get_logged();
     
         render();
     }
@@ -178,6 +188,7 @@ void SkypeGui::repeat_job(){
 
     if (difftime(time(NULL), now) > 3){ // Run this task every 3 seconds
         JobBus::handle({Job::LIST});
+        JobBus::handle({Job::DISP_CONTACTS});
         time(&now);
     }  
 }
@@ -193,4 +204,19 @@ void SkypeGui::set_boxes(const char* t_field, float t_width, const char* t_label
     ImGui::Text("%s", t_field);
     ImGui::PushItemWidth(t_width);
     ImGui::InputText(t_label, buf, sizeof(buf), t_flag);
+}
+
+void SkypeGui::job_dispatch(){
+
+    Job job;
+
+    FAIL_IF_SILENT( false == JobBus::get_response(job));
+
+    // We are using try so the program doesn't crash when the field doesn't exist in the map
+    try{
+        m_map[job.m_command](job);
+    }catch(...){}
+
+fail:
+    return;
 }

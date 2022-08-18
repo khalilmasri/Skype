@@ -9,6 +9,9 @@
 
 bool JobBus::m_exit_loop = false;
 
+JobQueue JobBus::m_jobQ;
+JobQueue JobBus::m_resQ;
+
 JobBus::JobsMap JobBus::m_JobBus_map {
 
     {Job::LIST,             Client::contact_list},
@@ -27,18 +30,12 @@ JobBus::JobsMap JobBus::m_JobBus_map {
     {Job::DISP_CONTACTS,    Client::contact_get_contacts}
 };
 
-bool JobBus::handle(Job &&t_job){
-    jobQ.push(t_job);
-    jobQ.pop_res(t_job);
-
-    return t_job.m_valid;
+void JobBus::handle(Job &&t_job){
+    m_jobQ.push(t_job);
 }
 
-bool JobBus::handle(Job &t_job){
-    jobQ.push(t_job);
-    jobQ.pop_res(t_job);
-
-    return t_job.m_valid;
+void JobBus::handle(Job &t_job){
+    m_jobQ.push(t_job);
 }
 
 void JobBus::main_loop() {
@@ -47,21 +44,35 @@ void JobBus::main_loop() {
 
     while (false == m_exit_loop) {
 
-        if (false == jobQ.empty()) {
+        if (false == m_jobQ.empty()) {
             
-            bool res = jobQ.pop_try(job);
+            bool res = m_jobQ.pop_try(job);
 
             if ( false == res ) {
                 continue;
             }
 
             m_JobBus_map[job.m_command](job);
-            jobQ.push_res(job);
+            m_resQ.push(job);
             
         }
     }
   
 }
 
+bool JobBus::get_response(Job &t_job){
+
+    if (true == m_resQ.empty()){
+        return false;
+    }
+
+    bool res = m_resQ.pop_try(t_job);
+
+    if (false == res){
+        return false;
+    }
+
+    return t_job.m_valid;
+} 
 
 void JobBus::set_exit() { m_exit_loop = true; }

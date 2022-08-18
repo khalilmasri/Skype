@@ -19,13 +19,15 @@ public:
     // Job functionality 
     static void main_loop();
     static void set_exit();
-    static bool handle(Job &&t_job);
-    static bool handle(Job &t_job);
+    static void handle(Job &t_job);
+    static void handle(Job &&t_job);
+    static bool get_response(Job &t_job);
 
 private:
     static bool             m_exit_loop;
     static JobsMap          m_JobBus_map; 
-
+    static JobQueue         m_jobQ;
+    static JobQueue         m_resQ;
 };
 
 

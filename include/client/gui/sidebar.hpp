@@ -1,7 +1,10 @@
 #ifndef SIDEBAR_H
 #define SIDEBAR_H
 
+#include "job.hpp"
+
 #include <string>
+#include <vector>
 
 class SideBar {
 //TO DO 
@@ -10,6 +13,9 @@ class SideBar {
 
         //main method to display sidebar
         void display_sidebar();
+        void set_contact_list(Job &t_job); 
+
+        std::string get_current_user();
 
     private:
 
@@ -19,6 +25,9 @@ class SideBar {
         void selectable_list();
 
         void set_panel(int pos_x, int pos_y, int size_x, int size_y);
+
+        std::vector<std::string> m_contacts;
+        std::string m_current_user;
 
 };
 

@@ -7,7 +7,6 @@
 #include <string>
 
 SideBar::SideBar() {
-    JobBus::handle({Job::LIST});
 }
 
 void SideBar::display_sidebar()
@@ -39,19 +38,17 @@ void SideBar::selectable_list()
     static int index = 0;
     bool is_selected = false;
     size_t n = 0;
-    Job job;
 
-    job = {Job::DISP_CONTACTS};
-    FAIL_IF_SILENT( false == JobBus::handle(job)/*, "Couldn't load contacts"*/);
-
-    for (; n < job.m_vector.size(); n++)
+    for (; n < m_contacts.size(); n++)
     {
         is_selected = (index == (int)n);
+        
         // TEMP booleans needed toblock changing chats if on call
-        if (ImGui::Selectable(job.m_vector[n].c_str(), is_selected)) // && video_call == false && audio_call == false)
+        if (ImGui::Selectable(m_contacts[n].c_str(), is_selected)) // && video_call == false && audio_call == false)
         {
             index = n;
-            JobBus::handle({Job::SELCONT, job.m_vector[n]});
+            JobBus::handle({Job::SELCONT, m_contacts[n]});
+            m_current_user = m_contacts[n];
         }
         // Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
         if (is_selected)
@@ -59,11 +56,16 @@ void SideBar::selectable_list()
             ImGui::SetItemDefaultFocus();
         }
     }
-
-fail:
-
-    return;
 }
+
+void SideBar::set_contact_list(Job &t_job){
+    m_contacts = std::move(t_job.m_vector);
+}
+
+std::string SideBar::get_current_user(){
+    return m_current_user;
+}
+
 
 void SideBar::set_panel(int pos_x, int pos_y, int size_x, int size_y)
 {

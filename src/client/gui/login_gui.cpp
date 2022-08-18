@@ -91,19 +91,10 @@ void LoginGui::login() {
     std::string password = m_password;
     std::string username = m_username;
 
-    FAIL_IF_GUI( false == JobBus::handle({Job::SETUSER, username}), "Invalid Username");
+    JobBus::handle({Job::SETUSER, username});
+    JobBus::handle({Job::SETPASS, password});
+    JobBus::handle({Job::LOGIN});
 
-    FAIL_IF_GUI( false == JobBus::handle({Job::SETPASS, password}), "Wrong Password");
-
-    FAIL_IF_GUI( false == JobBus::handle({Job::LOGIN}), "Login failed");
-
-    m_logged = true;
-
-    return;
-fail:
-
-    LOG_INFO("Login error");
-    return;
 }
 
 void LoginGui::register_user()
@@ -114,13 +105,9 @@ void LoginGui::register_user()
     
     FAIL_IF_GUI(confirm_password != password, "No match password"); 
 
-    FAIL_IF_GUI( false == JobBus::handle({Job::SETUSER, username}), "Invalid Username");
-
-    FAIL_IF_GUI( false == JobBus::handle({Job::SETPASS, password}), "Wrong Password");
-
-    FAIL_IF_GUI( false == JobBus::handle({Job::CREATE}), "Register failed");
-
-    m_new_user = false;
+    JobBus::handle({Job::SETUSER, username});
+    JobBus::handle({Job::SETPASS, password});
+    JobBus::handle({Job::CREATE});
     
     LOG_INFO("Register user was successful");
 
@@ -132,4 +119,12 @@ fail:
 
 bool LoginGui::get_logged(){
     return m_logged;
+}
+
+void LoginGui::set_logged(Job &t_job){
+    m_logged = t_job.m_valid;
+}
+
+void LoginGui::set_new_user(Job &t_job){
+    m_new_user = t_job.m_valid;
 }
