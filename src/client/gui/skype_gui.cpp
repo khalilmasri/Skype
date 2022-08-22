@@ -1,222 +1,88 @@
-#include "imgui.h"
-#include "imgui_impl_sdl.h"
-#include "imgui_impl_opengl2.h"
-#include "logger.hpp"
-#include "SDL.h"
-#include "SDL_opengl.h"
 #include "skype_gui.hpp"
-#include "chat_history.hpp"
+#include "ui/ui_skype_gui.h"
 #include "job_bus.hpp"
 #include "job.hpp"
 #include "fail_if.hpp"
 
-#include <stdio.h>
+#include <QMessageBox>
+#include <QThread>
 #include <iostream>
-#include <vector>
-#include <string>
-#include <fstream>
-#include <cstring>
 
-time_t now;
-
-
-SkypeGui::SkypeGui() :m_map {
-    {Job::LOGIN,            [this](Job &t_job){m_login.set_logged(t_job);}},
-    {Job::CREATE,           [this](Job &t_job){m_login.set_new_user(t_job);}},
-    {Job::DISP_CONTACTS,    [this](Job &t_job){m_sidebar.set_contact_list(t_job);}}
-}
+SkypeGui::SkypeGui(QWidget *parent)
+    : QMainWindow(parent)
+    , m_welcome_ui(new Ui::SkypeGui)
 {
-    im_gui_init();
-    window_init();
+    m_welcome_ui->setupUi(this);
+    this->setFixedSize(QSize(621, 473));
+    m_welcome_ui->Register_group->hide();
 
     m_exit = false;
+
+    auto lm = [this]{job_loop();};
+    m_job_loop = QThread::create(lm);
+    m_job_loop->start();
 }
 
-SkypeGui::~SkypeGui(){
-    ImGui_ImplOpenGL2_Shutdown();
-    ImGui_ImplSDL2_Shutdown();
-    ImGui::DestroyContext();
-
-    SDL_GL_DeleteContext(m_gl_context);
-    SDL_DestroyWindow(m_window);
-    SDL_Quit();
-
-    LOG_DEBUG("Shuting down client");
-    JobBus::set_exit();
-}
-
-bool SkypeGui::check_exit(SDL_Event& t_event){
-    if (t_event.type == SDL_QUIT)
-    {
-        return true;
-    }
-
-    if ((t_event.type == SDL_WINDOWEVENT) && (t_event.window.event == SDL_WINDOWEVENT_CLOSE) && (t_event.window.windowID == SDL_GetWindowID(m_window)))
-    {
-        return true;
-    }
-
-    return false;
-}
-
-void SkypeGui::set_attributes() {
-
-    // Setup m_window
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
-    m_window_flags = (SDL_WindowFlags)(SDL_WINDOW_OPENGL | SDL_WINDOW_ALLOW_HIGHDPI); // SDL_WINDOW_RESIZABLE);
-    m_window = SDL_CreateWindow("My_Skype", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, m_window_flags);
-    m_gl_context = SDL_GL_CreateContext(m_window);
-    SDL_GL_MakeCurrent(m_window, m_gl_context);
-    SDL_GL_SetSwapInterval(1); // Enable vsync
-}
-
-void SkypeGui::im_gui_init()
+SkypeGui::~SkypeGui()
 {
-    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_GAMECONTROLLER) != 0)
-    {
-        std::string err = SDL_GetError();
-        LOG_ERR("SDL error => %s", err.c_str());
-    }
-    
-    LOG_DEBUG("SDL initialization completed");
+    delete m_welcome_ui;
+    m_exit = true;
+    m_job_loop->wait();
+}
 
-    set_attributes();
+void SkypeGui::job_loop(){
 
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO &io = ImGui::GetIO();
-    (void)io;
-
-    // ImGui::StyleColorsDark();
-    ImGui::StyleColorsLight();
-
-    LOG_DEBUG("ImGui Initialized")
-};
-
-void SkypeGui::window_init()
-{
-    ImGuiIO &io = ImGui::GetIO();
-    ImGui_ImplSDL2_InitForOpenGL(m_window, m_gl_context);
-    ImGui_ImplOpenGL2_Init();
-
-    io.Fonts->AddFontFromFileTTF("../misc/Cousine-Regular.ttf", 20.0f);
-    m_clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
-
-};
-
-void SkypeGui::run()
-{   
-    welcome();
-
-    time(&now);
-
-    while ( false == m_exit )
-    {
-        SDL_Event event;
-        while (SDL_PollEvent(&event))
-        {
-            ImGui_ImplSDL2_ProcessEvent(&event);
-            m_exit = check_exit(event);
+    while(m_exit == false){
+        Job job;
+        JobBus::get_response(job);
+        if (job.m_command == Job::LOGIN && job.m_valid == true){
+            m_chat_ui = new Chat(this);
+            hide();
+            m_chat_ui->show();
         }
 
-        ImGui_ImplOpenGL2_NewFrame();
-        ImGui_ImplSDL2_NewFrame();
-        ImGui::NewFrame();
-        
-        job_dispatch();
-        
-        m_sidebar.display_sidebar(); //display contacts list     
-        
-        repeat_job();
-        
-        render();
     }
-
 }
 
-void SkypeGui::welcome(){
-    
-    bool logged_in = false;
 
-    while ( false == m_exit )
-    {
-        SDL_Event event;
-        while (SDL_PollEvent(&event))
-        {
-            ImGui_ImplSDL2_ProcessEvent(&event);
-            m_exit = check_exit(event);
-        }
-
-        ImGui_ImplOpenGL2_NewFrame();
-        ImGui_ImplSDL2_NewFrame();
-        ImGui::NewFrame();
-
-        if ( true == logged_in ) {
-            break;
-        }
-        
-        m_login.welcome();
-        
-        job_dispatch();
-        
-        logged_in = m_login.get_logged();
-    
-        render();
-    }
-
-    render();
-}
-
-void SkypeGui::render()
+void SkypeGui::on_pushButton_login_clicked()
 {
-    ImGuiIO &io = ImGui::GetIO();
-    ImGui::Render();
+    QString username = m_welcome_ui->lineEdit_login_username->text();
+    QString password = m_welcome_ui->lineEdit_login_password->text();
 
-    glViewport(0, 0, (int)io.DisplaySize.x, (int)io.DisplaySize.y);
-    glClearColor(m_clear_color.x * m_clear_color.w, m_clear_color.y * m_clear_color.w, m_clear_color.z * m_clear_color.w, m_clear_color.w);
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    ImGui_ImplOpenGL2_RenderDrawData(ImGui::GetDrawData());
-    SDL_GL_SwapWindow(m_window);
-};
-
-void SkypeGui::repeat_job(){
-
-    if (difftime(time(NULL), now) > 3){ // Run this task every 3 seconds
-        JobBus::handle({Job::LIST});
-        JobBus::handle({Job::DISP_CONTACTS});
-        time(&now);
-    }  
+    JobBus::handle({Job::SETUSER, username.toStdString()});
+    JobBus::handle({Job::SETPASS, password.toStdString()});
+    JobBus::handle({Job::LOGIN});
 }
 
-void SkypeGui::set_panel(int pos_x, int pos_y, int size_x, int size_y)
+void SkypeGui::on_pushButton_register_window_clicked()
 {
-    const ImGuiViewport *main_viewport = ImGui::GetMainViewport();
-    ImGui::SetNextWindowPos(ImVec2(main_viewport->WorkPos.x + pos_x, main_viewport->WorkPos.y + pos_y), ImGuiCond_FirstUseEver);
-    ImGui::SetNextWindowSize(ImVec2(size_x, size_y), ImGuiCond_FirstUseEver);
+    m_welcome_ui->Login_group->hide();
+    m_welcome_ui->Register_group->show();
 }
 
-void SkypeGui::set_boxes(const char* t_field, float t_width, const char* t_label, char* buf, ImGuiInputTextFlags t_flag){
-    ImGui::Text("%s", t_field);
-    ImGui::PushItemWidth(t_width);
-    ImGui::InputText(t_label, buf, sizeof(buf), t_flag);
+void SkypeGui::on_pushButton_login_window_clicked()
+{
+    m_welcome_ui->Register_group->hide();
+    m_welcome_ui->Login_group->show();
 }
 
-void SkypeGui::job_dispatch(){
 
-    Job job;
+void SkypeGui::on_pushButton_register_clicked()
+{
+    QString username = m_welcome_ui->lineEdit_register_username->text();
+    QString password = m_welcome_ui->lineEdit_register_password->text();
+    QString confirm_password = m_welcome_ui->lineEdit_register_confirm_password->text();
 
-    FAIL_IF_SILENT( false == JobBus::get_response(job));
+    FAIL_IF(confirm_password != password);
 
-    // We are using try so the program doesn't crash when the field doesn't exist in the map
-    try{
-        m_map[job.m_command](job);
-    }catch(...){}
+    JobBus::handle({Job::SETUSER, username.toStdString()});
+    JobBus::handle({Job::SETPASS, password.toStdString()});
+    JobBus::handle({Job::CREATE});
+
+    return;
 
 fail:
-    return;
+    QMessageBox::information(this, "register", "Password doesn't match");
 }
+

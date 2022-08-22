@@ -6,6 +6,7 @@
 #include <ctime>
 #include <iostream>
 #include <vector>
+#include <QThread>
 
 bool JobBus::m_exit_loop = false;
 
@@ -71,7 +72,7 @@ bool JobBus::get_response(Job &t_job){
     if (false == res){
         return false;
     }
-
+    std::cout << "here\n";
     return t_job.m_valid;
 } 
 

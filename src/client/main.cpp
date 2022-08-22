@@ -1,24 +1,30 @@
 #define DOCTEST_CONFIG_IMPLEMENT
 #include "doctest.h"
-#include "program.hpp"
-#include "client.hpp"
-#include "job.hpp"
-#include "job_queue.hpp"
+#include "skype_gui.hpp"
+#include "job_bus.hpp"
 
+#include <thread>
+#include <QApplication>
+#include <iostream>
+#include <QFile>
 
-// client --> call ImGui context initialisation --> then initialise chat windows
+int main(int argc, char *argv[])
+{
+    std::thread bus_loop(&JobBus::main_loop);
+    Client client;
+    
+    QApplication a(argc, argv);
+    QFile stylesheetFile("/home/khalil/Documents/Skype/src/client/gui/stylesheet/Hookmark.qss");
+    stylesheetFile.open(QFile::ReadOnly);
+    QString styleSheet = QLatin1String(stylesheetFile.readAll());
+    a.setStyleSheet(styleSheet);
 
-// Main code
-int main(int, char **)
-{   
-//     Client client;
+    SkypeGui welcome;
+    welcome.show();
 
-//     std::string username = "khalil";
-//     std::string password = "1234";
-//     Job job = {Job::SETUSER, username, (void*)false};
+    a.exec();
 
-//     std::cout << "Set username => " << job.return_value << std::endl;
-//     job = {Job::SETPASS, password, (void*)false};
-    Program program;
+    JobBus::set_exit();
+    bus_loop.join();
+    return 0;
 }
-

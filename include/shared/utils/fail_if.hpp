@@ -1,5 +1,3 @@
-#include "gui_message.hpp"
-
 #include <cstdio>
 #include <cstring>
 
@@ -27,11 +25,3 @@
 			goto fail;			                                                            \
 		}							                                                            \
 	} while (0)
-
-#define FAIL_IF_GUI(cond, MSG)																								\
-	do {																																	\
-		if (cond) {																														\
-			GuiMsg::set_msg(MSG);																								\
-			goto fail;																													\
-		}																																	\
-	} while(0)

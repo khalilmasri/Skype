@@ -1,71 +1,38 @@
-#include "imgui.h"
-#include "client.hpp"
-#include "login_gui.hpp"
-#include "sidebar.hpp"
+#ifndef SKYPEGUI_H
+#define SKYPEGUI_H
 
-#include <SDL.h>
-#include <string>
-#include <stdio.h>
-#include <iostream>
-#include <vector>
-#include <fstream>
-#include <functional>
+#include "chat.hpp"
 
-#define MAX_MESSAGE_LENGTH 1024
-#define MAX_USER_LEN 20
+#include <QMainWindow>
 
-class SkypeGui
+QT_BEGIN_NAMESPACE
+namespace Ui { class SkypeGui; }
+QT_END_NAMESPACE
+
+class SkypeGui : public QMainWindow
 {
-    typedef Job::Type Type;
-    typedef std::function<void (Job &t_job)> SetMethod;
-    typedef std::unordered_map<Type, SetMethod> JobDispatch;
+    Q_OBJECT
 
-    public:
+public:
+    SkypeGui(QWidget *parent = nullptr);
+    ~SkypeGui();
 
-        SkypeGui();
-        ~SkypeGui();
+private slots:
+    void on_pushButton_login_window_clicked();
 
-        //main Imgui path
-       void run();
-    
-        //other bools
-        bool video_call;
-        bool audio_call;
-        bool done;
-        bool show_another_window = false;
+private slots:
+    void on_pushButton_register_window_clicked();
 
-        char m_message[MAX_MESSAGE_LENGTH];
-        std::vector<std::string> m_contacts;
+private slots:
+    void on_pushButton_login_clicked();
 
-        //chat variables
-        std::string m_current_contact; //to decide which contact was selected last
+    void on_pushButton_register_clicked();
 
 private:
+    Ui::SkypeGui *m_welcome_ui;
+    Chat *m_chat_ui;
+    QThread *m_job_loop;
     bool m_exit;
-    bool check_exit(SDL_Event& t_event);
-
-    void im_gui_init();
-    void window_init();
-    void set_attributes();
-    void render();
-    void shutdown();
-    void update(); //not used currently
-    void welcome();
-    void repeat_job();
-    void job_dispatch();
- 
-    SDL_WindowFlags m_window_flags;
-    SDL_Window* m_window;
-    SDL_GLContext m_gl_context;
-    ImVec4 m_clear_color;
-
-    //Gui parts
-    LoginGui m_login;
-    SideBar m_sidebar;
-
-    //specific skype functionality
-    void set_panel(int pos_x, int pos_y, int size_x, int size_y);
-    void set_boxes(const char* t_field, float t_width, const char* t_label, char* buf, ImGuiInputTextFlags t_flag);
-
-    JobDispatch m_map;
+    void job_loop();
 };
+#endif // SKYPEGUI_H
