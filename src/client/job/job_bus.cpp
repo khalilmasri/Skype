@@ -1,7 +1,6 @@
 #include "job_bus.hpp"
 #include "client.hpp"
 #include "job_queue.hpp"
-#include "logger.hpp"
 
 #include <ctime>
 #include <iostream>
@@ -9,6 +8,7 @@
 #include <QThread>
 
 bool JobBus::m_exit_loop = false;
+JobBus* JobBus::m_instance = nullptr;
 
 JobQueue JobBus::m_jobQ;
 JobQueue JobBus::m_resQ;
@@ -30,6 +30,19 @@ JobBus::JobsMap JobBus::m_JobBus_map {
     {Job::GETCONT,          Client::contact_get_current_contact},
     {Job::DISP_CONTACTS,    Client::contact_get_contacts}
 };
+
+JobBus* JobBus::get_instance()
+{
+    if(!m_instance){
+        m_instance = new JobBus();
+    }
+
+    return m_instance;
+}
+
+JobBus::~JobBus()
+{
+}
 
 void JobBus::handle(Job &&t_job){
     m_jobQ.push(t_job);
@@ -55,7 +68,7 @@ void JobBus::main_loop() {
 
             m_JobBus_map[job.m_command](job);
             m_resQ.push(job);
-            
+            emit JobBus::get_instance()->job_ready();
         }
     }
   
@@ -72,7 +85,7 @@ bool JobBus::get_response(Job &t_job){
     if (false == res){
         return false;
     }
-    std::cout << "here\n";
+
     return t_job.m_valid;
 } 
 

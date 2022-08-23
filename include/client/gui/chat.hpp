@@ -4,19 +4,19 @@
 #include <QDialog>
 
 namespace Ui {
-class Chat;
+class ChatGui;
 }
 
-class Chat : public QDialog
+class ChatGui : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit Chat(QWidget *parent = nullptr);
-    ~Chat();
+    explicit ChatGui(QWidget *parent = nullptr);
+    ~ChatGui();
 
 private:
-    Ui::Chat *ui;
+    Ui::ChatGui *ui;
 };
 
 #endif // CHAT_HPP

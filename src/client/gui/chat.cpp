@@ -1,14 +1,14 @@
 #include "chat.hpp"
 #include "ui/ui_chat.h"
 
-Chat::Chat(QWidget *parent) :
+ChatGui::ChatGui(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::Chat)
+    ui(new Ui::ChatGui)
 {
     ui->setupUi(this);
 }
 
-Chat::~Chat()
+ChatGui::~ChatGui()
 {
     delete ui;
 }

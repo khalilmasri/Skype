@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>SkypeGui</class>
- <widget class="QMainWindow" name="SkypeGui">
+ <class>WelcomeGui</class>
+ <widget class="QMainWindow" name="WelcomeGui">
   <property name="geometry">
    <rect>
     <x>0</x>

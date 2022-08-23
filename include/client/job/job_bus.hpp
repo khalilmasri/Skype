@@ -10,7 +10,8 @@
 #include <QObject>
 #include <QThread>
 
-class JobBus : public QObject{
+class JobBus : public QObject
+{
     typedef Job::Type Type;
     typedef std::function<void (Job &t_job)> JobsMethod;
     typedef std::unordered_map<Type, JobsMethod> JobsMap;
@@ -18,7 +19,7 @@ class JobBus : public QObject{
     Q_OBJECT
 public:
 
-    JobBus();
+    JobBus(){};
     ~JobBus();
     
     // Job functionality 
@@ -27,12 +28,17 @@ public:
     static void handle(Job &t_job);
     static void handle(Job &&t_job);
     static bool get_response(Job &t_job);
+    static JobBus* get_instance();
+
+signals:
+    void job_ready();
 
 private:
     static bool             m_exit_loop;
-    static JobsMap          m_JobBus_map; 
+    static JobsMap          m_JobBus_map;
     static JobQueue         m_jobQ;
     static JobQueue         m_resQ;
+    static JobBus           *m_instance;
 };
 
 
