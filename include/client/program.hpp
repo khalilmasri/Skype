@@ -12,6 +12,10 @@
 
 class Program : public QObject
 {
+    typedef Job::Type Type;
+    typedef std::function<void (Job &t_job)> SetMethod;
+    typedef std::unordered_map<Type, SetMethod> JobDispatch;
+
     Q_OBJECT
 public:
     Program();
@@ -26,6 +30,7 @@ private:
     WelcomeGui  *m_welcome;
     ChatGui     *m_chat;
     QThread     *m_bus_loop;
+    JobDispatch m_map;
 
     void handle_response();
 };

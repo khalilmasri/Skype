@@ -11,6 +11,8 @@
 #include <sys/socket.h>
 #include <cstring>
 #include <algorithm>
+#include <QVector>
+#include <QString>
 
 // /* Public */
 
@@ -145,14 +147,15 @@ fail:
     return false;
 }
 
-std::vector<std::string> Contacts::display_contacts() {
+QVector<QString> Contacts::display_contacts() {
 
-    std::vector<std::string> contacts;
+    QVector<QString> contacts;
 
     FAIL_IF_SILENT ( true == m_online_contacts.empty() );
 
     for ( auto &[username, details] : m_online_contacts ) {
-        contacts.push_back(username);
+        QString field = QString::fromUtf8(username.c_str());
+        contacts.push_back(field);
     }
 
     return contacts;
@@ -225,7 +228,7 @@ void Contacts::pair_contact_details(std::string t_user) {
         }
     }
 
-    if ( username != "" && details.online == true  ){
+    if ( username != "" /*&& details.online == true */ ){
         m_online_contacts.emplace(username, details);            
     }
 }

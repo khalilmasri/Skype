@@ -23,9 +23,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SO
 /*-----QWidget-----*/
 QWidget
 {
-	background-color: #292f45;
-	color: #000000;
-	border-color: #000000;
+        background-color: #576574;
+        color: #000000;
+        border-color: #000000;
 
 }
 
@@ -33,31 +33,47 @@ QWidget
 /*-----QLabel-----*/
 QLabel
 {
-	background-color: #292f45;
-	color: #b9b9bb;
-	border-color: #000000;
+        background-color: #576574;
+        color: #fff;
+        border-color: #000000;
 
 }
 
+QLabel[objectName^="username"]
+{
+    font-weight: bold;
+    font-size: 20px;
+    color: #fff;
+}
 
 /*-----QPushButton-----*/
 QPushButton
 {
-	background-color: #f0742f;
+        background-color: #01a3a4;
 	color: #fff;
 	font-weight: bold;
 	border-style: solid;
 	border-width: 1px;
 	border-radius: 17px;
-	border-color: #f0742f;
+        border-color: #01a3a4;
 	padding: 10px;
 
 }
 
+QGroupBox
+{
+    color: #b9b9bb;
+
+}
+
+QListView
+{
+    background-color: #222f3e;
+}
 
 QPushButton::hover
 {
-	background-color: #fc7c11;
+        background-color: #01a3a4;
 	color: #fff;
 
 }
@@ -105,7 +121,7 @@ QToolButton::pressed
 
 /*-----QLineEdit-----*/
 QLineEdit{
-	background-color: #292f45;
+        background-color: #576574;
 	color: #b9b9bb;
 	font-weight: bold;
 	border-style: solid;

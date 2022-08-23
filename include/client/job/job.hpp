@@ -1,8 +1,10 @@
 #ifndef JOB_H
 #define JOB_H
 
+#include <QString>
+#include <QVector>
 #include <string>
-#include <vector>
+
 struct Job {
      enum Type {
 
@@ -35,7 +37,7 @@ struct Job {
 
     bool m_valid = false;
     std::string m_string = "";
-    std::vector<std::string> m_vector = {};
+    QVector<QString> m_vector = {};
 };
 
 

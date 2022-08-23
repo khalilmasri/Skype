@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 {
 
     QApplication a(argc, argv);
-    QFile stylesheetFile("/home/khalil/Documents/Skype/src/client/gui/stylesheet/Hookmark.qss");
+    QFile stylesheetFile("/home/khalil/skype/src/client/gui/stylesheet/Hookmark.qss");
     stylesheetFile.open(QFile::ReadOnly);
     QString styleSheet = QLatin1String(stylesheetFile.readAll());
     a.setStyleSheet(styleSheet);
