@@ -38,7 +38,7 @@ private: // Variables
 private: // Methods
     void create_job_dispatcher();
 
-    // Signals
+    // slots
     void slots_login(Job &t_job);
     void slots_disp_contact(Job &t_job);
     void slots_setuser(Job &t_job);
