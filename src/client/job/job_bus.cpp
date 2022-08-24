@@ -86,7 +86,7 @@ bool JobBus::get_response(Job &t_job){
         return false;
     }
 
-    return t_job.m_valid;
+    return true;
 } 
 
 void JobBus::set_exit() { m_exit_loop = true; }

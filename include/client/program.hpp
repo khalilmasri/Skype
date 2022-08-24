@@ -24,15 +24,25 @@ public:
 signals:
     void wrapping();
 
-private:
+private slots:
+    void handle_response();
+
+private: // Variables
     Client      m_client;
     JobBus      *m_bus;
     WelcomeGui  *m_welcome;
     ChatGui     *m_chat;
     QThread     *m_bus_loop;
-    JobDispatch m_map;
+    JobDispatch m_table;
 
-    void handle_response();
+private: // Methods
+    void create_job_dispatcher();
+
+    // Signals
+    void slots_login(Job &t_job);
+    void slots_disp_contact(Job &t_job);
+    void slots_setuser(Job &t_job);
+    void slots_create(Job &t_job);
 };
 
 #endif // PROGRAM_H

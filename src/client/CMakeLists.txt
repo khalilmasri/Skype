@@ -45,14 +45,14 @@ add_executable(${PROJECT_NAME} ${CLIENT_SOURCES} ${GUI_HEADERS})
 
 # Define the include path
 set(INCLUDE_DIRS    ../../include/client 
-                    ../../include/client/gui 
+                    ../../include/client/gui
                     ../../include/client/user 
                     ../../include/client/job 
                     ../../include/shared     
                     ../../include/shared/test
                     ../../include/shared/connection 
                     ../../include/shared/data 
-                    ../../include/shared/utils 
+                    ../../include/shared/utils
                 ) 
 
 # Set the include directory path

@@ -28,7 +28,6 @@ bool Contacts::list(ActiveConn& t_conn, Request& t_req) {
     FAIL_IF( false == t_req.m_valid);
     response = TextData::to_string(t_req.data());
 
-    LOG_INFO("Updating contacts");    
     update_contacts(response);
     
     return true;
