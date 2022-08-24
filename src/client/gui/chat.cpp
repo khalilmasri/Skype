@@ -23,7 +23,8 @@ ChatGui::ChatGui(QWidget *parent) :
     m_ui->setupUi(this);
 
     // Set the window to open the center of the screen with a fixed size
-    this->setFixedSize(QSize(892, 790));
+    this->setGeometry(QStyle::alignedRect(Qt::LeftToRight,Qt::AlignCenter,this->size(),qApp->desktop()->availableGeometry()));
+    this->setFixedSize(QSize(892, 700));
 }
 
 ChatGui::~ChatGui()
