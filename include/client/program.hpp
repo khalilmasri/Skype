@@ -2,8 +2,8 @@
 #define PROGRAM_H
 
 #include "client.hpp"
-#include "welcome.hpp"
-#include "chat.hpp"
+#include "welcome_gui.hpp"
+#include "chat_gui.hpp"
 #include "job_bus.hpp"
 #include "job.hpp"
 

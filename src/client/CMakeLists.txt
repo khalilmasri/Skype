@@ -9,10 +9,12 @@ set(CMAKE_AUTORCC ON)
 
 # Find the packages needed
 set(OpenGL_GL_PREFERENCE LEGACY)
-find_package(Qt5 COMPONENTS Widgets REQUIRED)
 find_package(SDL2 REQUIRED)
 find_package(OpenGL REQUIRED)
 include_directories(${SDL2_INCLUDE_DIRS})
+
+# QT5 specificas
+find_package(Qt5 COMPONENTS Widgets REQUIRED)
 
 # Include all the source code with cpp extension
 file(GLOB CLIENT_SOURCES    "*.cpp" 
@@ -23,14 +25,17 @@ file(GLOB CLIENT_SOURCES    "*.cpp"
                             "../shared/*.cpp"
                             "../shared/data/*.cpp"
                             "../shared/utils/*.cpp"
-                            "../shared/connection/*.cpp"
+                            "../shared/connection/*.cpp"               
                         ) 
 
-file(GLOB GUI_HEADERS       "../../include/client/gui/welcome.hpp"
-                            "../../include/client/gui/chat.hpp"
+file(GLOB GUI_HEADERS       "../../include/client/gui/welcome_gui.hpp"
+                            "../../include/client/gui/chat_gui.hpp"
+                            "../../include/client/gui/contact_gui.hpp"
                             "../../include/client/program.hpp"
                             "../../include/client/job/job_bus.hpp"
 )
+
+file(GLOB RESOURCES "../../misc/icons/resource.qrc")
 
 # Define CMAKE_BINARY_DIR for the destination of the binary 
 set(CMAKE_BINARY_DIR "../../bin")
@@ -40,7 +45,7 @@ set(CMAKE_BINARY_DIR "../../bin")
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
 # Executs the client the CLIENT_SOURCES
-add_executable(${PROJECT_NAME} ${CLIENT_SOURCES} ${GUI_HEADERS})
+add_executable(${PROJECT_NAME} ${CLIENT_SOURCES} ${GUI_HEADERS} ${RESOURCES})
 
 
 # Define the include path

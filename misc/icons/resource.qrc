@@ -1,0 +1,10 @@
+<RCC>
+    <qresource prefix="/icons">
+        <file>icons8-plus-48.png</file>
+        <file>icons8-minus-48.png</file>
+        <file>icons8-video-camera-24.png</file>
+        <file>icons8-phone-32.png</file>
+        <file>icons8-email-send-24.png</file>
+        <file>icons8-search-50.png</file>
+    </qresource>
+</RCC>

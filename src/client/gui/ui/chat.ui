@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>MySkype</string>
   </property>
   <property name="sizeGripEnabled">
    <bool>false</bool>
@@ -37,29 +37,95 @@
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="1">
+      <item row="1" column="0">
+       <widget class="QListView" name="contact_list">
+        <property name="editTriggers">
+         <set>QAbstractItemView::NoEditTriggers</set>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="0">
        <widget class="QLabel" name="username">
         <property name="text">
          <string/>
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
-       <widget class="QFrame" name="frame">
-        <property name="frameShape">
-         <enum>QFrame::StyledPanel</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="1">
-       <widget class="QListView" name="contact_list">
-        <property name="editTriggers">
-         <set>QAbstractItemView::NoEditTriggers</set>
-        </property>
-       </widget>
+      <item row="3" column="0">
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QPushButton" name="search">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../../../../misc/icons/resource.qrc">
+            <normaloff>:/icons/icons8-search-50.png</normaloff>:/icons/icons8-search-50.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="add">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../../../../misc/icons/resource.qrc">
+            <normaloff>:/icons/icons8-plus-48.png</normaloff>:/icons/icons8-plus-48.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="remove">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../../../../misc/icons/resource.qrc">
+            <normaloff>:/icons/icons8-minus-48.png</normaloff>:/icons/icons8-minus-48.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>21</width>
+            <height>21</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </item>
@@ -71,7 +137,7 @@
      <x>200</x>
      <y>0</y>
      <width>691</width>
-     <height>700</height>
+     <height>701</height>
     </rect>
    </property>
    <property name="title">
@@ -100,6 +166,16 @@
           <property name="text">
            <string>Call</string>
           </property>
+          <property name="icon">
+           <iconset resource="../../../../misc/icons/resource.qrc">
+            <normaloff>:/icons/icons8-phone-32.png</normaloff>:/icons/icons8-phone-32.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
+          </property>
          </widget>
         </item>
         <item>
@@ -112,6 +188,16 @@
           </property>
           <property name="text">
            <string>Video</string>
+          </property>
+          <property name="icon">
+           <iconset resource="../../../../misc/icons/resource.qrc">
+            <normaloff>:/icons/icons8-video-camera-24.png</normaloff>:/icons/icons8-video-camera-24.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>20</width>
+            <height>20</height>
+           </size>
           </property>
          </widget>
         </item>
@@ -141,9 +227,6 @@
       </property>
      </widget>
     </item>
-    <item row="2" column="0" colspan="2">
-     <layout class="QHBoxLayout" name="horizontalLayout_3"/>
-    </item>
     <item row="4" column="0">
      <widget class="QLineEdit" name="message_txt">
       <property name="text">
@@ -159,11 +242,26 @@
       <property name="text">
        <string>Send</string>
       </property>
+      <property name="icon">
+       <iconset resource="../../../../misc/icons/resource.qrc">
+        <normaloff>:/icons/icons8-email-send-24.png</normaloff>:/icons/icons8-email-send-24.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>20</width>
+        <height>20</height>
+       </size>
+      </property>
      </widget>
+    </item>
+    <item row="2" column="0" colspan="2">
+     <layout class="QHBoxLayout" name="horizontalLayout_3"/>
     </item>
    </layout>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../../../misc/icons/resource.qrc"/>
+ </resources>
  <connections/>
 </ui>

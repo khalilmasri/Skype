@@ -1,6 +1,7 @@
-#include "chat.hpp"
+#include "chat_gui.hpp"
 #include "ui/ui_chat.h"
 #include "logger.hpp"
+#include "fail_if.hpp"
 
 #include <QStringListModel>
 #include <QVector>
@@ -11,7 +12,9 @@
 #include <QDateTime>
 #include <QTextStream>
 #include <QDesktopWidget>
+#include <QMessageBox>
 #include <QStyle>
+#include <QDebug>
 
 bool first = true;
 QTimer *timer = new QTimer();
@@ -29,6 +32,7 @@ ChatGui::ChatGui(QWidget *parent) :
 
 ChatGui::~ChatGui()
 {
+    m_contact.hide();
     delete m_ui;
     delete timer;
 }
@@ -53,6 +57,11 @@ void ChatGui::load_contacts(QVector<QString> t_contact_list)
     m_ui->contact_list->selectionModel()->select(m_current_selected,  QItemSelectionModel::Select);
 }
 
+void ChatGui::remove_user(QString t_user)
+{
+    m_ui->contact_list->model()->data(Qt::DisplayRole); // CONTINUE WORK HERE
+}
+
 // ***** PRIVATE ***** //
 
 void ChatGui::refresh_contacts()
@@ -68,19 +77,25 @@ void ChatGui::refresh_contacts()
 }
 
 void ChatGui::load_chat(QString t_contact)
-{
+{  
     QString path = "../chat_logs/" + t_contact + ".txt";
 
     QFile chat_file(path);
-    chat_file.open(QFile::ReadOnly);
 
-    QTextStream in(&chat_file);
 
-    m_ui->chat_box->clear();
+    FAIL_IF( false == chat_file.open(QFile::ReadOnly));
+    {
+        QTextStream in(&chat_file);
+        m_ui->chat_box->clear();
 
-    while( false == in.atEnd()){
-        m_ui->chat_box->addItem((in.readLine()));
+        while( false == in.atEnd()){
+            m_ui->chat_box->addItem((in.readLine()));
+        }
     }
+fail:
+
+    // later we need to create a file in the contact name if not found
+    return;
 }
 
 void ChatGui::send_msg()
@@ -123,7 +138,33 @@ void ChatGui::on_send_clicked()
     send_msg();
 }
 
+void ChatGui::on_search_clicked()
+{
+    m_contact.set_option("Search");
+    m_contact.show();
+    m_contact.raise();
+}
 
+void ChatGui::on_add_clicked()
+{
+    m_contact.set_option("Add");
+    m_contact.show();
+    m_contact.raise();
+}
+
+void ChatGui::on_remove_clicked()
+{
+    std::string user = m_current_selected.data().toString().toStdString();
+    QString q_user =  m_current_selected.data().toString();
+
+    QMessageBox::StandardButton ret = QMessageBox::information(nullptr, "Removal " + q_user, "Are you sure you want to remove " + q_user + "?", QMessageBox::Abort | QMessageBox::Ok);
+    if ( QMessageBox::Abort == ret )
+    {
+        return;
+    }
+
+    JobBus::handle({Job::REMOVE, user});
+}
 
 /*
 QSaveFile fileOut(filename);
@@ -131,3 +172,12 @@ QTextStream out(&fileOut);
 out << "Qt rocks!" << Qt::endl; // do this for every item
 fileOut.commit()
 */
+
+
+
+
+
+
+
+
+

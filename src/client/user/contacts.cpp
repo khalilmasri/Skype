@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <QVector>
 #include <QString>
+#include <QDebug>
 
 // /* Public */
 
@@ -188,6 +189,7 @@ bool Contacts::valid_response(Reply::Code t_code, std::string& t_res){
 
 void Contacts::update_contacts(std::string t_response) {
 
+    m_online_contacts = {};
     StringUtils::StringVector users = StringUtils::split(t_response);
 
     for ( auto &user : users) {

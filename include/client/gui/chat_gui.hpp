@@ -3,6 +3,7 @@
 
 #include "job_bus.hpp"
 #include "job.hpp"
+#include "contact_gui.hpp"
 
 #include <QModelIndex>
 #include <QDialog>
@@ -24,6 +25,7 @@ public:
     void load_contacts(QVector<QString> t_contact_list);
     void set_user(QString t_user);
     void init();
+    void remove_user(QString t_user);
 
 private slots:
     void on_contact_list_clicked(const QModelIndex &index);
@@ -32,10 +34,17 @@ private slots:
 
     void on_send_clicked();
 
+    void on_search_clicked();
+
+    void on_add_clicked();
+
+    void on_remove_clicked();
+
 private: // Variables
     Ui::ChatGui *m_ui;
     QString     m_user;
     QModelIndex m_current_selected;
+    ContactGui  m_contact;
 
 private: // Methods
     void refresh_contacts();

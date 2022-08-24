@@ -1,4 +1,4 @@
-#include "welcome.hpp"
+#include "welcome_gui.hpp"
 #include "ui/ui_welcome.h"
 #include "job.hpp"
 #include "job_bus.hpp"
@@ -7,7 +7,7 @@
 #include <QMessageBox>
 #include <QDesktopWidget>
 #include <QStyle>
-
+#include <QLineEdit>
 
 WelcomeGui::WelcomeGui(QWidget *parent)
     : QMainWindow(parent)

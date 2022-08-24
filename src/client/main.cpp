@@ -1,6 +1,5 @@
 #define DOCTEST_CONFIG_IMPLEMENT
 #include "doctest.h"
-#include "welcome.hpp"
 #include "program.hpp"
 
 #include <thread>
