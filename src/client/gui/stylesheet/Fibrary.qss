@@ -29,7 +29,6 @@ QWidget
 
 }
 
-
 /*-----QLabel-----*/
 QLabel
 {

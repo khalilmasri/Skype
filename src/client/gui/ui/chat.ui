@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>680</width>
-    <height>596</height>
+    <width>892</width>
+    <height>790</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -28,7 +28,7 @@
      <x>0</x>
      <y>0</y>
      <width>201</width>
-     <height>591</height>
+     <height>791</height>
     </rect>
    </property>
    <property name="title">
@@ -37,7 +37,7 @@
    <layout class="QVBoxLayout" name="verticalLayout_2">
     <item>
      <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="0">
+      <item row="0" column="1">
        <widget class="QLabel" name="username">
         <property name="text">
          <string/>
@@ -45,6 +45,16 @@
        </widget>
       </item>
       <item row="1" column="0">
+       <widget class="QFrame" name="frame">
+        <property name="frameShape">
+         <enum>QFrame::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
        <widget class="QListView" name="contact_list">
         <property name="editTriggers">
          <set>QAbstractItemView::NoEditTriggers</set>
@@ -60,8 +70,8 @@
     <rect>
      <x>200</x>
      <y>0</y>
-     <width>471</width>
-     <height>591</height>
+     <width>691</width>
+     <height>791</height>
     </rect>
    </property>
    <property name="title">
