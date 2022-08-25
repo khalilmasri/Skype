@@ -34,6 +34,7 @@ private:
     };
 
     std::unordered_map<std::string, struct Details> m_online_contacts;
+    std::unordered_map<std::string, struct Details> m_old_contacts;
 
     std::vector<std::string> m_contacts;
     std::string m_current_contact;

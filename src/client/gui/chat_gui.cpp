@@ -29,8 +29,8 @@ ChatGui::ChatGui(QWidget *parent) :
     this->setGeometry(QStyle::alignedRect(Qt::LeftToRight,Qt::AlignCenter,this->size(),qApp->desktop()->availableGeometry()));
     this->setFixedSize(QSize(892, 700));
 
-    connect(this, &ChatGui::on_send_clicked,                this, &ChatGui::send_msg);
-    connect(this, &ChatGui::on_message_txt_returnPressed,   this, &ChatGui::send_msg);
+    QObject::connect(this, &ChatGui::on_send_clicked,                this, &ChatGui::send_msg);
+    QObject::connect(this, &ChatGui::on_message_txt_returnPressed,   this, &ChatGui::send_msg);
 }
 
 ChatGui::~ChatGui()
@@ -69,12 +69,10 @@ void ChatGui::job_disp_contact(Job &t_job)
 
     m_ui->contact_list->setModel(new QStringListModel(QList<QString>::fromVector(t_job.m_vector)));
 
-    if (m_current_selected.isValid() != true)
+    if (m_current_selected.isValid() == true)
     {
-        return;
+        m_ui->contact_list->selectionModel()->select(m_current_selected,  QItemSelectionModel::Select);
     }
-
-    m_ui->contact_list->selectionModel()->select(m_current_selected,  QItemSelectionModel::Select);
 }
 
 void ChatGui::job_add_user(Job &t_job)
@@ -88,10 +86,8 @@ void ChatGui::job_add_user(Job &t_job)
     }
 
     QMessageBox::information(nullptr, "Add " + user, "Added " + user + " successfully!");
-    JobBus::handle({Job::DISP_CONTACTS});
     m_contact.hide();
 
-    //m_current_selected = m_ui->contact_list->currentIndex();
 }
 
 void ChatGui::job_search(Job &t_job)
@@ -139,12 +135,11 @@ void ChatGui::refresh_contacts()
 {
     if (first == true ){
         connect(timer, &QTimer::timeout, this, &ChatGui::refresh_contacts);
-        timer->start(3000);
+        timer->start(2000);
         first = false;
     }
 
     JobBus::handle({Job::LIST});
-    JobBus::handle({Job::DISP_CONTACTS});
 }
 
 void ChatGui::load_chat(QString t_contact)
@@ -192,8 +187,9 @@ void ChatGui::on_contact_list_clicked(const QModelIndex &index)
         return;
     }
 
-    m_ui->chat_group->show();
     m_current_selected = index;
+
+    m_ui->chat_group->show();
     m_ui->contact_txt->setText(item);
     load_chat(item);
 }

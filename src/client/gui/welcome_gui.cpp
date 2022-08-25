@@ -24,13 +24,13 @@ WelcomeGui::WelcomeGui(QWidget *parent)
     m_ui->Register_group->hide();
 
     // Register all the signals to slots
-    connect(this, &WelcomeGui::on_pushButton_login_clicked,                             this, &WelcomeGui::login);
-    connect(this, &WelcomeGui::on_lineEdit_login_username_returnPressed,                this, &WelcomeGui::login);
-    connect(this, &WelcomeGui::on_lineEdit_login_password_returnPressed,                this, &WelcomeGui::login);
-    connect(this, &WelcomeGui::on_pushButton_register_clicked,                          this, &WelcomeGui::create);
-    connect(this, &WelcomeGui::on_lineEdit_register_username_returnPressed,             this, &WelcomeGui::create);
-    connect(this, &WelcomeGui::on_lineEdit_register_password_returnPressed,             this, &WelcomeGui::create);
-    connect(this, &WelcomeGui::on_lineEdit_register_confirm_password_returnPressed,     this, &WelcomeGui::create);
+    QObject::connect(this, &WelcomeGui::on_pushButton_login_clicked,                             this, &WelcomeGui::login);
+    QObject::connect(this, &WelcomeGui::on_lineEdit_login_username_returnPressed,                this, &WelcomeGui::login);
+    QObject::connect(this, &WelcomeGui::on_lineEdit_login_password_returnPressed,                this, &WelcomeGui::login);
+    QObject::connect(this, &WelcomeGui::on_pushButton_register_clicked,                          this, &WelcomeGui::create);
+    QObject::connect(this, &WelcomeGui::on_lineEdit_register_username_returnPressed,             this, &WelcomeGui::create);
+    QObject::connect(this, &WelcomeGui::on_lineEdit_register_password_returnPressed,             this, &WelcomeGui::create);
+    QObject::connect(this, &WelcomeGui::on_lineEdit_register_confirm_password_returnPressed,     this, &WelcomeGui::create);
 }
 
 WelcomeGui::~WelcomeGui()

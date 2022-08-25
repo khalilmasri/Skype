@@ -4,6 +4,8 @@
 #include "string_utils.hpp"
 #include "text_data.hpp"
 #include "fail_if.hpp"
+#include "job.hpp"
+#include "job_bus.hpp"
 
 #include <string>
 #include <sys/types.h>
@@ -14,6 +16,7 @@
 #include <QVector>
 #include <QString>
 #include <QDebug>
+#include <utility>
 
 // /* Public */
 
@@ -189,16 +192,24 @@ bool Contacts::valid_response(Reply::Code t_code, std::string& t_res){
 
 void Contacts::update_contacts(std::string t_response) {
 
-    m_online_contacts = {};
     StringUtils::StringVector users = StringUtils::split(t_response);
+
+    m_old_contacts = m_online_contacts;
+    m_online_contacts.clear();
 
     for ( auto &user : users) {
         pair_contact_details(user); 
     }
+
+    bool ret =  m_online_contacts.size() == m_old_contacts.size();
+    if ( false == ret ){
+        LOG_INFO("Updating map");
+        JobBus::handle({Job::DISP_CONTACTS});
+    }
 }
 
 void Contacts::pair_contact_details(std::string t_user) {
-     
+
     StringUtils::StringVector user_fields = StringUtils::split(t_user, ",");
 
     Details details;

@@ -18,8 +18,8 @@ Program::Program()
     m_bus = JobBus::get_instance();
 
     // Connecting Signals and slots
-    connect(this, &Program::wrapping, m_bus, &JobBus::set_exit);
-    connect(m_bus, &JobBus::job_ready, this, &Program::handle_response);
+    QObject::connect(this, &Program::wrapping, m_bus, &JobBus::set_exit);
+    QObject::connect(m_bus, &JobBus::job_ready, this, &Program::handle_response);
 
     // Creating the main thread loop
     m_bus_loop = QThread::create(&JobBus::main_loop);
