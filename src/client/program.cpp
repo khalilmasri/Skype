@@ -46,10 +46,13 @@ Program::~Program()
 void Program::create_job_dispatcher()
 {
     m_table = {
-        {Job::LOGIN,            [this](Job &t_job){slots_login(t_job);}},
-        {Job::DISP_CONTACTS,    [this](Job &t_job){slots_disp_contact(t_job);}},
-        {Job::GETUSER,          [this](Job &t_job){slots_setuser(t_job);}},
-        {Job::CREATE,           [this](Job &t_job){slots_create(t_job);}}
+        {Job::LOGIN,            [this](Job &t_job){job_login(t_job);}},
+        {Job::CREATE,           [this](Job &t_job){m_welcome->job_create(t_job);}},
+        {Job::DISP_CONTACTS,    [this](Job &t_job){m_chat->job_disp_contact(t_job);}},
+        {Job::GETUSER,          [this](Job &t_job){m_chat->job_set_user(t_job);}},
+        {Job::ADD,              [this](Job &t_job){m_chat->job_add_user(t_job);}},
+        {Job::REMOVE,           [this](Job &t_job){m_chat->job_remove_user(t_job);}},
+        {Job::SEARCH,           [this](Job &t_job){m_chat->job_search(t_job);}}
     };
 }
 
@@ -69,7 +72,7 @@ fail:
 
 // ***** SLOTS ***** //
 
-void Program::slots_login(Job &t_job)
+void Program::job_login(Job &t_job)
 {
     if ( false == t_job.m_valid)
     {
@@ -80,36 +83,4 @@ void Program::slots_login(Job &t_job)
     m_welcome->hide();
     m_chat->show();
     m_chat->init();
-}
-
-void Program::slots_disp_contact(Job &t_job)
-{
-    if ( false == t_job.m_valid)
-    {
-        return;
-    }
-
-    m_chat->load_contacts(t_job.m_vector);
-}
-
-void Program::slots_setuser(Job &t_job)
-{
-    if ( false == t_job.m_valid)
-    {
-        return;
-    }
-
-    m_chat->set_user(QString::fromUtf8(t_job.m_string.c_str()));
-}
-
-void Program::slots_create(Job &t_job)
-{
-    if ( false == t_job.m_valid)
-    {
-        QMessageBox::information(nullptr, "Registeration", "Couldn't register account!");
-        return;
-    }
-
-    QMessageBox::information(nullptr, "register", "Account creating was success!");
-    m_welcome->hide_group("register");
 }

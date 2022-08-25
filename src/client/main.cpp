@@ -11,7 +11,7 @@ int main(int argc, char *argv[])
 {
 
     QApplication a(argc, argv);
-    QFile stylesheetFile("../src/client/gui/stylesheet/Fibrary.qss");
+    QFile stylesheetFile("../misc/stylesheet/Fibrary.qss");
     stylesheetFile.open(QFile::ReadOnly);
     QString styleSheet = QLatin1String(stylesheetFile.readAll());
     a.setStyleSheet(styleSheet);

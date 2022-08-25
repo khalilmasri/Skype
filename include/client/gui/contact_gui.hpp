@@ -20,9 +20,7 @@ public:
 
 private slots:
     void on_lineEdit_returnPressed();
-
     void on_action_clicked();
-
     void on_cancel_clicked();
 
 private: // Variables

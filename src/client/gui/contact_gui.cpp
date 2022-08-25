@@ -5,12 +5,17 @@
 
 #include <QString>
 #include <string>
+#include <QStyle>
+#include <QDesktopWidget>
 
 ContactGui::ContactGui(QWidget *parent) :
     QDialog(parent),
     m_ui(new Ui::ContactGui)
 {
     m_ui->setupUi(this);
+
+    this->setGeometry(QStyle::alignedRect(Qt::LeftToRight,Qt::AlignCenter,this->size(),qApp->desktop()->availableGeometry()));
+    this->setFixedSize(QSize(395, 130));
 }
 
 ContactGui::~ContactGui()
@@ -49,7 +54,7 @@ void ContactGui::handle_action()
         JobBus::handle({Job::ADD, user});
     }
 
-    JobBus::handle({Job::DISP_CONTACTS});
+    m_ui->lineEdit->setText("");
 }
 
 // ***** SLOTS ***** //
@@ -57,7 +62,6 @@ void ContactGui::handle_action()
 void ContactGui::on_lineEdit_returnPressed()
 {
     handle_action();
-
 }
 
 

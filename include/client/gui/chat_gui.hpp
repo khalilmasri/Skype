@@ -22,23 +22,24 @@ public:
     explicit ChatGui(QWidget *parent = nullptr);
     ~ChatGui();
 
-    void load_contacts(QVector<QString> t_contact_list);
-    void set_user(QString t_user);
     void init();
     void remove_user(QString t_user);
 
+    void job_disp_contact(Job &t_job);
+    void job_set_user(Job &t_job);
+    void job_add_user(Job &t_job);
+    void job_search(Job &t_job);
+    void job_remove_user(Job &t_job);
+
 private slots:
     void on_contact_list_clicked(const QModelIndex &index);
-
-    void on_message_txt_returnPressed();
-
-    void on_send_clicked();
-
-    void on_search_clicked();
-
     void on_add_clicked();
-
+    void on_search_clicked();
     void on_remove_clicked();
+
+signals:
+    void on_send_clicked();
+    void on_message_txt_returnPressed();
 
 private: // Variables
     Ui::ChatGui *m_ui;

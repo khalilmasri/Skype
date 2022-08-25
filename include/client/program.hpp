@@ -39,10 +39,7 @@ private: // Methods
     void create_job_dispatcher();
 
     // slots
-    void slots_login(Job &t_job);
-    void slots_disp_contact(Job &t_job);
-    void slots_setuser(Job &t_job);
-    void slots_create(Job &t_job);
+    void job_login(Job &t_job);
 };
 
 #endif // PROGRAM_H

@@ -16,10 +16,21 @@ WelcomeGui::WelcomeGui(QWidget *parent)
     m_ui->setupUi(this);
 
     // Set the window to open the center of the screen with a fixed size
-    this->setGeometry(QStyle::alignedRect(Qt::LeftToRight,Qt::AlignCenter,this->size(),qApp->desktop()->availableGeometry()));
+    this->setGeometry(QStyle::alignedRect(Qt::LeftToRight,Qt::AlignCenter,this->size(),
+                        qApp->desktop()->availableGeometry()));
+    
     this->setFixedSize(QSize(621, 473));
 
     m_ui->Register_group->hide();
+
+    // Register all the signals to slots
+    connect(this, &WelcomeGui::on_pushButton_login_clicked,                             this, &WelcomeGui::login);
+    connect(this, &WelcomeGui::on_lineEdit_login_username_returnPressed,                this, &WelcomeGui::login);
+    connect(this, &WelcomeGui::on_lineEdit_login_password_returnPressed,                this, &WelcomeGui::login);
+    connect(this, &WelcomeGui::on_pushButton_register_clicked,                          this, &WelcomeGui::create);
+    connect(this, &WelcomeGui::on_lineEdit_register_username_returnPressed,             this, &WelcomeGui::create);
+    connect(this, &WelcomeGui::on_lineEdit_register_password_returnPressed,             this, &WelcomeGui::create);
+    connect(this, &WelcomeGui::on_lineEdit_register_confirm_password_returnPressed,     this, &WelcomeGui::create);
 }
 
 WelcomeGui::~WelcomeGui()
@@ -30,20 +41,18 @@ WelcomeGui::~WelcomeGui()
 
 // ***** PUBLIC ***** //
 
-void WelcomeGui::hide_group(QString t_group)
+void WelcomeGui::job_create(Job &t_job)
 {
-    if ( "register" == t_group )
+      if ( false == t_job.m_valid)
     {
-        m_ui->Register_group->hide();
-        m_ui->Login_group->show();
+        QMessageBox::information(nullptr, "Registeration", "Couldn't register account!");
+        return;
     }
-    else
-    {
-        m_ui->Login_group->hide();
-        m_ui->Register_group->show();
-    }
-}
 
+    QMessageBox::information(nullptr, "register", "Account creation was success!");
+    hide_group("register");
+}
+  
 // ***** PRIVATE ***** //
 
 void WelcomeGui::login()
@@ -82,45 +91,24 @@ void WelcomeGui::create()
 
 fail:
 
-    QMessageBox::information(nullptr, "Registeration", "Couldn't Passwords don't match");
+    QMessageBox::information(nullptr, "Registeration", "Passwords don't match");
+}
+
+void WelcomeGui::hide_group(QString t_group)
+{
+    if ( "register" == t_group )
+    {
+        m_ui->Register_group->hide();
+        m_ui->Login_group->show();
+    }
+    else
+    {
+        m_ui->Login_group->hide();
+        m_ui->Register_group->show();
+    }
 }
 
 // ***** SLOTS ***** //
-
-void WelcomeGui::on_pushButton_login_clicked()
-{
-    login();
-}
-
-void WelcomeGui::on_lineEdit_login_username_returnPressed()
-{
-    login();
-}
-
-void WelcomeGui::on_lineEdit_login_password_returnPressed()
-{
-    login();
-}
-
-void WelcomeGui::on_pushButton_register_clicked()
-{
-    create();
-}
-
-void WelcomeGui::on_lineEdit_register_username_returnPressed()
-{
-    create();
-}
-
-void WelcomeGui::on_lineEdit_register_password_returnPressed()
-{
-    create();
-}
-
-void WelcomeGui::on_lineEdit_register_confirm_password_returnPressed()
-{
-    create();
-}
 
 void WelcomeGui::on_pushButton_register_window_clicked()
 {

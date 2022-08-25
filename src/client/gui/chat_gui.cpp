@@ -28,6 +28,9 @@ ChatGui::ChatGui(QWidget *parent) :
     // Set the window to open the center of the screen with a fixed size
     this->setGeometry(QStyle::alignedRect(Qt::LeftToRight,Qt::AlignCenter,this->size(),qApp->desktop()->availableGeometry()));
     this->setFixedSize(QSize(892, 700));
+
+    connect(this, &ChatGui::on_send_clicked,                this, &ChatGui::send_msg);
+    connect(this, &ChatGui::on_message_txt_returnPressed,   this, &ChatGui::send_msg);
 }
 
 ChatGui::~ChatGui()
@@ -46,20 +49,88 @@ void ChatGui::init()
     JobBus::handle({Job::GETUSER});
 }
 
-void ChatGui::set_user(QString t_user){
-    m_user = t_user;
+void ChatGui::job_set_user(Job &t_job)
+{
+    if ( false == t_job.m_valid)
+    {
+        return;
+    }
+
+    m_user = QString::fromStdString(t_job.m_string);
     m_ui->username->setText("Welcome " + m_user);
 }
 
-void ChatGui::load_contacts(QVector<QString> t_contact_list)
+void ChatGui::job_disp_contact(Job &t_job)
 {
-    m_ui->contact_list->setModel(new QStringListModel(QList<QString>::fromVector(t_contact_list)));
+    if ( false == t_job.m_valid)
+    {
+        return;
+    }
+
+    m_ui->contact_list->setModel(new QStringListModel(QList<QString>::fromVector(t_job.m_vector)));
+
+    if (m_current_selected.isValid() != true)
+    {
+        return;
+    }
+
     m_ui->contact_list->selectionModel()->select(m_current_selected,  QItemSelectionModel::Select);
 }
 
-void ChatGui::remove_user(QString t_user)
+void ChatGui::job_add_user(Job &t_job)
 {
-    m_ui->contact_list->model()->data(Qt::DisplayRole); // CONTINUE WORK HERE
+    QString user = QString::fromStdString(t_job.m_argument);
+
+    if ( false == t_job.m_valid)
+    {
+        QMessageBox::information(nullptr, "Add " + user, "Couldn't add " + user);
+        return;
+    }
+
+    QMessageBox::information(nullptr, "Add " + user, "Added " + user + " successfully!");
+    JobBus::handle({Job::DISP_CONTACTS});
+    m_contact.hide();
+
+    //m_current_selected = m_ui->contact_list->currentIndex();
+}
+
+void ChatGui::job_search(Job &t_job)
+{
+    QString user = QString::fromStdString(t_job.m_argument);
+
+    if ( false == t_job.m_valid)
+    {
+        QMessageBox::information(nullptr, "Search " + user, "Couldn't find " + user + " in the database!");
+        return;
+    }
+
+    QMessageBox::StandardButton ret = QMessageBox::information(nullptr, "Search " + user,
+                                                               user + " was found, would you like to add him?",
+                                                               QMessageBox::Cancel | QMessageBox::Ok);
+
+    if ( QMessageBox::Cancel == ret)
+    {
+        return;
+    }
+
+    JobBus::handle({Job::ADD, t_job.m_argument});
+}
+
+void ChatGui::job_remove_user(Job &t_job)
+{
+    QString user = QString::fromStdString(t_job.m_argument);
+
+    if ( false == t_job.m_valid)
+    {
+        QMessageBox::information(nullptr, "Remove " + user, "Removing " + user + " failed!");
+        return;
+    }
+
+    QMessageBox::information(nullptr, "Remove " + user, "Removing " + user + " was successful!");
+
+    m_ui->contact_list->clearSelection();
+    m_current_selected = m_ui->contact_list->currentIndex();
+    m_ui->chat_group->hide();
 }
 
 // ***** PRIVATE ***** //
@@ -68,7 +139,7 @@ void ChatGui::refresh_contacts()
 {
     if (first == true ){
         connect(timer, &QTimer::timeout, this, &ChatGui::refresh_contacts);
-        timer->start(10000);
+        timer->start(3000);
         first = false;
     }
 
@@ -82,20 +153,19 @@ void ChatGui::load_chat(QString t_contact)
 
     QFile chat_file(path);
 
-
-    FAIL_IF( false == chat_file.open(QFile::ReadOnly));
+    if (false == chat_file.open(QFile::ReadOnly))
     {
-        QTextStream in(&chat_file);
+        // TODO: Later we need to add that we need to create a new chat file for the user
         m_ui->chat_box->clear();
-
-        while( false == in.atEnd()){
-            m_ui->chat_box->addItem((in.readLine()));
-        }
+        return;
     }
-fail:
 
-    // later we need to create a file in the contact name if not found
-    return;
+    QTextStream in(&chat_file);
+    m_ui->chat_box->clear();
+
+    while( false == in.atEnd()){
+        m_ui->chat_box->addItem((in.readLine()));
+    }
 }
 
 void ChatGui::send_msg()
@@ -118,7 +188,7 @@ void ChatGui::on_contact_list_clicked(const QModelIndex &index)
 {
     QString item = index.data(Qt::DisplayRole).toString();
 
-    if (item == m_ui->contact_txt->text()){
+    if (index == m_current_selected){
         return;
     }
 
@@ -126,16 +196,6 @@ void ChatGui::on_contact_list_clicked(const QModelIndex &index)
     m_current_selected = index;
     m_ui->contact_txt->setText(item);
     load_chat(item);
-}
-
-void ChatGui::on_message_txt_returnPressed()
-{
-    send_msg();
-}
-
-void ChatGui::on_send_clicked()
-{
-    send_msg();
 }
 
 void ChatGui::on_search_clicked()
@@ -154,10 +214,11 @@ void ChatGui::on_add_clicked()
 
 void ChatGui::on_remove_clicked()
 {
-    std::string user = m_current_selected.data().toString().toStdString();
     QString q_user =  m_current_selected.data().toString();
+    std::string user = q_user.toStdString();
 
-    QMessageBox::StandardButton ret = QMessageBox::information(nullptr, "Removal " + q_user, "Are you sure you want to remove " + q_user + "?", QMessageBox::Abort | QMessageBox::Ok);
+    QMessageBox::StandardButton ret = QMessageBox::information(nullptr, "Remove " + q_user, "Are you sure you want to remove " + q_user + "?",
+                                                               QMessageBox::Abort | QMessageBox::Ok);
     if ( QMessageBox::Abort == ret )
     {
         return;
