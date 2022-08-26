@@ -13,7 +13,6 @@
 #include <sys/socket.h>
 #include <cstring>
 #include <algorithm>
-#include <QVector>
 #include <QString>
 #include <QDebug>
 #include <utility>

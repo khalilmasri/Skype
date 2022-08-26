@@ -8,6 +8,8 @@
 #include <QStyle>
 #include <QDesktopWidget>
 
+#include <iostream>
+
 ContactGui::ContactGui(QWidget *parent) :
     QDialog(parent),
     m_ui(new Ui::ContactGui)
@@ -61,6 +63,7 @@ void ContactGui::handle_action()
 
 void ContactGui::on_lineEdit_returnPressed()
 {
+    std::cout << "here\n";
     handle_action();
 }
 

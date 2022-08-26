@@ -24,18 +24,21 @@ ChatGui::ChatGui(QWidget *parent) :
     m_ui(new Ui::ChatGui)
 {
     m_ui->setupUi(this);
-
     // Set the window to open the center of the screen with a fixed size
     this->setGeometry(QStyle::alignedRect(Qt::LeftToRight,Qt::AlignCenter,this->size(),qApp->desktop()->availableGeometry()));
     this->setFixedSize(QSize(892, 700));
 
     QObject::connect(this, &ChatGui::on_send_clicked,                this, &ChatGui::send_msg);
     QObject::connect(this, &ChatGui::on_message_txt_returnPressed,   this, &ChatGui::send_msg);
+
+    m_ui->search->setAutoDefault(false);
+    m_ui->add->setAutoDefault(false);
+    m_ui->remove->setAutoDefault(false);
 }
+
 
 ChatGui::~ChatGui()
 {
-    m_contact.hide();
     delete m_ui;
     delete timer;
 }
@@ -87,7 +90,11 @@ void ChatGui::job_add_user(Job &t_job)
 
     QMessageBox::information(nullptr, "Add " + user, "Added " + user + " successfully!");
     m_contact.hide();
-
+    
+    // TODO: Change the behaviour later
+    m_ui->contact_list->clearSelection();
+    m_current_selected = m_ui->contact_list->currentIndex();
+    m_ui->chat_group->hide();
 }
 
 void ChatGui::job_search(Job &t_job)
@@ -127,6 +134,18 @@ void ChatGui::job_remove_user(Job &t_job)
     m_ui->contact_list->clearSelection();
     m_current_selected = m_ui->contact_list->currentIndex();
     m_ui->chat_group->hide();
+}
+
+void ChatGui::reject()
+{
+  QMessageBox::StandardButton ret = QMessageBox::information(nullptr, "Closing MySkype", "Are you sure you want to close MySkype?",
+                                                             QMessageBox::Ok | QMessageBox::Cancel);
+
+
+  if ( QMessageBox::Ok == ret )
+    {
+      QDialog::reject();
+    }
 }
 
 // ***** PRIVATE ***** //
@@ -238,3 +257,4 @@ fileOut.commit()
 
 
 
+`
