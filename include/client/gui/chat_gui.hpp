@@ -48,6 +48,7 @@ private: // Variables
     ContactGui  m_contact;
 
 private: // Methods
+    void reject() override;
     void refresh_contacts();
     void load_chat(QString t_contact);
     void send_msg();
