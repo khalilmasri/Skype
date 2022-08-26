@@ -38,9 +38,23 @@ QLabel
 
 }
 
+QLabel[objectName ^= login_error]
+{
+    font-weight: normal;
+    background-color: transparent;
+    color: #d10000;
+}
+
+QLabel[objectName ^= register_error]
+{
+    font-weight: normal;
+    background-color: transparent;
+    color: #d10000;
+}
+
 QLabel[objectName ^= username]
 {
-	background-color: #424242;
+    background-color: #424242;
     color: #fff;
     border-style: solid;
     text-align: center;
@@ -79,6 +93,7 @@ QListView
 
 QGroupBox
 {
+    font-weight: bold;
     border-style: solid;
     border-color: #212121;
     border-width: 1px;

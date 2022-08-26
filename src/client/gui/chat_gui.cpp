@@ -24,7 +24,6 @@ ChatGui::ChatGui(QWidget *parent) :
     m_ui(new Ui::ChatGui)
 {
     m_ui->setupUi(this);
-
     // Set the window to open the center of the screen with a fixed size
     this->setGeometry(QStyle::alignedRect(Qt::LeftToRight,Qt::AlignCenter,this->size(),qApp->desktop()->availableGeometry()));
     this->setFixedSize(QSize(892, 700));
@@ -33,9 +32,9 @@ ChatGui::ChatGui(QWidget *parent) :
     QObject::connect(this, &ChatGui::on_message_txt_returnPressed,   this, &ChatGui::send_msg);
 }
 
+
 ChatGui::~ChatGui()
 {
-    m_contact.hide();
     delete m_ui;
     delete timer;
 }
@@ -129,6 +128,17 @@ void ChatGui::job_remove_user(Job &t_job)
     m_ui->chat_group->hide();
 }
 
+void ChatGui::reject()
+{
+  QMessageBox::StandardButton ret = QMessageBox::information(nullptr, "Closing MySkype", "Are you sure you want to close MySkype?",
+                                                             QMessageBox::Ok | QMessageBox::Cancel);
+
+
+  if ( QMessageBox::Ok == ret )
+    {
+      QDialog::reject();
+    }
+}
 // ***** PRIVATE ***** //
 
 void ChatGui::refresh_contacts()

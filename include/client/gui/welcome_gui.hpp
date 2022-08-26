@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <job.hpp>
 
+#define MIN_LEN 3
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class WelcomeGui; }
 QT_END_NAMESPACE
@@ -37,6 +39,7 @@ private: // Variables
 private: // Methods
     void login();
     void create();
+    bool check_input(QString t_username, QString t_password);
     void hide_group(QString t_group);
 };
 

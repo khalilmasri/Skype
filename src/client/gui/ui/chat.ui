@@ -232,6 +232,9 @@
       <property name="text">
        <string notr="true"/>
       </property>
+      <property name="maxLength">
+       <number>1024</number>
+      </property>
       <property name="placeholderText">
        <string>Type a message...</string>
       </property>
