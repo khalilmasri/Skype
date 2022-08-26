@@ -1,8 +1,10 @@
 #ifndef JOB_H
 #define JOB_H
 
+#include <QString>
+#include <QVector>
 #include <string>
-#include <vector>
+
 struct Job {
      enum Type {
 
@@ -17,9 +19,11 @@ struct Job {
         CREATE          = 7,
         LOGIN           = 8,
         LOGGED          = 9,
+        SELCONT         = 10,
 
         // std::string return from 20 - 29
         GETUSER         = 20,
+        GETCONT         = 21,
 
         // std::vector return values from 30 - 39
         DISP_CONTACTS   = 30,
@@ -33,7 +37,7 @@ struct Job {
 
     bool m_valid = false;
     std::string m_string = "";
-    std::vector<std::string> m_vector = {};
+    QVector<QString> m_vector = {};
 };
 
 

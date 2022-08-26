@@ -63,22 +63,12 @@ fail:
 
 bool User::set_username(std::string& t_username) {
 
-    if ( t_username == "" ){
-        LOG_ERR("Invalid username");
-        return false;
-    }
-
     m_username = t_username;
 
     return true;
 }
 
 bool User::set_password(std::string& t_password) {
-
-    if ( t_password == "" ) {
-        LOG_ERR("Invalid password");
-        return false;
-    } 
 
     m_password = t_password;
 

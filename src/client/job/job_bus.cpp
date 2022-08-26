@@ -1,18 +1,22 @@
 #include "job_bus.hpp"
 #include "client.hpp"
 #include "job_queue.hpp"
-#include "logger.hpp"
 
 #include <ctime>
 #include <iostream>
 #include <vector>
+#include <QThread>
 
 bool JobBus::m_exit_loop = false;
-time_t now;
+JobBus* JobBus::m_instance = nullptr;
+
+JobQueue JobBus::m_jobQ;
+JobQueue JobBus::m_resQ;
 
 JobBus::JobsMap JobBus::m_JobBus_map {
 
     {Job::LIST,             Client::contact_list},
+    {Job::SELCONT,          Client::contact_set_current_contact},
     {Job::SEARCH,           Client::contact_search},
     {Job::ADD,              Client::contact_add_user},
     {Job::REMOVE,           Client::contact_remove_user},
@@ -22,62 +26,67 @@ JobBus::JobsMap JobBus::m_JobBus_map {
     {Job::CREATE,           Client::user_register_user},
     {Job::LOGIN,            Client::user_login}, 
     {Job::LOGGED,           Client::user_get_logged_in},
-    {Job::GETUSER,          Client::user_get_username },
-    {Job::DISP_CONTACTS,    Client::contact_get_contacts }
+    {Job::GETUSER,          Client::user_get_username},
+    {Job::GETCONT,          Client::contact_get_current_contact},
+    {Job::DISP_CONTACTS,    Client::contact_get_contacts}
 };
 
-bool JobBus::handle(Job &&t_job){
-    jobQ.push(t_job);
-    jobQ.pop_res(t_job);
+JobBus* JobBus::get_instance()
+{
+    if(!m_instance){
+        m_instance = new JobBus();
+    }
 
-    return t_job.m_valid;
+    return m_instance;
 }
 
-bool JobBus::handle(Job &t_job){
-    jobQ.push(t_job);
-    jobQ.pop_res(t_job);
+JobBus::~JobBus()
+{
+}
 
-    return t_job.m_valid;
+void JobBus::handle(Job &&t_job){
+    m_jobQ.push(t_job);
+}
+
+void JobBus::handle(Job &t_job){
+    m_jobQ.push(t_job);
 }
 
 void JobBus::main_loop() {
    
-    time(&now);
     Job job;
 
     while (false == m_exit_loop) {
 
-        if (false == jobQ.empty()) {
+        if (false == m_jobQ.empty()) {
             
-            bool res = jobQ.pop_try(job);
+            bool res = m_jobQ.pop_try(job);
 
             if ( false == res ) {
                 continue;
             }
 
             m_JobBus_map[job.m_command](job);
-            jobQ.push_res(job);
-            
+            m_resQ.push(job);
+            emit JobBus::get_instance()->job_ready();
         }
-
-        repeat_job(job);    
     }
   
 }
 
-void JobBus::repeat_job(Job &t_job){
-    
-    m_JobBus_map[Job::LOGGED](t_job);
+bool JobBus::get_response(Job &t_job){
 
-    if ( false == t_job.m_valid){
-        return;
+    if (true == m_resQ.empty()){
+        return false;
     }
 
-    if (difftime(time(NULL), now) > 3){ // Run this task every 3 seconds
-            std::string me = "";
-            m_JobBus_map[Job::LIST](t_job);
-            time(&now);
-    }  
-}
+    bool res = m_resQ.pop_try(t_job);
+
+    if (false == res){
+        return false;
+    }
+
+    return true;
+} 
 
 void JobBus::set_exit() { m_exit_loop = true; }

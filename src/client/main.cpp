@@ -1,24 +1,26 @@
 #define DOCTEST_CONFIG_IMPLEMENT
 #include "doctest.h"
 #include "program.hpp"
-#include "client.hpp"
-#include "job.hpp"
-#include "job_queue.hpp"
 
+#include <thread>
+#include <QApplication>
+#include <iostream>
+#include <QFile>
 
-// client --> call ImGui context initialisation --> then initialise chat windows
+int main(int argc, char *argv[])
+{
 
-// Main code
-int main(int, char **)
-{   
-//     Client client;
+    QApplication a(argc, argv);
+    QFile stylesheetFile("../misc/stylesheet/Fibrary.qss");
+    stylesheetFile.open(QFile::ReadOnly);
+    QString styleSheet = QLatin1String(stylesheetFile.readAll());
+    a.setStyleSheet(styleSheet);
 
-//     std::string username = "khalil";
-//     std::string password = "1234";
-//     Job job = {Job::SETUSER, username, (void*)false};
+    Program *program = new Program();
 
-//     std::cout << "Set username => " << job.return_value << std::endl;
-//     job = {Job::SETPASS, password, (void*)false};
-    Program program;
+    int res = a.exec();
+
+    delete program;
+
+    return res;
 }
-

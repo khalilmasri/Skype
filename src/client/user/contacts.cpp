@@ -4,6 +4,8 @@
 #include "string_utils.hpp"
 #include "text_data.hpp"
 #include "fail_if.hpp"
+#include "job.hpp"
+#include "job_bus.hpp"
 
 #include <string>
 #include <sys/types.h>
@@ -11,6 +13,10 @@
 #include <sys/socket.h>
 #include <cstring>
 #include <algorithm>
+#include <QVector>
+#include <QString>
+#include <QDebug>
+#include <utility>
 
 // /* Public */
 
@@ -26,7 +32,6 @@ bool Contacts::list(ActiveConn& t_conn, Request& t_req) {
     FAIL_IF( false == t_req.m_valid);
     response = TextData::to_string(t_req.data());
 
-    LOG_INFO("Updating contacts");    
     update_contacts(response);
     
     return true;
@@ -145,14 +150,15 @@ fail:
     return false;
 }
 
-std::vector<std::string> Contacts::display_contacts() {
+QVector<QString> Contacts::display_contacts() {
 
-    std::vector<std::string> contacts;
+    QVector<QString> contacts;
 
     FAIL_IF_SILENT ( true == m_online_contacts.empty() );
 
     for ( auto &[username, details] : m_online_contacts ) {
-        contacts.push_back(username);
+        QString field = QString::fromUtf8(username.c_str());
+        contacts.push_back(field);
     }
 
     return contacts;
@@ -188,13 +194,22 @@ void Contacts::update_contacts(std::string t_response) {
 
     StringUtils::StringVector users = StringUtils::split(t_response);
 
+    m_old_contacts = m_online_contacts;
+    m_online_contacts.clear();
+
     for ( auto &user : users) {
         pair_contact_details(user); 
+    }
+
+    bool ret =  m_online_contacts.size() == m_old_contacts.size();
+    if ( false == ret ){
+        LOG_INFO("Updating map");
+        JobBus::handle({Job::DISP_CONTACTS});
     }
 }
 
 void Contacts::pair_contact_details(std::string t_user) {
-     
+
     StringUtils::StringVector user_fields = StringUtils::split(t_user, ",");
 
     Details details;
@@ -225,7 +240,7 @@ void Contacts::pair_contact_details(std::string t_user) {
         }
     }
 
-    if ( username != "" /* && details.online == true */ ){
+    if ( username != "" /*&& details.online == true */ ){
         m_online_contacts.emplace(username, details);            
     }
 }

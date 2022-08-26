@@ -8,6 +8,8 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <QVector>
+#include <QString>
 
 class Contacts {
 
@@ -21,7 +23,7 @@ public:
     //contacts retrieval
     bool set_current_contact(std::string &t_current_contact);
     std::string get_current_contact();
-    std::vector<std::string> display_contacts();
+    QVector<QString> display_contacts();
 
 private:
 
@@ -32,6 +34,7 @@ private:
     };
 
     std::unordered_map<std::string, struct Details> m_online_contacts;
+    std::unordered_map<std::string, struct Details> m_old_contacts;
 
     std::vector<std::string> m_contacts;
     std::string m_current_contact;

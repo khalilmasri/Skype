@@ -7,26 +7,38 @@
 #include <unordered_map>
 #include <functional>
 #include <queue>
+#include <QObject>
+#include <QThread>
 
-class JobBus{
+class JobBus : public QObject
+{
     typedef Job::Type Type;
     typedef std::function<void (Job &t_job)> JobsMethod;
     typedef std::unordered_map<Type, JobsMethod> JobsMap;
+
+    Q_OBJECT
 public:
 
-    JobBus();
+    JobBus(){};
+    ~JobBus();
     
     // Job functionality 
     static void main_loop();
     static void set_exit();
-    static bool handle(Job &&t_job);
-    static bool handle(Job &t_job);
+    static void handle(Job &t_job);
+    static void handle(Job &&t_job);
+    static bool get_response(Job &t_job);
+    static JobBus* get_instance();
+
+signals:
+    void job_ready();
 
 private:
     static bool             m_exit_loop;
-    static JobsMap          m_JobBus_map; 
-
-    static void repeat_job(Job &t_job);
+    static JobsMap          m_JobBus_map;
+    static JobQueue         m_jobQ;
+    static JobQueue         m_resQ;
+    static JobBus           *m_instance;
 };
 
 
