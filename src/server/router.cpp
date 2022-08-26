@@ -8,16 +8,16 @@
 
 Router::Router()
     : m_controllers({
-          {ServerCommand::List, Controllers::list},
-          {ServerCommand::Create, Controllers::create},
-          {ServerCommand::Login, Controllers::login},
-          {ServerCommand::Search, Controllers::search},
-          {ServerCommand::Add, Controllers::add},
-          {ServerCommand::Remove, Controllers::remove},
-          {ServerCommand::Ping, Controllers::ping},
-          {ServerCommand::Available, Controllers::available},
-          {ServerCommand::Exit, Controllers::exit}, // this when calling unexisting command
-          {ServerCommand::None, Controllers::none},
+          {ServerCommand::List, UserControllers::list},
+          {ServerCommand::Create, UserControllers::create},
+          {ServerCommand::Login, UserControllers::login},
+          {ServerCommand::Search, UserControllers::search},
+          {ServerCommand::Add, UserControllers::add},
+          {ServerCommand::Remove, UserControllers::remove},
+          {ServerCommand::Ping, UserControllers::ping},
+          {ServerCommand::Available, UserControllers::available},
+          {ServerCommand::Exit, UserControllers::exit}, 
+          {ServerCommand::None, UserControllers::none}, // this when calling unexisting command
       }){};
 
 void Router::route(Request &t_req) {
@@ -29,7 +29,7 @@ void Router::route(Request &t_req) {
 
   auto [command, arguments] = parse(t_req);
 
-  if (!is_loggedin(command, t_req)) { // checks if IP address exists in the database. If not, user has not logged in
+  if (!is_loggedin(command, t_req)) { // checks if IP exists in the database. If not, user has not logged in.
     return;
   }
 
@@ -63,9 +63,9 @@ bool Router::is_loggedin(ServerCommand::name t_cmd, Request &t_req) {
 
   if (t_cmd != ServerCommand::Login && 
       t_cmd != ServerCommand::Create && 
-       t_cmd != ServerCommand::Exit // exit command is allowed when not loggedin
+       t_cmd != ServerCommand::Exit // exit command is allowed when user is not logged in.
       ) {
-    return Controllers::ip_exists(t_req);
+    return UserControllers::ip_exists(t_req);
   }
 
   return true;
@@ -84,7 +84,7 @@ TEST_CASE(
 
   Router router;
   Postgres pg; // just to check was written to database
-               //
+               
   SUBCASE("LIST Users contacts") {
     Request req;
     req.m_address = "123.453.3.1"; // must match user IP

@@ -58,8 +58,8 @@ CREATE TABLE IF NOT EXISTS chats (
      created_at DATE NOT NULL DEFAULT CURRENT_DATE,
      sender_id INT NOT NULL,
      recipient_id INT NOT NULL,
-     delivered BOOLEAN NOT NULL,
-     text TEXT
+     text TEXT,
+     delivered BOOLEAN NOT NULL
 );
 
 ALTER TABLE chats 
@@ -67,8 +67,8 @@ ALTER TABLE chats
   REFERENCES users (id);
 
 
-INSERT INTO chats(sender_id, recipient_id, delivered, text)
-VALUES (1, 2, false, 'hello who is your day today, friend?');
+INSERT INTO chats(sender_id, recipient_id, text, delivered)
+VALUES (1, 2, 'hello who is your day today, friend?', false );
 
-INSERT INTO chats(sender_id, recipient_id, delivered, text)
-VALUES (2, 1, false, 'Great, thanks for asking!');
+INSERT INTO chats(sender_id, recipient_id, text, delivered)
+VALUES (2, 1, 'Great, thanks for asking!', false );

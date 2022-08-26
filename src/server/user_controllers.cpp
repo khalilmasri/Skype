@@ -1,4 +1,4 @@
-#include "controllers.hpp"
+#include "user_controllers.hpp"
 #include "doctest.h"
 #include "string_utils.hpp"
 #include "supress_unused_params_warnings.hpp"
@@ -7,9 +7,9 @@
 
 #define CONTACT_DELIM " "
 
-Postgres Controllers::m_pg = Postgres();
+Postgres UserControllers::m_pg = Postgres();
 
-void Controllers::list(std::string &_, Request &t_req) {
+void UserControllers::list(std::string &_, Request &t_req) {
   UNUSED_PARAMS(_);
 
   User user = m_pg.search_user_by(t_req.m_address, "address");
@@ -23,7 +23,7 @@ void Controllers::list(std::string &_, Request &t_req) {
   }
 }
 
-void Controllers::create(std::string &t_arg, Request &t_req) {
+void UserControllers::create(std::string &t_arg, Request &t_req) {
 
   auto [username, password] = StringUtils::split_first(t_arg);
 
@@ -42,7 +42,7 @@ void Controllers::create(std::string &t_arg, Request &t_req) {
   }
 };
 
-void Controllers::login(std::string &t_arg, Request &t_req) {
+void UserControllers::login(std::string &t_arg, Request &t_req) {
 
   auto [username, password] = StringUtils::split_first(t_arg);
 
@@ -59,7 +59,7 @@ void Controllers::login(std::string &t_arg, Request &t_req) {
   }
 }
 
-void Controllers::search(std::string &t_username, Request &t_req) {
+void UserControllers::search(std::string &t_username, Request &t_req) {
 
   User user = m_pg.search_user_by(t_username, "username");
 
@@ -74,7 +74,7 @@ void Controllers::search(std::string &t_username, Request &t_req) {
   }
 }
 
-void Controllers::add(std::string &t_contact_username, Request &t_req) {
+void UserControllers::add(std::string &t_contact_username, Request &t_req) {
 
   User user = m_pg.search_user_by(t_req.m_address, "address");
   User contact = m_pg.search_user_by(t_contact_username, "username");
@@ -99,7 +99,7 @@ void Controllers::add(std::string &t_contact_username, Request &t_req) {
   }
 }
 
-void Controllers::remove(std::string &t_contact_username, Request &t_req) {
+void UserControllers::remove(std::string &t_contact_username, Request &t_req) {
 
   User user = m_pg.search_user_by(t_req.m_address, "address");
   User contact = m_pg.search_user_by(t_contact_username, "username");
@@ -114,7 +114,7 @@ void Controllers::remove(std::string &t_contact_username, Request &t_req) {
   }
 }
 
-void Controllers::ping(std::string &_, Request &t_req) {
+void UserControllers::ping(std::string &_, Request &t_req) {
   UNUSED_PARAMS(_);
 
   User user = m_pg.search_user_by(t_req.m_address, "address");
@@ -132,7 +132,7 @@ void Controllers::ping(std::string &_, Request &t_req) {
   }
 }
 
-void Controllers::available(std::string &t_username, Request &t_req) {
+void UserControllers::available(std::string &t_username, Request &t_req) {
 
   User user = m_pg.search_user_by(t_username, "username");
 
@@ -149,7 +149,7 @@ void Controllers::available(std::string &t_username, Request &t_req) {
   }
 }
 
-void Controllers::exit(std::string &_, Request &t_req) {
+void UserControllers::exit(std::string &_, Request &t_req) {
   UNUSED_PARAMS(_);
 
   User user = m_pg.search_user_by(t_req.m_address, "address");
@@ -163,13 +163,13 @@ void Controllers::exit(std::string &_, Request &t_req) {
   set_request_reply(Reply::r_201, "Goodbye", t_req);
 }
 
-void Controllers::none(std::string &_, Request &t_req) {
+void UserControllers::none(std::string &_, Request &t_req) {
   UNUSED_PARAMS(_);
 
   set_request_reply(Reply::r_501, t_req); // invalid command
 }
 
-bool Controllers::ip_exists(Request &t_req) {
+bool UserControllers::ip_exists(Request &t_req) {
 
   User user = m_pg.search_user_by(t_req.m_address, "address");
 
@@ -182,7 +182,7 @@ bool Controllers::ip_exists(Request &t_req) {
 
 /**************** PRIVATE ****************/
 
-void Controllers::login_user(User &t_user, Request &t_req) {
+void UserControllers::login_user(User &t_user, Request &t_req) {
 
   t_user.update("true", User::Online);
   t_user.update(t_req.m_address, User::Address);
@@ -192,7 +192,7 @@ void Controllers::login_user(User &t_user, Request &t_req) {
   set_request_reply(res, t_req);
 }
 
-void Controllers::list_contacts(Users &t_contacts, Request &t_req) {
+void UserControllers::list_contacts(Users &t_contacts, Request &t_req) {
 
   if (has_contacts(t_contacts)) {
 
@@ -210,7 +210,7 @@ void Controllers::list_contacts(Users &t_contacts, Request &t_req) {
   }
 }
 
-bool Controllers::is_empty(std::string &t_user, std::string &t_password,
+bool UserControllers::is_empty(std::string &t_user, std::string &t_password,
                            Request &t_req) {
 
   bool res = t_user.empty() || t_password.empty();
@@ -222,22 +222,22 @@ bool Controllers::is_empty(std::string &t_user, std::string &t_password,
   return res;
 }
 
-bool Controllers::has_contacts(Users &t_contacts) {
+bool UserControllers::has_contacts(Users &t_contacts) {
   return 0 < t_contacts.size();
 }
 
-void Controllers::set_request_reply(Reply::Code t_reply, Request &t_req) {
+void UserControllers::set_request_reply(Reply::Code t_reply, Request &t_req) {
   std::string reply = Reply::get_message(t_reply);
   t_req.set_data(new TextData(reply));
 }
 
-void Controllers::set_request_reply(Reply::Code t_reply, std::string &&t_msg,
+void UserControllers::set_request_reply(Reply::Code t_reply, std::string &&t_msg,
                                     Request &t_req) {
   std::string reply = Reply::append_message(t_reply, t_msg);
   t_req.set_data(new TextData(reply));
 }
 
-void Controllers::set_request_reply(bool t_valid, Request &t_req) {
+void UserControllers::set_request_reply(bool t_valid, Request &t_req) {
   if (t_valid) {
     set_request_reply(Reply::r_200, t_req);
 

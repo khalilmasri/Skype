@@ -1,11 +1,11 @@
-#ifndef CONTROLLERS_H
-#define CONTROLLERS_H
+#ifndef USER_CONTROLLERS_H
+#define USER_CONTROLLERS_H
 
 #include "reply.hpp"
 #include "request.hpp"
 #include "postgres.hpp"
 
-struct Controllers {
+struct UserControllers {
 
   static void  list      (std::string &_, Request &t_req);
   static void  create    (std::string &t_arg, Request &t_req);

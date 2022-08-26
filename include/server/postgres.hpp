@@ -3,7 +3,7 @@
 #include "logger.hpp"
 #include <pqxx/pqxx>
 #include <vector>
-#include "user.hpp"
+#include "user_chat.hpp"
 
 typedef std::vector<User> Users;
 typedef std::tuple<std::string, std::string, std::string, std::string, std::string> AggregatedQueryResult;
@@ -21,6 +21,7 @@ public:
   User        search_user_contact(const User &t_user, const char *t_contact_username);
   bool        user_contact_exists(const User &t_user, const User &t_contact);
 
+  bool        add_user_chat(const UserChat &t_chat);
   bool        add_user(const User &t_user);
   bool        add_user_contact(const User &t_user, const User &t_contact);
 

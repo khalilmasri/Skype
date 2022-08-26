@@ -176,6 +176,37 @@ bool Postgres::add_user(const User &t_user) {
 
 /* */
 
+bool Postgres::add_user_chat(const UserChat &t_chat){
+
+  if (t_chat.empty()) {
+    LOG_ERR("Cannot add an empty user.");
+    return false;
+  }
+  try {
+    pqxx::work transaction(m_conn);
+
+    std::string query =
+        "INSERT INTO chats (sender_id, recipient_id, text, delivered) VALUES (";
+    query += transaction.quote(t_chat.sender()) + ",";
+    query += transaction.quote(t_chat.recipient()) + ",";
+    query +=
+        (t_chat.delivered() ? std::string("TRUE") : std::string("FALSE")) + ",";
+    query += transaction.quote(t_chat.text()) + " );";
+
+    transaction.exec(query);
+    transaction.commit();
+
+  } catch (const std::exception &err) {
+    LOG_ERR("%s", err.what());
+    return false;
+  }
+
+  return true;
+};
+
+
+/* */
+
 bool Postgres::add_user_contact(const User &t_user, const User &t_contact) {
 
   if (t_user.empty() || t_contact.empty()) {

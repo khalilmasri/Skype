@@ -10,6 +10,7 @@ struct ServerCommand {
     /* two argument */
     Create = 0,
     Login = 1,
+    Send = 2,
 
     /* one argument */
     Search = 10,
@@ -21,7 +22,8 @@ struct ServerCommand {
     List = 20,
     Ping = 21,
     Exit = 23,
-    None = 24
+    None = 24,
+    Receive = 25
   };
 
   static name get(const std::string &t_command);
