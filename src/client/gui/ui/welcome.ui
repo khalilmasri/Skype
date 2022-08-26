@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>621</width>
-    <height>790</height>
+    <width>644</width>
+    <height>520</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -18,7 +18,7 @@
     <property name="geometry">
      <rect>
       <x>150</x>
-      <y>110</y>
+      <y>140</y>
       <width>341</width>
       <height>221</height>
      </rect>
@@ -34,6 +34,22 @@
     </property>
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
+      <spacer name="verticalSpacer">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>9</width>
+         <height>14</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <item>
         <widget class="QLabel" name="label">
@@ -43,7 +59,11 @@
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="lineEdit_login_username"/>
+        <widget class="QLineEdit" name="lineEdit_login_username">
+         <property name="maxLength">
+          <number>14</number>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>
@@ -58,6 +78,9 @@
        </item>
        <item>
         <widget class="QLineEdit" name="lineEdit_login_password">
+         <property name="maxLength">
+          <number>14</number>
+         </property>
          <property name="echoMode">
           <enum>QLineEdit::Password</enum>
          </property>
@@ -86,15 +109,25 @@
        </item>
       </layout>
      </item>
+     <item>
+      <widget class="QLabel" name="login_error">
+       <property name="enabled">
+        <bool>true</bool>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
     </layout>
    </widget>
    <widget class="QGroupBox" name="Register_group">
     <property name="geometry">
      <rect>
       <x>140</x>
-      <y>100</y>
+      <y>120</y>
       <width>361</width>
-      <height>251</height>
+      <height>261</height>
      </rect>
     </property>
     <property name="title">
@@ -102,16 +135,36 @@
     </property>
     <layout class="QVBoxLayout" name="verticalLayout_2">
      <item>
+      <spacer name="verticalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Vertical</enum>
+       </property>
+       <property name="sizeType">
+        <enum>QSizePolicy::Fixed</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>4</width>
+         <height>10</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
       <layout class="QHBoxLayout" name="horizontalLayout_4">
        <item alignment="Qt::AlignLeft|Qt::AlignVCenter">
         <widget class="QLabel" name="label_3">
          <property name="text">
-          <string>Username              </string>
+          <string>Username                </string>
          </property>
         </widget>
        </item>
        <item>
-        <widget class="QLineEdit" name="lineEdit_register_username"/>
+        <widget class="QLineEdit" name="lineEdit_register_username">
+         <property name="maxLength">
+          <number>14</number>
+         </property>
+        </widget>
        </item>
       </layout>
      </item>
@@ -120,7 +173,7 @@
        <item>
         <widget class="QLabel" name="label_4">
          <property name="text">
-          <string>Password                </string>
+          <string>Password                 </string>
          </property>
         </widget>
        </item>
@@ -131,6 +184,9 @@
            <width>108</width>
            <height>0</height>
           </size>
+         </property>
+         <property name="maxLength">
+          <number>14</number>
          </property>
          <property name="echoMode">
           <enum>QLineEdit::Password</enum>
@@ -153,6 +209,9 @@
        </item>
        <item>
         <widget class="QLineEdit" name="lineEdit_register_confirm_password">
+         <property name="maxLength">
+          <number>14</number>
+         </property>
          <property name="echoMode">
           <enum>QLineEdit::Password</enum>
          </property>
@@ -181,6 +240,13 @@
        </item>
       </layout>
      </item>
+     <item>
+      <widget class="QLabel" name="register_error">
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </item>
     </layout>
    </widget>
    <zorder>Register_group</zorder>
@@ -191,7 +257,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>621</width>
+     <width>644</width>
      <height>22</height>
     </rect>
    </property>

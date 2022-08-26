@@ -45,7 +45,7 @@ void WelcomeGui::job_create(Job &t_job)
 {
       if ( false == t_job.m_valid)
     {
-        QMessageBox::information(nullptr, "Registeration", "Couldn't register account!");
+        QMessageBox::information(nullptr, "Registeration", "Couldn't register account\nUsername is used!");
         return;
     }
 
@@ -59,15 +59,18 @@ void WelcomeGui::login()
 {
     QString username = m_ui->lineEdit_login_username->text();
     QString password = m_ui->lineEdit_login_password->text();
+    m_ui->login_error->setText("");
 
-    if ( "" == password && "" == username)
-    {
-        return;
-    }
+    FAIL_IF( false == check_input(username, password));
 
     JobBus::handle({Job::SETUSER, username.toStdString()});
     JobBus::handle({Job::SETPASS, password.toStdString()});
     JobBus::handle({Job::LOGIN});
+
+    return;
+fail:
+
+    m_ui->login_error->setText("Invalid credentials\nMake sure that the username and password\nare minimum 3 characters!");
 }
 
 void WelcomeGui::create()
@@ -75,11 +78,13 @@ void WelcomeGui::create()
     QString username = m_ui->lineEdit_register_username->text();
     QString password = m_ui->lineEdit_register_password->text();
     QString confirm_password = m_ui->lineEdit_register_confirm_password->text();
+    m_ui->register_error->setText("");
 
     FAIL_IF(confirm_password != password);
 
-    if ( "" == password && "" == username)
+    if ( false == check_input(username, password))
     {
+        m_ui->register_error->setText("Invalid credentials\nMake sure that the username and password\nare minimum 3 characters!");
         return;
     }
 
@@ -106,6 +111,31 @@ void WelcomeGui::hide_group(QString t_group)
         m_ui->Login_group->hide();
         m_ui->Register_group->show();
     }
+}
+
+bool WelcomeGui::check_input(QString t_username, QString t_password)
+{
+    if ( "" == t_username)
+    {
+        return false;
+    }
+
+    if ( "" == t_password)
+    {
+         return false;
+    }
+
+    if ( MIN_LEN > t_password.size())
+    {
+        return false;
+    }
+
+    if ( MIN_LEN > t_username.size())
+    {
+        return false;
+    }
+
+    return true;
 }
 
 // ***** SLOTS ***** //

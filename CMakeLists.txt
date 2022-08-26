@@ -29,10 +29,10 @@ endif()
 message("Enabled flags = ${CMAKE_CXX_FLAGS}")
 
 # Define the path to server source code
-set(SERVER_PATH src/server)
+#set(SERVER_PATH src/server)
 
 # Add it as a subdirectory
-add_subdirectory(${SERVER_PATH})
+#add_subdirectory(${SERVER_PATH})
 
 # Define the path to client source code
 set(CLIENT_PATH src/client)
@@ -41,5 +41,5 @@ set(CLIENT_PATH src/client)
 add_subdirectory(${CLIENT_PATH})
 
 # this is a server only used to test the server locally.
-set(SERVER_TESTER_PATH src/server/test_client)
-add_subdirectory(${SERVER_TESTER_PATH})
+#set(SERVER_TESTER_PATH src/server/test_client)
+#add_subdirectory(${SERVER_TESTER_PATH})
