@@ -177,9 +177,9 @@ bool Postgres::add_user(const User &t_user) {
 /* */
 
 bool Postgres::add_user_chat(const UserChat &t_chat){
+  LOG_ERR("Cannot add an empty user.");
 
   if (t_chat.empty()) {
-    LOG_ERR("Cannot add an empty user.");
     return false;
   }
   try {
@@ -189,9 +189,8 @@ bool Postgres::add_user_chat(const UserChat &t_chat){
         "INSERT INTO chats (sender_id, recipient_id, text, delivered) VALUES (";
     query += transaction.quote(t_chat.sender()) + ",";
     query += transaction.quote(t_chat.recipient()) + ",";
-    query +=
-        (t_chat.delivered() ? std::string("TRUE") : std::string("FALSE")) + ",";
-    query += transaction.quote(t_chat.text()) + " );";
+    query += transaction.quote(t_chat.text()) + ",";
+    query += (t_chat.delivered() ? std::string("TRUE") : std::string("FALSE")) + ");";
 
     transaction.exec(query);
     transaction.commit();

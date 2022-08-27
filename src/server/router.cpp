@@ -3,6 +3,7 @@
 #include "server_commands.hpp"
 #include "string_utils.hpp"
 #include "text_data.hpp"
+#include "chat_controllers.hpp"
 
 #include <tuple>
 
@@ -17,6 +18,7 @@ Router::Router()
           {ServerCommand::Ping, UserControllers::ping},
           {ServerCommand::Available, UserControllers::available},
           {ServerCommand::Exit, UserControllers::exit}, 
+          {ServerCommand::Send, ChatControllers::send}, 
           {ServerCommand::None, UserControllers::none}, // this when calling unexisting command
       }){};
 
@@ -80,7 +82,7 @@ void Router::invalid_command(Request &t_req){
 /** TESTS **/
 
 TEST_CASE(
-    "Router & Controllers (Postgres must be install to run these tests)") {
+    "Router & Controllers (Postgres must be installed to run these tests)") {
 
   Router router;
   Postgres pg; // just to check was written to database
