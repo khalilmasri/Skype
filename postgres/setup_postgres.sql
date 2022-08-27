@@ -63,9 +63,12 @@ CREATE TABLE IF NOT EXISTS chats (
 );
 
 ALTER TABLE chats 
-  ADD FOREIGN KEY (recipient_id)
+  ADD FOREIGN KEY (sender_id)
   REFERENCES users (id);
 
+ALTER TABLE chats 
+  ADD FOREIGN KEY (recipient_id)
+  REFERENCES users (id);
 
 INSERT INTO chats(sender_id, recipient_id, text, delivered)
 VALUES (1, 2, 'hello who is your day today, friend?', false );
