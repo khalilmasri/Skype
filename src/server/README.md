@@ -189,12 +189,12 @@ Sends a chat messages to a contact.  The first argument is the `recipient_id`  a
 
 Get pending chat messages from the current user. Client may pass in an **optional** argument specifying a `sender_id` to retrieve pending messages from a specific contact.
 
-All pending messages from the current user
+All pending messages for the current user
 
     PENDING
     201 0,50,104,147:22:2,2022-08-26,2,1,falseGreat, thanks for asking!22:4,2022-08-27,4,1,falseanother message for you love.22:5,2022-08-27,4,1,falsenothing like chats
 
-Pending messages from the current user from a specific sender id.
+Pending messages for the current user from a specific sender id.
            
     PENDING 4
     201 0,54,97:22:4,2022-08-27,4,1,falseanother message for you love.22:5,2022-08-27,4,1,falsenothing like chats
