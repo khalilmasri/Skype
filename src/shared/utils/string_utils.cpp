@@ -1,4 +1,5 @@
 #include "string_utils.hpp"
+#include "logger.hpp"
 #include <algorithm>
 #include <cstdlib>
 #include <string.h>
@@ -18,10 +19,35 @@ StringUtils::StringVector StringUtils::split(const std::string &s,
   result.push_back(s.substr(start, end - start));
 
   return result;
- }
+}
 
-std::string StringUtils::last(const std::string &s, const std::string &delim){
-  
+StringUtils::IntVector StringUtils::split_to_ints(const std::string &s,
+                                                  const std::string &delim) {
+  int start = 0;
+  int end = s.find(delim);
+  IntVector result;
+
+  try {
+    while (end != -1) {
+      std::size_t val = std::stoi(s.substr(start, end - start));
+      result.push_back(val);
+      start = end + delim.size();
+      end = s.find(delim, start);
+    }
+
+    std::size_t val = std::stoi(s.substr(start, end - start));
+    result.push_back(val);
+  } catch (...) {
+    LOG_ERR(
+        "Attempted to split containing Integer but found non-numeric values.");
+    return IntVector();
+  }
+
+  return result;
+}
+
+std::string StringUtils::last(const std::string &s, const std::string &delim) {
+
   int start = 0;
   int end = s.find(delim);
   std::string result;
@@ -36,10 +62,10 @@ std::string StringUtils::last(const std::string &s, const std::string &delim){
 }
 
 StringUtils::StringTuple StringUtils::split_first(const std::string &s,
-                                                   const std::string &delim) {
+                                                  const std::string &delim) {
 
-  if(s.empty()){
-    return StringTuple { "", "" };
+  if (s.empty()) {
+    return StringTuple{"", ""};
   }
 
   int start = 0;
@@ -52,7 +78,24 @@ StringUtils::StringTuple StringUtils::split_first(const std::string &s,
 
   std::string second = (s.substr(start, end - start));
 
-  return StringTuple { first, second };
+  return StringTuple{first, second};
+}
+
+StringUtils::StringTuple StringUtils::split_at(const std::string &s,
+                                               const std::size_t t_pos) {
+  return StringTuple{s.substr(0, t_pos), s.substr(t_pos, s.size())};
+}
+
+StringUtils::StringVector StringUtils::split_at(const std::string &s,
+                                                const IntVector &t_pos) {
+
+  StringVector vec;
+
+  for (std::size_t i = 0; i < t_pos.size() - 1; i++) {
+    vec.push_back(s.substr(t_pos.at(i), t_pos.at(i + 1)));
+  }
+
+  return vec;
 }
 
 void StringUtils::trim(std::string &s) {

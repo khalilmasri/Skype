@@ -38,6 +38,37 @@ Users Postgres::list_users() {
 
 /* */
 
+UserChats Postgres::list_user_pending_chats(const User &t_user,
+                                            const User &t_sender) {
+  UserChats user_chats;
+
+  try {
+    pqxx::work transaction(m_conn);
+
+    std::string query = "SELECT DISTINCT id, created_at, text, delivered"
+                        " FROM chats WHERE";
+    query += " sender_id = " + std::to_string(t_sender.id());
+    query += " AND recipient_id = " + std::to_string(t_user.id());
+    query += " AND delivered = FALSE; ";
+
+    pqxx::result res = transaction.exec(query);
+    transaction.commit();
+
+    res.for_each([&user_chats, &t_user, &t_sender](int id, std::string created_at,
+                                std::string text, bool delivered) {
+
+      user_chats.push_back(UserChat(id, created_at, t_sender, t_user, text, delivered));
+    });
+
+  } catch (const std::exception &err) {
+    LOG_ERR("%s", err.what());
+  }
+
+  return user_chats;
+}
+
+/* */
+
 Users Postgres::list_user_contacts(const User &t_user) {
 
   AggregatedQueryResult result;
@@ -141,7 +172,7 @@ bool Postgres::user_contact_exists(const User &t_user, const User &t_contact) {
     return false;
   }
 
-    return row.size() == 0 ? false : true;
+  return row.size() == 0 ? false : true;
 }
 
 /* */
@@ -176,7 +207,7 @@ bool Postgres::add_user(const User &t_user) {
 
 /* */
 
-bool Postgres::add_user_chat(const UserChat &t_chat){
+bool Postgres::add_user_chat(const UserChat &t_chat) {
   LOG_ERR("Cannot add an empty user.");
 
   if (t_chat.empty()) {
@@ -190,7 +221,8 @@ bool Postgres::add_user_chat(const UserChat &t_chat){
     query += transaction.quote(t_chat.sender()) + ",";
     query += transaction.quote(t_chat.recipient()) + ",";
     query += transaction.quote(t_chat.text()) + ",";
-    query += (t_chat.delivered() ? std::string("TRUE") : std::string("FALSE")) + ");";
+    query += (t_chat.delivered() ? std::string("TRUE") : std::string("FALSE")) +
+             ");";
 
     transaction.exec(query);
     transaction.commit();
@@ -202,7 +234,6 @@ bool Postgres::add_user_chat(const UserChat &t_chat){
 
   return true;
 };
-
 
 /* */
 

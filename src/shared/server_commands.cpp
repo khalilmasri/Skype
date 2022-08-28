@@ -8,7 +8,7 @@ const std::unordered_map<std::string, ServerCommand::name>
         {"ADD", Add},       {"REMOVE", Remove},
         {"PING", Ping},     {"AVAILABLE", Available},
         {"EXIT", Exit},     {"SEND", Send},
-        {"RECEIVE", Receive}
+        {"CHAT", Chat },    {"PENDING", Pending }
     };
 ServerCommand::name ServerCommand::get(const std::string &t_command) {
   try {

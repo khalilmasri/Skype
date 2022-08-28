@@ -36,9 +36,6 @@ struct UserControllers {
    /* helpers */
   static bool  is_empty(std::string &t_user, std::string &t_password, Request &t_req);
   static bool  has_contacts(Users &t_contacts);
-  static void  set_request_reply(Reply::Code t_reply, Request &t_req);
-  static void  set_request_reply(Reply::Code t_reply, std::string &&t_msg, Request &t_req);
-  static void  set_request_reply(bool t_valid, Request &t_req);
 };
 
 #endif // !CONTROLLERS_H

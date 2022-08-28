@@ -7,6 +7,37 @@
 #include "request.hpp"
 #include "text_data.hpp"
 #include "text_io.hpp"
+#include "string_utils.hpp"
+#include "user_chat.hpp"
+
+void chat_get_pending(std::string &response){
+  auto [_code, res] = StringUtils::split_first(response);
+
+  auto [header, content] = StringUtils::split_first(res, ":");
+  StringUtils::IntVector positions = StringUtils::split_to_ints(header, ",");
+
+  StringUtils::StringVector chats = StringUtils::split_at(content, positions);
+
+  std::vector<UserChat> user_chats;
+  for(auto &chat : chats) {
+     UserChat user_chat;
+     user_chat.from_string(chat); // this methods loads string from server into the object.
+     user_chats.push_back(user_chat);
+  }
+
+  for(auto &user_chat : user_chats ){
+       std::cout << user_chat.id() << std::endl;  // the id of the chat
+       std::cout << user_chat.created_at() << std::endl;  // when the chat was created (according to server timezone.)
+       std::cout << user_chat.sender() << std::endl;  // the ID of the sender of the message.
+       std::cout << user_chat.recipient() << std::endl;  // the ID of the recipient
+       std::cout << user_chat.delivered() << std::endl;  // has the message been delivered to the recipient?
+       std::cout << user_chat.text() << std::endl; // the actual chat text.
+       std::cout << user_chat.text_length() << std::endl; // the length of the chat text.
+       std::cout << user_chat.empty() << std::endl; // is the UserChat object empty?
+       std::cout << user_chat.to_string() << std::endl; // convert a userChat object to string with a `,` as delimiter.
+  }
+}
+
 
 int main(void) {
 
@@ -33,7 +64,13 @@ int main(void) {
       std::cout << handshake << std::endl;
 
     for (std::string line; std::getline(std::cin, line);) {
+
+      auto[c, _] = StringUtils::split_first(line);
+       
+      
       if (line == "quit") {
+        req.set_data(new TextData("EXIT"));
+        conn.respond(req);
         break;
       }
 
@@ -42,9 +79,14 @@ int main(void) {
       conn.receive(req);
 
       std::string response = TextData::to_string(req.data());
-      
 
+      if(c == "PENDING"){
+        chat_get_pending(response);
+        continue;
+      }
+    
       std::cout << response << std::endl;
     };
   }
 }
+

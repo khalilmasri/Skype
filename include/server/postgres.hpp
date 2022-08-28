@@ -6,6 +6,7 @@
 #include "user_chat.hpp"
 
 typedef std::vector<User> Users;
+typedef std::vector<UserChat> UserChats;
 typedef std::tuple<std::string, std::string, std::string, std::string, std::string> AggregatedQueryResult;
 
 class Postgres {
@@ -15,6 +16,7 @@ public:
 
   Users       list_users();
   Users       list_user_contacts(const User &t_user);
+  UserChats   list_user_pending_chats(const User &t_user, const User &t_sender);
   User        search_user_by(const std::string &t_term, const char *t_field);
   User        search_user_by(const char *t_term, const char *t_field);
   User        search_user_contact(const User &t_user, const std::string &t_contact_username);

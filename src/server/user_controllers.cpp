@@ -3,6 +3,7 @@
 #include "string_utils.hpp"
 #include "supress_unused_params_warnings.hpp"
 #include "text_data.hpp"
+#include "controller_utils.hpp"
 #include <iostream>
 
 #define CONTACT_DELIM " "
@@ -19,7 +20,7 @@ void UserControllers::list(std::string &_, Request &t_req) {
     list_contacts(contacts, t_req);
      
   } else {
-    set_request_reply(Reply::r_500, t_req);
+    ControllerUtils::set_request_reply(Reply::r_500, t_req);
   }
 }
 
@@ -35,10 +36,10 @@ void UserControllers::create(std::string &t_arg, Request &t_req) {
   bool result = m_pg.add_user(user);
 
   if (result) {
-    set_request_reply(Reply::r_200, t_req);
+    ControllerUtils::set_request_reply(Reply::r_200, t_req);
 
   } else {
-    set_request_reply(Reply::r_300, t_req);
+    ControllerUtils::set_request_reply(Reply::r_300, t_req);
   }
 };
 
@@ -55,7 +56,7 @@ void UserControllers::login(std::string &t_arg, Request &t_req) {
   if (!user.empty() && user.password() == password) {
     login_user(user, t_req);
   } else {
-    set_request_reply(Reply::r_300, t_req);
+    ControllerUtils::set_request_reply(Reply::r_300, t_req);
   }
 }
 
@@ -65,12 +66,11 @@ void UserControllers::search(std::string &t_username, Request &t_req) {
 
   if (!user.empty()) {
     user.remove_password(); // do not return user password to client
-    set_request_reply(Reply::r_201, user.to_string(), t_req);
-    std::string reply = Reply::append_message(Reply::r_201, user.to_string());
+    ControllerUtils::set_request_reply(Reply::r_201, user.to_string(), t_req);
 
   } else {
 
-    set_request_reply(Reply::r_301, t_req);
+    ControllerUtils::set_request_reply(Reply::r_301, t_req);
   }
 }
 
@@ -80,22 +80,22 @@ void UserControllers::add(std::string &t_contact_username, Request &t_req) {
   User contact = m_pg.search_user_by(t_contact_username, "username");
 
   if(user.username() == contact.username()){ // user cannot add itself.
-     set_request_reply(Reply::r_300, t_req);
+    ControllerUtils::set_request_reply(Reply::r_300, t_req);
      return;
   }
 
   if(m_pg.user_contact_exists(user, contact)){
-     set_request_reply(Reply::r_302, t_req);
+    ControllerUtils::set_request_reply(Reply::r_302, t_req);
      return;
   }
 
   if (!user.empty() && !contact.empty()) {
 
     bool res = m_pg.add_user_contact(user, contact);
-    set_request_reply(res, t_req);
+    ControllerUtils::set_request_reply(res, t_req);
 
   } else {
-    set_request_reply(Reply::r_301, t_req);
+    ControllerUtils::set_request_reply(Reply::r_301, t_req);
   }
 }
 
@@ -107,10 +107,10 @@ void UserControllers::remove(std::string &t_contact_username, Request &t_req) {
   if (!user.empty() && !contact.empty()) {
 
     bool res = m_pg.remove_user_contact(user, contact);
-    set_request_reply(res, t_req);
+    ControllerUtils::set_request_reply(res, t_req);
 
   } else {
-    set_request_reply(Reply::r_301, t_req);
+    ControllerUtils::set_request_reply(Reply::r_301, t_req);
   }
 }
 
@@ -120,15 +120,15 @@ void UserControllers::ping(std::string &_, Request &t_req) {
   User user = m_pg.search_user_by(t_req.m_address, "address");
 
   if (user.empty()) {
-    set_request_reply(Reply::r_301,
+    ControllerUtils::set_request_reply(Reply::r_301,
                       t_req); // didn't find a user. return not found
 
   } else if (!user.online()) {
-    set_request_reply(Reply::r_202,
+    ControllerUtils::set_request_reply(Reply::r_202,
                       t_req); // user is not online. Ask to login again.
 
   } else {
-    set_request_reply(Reply::r_200, t_req); // user is online. return OK
+    ControllerUtils::set_request_reply(Reply::r_200, t_req); // user is online. return OK
   }
 }
 
@@ -137,15 +137,15 @@ void UserControllers::available(std::string &t_username, Request &t_req) {
   User user = m_pg.search_user_by(t_username, "username");
 
   if (user.empty()) {
-    set_request_reply(Reply::r_301, t_req); // not found
+    ControllerUtils::set_request_reply(Reply::r_301, t_req); // not found
   }
 
   else if (!user.online()) {
-    set_request_reply(Reply::r_300, t_req); // not online
+    ControllerUtils::set_request_reply(Reply::r_300, t_req); // not online
   }
 
   else {
-    set_request_reply(Reply::r_201, user.to_string(), t_req);
+    ControllerUtils::set_request_reply(Reply::r_201, user.to_string(), t_req);
   }
 }
 
@@ -160,13 +160,13 @@ void UserControllers::exit(std::string &_, Request &t_req) {
   }
 
   t_req.m_exit = true;
-  set_request_reply(Reply::r_201, "Goodbye", t_req);
+  ControllerUtils::set_request_reply(Reply::r_201, "Goodbye", t_req);
 }
 
 void UserControllers::none(std::string &_, Request &t_req) {
   UNUSED_PARAMS(_);
 
-  set_request_reply(Reply::r_501, t_req); // invalid command
+  ControllerUtils::set_request_reply(Reply::r_501, t_req); // invalid command
 }
 
 bool UserControllers::ip_exists(Request &t_req) {
@@ -174,7 +174,7 @@ bool UserControllers::ip_exists(Request &t_req) {
   User user = m_pg.search_user_by(t_req.m_address, "address");
 
   if (user.empty()) {
-    set_request_reply(Reply::r_202, t_req);
+    ControllerUtils::set_request_reply(Reply::r_202, t_req);
   }
 
   return !user.empty();
@@ -189,7 +189,7 @@ void UserControllers::login_user(User &t_user, Request &t_req) {
 
   bool res = m_pg.update(t_user);
 
-  set_request_reply(res, t_req);
+  ControllerUtils::set_request_reply(res, t_req);
 }
 
 void UserControllers::list_contacts(Users &t_contacts, Request &t_req) {
@@ -203,10 +203,10 @@ void UserControllers::list_contacts(Users &t_contacts, Request &t_req) {
     }
 
     reply_msg.pop_back(); // remove last delim
-    set_request_reply(Reply::r_201, std::move(reply_msg), t_req);
+    ControllerUtils::set_request_reply(Reply::r_201, std::move(reply_msg), t_req);
   } else {
 
-    set_request_reply(Reply::r_301, t_req);
+    ControllerUtils::set_request_reply(Reply::r_301, t_req);
   }
 }
 
@@ -216,7 +216,7 @@ bool UserControllers::is_empty(std::string &t_user, std::string &t_password,
   bool res = t_user.empty() || t_password.empty();
 
   if (res) {
-    set_request_reply(Reply::r_501, t_req);
+    ControllerUtils::set_request_reply(Reply::r_501, t_req);
   }
 
   return res;
@@ -226,22 +226,3 @@ bool UserControllers::has_contacts(Users &t_contacts) {
   return 0 < t_contacts.size();
 }
 
-void UserControllers::set_request_reply(Reply::Code t_reply, Request &t_req) {
-  std::string reply = Reply::get_message(t_reply);
-  t_req.set_data(new TextData(reply));
-}
-
-void UserControllers::set_request_reply(Reply::Code t_reply, std::string &&t_msg,
-                                    Request &t_req) {
-  std::string reply = Reply::append_message(t_reply, t_msg);
-  t_req.set_data(new TextData(reply));
-}
-
-void UserControllers::set_request_reply(bool t_valid, Request &t_req) {
-  if (t_valid) {
-    set_request_reply(Reply::r_200, t_req);
-
-  } else {
-    set_request_reply(Reply::r_500, t_req);
-  }
-}
