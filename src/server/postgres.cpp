@@ -38,14 +38,13 @@ Users Postgres::list_users() {
 
 /* */
 
-UserChats Postgres::list_user_chats(const User &t_user, const bool t_pending,
-                                    const User &t_sender) {
+UserChats Postgres::list_user_chats(const User &t_user, const bool t_pending, const User &t_sender) {
   UserChats user_chats;
 
   try {
     pqxx::work transaction(m_conn);
 
-    std::string query = "SELECT DISTINCT id, created_at, text, delivered"
+    std::string query = "SELECT DISTINCT id, created_at, sender_id, text, delivered"
                         " FROM chats WHERE";
 
     query += " recipient_id = " + std::to_string(t_user.id());
@@ -64,10 +63,10 @@ UserChats Postgres::list_user_chats(const User &t_user, const bool t_pending,
     transaction.commit();
 
     res.for_each(
-        [&user_chats, &t_user, &t_sender](int id, std::string created_at,
+        [&user_chats, &t_user](int id, std::string created_at, int sender_id,
                                           std::string text, bool delivered) {
           user_chats.push_back(
-              UserChat(id, created_at, t_sender, t_user, text, delivered));
+              UserChat(id, created_at, sender_id, t_user.id(), text, delivered));
         });
 
   } catch (const std::exception &err) {

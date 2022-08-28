@@ -173,20 +173,36 @@ Logs the current user out if a user is logged in. Server will disconnect upon re
 
     201 Goobye.
 
+### `SEND`
+
+Sends a chat messages to a contact.  The first argument is the `recipient_id`  and second argument the message.
+
+    SEND 4 Hello world!
+    200 OK
+
+
+    SEND 99 Hello world!
+    303 Recipient not found
+
 
 ### `PENDING`
 
-Get pending messages from the current user. Client may pass in an option argument specifying a `sender_id`.
+Get pending chat messages from the current user. Client may pass in an **optional** argument specifying a `sender_id` to retrieve pending messages from a specific contact.
 
 All pending messages from the current user
 
     PENDING
-    201 0,60,124,177:32:2,2022-08-26,-1926391909,1,falseGreat, thanks for asking!32:4,2022-08-27,-1926391909,1,falseanother message for you love.32:5,2022-08-27,-1926391909,1,falsenothing like chats
+    201 0,50,104,147:22:2,2022-08-26,2,1,falseGreat, thanks for asking!22:4,2022-08-27,4,1,falseanother message for you love.22:5,2022-08-27,4,1,falsenothing like chats
 
 Pending messages from the current user from a specific sender id.
            
     PENDING 4
     201 0,54,97:22:4,2022-08-27,4,1,falseanother message for you love.22:5,2022-08-27,4,1,falsenothing like chats
+
+Bad `sender_id` request
+
+    PENDING 3293
+    304 Sender not found
 
 We have no control over what the user will input we cannot user delimiter to split the chat messages.
 Therefore, PENDING responses will contain a header specifying the postion to split each chat message. The response header has a `:` delimiter.
@@ -206,7 +222,7 @@ Each chat response has its own header specifying where to split between the chat
 According to the example below we will split at position 22.
 
     22:4,2022-08-27,4,1,falseanother message for you love.
-                            ^ here
+                             ^ here
 
 
 As for the chat metadata, fields are delimited by a `,` and are the following
@@ -222,10 +238,16 @@ Chat retrieves all chat messages from the current users. It follows the same con
 All chats
 
     CHAT
-    201 0,60,124,177:32:2,2022-08-26,-1926391909,1,falseGreat, thanks for asking!32:4,2022-08-27,-1926391909,1,falseanother message for you love.32:5,2022-08-27,-1926391909,1,falsenothing like chats
+    201 0,50,104,147:22:2,2022-08-26,2,1,falseGreat, thanks for asking!22:4,2022-08-27,4,1,falseanother message for you love.22:5,2022-08-27,4,1,falsenothing like chats
 
 Chat from a specific sender
 
     CHAT 2
     201 0,50:22:2,2022-08-26,2,1,falseGreat, thanks for asking!
+
+
+Bad sender id
+
+    CHAT 9390
+    304 Sender not found
    

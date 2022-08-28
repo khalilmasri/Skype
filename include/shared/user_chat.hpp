@@ -15,6 +15,10 @@ public:
   UserChat(int t_id, std::string &t_created_at, const User &t_sender,
            const User &t_recipient, std::string &t_text, bool t_delivered = false);
 
+  UserChat(int t_id, std::string &t_created_at, const int sender_id,
+           const int t_recipient_id, std::string &t_text, bool t_delivered = false);
+
+
   int           id()    const;
   bool          empty() const;
   std::string   to_string() const; 

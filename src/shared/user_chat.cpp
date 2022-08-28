@@ -41,6 +41,21 @@ UserChat::UserChat(int t_id,
     m_empty(false)
 {}
 
+UserChat::UserChat(int t_id,
+                   std::string &t_created_at,
+                   const int t_sender_id,
+                   const int t_recipient_id,
+                   std::string &t_text,
+                   bool t_delivered)
+    : m_id(t_id),
+    m_created_at(t_created_at),
+    m_sender(t_sender_id),
+    m_recipient(t_recipient_id),
+    m_text(t_text),
+    m_delivered(t_delivered),
+    m_empty(false)
+{}
+
 int UserChat::id() const { return m_id; }
 bool UserChat::empty() const { return m_empty; }
 int UserChat::sender() const { return m_sender; }
