@@ -1,5 +1,5 @@
-#ifndef USER_H
-#define USER_H
+#ifndef ACCOUNTS_H
+#define ACCOUNTS_H
 
 #include "active_conn.hpp"
 #include "request.hpp"
@@ -8,7 +8,7 @@
 
 #define MAX_MSG_LEN 1024
 
-class User {
+class Accounts {
 
 public:
     bool register_user(ActiveConn& t_conn, Request& t_req);
