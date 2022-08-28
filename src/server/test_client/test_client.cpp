@@ -9,9 +9,15 @@
 #include "text_io.hpp"
 #include "string_utils.hpp"
 #include "user_chat.hpp"
+#include "logger.hpp"
 
 void chat_get_pending(std::string &response){
-  auto [_code, res] = StringUtils::split_first(response);
+  auto [code, res] = StringUtils::split_first(response);
+
+  if(code != "201"){
+    LOG_ERR("%s", response.c_str());
+    return;
+  }
 
   auto [header, content] = StringUtils::split_first(res, ":");
   StringUtils::IntVector positions = StringUtils::split_to_ints(header, ",");
@@ -80,10 +86,10 @@ int main(void) {
 
       std::string response = TextData::to_string(req.data());
 
-      if(c == "PENDING"){
-        chat_get_pending(response);
-        continue;
-      }
+ //     if(c == "PENDING"){
+  //      chat_get_pending(response);
+    //    continue;
+    //  }
     
       std::cout << response << std::endl;
     };

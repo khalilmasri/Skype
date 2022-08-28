@@ -16,7 +16,7 @@ public:
 
   Users       list_users();
   Users       list_user_contacts(const User &t_user);
-  UserChats   list_user_pending_chats(const User &t_user, const User &t_sender);
+  UserChats   list_user_chats(const User &t_user, const bool t_pending , const User &t_sender = User());
   User        search_user_by(const std::string &t_term, const char *t_field);
   User        search_user_by(const char *t_term, const char *t_field);
   User        search_user_contact(const User &t_user, const std::string &t_contact_username);

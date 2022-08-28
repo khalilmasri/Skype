@@ -21,7 +21,12 @@ ServerCommand::name ServerCommand::get(const std::string &t_command) {
 }
 
 bool ServerCommand::has_argument(name t_cmd) {
-  return t_cmd < List ? true : false;
+  return t_cmd < List;
+}
+
+
+bool ServerCommand::has_zero_or_more_arguments(name t_cmd){
+  return t_cmd >= Pending;
 }
 
 int ServerCommand::argument_count(name t_cmd) {

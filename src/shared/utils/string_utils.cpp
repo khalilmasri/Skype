@@ -66,10 +66,15 @@ StringUtils::StringTuple StringUtils::split_first(const std::string &s,
 
   if (s.empty()) {
     return StringTuple{"", ""};
+
+  }
+  int start = 0;
+  unsigned long end = s.find(delim);
+
+  if(end == std::string::npos){
+    return StringTuple{s, ""};
   }
 
-  int start = 0;
-  int end = s.find(delim);
   StringTuple result;
 
   std::string first = (s.substr(start, end - start));

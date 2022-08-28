@@ -20,6 +20,7 @@ Router::Router()
           {ServerCommand::Exit, UserControllers::exit}, 
           {ServerCommand::Send, ChatControllers::send}, 
           {ServerCommand::Pending, ChatControllers::pending}, 
+          {ServerCommand::Chat, ChatControllers::chat}, 
           {ServerCommand::None, UserControllers::none}, // this when calling unexisting command
       }){};
 
@@ -53,6 +54,10 @@ Router::CmdTuple Router::parse(Request &t_req) {
 }
 
 bool Router::validate_argument(ServerCommand::name t_cmd, std::string &t_arg) {
+
+  if(ServerCommand::has_zero_or_more_arguments(t_cmd)){
+    return true;
+  }
 
   if (ServerCommand::has_argument(t_cmd)) {
     return !t_arg.empty();

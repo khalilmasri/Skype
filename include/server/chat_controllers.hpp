@@ -9,14 +9,13 @@ struct ChatControllers {
   static void  pending     (std::string &t_arg, Request &t_req);
   static void  chat        (std::string &t_arg, Request &t_req);
 
-
   private:
   static Postgres m_pg;
   static const std::string m_HEADER_DELIM;
   static const std::string m_HEADER_FIELDS_DELIM;
 
+  static void        get_chats (std::string &t_arg, Request &t_req, const bool t_pending);
   static std::string build_response(UserChats &t_user_chats);
 };
 
 #endif
-

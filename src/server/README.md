@@ -42,7 +42,6 @@ When a message is detected `ActiveConn::receive` will populate the request with 
 The router is responsible for parsing the command and arguments from the client message and route it to the
 relevant `Controller`.  So a message like so
 
-
             LOGIN khalil 1234
 
 will be routed as follows
@@ -173,3 +172,60 @@ Logs the current user out if a user is logged in. Server will disconnect upon re
     EXIT
 
     201 Goobye.
+
+
+### `PENDING`
+
+Get pending messages from the current user. Client may pass in an option argument specifying a `sender_id`.
+
+All pending messages from the current user
+
+    PENDING
+    201 0,60,124,177:32:2,2022-08-26,-1926391909,1,falseGreat, thanks for asking!32:4,2022-08-27,-1926391909,1,falseanother message for you love.32:5,2022-08-27,-1926391909,1,falsenothing like chats
+
+Pending messages from the current user from a specific sender id.
+           
+    PENDING 4
+    201 0,54,97:22:4,2022-08-27,4,1,falseanother message for you love.22:5,2022-08-27,4,1,falsenothing like chats
+
+We have no control over what the user will input we cannot user delimiter to split the chat messages.
+Therefore, PENDING responses will contain a header specifying the postion to split each chat message. The response header has a `:` delimiter.
+
+    0,54,97 -> first chat at position 0, second chat position 54, end of message at position 97.
+
+Spliting chats
+
+    201 0,54,97:22:4,2022-08-27,4,1,falseanother message for you love.22:5,2022-08-27,4,1,falsenothing like chats
+                ^ 0 here                                              ^ 54 here                                  ^ 97 here
+
+Each chat response has its own header specifying where to split between the chat metadate and chat contents of the chat because again, there is no way to use a delimiter for user inputed content.
+
+    header   delim     metadata                         content
+    22         :       4,2022-08-27,4,1,false           another message for you love.
+
+According to the example below we will split at position 22.
+
+    22:4,2022-08-27,4,1,falseanother message for you love.
+                            ^ here
+
+
+As for the chat metadata, fields are delimited by a `,` and are the following
+
+    id      created_at       sender_id     recipient_id      delivered                     
+    4       2022-08-27       4             1                 false                        
+
+
+### `CHAT`
+
+Chat retrieves all chat messages from the current users. It follows the same convention as `PENDING` as in you can specify a `sender_id` or not.
+
+All chats
+
+    CHAT
+    201 0,60,124,177:32:2,2022-08-26,-1926391909,1,falseGreat, thanks for asking!32:4,2022-08-27,-1926391909,1,falseanother message for you love.32:5,2022-08-27,-1926391909,1,falsenothing like chats
+
+Chat from a specific sender
+
+    CHAT 2
+    201 0,50:22:2,2022-08-26,2,1,falseGreat, thanks for asking!
+   

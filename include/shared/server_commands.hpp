@@ -11,23 +11,27 @@ struct ServerCommand {
     Create = 0,
     Login = 1,
     Send = 2,
-    Chat = 3, // pending | all | from:today,to:11-27-35
 
     /* one argument */
     Search = 10,
     Add = 11,
     Remove = 12,
     Available = 13,
-    Pending = 14,
-
+  
     /* no argument */
     List = 20,
     Ping = 21,
-    Exit = 23,
     None = 24,
+    Exit = 23,
+
+    /* may have 0 or 1 argument */
+    Pending = 30, 
+    Chat = 32, 
+
   };
 
   static name get(const std::string &t_command);
+  static bool has_zero_or_more_arguments(name t_cmd);
   static bool has_argument(name t_cmd);
 
   static int  argument_count(name t_cmd);

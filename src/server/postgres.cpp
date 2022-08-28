@@ -38,8 +38,8 @@ Users Postgres::list_users() {
 
 /* */
 
-UserChats Postgres::list_user_pending_chats(const User &t_user,
-                                            const User &t_sender) {
+UserChats Postgres::list_user_chats(const User &t_user, const bool t_pending,
+                                    const User &t_sender) {
   UserChats user_chats;
 
   try {
@@ -47,18 +47,28 @@ UserChats Postgres::list_user_pending_chats(const User &t_user,
 
     std::string query = "SELECT DISTINCT id, created_at, text, delivered"
                         " FROM chats WHERE";
-    query += " sender_id = " + std::to_string(t_sender.id());
-    query += " AND recipient_id = " + std::to_string(t_user.id());
-    query += " AND delivered = FALSE; ";
+
+    query += " recipient_id = " + std::to_string(t_user.id());
+
+    if (!t_sender.empty()) {
+      query += " AND sender_id = " + std::to_string(t_sender.id());
+    }
+
+    if (t_pending) {
+      query += " AND delivered = FALSE;";
+    } else {
+      query += " ;";
+    }
 
     pqxx::result res = transaction.exec(query);
     transaction.commit();
 
-    res.for_each([&user_chats, &t_user, &t_sender](int id, std::string created_at,
-                                std::string text, bool delivered) {
-
-      user_chats.push_back(UserChat(id, created_at, t_sender, t_user, text, delivered));
-    });
+    res.for_each(
+        [&user_chats, &t_user, &t_sender](int id, std::string created_at,
+                                          std::string text, bool delivered) {
+          user_chats.push_back(
+              UserChat(id, created_at, t_sender, t_user, text, delivered));
+        });
 
   } catch (const std::exception &err) {
     LOG_ERR("%s", err.what());
