@@ -43,7 +43,9 @@ public:
     static void user_get_logged_in          (Job &t_job);
 
     // Chat commands
+    static void chat_send                   (Job &t_job);
     static void chat_get_pending            (Job &t_job);
+    static void chat_get_all                (Job &t_job);
 
 private:
     inline static Request server_req = {};
