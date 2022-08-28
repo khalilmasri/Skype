@@ -204,22 +204,22 @@ Bad `sender_id` request
     PENDING 3293
     304 Sender not found
 
-We have no control over what the user will input we cannot user delimiter to split the chat messages.
-Therefore, PENDING responses will contain a header specifying the postion to split each chat message. The response header has a `:` delimiter.
+We have no control over what the user will input as chat message so we cannot relly delimiter to split the text content sent from the server.
+Therefore, `PENDING` responses will contain a header specifying the postion to split each chat message. The response header has a `:` delimiter.
 
-    0,54,97 -> first chat at position 0, second chat position 54, end of message at position 97.
+    0,54,97 -> first chat start at position 0, second chat start position 54, end of message at position 97.
 
 Spliting chats
 
     201 0,54,97:22:4,2022-08-27,4,1,falseanother message for you love.22:5,2022-08-27,4,1,falsenothing like chats
                 ^ 0 here                                              ^ 54 here                                  ^ 97 here
 
-Each chat response has its own header specifying where to split between the chat metadate and chat contents of the chat because again, there is no way to use a delimiter for user inputed content.
+Each chat response has its own header specifying where to split between the chat metadata and content because again, there is no way to use a delimiter for user inputed content.
 
     header   delim     metadata                         content
     22         :       4,2022-08-27,4,1,false           another message for you love.
 
-According to the example below we will split at position 22.
+According to the example above we will split at position 22.
 
     22:4,2022-08-27,4,1,falseanother message for you love.
                              ^ here
