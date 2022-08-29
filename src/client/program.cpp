@@ -52,7 +52,8 @@ void Program::create_job_dispatcher()
         {Job::GETUSER,          [this](Job &t_job){m_chat->job_set_user(t_job);}},
         {Job::ADD,              [this](Job &t_job){m_chat->job_add_user(t_job);}},
         {Job::REMOVE,           [this](Job &t_job){m_chat->job_remove_user(t_job);}},
-        {Job::SEARCH,           [this](Job &t_job){m_chat->job_search(t_job);}}
+        {Job::SEARCH,           [this](Job &t_job){m_chat->job_search(t_job);}},
+        {Job::CHAT,             [this](Job &t_job){m_chat->job_load_chat(t_job);}}
     };
 }
 

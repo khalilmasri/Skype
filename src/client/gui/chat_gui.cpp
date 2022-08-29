@@ -17,7 +17,8 @@
 #include <QStyle>
 #include <QDebug>
 
-bool first = true;
+bool first_refresh = true;
+bool first_display = true;
 QTimer *timer = new QTimer();
 
 ChatGui::ChatGui(QWidget *parent) :
@@ -40,6 +41,10 @@ ChatGui::ChatGui(QWidget *parent) :
 
 ChatGui::~ChatGui()
 {
+    for ( auto &chat : m_contact_chat)
+    {
+        delete chat;
+    }
     delete m_ui;
     delete timer;
 }
@@ -51,7 +56,6 @@ void ChatGui::init()
     m_ui->chat_group->hide();
     refresh_contacts();
     JobBus::handle({Job::GETUSER});
-    JobBus::handle({Job::CHAT});
 }
 
 void ChatGui::job_set_user(Job &t_job)
@@ -72,8 +76,20 @@ void ChatGui::job_disp_contact(Job &t_job)
         return;
     }
 
-    m_ui->contact_list->setModel(new QStringListModel(QStringList(t_job.m_contact_list.keys())));
+
+    for ( auto &contact : t_job.m_contact_list)
+    {
+        m_ui->contact_list->addItem(contact);
+    }
+
     m_contact_list = t_job.m_contact_list;
+
+    if ( true == first_display)
+    {
+        setup_contact_chat(FIRST);
+        JobBus::handle({Job::CHAT});
+        first_display = false;
+    }
 
     if (m_current_selected.isValid() == true)
     {
@@ -98,6 +114,7 @@ void ChatGui::job_add_user(Job &t_job)
     m_ui->contact_list->clearSelection();
     m_current_selected = m_ui->contact_list->currentIndex();
     m_ui->chat_group->hide();
+    setup_contact_chat(ADD, user);
 }
 
 void ChatGui::job_search(Job &t_job)
@@ -137,6 +154,7 @@ void ChatGui::job_remove_user(Job &t_job)
     m_ui->contact_list->clearSelection();
     m_current_selected = m_ui->contact_list->currentIndex();
     m_ui->chat_group->hide();
+    setup_contact_chat(REMOVE, user);
 }
 
 void ChatGui::reject()
@@ -151,38 +169,61 @@ void ChatGui::reject()
     }
 }
 
+void ChatGui::job_load_chat(Job &t_job)
+{
+
+    if ( true == t_job.m_chats.empty() || true == m_contact_list.empty())
+    {
+        return;
+    }
+
+    for (auto &chat : t_job.m_chats)
+    {
+        QStringList data;
+        data = m_contact_chat[chat.id()]->stringList();
+        data.append(QString::fromStdString(chat.created_at()));
+        data.append(QString::fromStdString(chat.text()));
+        m_contact_chat[chat.id()]->setStringList(data);
+    }
+}
+
+//void ChatGui::job_send_msg(Job &t_job)
+//{
+//    if ( false == t_job.m_valid)
+//    {
+//        return;
+//    }
+//
+//    QString user = m_current_selected.data(Qt::DisplayRole).toString();
+//    auto contact = m_contact_list.key(user);
+//
+//    if ( 0 == contact)
+//    {
+//        return;
+//    }
+//
+//    auto chat = m_contact_chat.find(m_contact_chat[contact].id());
+//
+//    if ( chat == m_contact_chat.end())
+//    {
+//        return;
+//    }
+//
+//}
+
+
+
 // ***** PRIVATE ***** //
 
 void ChatGui::refresh_contacts()
 {
-    if (first == true ){
+    if (first_refresh == true ){
         connect(timer, &QTimer::timeout, this, &ChatGui::refresh_contacts);
         timer->start(2000);
-        first = false;
+        first_refresh = false;
     }
 
     JobBus::handle({Job::LIST});
-}
-
-void ChatGui::load_chat(QString t_contact)
-{  
-    QString path = "../chat_logs/" + t_contact + ".txt";
-
-    QFile chat_file(path);
-
-    if (false == chat_file.open(QFile::ReadOnly))
-    {
-        // TODO: Later we need to add that we need to create a new chat file for the user
-        m_ui->chat_box->clear();
-        return;
-    }
-
-    QTextStream in(&chat_file);
-    m_ui->chat_box->clear();
-
-    while( false == in.atEnd()){
-        m_ui->chat_box->addItem((in.readLine()));
-    }
 }
 
 void ChatGui::send_msg()
@@ -193,10 +234,52 @@ void ChatGui::send_msg()
 
     QString time = QDateTime::currentDateTime().toString(QLatin1String("hh:mm"));
 
-    m_ui->chat_box->addItem(("\n" + time + " " + m_user + ":"));
-    m_ui->chat_box->addItem((m_ui->message_txt->text()));
+    Job job;
+    job.m_command = Job::SEND;
+    job.m_time = time;
+    JobBus::handle(job);
+
     m_ui->message_txt->setText("");
-    m_ui->chat_box->scrollToBottom();
+}
+
+void ChatGui::display_chat(QString &t_user)
+{
+
+    auto contact = m_contact_list.key(t_user);
+
+
+    if (contact == 0)
+    {
+        return;
+    }
+
+    m_ui->chat_box->setModel(m_contact_chat[contact]);
+}
+
+void ChatGui::setup_contact_chat(Setup t_type, const QString &t_contact)
+{
+    if (FIRST == t_type)
+    {
+        for (auto it = m_contact_list.begin(); it != m_contact_list.end(); it++)
+        {
+            m_contact_chat[it.key()] = new QStringListModel;
+        }
+    }
+
+    auto contact = m_contact_list.key(t_contact);
+    if (contact == 0)
+    {
+        return;
+    }
+
+    if (ADD == t_type)
+    {
+        m_contact_chat[contact] = new QStringListModel;
+    }
+    else if (REMOVE == t_type)
+    {
+        delete m_contact_chat[contact];
+    }
 }
 
 // ***** SLOTS ***** //
@@ -213,7 +296,7 @@ void ChatGui::on_contact_list_clicked(const QModelIndex &index)
 
     m_ui->chat_group->show();
     m_ui->contact_txt->setText(item);
-    load_chat(item);
+    display_chat(item);
 }
 
 void ChatGui::on_search_clicked()
@@ -244,10 +327,3 @@ void ChatGui::on_remove_clicked()
 
     JobBus::handle({Job::REMOVE, user});
 }
-
-/*
-QSaveFile fileOut(filename);
-QTextStream out(&fileOut);
-out << "Qt rocks!" << Qt::endl; // do this for every item
-fileOut.commit()
-*/

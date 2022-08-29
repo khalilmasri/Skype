@@ -5,11 +5,13 @@
 #include "job.hpp"
 #include "contact_gui.hpp"
 #include "contacts.hpp"
+#include "chat.hpp"
 
 #include <QModelIndex>
 #include <QDialog>
 #include <QVector>
 #include <QString>
+#include <QStringListModel>
 
 namespace Ui {
 class ChatGui;
@@ -31,6 +33,7 @@ public:
     void job_add_user(Job &t_job);
     void job_search(Job &t_job);
     void job_remove_user(Job &t_job);
+    void job_load_chat(Job &t_job);
 
 private slots:
     void on_contact_list_clicked(const QModelIndex &index);
@@ -47,13 +50,17 @@ private: // Variables
     QString     m_user;
     QModelIndex m_current_selected;
     ContactGui  m_contact;
-    QHash<QString, struct Details> m_contact_list;
+    QHash<int, QString> m_contact_list;
+    QHash<int, QStringListModel*> m_contact_chat;
+    enum Setup{FIRST, ADD, REMOVE};
 
 private: // Methods
     void reject() override;
     void refresh_contacts();
     void load_chat(QString t_contact);
     void send_msg();
+    void display_chat(QString &t_user);
+    void setup_contact_chat(Setup t_type, const QString &t_contact = QString(""));
 };
 
 #endif // CHAT_HPP

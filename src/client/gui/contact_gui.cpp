@@ -63,7 +63,6 @@ void ContactGui::handle_action()
 
 void ContactGui::on_lineEdit_returnPressed()
 {
-    std::cout << "here\n";
     handle_action();
 }
 

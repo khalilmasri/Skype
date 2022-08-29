@@ -23,8 +23,9 @@ struct Job {
         LOGIN           = 8,
         LOGGED          = 9,
 
-        // std::string return from 20 - 29
+        // string return from 20 - 29
         GETUSER         = 20,
+        SEND            = 21,
 
         // vector return values from 30 - 39
         DISP_CONTACTS   = 30,
@@ -39,8 +40,9 @@ struct Job {
 
     bool m_valid = false;
     std::string m_string = "";
-    QHash<QString, Details> m_contact_list = {};
+    QHash<int, QString> m_contact_list = {};
     QVector<Chat> m_chats = {};
+    QString m_time = "";
 };
 
 

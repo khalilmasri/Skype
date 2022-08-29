@@ -61,6 +61,7 @@ bool Contacts::search(ActiveConn& t_conn, Request& t_req){
     LOG_INFO("Searched database and found user %s!", user.c_str());
     
     return true;
+
 fail:
     return false;
 }
@@ -149,11 +150,18 @@ fail:
     return false;
 }
 
-QHash<QString, struct Details> Contacts::display_contacts() {
+QHash<int, QString> Contacts::display_contacts() {
+
+    QHash<int, QString> contact_list;
 
     FAIL_IF_SILENT ( true == m_online_contacts.empty() );
 
-    return m_online_contacts;
+
+    for (auto contact = m_online_contacts.begin(); contact != m_online_contacts.end(); contact++)
+    {
+        contact_list.insert(contact.key(), QString::fromStdString(contact->username));
+    }
+    return contact_list;
 
 fail:
     return {};
@@ -196,18 +204,18 @@ void Contacts::pair_contact_details(std::string t_user) {
     StringUtils::StringVector user_fields = StringUtils::split(t_user, ",");
 
     Details details;
-    std::string username = "";
-    
+    int ID = 0;
+
     for(auto field : user_fields) {
         
         auto [key, pair] = StringUtils::split_first(field, ":");
         
         if ( key == "id" ) {
-            details.ID = stoi(pair);
+            ID = stoi(pair);
         }
 
         if ( key == "username" ) {
-            username = pair;
+            details.username = pair;
         }
 
         if ( key == "online" ) {
@@ -223,7 +231,7 @@ void Contacts::pair_contact_details(std::string t_user) {
         }
     }
 
-    if ( username != "" /*&& details.online == true */ ){
-        m_online_contacts.insert(QString::fromStdString(username), details);
+    if ( ID != 0 /*&& details.online == true */ ){
+        m_online_contacts.insert(ID, details);
     }
 }
