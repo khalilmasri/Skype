@@ -1,6 +1,9 @@
 #ifndef JOB_H
 #define JOB_H
 
+#include "chat.hpp"
+#include "contacts.hpp"
+
 #include <QString>
 #include <QVector>
 #include <string>
@@ -19,14 +22,13 @@ struct Job {
         CREATE          = 7,
         LOGIN           = 8,
         LOGGED          = 9,
-        SELCONT         = 10,
 
         // std::string return from 20 - 29
         GETUSER         = 20,
-        GETCONT         = 21,
 
-        // std::vector return values from 30 - 39
+        // vector return values from 30 - 39
         DISP_CONTACTS   = 30,
+        CHAT            = 31,
         
         // None
         NONE            = 50,
@@ -37,7 +39,8 @@ struct Job {
 
     bool m_valid = false;
     std::string m_string = "";
-    QVector<QString> m_vector = {};
+    QHash<QString, Details> m_contact_list = {};
+    QVector<Chat> m_chats = {};
 };
 
 

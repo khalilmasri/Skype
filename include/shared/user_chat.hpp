@@ -2,6 +2,7 @@
 #define USER_CHAT_H
 
 #include "user.hpp"
+#include "request.hpp"
 
 class UserChat {
 
@@ -36,8 +37,9 @@ public:
   
 
   static const std::string m_HEADER_DELIM;
+  static const std::string m_FIELD_DELIM;
 
-  private:
+private:
   int           m_id;
   std::string   m_created_at;
   int           m_sender;
@@ -46,7 +48,6 @@ public:
   bool          m_delivered;
   bool          m_empty;
 
-  static const std::string m_FIELD_DELIM;
 };
 
 #endif

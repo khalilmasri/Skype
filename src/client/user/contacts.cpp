@@ -149,30 +149,14 @@ fail:
     return false;
 }
 
-QVector<QString> Contacts::display_contacts() {
-
-    QVector<QString> contacts;
+QHash<QString, struct Details> Contacts::display_contacts() {
 
     FAIL_IF_SILENT ( true == m_online_contacts.empty() );
 
-    for ( auto &[username, details] : m_online_contacts ) {
-        QString field = QString::fromUtf8(username.c_str());
-        contacts.push_back(field);
-    }
-
-    return contacts;
+    return m_online_contacts;
 
 fail:
     return {};
-}
-
-bool Contacts::set_current_contact(std::string &t_current_contact){
-    m_current_contact = t_current_contact;
-    return true;
-}
-
-std::string Contacts::get_current_contact(){
-    return m_current_contact;
 }
 
 // /* Private */
@@ -201,7 +185,7 @@ void Contacts::update_contacts(std::string t_response) {
     }
 
     bool ret =  m_online_contacts.size() == m_old_contacts.size();
-    if ( false == ret ){
+    if ( false == ret){
         LOG_INFO("Updating map");
         JobBus::handle({Job::DISP_CONTACTS});
     }
@@ -240,6 +224,6 @@ void Contacts::pair_contact_details(std::string t_user) {
     }
 
     if ( username != "" /*&& details.online == true */ ){
-        m_online_contacts.emplace(username, details);            
+        m_online_contacts.insert(QString::fromStdString(username), details);
     }
 }

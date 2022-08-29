@@ -1,9 +1,10 @@
-#ifndef CHAT_HPP
-#define CHAT_HPP
+#ifndef CHAT_GUI_HPP
+#define CHAT_GUI_HPP
 
 #include "job_bus.hpp"
 #include "job.hpp"
 #include "contact_gui.hpp"
+#include "contacts.hpp"
 
 #include <QModelIndex>
 #include <QDialog>
@@ -46,6 +47,7 @@ private: // Variables
     QString     m_user;
     QModelIndex m_current_selected;
     ContactGui  m_contact;
+    QHash<QString, struct Details> m_contact_list;
 
 private: // Methods
     void reject() override;

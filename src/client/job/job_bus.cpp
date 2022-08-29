@@ -16,7 +16,6 @@ JobQueue JobBus::m_resQ;
 JobBus::JobsMap JobBus::m_JobBus_map {
 
     {Job::LIST,             Client::contact_list},
-    {Job::SELCONT,          Client::contact_set_current_contact},
     {Job::SEARCH,           Client::contact_search},
     {Job::ADD,              Client::contact_add_user},
     {Job::REMOVE,           Client::contact_remove_user},
@@ -27,8 +26,8 @@ JobBus::JobsMap JobBus::m_JobBus_map {
     {Job::LOGIN,            Client::user_login}, 
     {Job::LOGGED,           Client::user_get_logged_in},
     {Job::GETUSER,          Client::user_get_username},
-    {Job::GETCONT,          Client::contact_get_current_contact},
-    {Job::DISP_CONTACTS,    Client::contact_get_contacts}
+    {Job::DISP_CONTACTS,    Client::contact_get_contacts},
+    {Job::CHAT,             Client::chat_get_all}
 };
 
 JobBus* JobBus::get_instance()

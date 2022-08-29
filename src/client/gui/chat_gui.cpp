@@ -2,6 +2,7 @@
 #include "ui/ui_chat.h"
 #include "logger.hpp"
 #include "fail_if.hpp"
+#include "chat.hpp"
 
 #include <QStringListModel>
 #include <QVector>
@@ -50,6 +51,7 @@ void ChatGui::init()
     m_ui->chat_group->hide();
     refresh_contacts();
     JobBus::handle({Job::GETUSER});
+    JobBus::handle({Job::CHAT});
 }
 
 void ChatGui::job_set_user(Job &t_job)
@@ -70,7 +72,8 @@ void ChatGui::job_disp_contact(Job &t_job)
         return;
     }
 
-    m_ui->contact_list->setModel(new QStringListModel(QList<QString>::fromVector(t_job.m_vector)));
+    m_ui->contact_list->setModel(new QStringListModel(QStringList(t_job.m_contact_list.keys())));
+    m_contact_list = t_job.m_contact_list;
 
     if (m_current_selected.isValid() == true)
     {
@@ -248,13 +251,3 @@ QTextStream out(&fileOut);
 out << "Qt rocks!" << Qt::endl; // do this for every item
 fileOut.commit()
 */
-
-
-
-
-
-
-
-
-
-`

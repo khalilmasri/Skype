@@ -1,5 +1,5 @@
-#ifndef WELCOME_H
-#define WELCOME_H
+#ifndef WELCOME_GUI_H
+#define WELCOME_GUI_H
 
 #include <QMainWindow>
 #include <job.hpp>
