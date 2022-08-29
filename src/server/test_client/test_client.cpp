@@ -52,8 +52,8 @@ int main(void) {
   std::cout << "attempting to connect to server..." << std::endl;
   // this is the server address
 // >>>>>>> client_to_server
- // std::string addr = "206.189.0.154";
-  std::string addr = "127.0.0.1";
+  std::string addr = "206.189.0.154";
+ // std::string addr = "127.0.0.1";
   Request req = conn.connect_socket(addr);
 
   if (!req.m_valid) {
