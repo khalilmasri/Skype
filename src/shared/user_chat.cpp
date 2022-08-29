@@ -56,6 +56,7 @@ UserChat::UserChat(int t_id,
     m_empty(false)
 {}
 
+
 int UserChat::id() const { return m_id; }
 bool UserChat::empty() const { return m_empty; }
 int UserChat::sender() const { return m_sender; }
@@ -65,32 +66,59 @@ std::string UserChat::text() const { return m_text; }
 bool UserChat::delivered() const { return m_delivered; }
 std::size_t UserChat::text_length() const { return m_text.size(); }
 
+void UserChat::set_delivered(bool t_delivered) { m_delivered = t_delivered ;}
+
 std::string UserChat::to_string() const {
-  return std::to_string(m_id) + m_FIELD_DELIM +
-         m_created_at + m_FIELD_DELIM +
+  return std::to_string(m_id) + m_FIELD_DELIM + m_created_at + m_FIELD_DELIM +
          std::to_string(m_sender) + m_FIELD_DELIM +
          std::to_string(m_recipient) + m_FIELD_DELIM +
-         std::string(m_delivered ? "true" : "false") +
-         m_text;
+         std::string(m_delivered ? "true" : "false") + m_text;
+}
+
+template <typename T> T UserChat::get_field(std::string &t_field) {
+
+  if (t_field == "id") {
+    return m_id;
+  }
+
+  if (t_field == "sender") {
+    return m_sender;
+  }
+
+  if (t_field == "recipient") {
+    return m_recipient;
+  }
+
+  if (t_field == "created_at") {
+    return m_created_at;
+  }
+
+  if (t_field == "delivered") {
+    return m_delivered;
+  }
+
+  LOG_ERR("User chat '%s' does not exist.", t_field.c_str());
+  return -1;
+
 }
 
 void UserChat::from_string(std::string &t_chat) {
-   auto[header, content] = StringUtils::split_first(t_chat, m_HEADER_DELIM);
+  auto [header, content] = StringUtils::split_first(t_chat, m_HEADER_DELIM);
 
-   std::size_t content_length = std::stoi(header);
-   auto[info, text] = StringUtils::split_at(content, content_length);
+  std::size_t content_length = std::stoi(header);
+  auto [info, text] = StringUtils::split_at(content, content_length);
 
-   try {
-   StringUtils::StringVector fields = StringUtils::split(info, m_FIELD_DELIM);
+  try {
+    StringUtils::StringVector fields = StringUtils::split(info, m_FIELD_DELIM);
 
-   m_id = std::stoi(fields.at(0));
-   m_created_at = fields.at(1);
-   m_sender = std::stoi(fields.at(2));
-   m_recipient = std::stoi(fields.at(3));
-   m_delivered = fields.at(4) == "true";
-   m_text = text;
+    m_id = std::stoi(fields.at(0));
+    m_created_at = fields.at(1);
+    m_sender = std::stoi(fields.at(2));
+    m_recipient = std::stoi(fields.at(3));
+    m_delivered = fields.at(4) == "true";
+    m_text = text;
 
-   } catch(...){
-     LOG_ERR("Error Attempting to load a UserChat from:  %s", t_chat.c_str());
-   }
+  } catch (...) {
+    LOG_ERR("Error Attempting to load a UserChat from:  %s", t_chat.c_str());
+  }
 }

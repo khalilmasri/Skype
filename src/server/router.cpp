@@ -21,6 +21,7 @@ Router::Router()
           {ServerCommand::Send, ChatControllers::send}, 
           {ServerCommand::Pending, ChatControllers::pending}, 
           {ServerCommand::Chat, ChatControllers::chat}, 
+          {ServerCommand::Delivered, ChatControllers::delivered}, 
           {ServerCommand::None, UserControllers::none}, // this when calling unexisting command
       }){};
 

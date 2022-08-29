@@ -29,6 +29,11 @@ public:
   std::string   text() const;
   bool          delivered() const;
   std::size_t   text_length() const;
+  void          set_delivered(bool t_delivered);
+
+  template<typename T>
+    T          get_field(std::string &t_field);
+  
 
   static const std::string m_HEADER_DELIM;
 

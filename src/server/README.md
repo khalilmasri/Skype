@@ -61,8 +61,22 @@ The `Request`is then passed to `ActiveConn::respond` to respond to the client.
 The server persists user data user [Postgres](https://www.postgresql.org/). Please visit the [postgres directory
 for more information on how to install Postgres locally as well as examples of queries the server using in the implementation.](https://github.com/khalilmasri/Skype/tree/main/postgres)
 
+## Replies
 
-## Commands & Replies
+       200 OK
+       201 <data>
+       202 Please login
+       300 Not OK
+       301 User not found
+       302 User already exist
+       303 Recipient not found
+       304 Sender not found
+       305 Invalid chat id
+       500 Internal server error
+       501 Invalid command
+       502 Empty argument
+
+## Commands 
 
 If a command is not valid the server will return `501 Invalid command`.
 
@@ -251,3 +265,24 @@ Bad sender id
     CHAT 9390
     304 Sender not found
    
+
+### `DELIVERED`
+
+Informs the server which chats has been received/delivered so I can update the state of a chat message to `delivered = TRUE`.
+Accepts a list of chat ids delimited by a `,`.
+
+     DELIVERED 1,2,3
+     200 OK
+
+
+All ids in the list must be correct otherwise none will be updated.
+
+     DELIVERED 1,2,2039
+     305 Invalid chat id 2039
+
+
+`DELIVERED` must contain an argument
+
+     DELIVERED 1,2,2039
+     502 Empty argument
+

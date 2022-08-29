@@ -8,6 +8,7 @@ struct ChatControllers {
   static void  send        (std::string &t_arg, Request &t_req);
   static void  pending     (std::string &t_arg, Request &t_req);
   static void  chat        (std::string &t_arg, Request &t_req);
+  static void delivered     (std::string &t_arg, Request &t_req);
 
   private:
   static Postgres m_pg;

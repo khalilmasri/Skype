@@ -187,7 +187,7 @@ void UserControllers::login_user(User &t_user, Request &t_req) {
   t_user.update("true", User::Online);
   t_user.update(t_req.m_address, User::Address);
 
-  bool res = m_pg.update(t_user);
+  bool res = m_pg.update_user(t_user);
 
   ControllerUtils::set_request_reply(res, t_req);
 }

@@ -9,9 +9,10 @@ const std::unordered_map<Reply::Code, std::string> Reply::m_replies {
   {r_302, "302 User already exist"},
   {r_303, "303 Recipient not found"},
   {r_304, "304 Sender not found"},
+  {r_305, "305 Invalid chat id"},
   {r_500, "500 Internal server error"},
   {r_501, "501 Invalid command"},
-  {r_502, "502 Empty argument"}, // appends
+  {r_502, "502 Empty argument"}, 
 };
 
 std::string Reply::get_message(const Code t_code){

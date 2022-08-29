@@ -161,7 +161,6 @@ void Client::chat_get_pending(Job &t_job){
    server_conn.respond(req);
    server_conn.receive(req);
 
-    
    std::string raw_response = TextData::to_string(req.data());
    auto [code, response ] = StringUtils::split_first(raw_response); // split the code out.
                                                                      

@@ -24,10 +24,10 @@ struct ServerCommand {
     None = 24,
     Exit = 23,
 
-    /* may have 0 or 1 argument */
+    /* may have 0 or more argument */
     Pending = 30, 
     Chat = 32, 
-
+    Delivered = 33,
   };
 
   static name get(const std::string &t_command);

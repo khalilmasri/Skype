@@ -33,11 +33,15 @@ void ChatControllers::send(std::string &t_arg, Request &t_req) {
   }
 }
 
+/* */
+
 void ChatControllers::pending(std::string &t_arg, Request &t_req) {
   bool pending = true;
   get_chats(t_arg, t_req, pending);
 }
 
+
+/* */
 
 void ChatControllers::chat(std::string &t_arg, Request &t_req) {
   bool not_pending = false;
@@ -45,9 +49,43 @@ void ChatControllers::chat(std::string &t_arg, Request &t_req) {
 
 }
 
+
+/* */
+
+void ChatControllers::delivered(std::string &t_arg, Request &t_req){
+
+  if(t_arg.empty()){
+    ControllerUtils::set_request_reply(Reply::r_502, t_req);
+    return;
+  }
+
+  StringUtils::StringVector ids = StringUtils::split(t_arg, ",");
+  UserChats user_chats;
+
+  for( auto &id : ids) {
+     UserChat uc = m_pg.search_user_chat_by(id, "id");
+
+     if(uc.empty()){
+       ControllerUtils::set_request_reply(Reply::r_305, std::string(id), t_req);
+       return;
+     }
+     user_chats.push_back(uc);
+  }
+
+  // this makes the code slower but we want to chat if the ID exists before updating.
+  for(auto &chat : user_chats){
+     if(!chat.delivered()) { // only updates undelivered chats.
+     m_pg.set_user_chat_to_delivered(chat);
+     }
+
+  }
+
+  ControllerUtils::set_request_reply(Reply::r_200, t_req);
+}
+
 /** PRIVATE **/
 
-void  ChatControllers::get_chats (std::string &t_arg, Request &t_req, const bool t_pending){
+void  ChatControllers::get_chats(std::string &t_arg, Request &t_req, const bool t_pending){
   User user = m_pg.search_user_by(t_req.m_address, "address");
 
 
