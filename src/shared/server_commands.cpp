@@ -7,7 +7,9 @@ const std::unordered_map<std::string, ServerCommand::name>
         {"LIST", List},     {"SEARCH", Search},
         {"ADD", Add},       {"REMOVE", Remove},
         {"PING", Ping},     {"AVAILABLE", Available},
-        {"EXIT", Exit},
+        {"EXIT", Exit},     {"SEND", Send},
+        {"CHAT", Chat },    {"PENDING", Pending },
+        {"DELIVERED", Delivered}
     };
 ServerCommand::name ServerCommand::get(const std::string &t_command) {
   try {
@@ -20,7 +22,12 @@ ServerCommand::name ServerCommand::get(const std::string &t_command) {
 }
 
 bool ServerCommand::has_argument(name t_cmd) {
-  return t_cmd < List ? true : false;
+  return t_cmd < List;
+}
+
+
+bool ServerCommand::has_zero_or_more_arguments(name t_cmd){
+  return t_cmd >= Pending;
 }
 
 int ServerCommand::argument_count(name t_cmd) {

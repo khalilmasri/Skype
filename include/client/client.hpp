@@ -2,9 +2,9 @@
 #define CLIENT_H
 
 #include "contacts.hpp"
+#include "accounts.hpp"
 #include "request.hpp"
 #include "job.hpp"
-#include "user.hpp"
 #include "active_conn.hpp"
 #include "IO_strategy.hpp"
 #include "text_io.hpp"
@@ -42,12 +42,19 @@ public:
     static void user_get_username           (Job &t_job);
     static void user_get_logged_in          (Job &t_job);
 
+    // Chat commands
+    static void chat_send                   (Job &t_job);
+    static void chat_get_pending            (Job &t_job);
+    static void chat_get_all                (Job &t_job);
+
 private:
-    inline static ActiveConn server_conn = ActiveConn(SERVER_PORT, new TextIO());
     inline static Request server_req = {};
+    inline static ActiveConn server_conn = ActiveConn(SERVER_PORT, new TextIO());
     
-    inline static User m_user;
+    inline static Accounts m_user;
     inline static Contacts m_contacts;
+    static const std::string m_CHAT_HEADER_DELIM;
+    static const std::string m_CHAT_FIELDS_DELIM;
 
     static bool valid_response(Reply::Code t_code, std::string& t_res);
 };

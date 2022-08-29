@@ -3,21 +3,26 @@
 #include "server_commands.hpp"
 #include "string_utils.hpp"
 #include "text_data.hpp"
+#include "chat_controllers.hpp"
 
 #include <tuple>
 
 Router::Router()
     : m_controllers({
-          {ServerCommand::List, Controllers::list},
-          {ServerCommand::Create, Controllers::create},
-          {ServerCommand::Login, Controllers::login},
-          {ServerCommand::Search, Controllers::search},
-          {ServerCommand::Add, Controllers::add},
-          {ServerCommand::Remove, Controllers::remove},
-          {ServerCommand::Ping, Controllers::ping},
-          {ServerCommand::Available, Controllers::available},
-          {ServerCommand::Exit, Controllers::exit}, // this when calling unexisting command
-          {ServerCommand::None, Controllers::none},
+          {ServerCommand::List, UserControllers::list},
+          {ServerCommand::Create, UserControllers::create},
+          {ServerCommand::Login, UserControllers::login},
+          {ServerCommand::Search, UserControllers::search},
+          {ServerCommand::Add, UserControllers::add},
+          {ServerCommand::Remove, UserControllers::remove},
+          {ServerCommand::Ping, UserControllers::ping},
+          {ServerCommand::Available, UserControllers::available},
+          {ServerCommand::Exit, UserControllers::exit}, 
+          {ServerCommand::Send, ChatControllers::send}, 
+          {ServerCommand::Pending, ChatControllers::pending}, 
+          {ServerCommand::Chat, ChatControllers::chat}, 
+          {ServerCommand::Delivered, ChatControllers::delivered}, 
+          {ServerCommand::None, UserControllers::none}, // this when calling unexisting command
       }){};
 
 void Router::route(Request &t_req) {
@@ -29,7 +34,7 @@ void Router::route(Request &t_req) {
 
   auto [command, arguments] = parse(t_req);
 
-  if (!is_loggedin(command, t_req)) { // checks if IP address exists in the database. If not, user has not logged in
+  if (!is_loggedin(command, t_req)) { // checks if IP exists in the database. If not, user has not logged in.
     return;
   }
 
@@ -51,6 +56,10 @@ Router::CmdTuple Router::parse(Request &t_req) {
 
 bool Router::validate_argument(ServerCommand::name t_cmd, std::string &t_arg) {
 
+  if(ServerCommand::has_zero_or_more_arguments(t_cmd)){
+    return true;
+  }
+
   if (ServerCommand::has_argument(t_cmd)) {
     return !t_arg.empty();
   } else {
@@ -63,9 +72,9 @@ bool Router::is_loggedin(ServerCommand::name t_cmd, Request &t_req) {
 
   if (t_cmd != ServerCommand::Login && 
       t_cmd != ServerCommand::Create && 
-       t_cmd != ServerCommand::Exit // exit command is allowed when not loggedin
+       t_cmd != ServerCommand::Exit // exit command is allowed when user is not logged in.
       ) {
-    return Controllers::ip_exists(t_req);
+    return UserControllers::ip_exists(t_req);
   }
 
   return true;
@@ -80,11 +89,11 @@ void Router::invalid_command(Request &t_req){
 /** TESTS **/
 
 TEST_CASE(
-    "Router & Controllers (Postgres must be install to run these tests)") {
+    "Router & Controllers (Postgres must be installed to run these tests)") {
 
   Router router;
   Postgres pg; // just to check was written to database
-               //
+               
   SUBCASE("LIST Users contacts") {
     Request req;
     req.m_address = "123.453.3.1"; // must match user IP

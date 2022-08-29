@@ -1,4 +1,5 @@
 
+DROP TABLE IF EXISTS chats;
 DROP TABLE IF EXISTS contacts;
 DROP TABLE IF EXISTS users;
 
@@ -50,3 +51,27 @@ VALUES (3, 2);
 
 INSERT INTO contacts(user_id, contact_id)
 VALUES (2, 1);
+
+
+CREATE TABLE IF NOT EXISTS chats (
+     id BIGSERIAL NOT NULL PRIMARY KEY,
+     created_at DATE NOT NULL DEFAULT CURRENT_DATE,
+     sender_id INT NOT NULL,
+     recipient_id INT NOT NULL,
+     delivered BOOLEAN NOT NULL
+     text TEXT,
+);
+
+ALTER TABLE chats 
+  ADD FOREIGN KEY (sender_id)
+  REFERENCES users (id);
+
+ALTER TABLE chats 
+  ADD FOREIGN KEY (recipient_id)
+  REFERENCES users (id);
+
+INSERT INTO chats(sender_id, recipient_id, text, delivered)
+VALUES (1, 2, 'hello who is your day today, friend?', false );
+
+INSERT INTO chats(sender_id, recipient_id, text, delivered)
+VALUES (2, 1, 'Great, thanks for asking!', false );

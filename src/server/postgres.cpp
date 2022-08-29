@@ -38,6 +38,47 @@ Users Postgres::list_users() {
 
 /* */
 
+UserChats Postgres::list_user_chats(const User &t_user, const bool t_pending, const User &t_sender) {
+  UserChats user_chats;
+
+  try {
+    pqxx::work transaction(m_conn);
+
+    std::string query = "SELECT DISTINCT id, created_at, sender_id, text, delivered"
+                        " FROM chats WHERE";
+
+    query += " recipient_id = " + std::to_string(t_user.id());
+
+    if (!t_sender.empty()) {
+      query += " AND sender_id = " + std::to_string(t_sender.id());
+    }
+
+    if (t_pending) {
+      query += " AND delivered = FALSE";
+    }
+
+    query += " ORDER BY created_at ASC;";
+
+    pqxx::result res = transaction.exec(query);
+    transaction.commit();
+
+    res.for_each([&user_chats, &t_user](int id, std::string created_at, int sender_id,
+                                          std::string text, bool delivered) {
+          user_chats.push_back(
+              UserChat(id, created_at, sender_id, t_user.id(), text, delivered));
+        });
+
+  } catch (const std::exception &err) {
+    LOG_ERR("%s", err.what());
+  }
+
+  return user_chats;
+}
+
+/* */
+
+/* */
+
 Users Postgres::list_user_contacts(const User &t_user) {
 
   AggregatedQueryResult result;
@@ -125,6 +166,32 @@ User Postgres::search_user_contact(const User &t_user,
   return User(id, username, password, online, address);
 }
 
+
+UserChat Postgres::search_user_chat_by(const std::string &t_term, const char *t_field){
+
+  std::tuple<int, std::string, int, int,  bool, std::string> results;
+
+  try {
+    pqxx::work transaction(m_conn);
+
+    std::string query ="SELECT * FROM chats WHERE " + std::string(t_field);
+    query += " = " + t_term;
+
+    pqxx::row row = transaction.exec1(query);
+
+    transaction.commit();
+    row.to(results);
+
+  } catch (const std::exception &err) {
+    LOG_ERR("%s", err.what());
+    return UserChat(); // return empty user
+  }
+
+  auto [id, created_at, sender, recipient, delivered, text] = results;
+
+  return UserChat(id, created_at, sender, recipient, text, delivered);
+}
+
 bool Postgres::user_contact_exists(const User &t_user, const User &t_contact) {
   pqxx::row row;
   try {
@@ -141,7 +208,7 @@ bool Postgres::user_contact_exists(const User &t_user, const User &t_contact) {
     return false;
   }
 
-    return row.size() == 0 ? false : true;
+  return row.size() == 0 ? false : true;
 }
 
 /* */
@@ -173,6 +240,36 @@ bool Postgres::add_user(const User &t_user) {
 
   return true;
 }
+
+/* */
+
+bool Postgres::add_user_chat(const UserChat &t_chat) {
+  LOG_ERR("Cannot add an empty user.");
+
+  if (t_chat.empty()) {
+    return false;
+  }
+  try {
+    pqxx::work transaction(m_conn);
+
+    std::string query =
+        "INSERT INTO chats (sender_id, recipient_id, text, delivered) VALUES (";
+    query += transaction.quote(t_chat.sender()) + ",";
+    query += transaction.quote(t_chat.recipient()) + ",";
+    query += transaction.quote(t_chat.text()) + ",";
+    query += (t_chat.delivered() ? std::string("TRUE") : std::string("FALSE")) +
+             ");";
+
+    transaction.exec(query);
+    transaction.commit();
+
+  } catch (const std::exception &err) {
+    LOG_ERR("%s", err.what());
+    return false;
+  }
+
+  return true;
+};
 
 /* */
 
@@ -251,15 +348,16 @@ bool Postgres::remove_user_contact(const User &t_user, const User &t_contact) {
 
 /* */
 
-bool Postgres::update(const User &t_user) {
+bool Postgres::update_user(const User &t_user) {
   if (t_user.empty()) {
-    LOG_ERR("Cannot remove an empty user.");
+    LOG_ERR("Cannot update an empty user.");
 
     return false;
   }
+
   try {
     pqxx::work transaction(m_conn);
-    transaction.exec(update_query(t_user, transaction));
+    transaction.exec(update_user_query(t_user, transaction));
     transaction.commit();
 
   } catch (const std::exception &err) {
@@ -269,6 +367,32 @@ bool Postgres::update(const User &t_user) {
 
   return true;
 }
+
+
+bool Postgres::set_user_chat_to_delivered(const UserChat &t_user_chat) {
+  if (t_user_chat.empty()) {
+    LOG_ERR("Cannot update an empty chat.");
+    return false;
+  }
+
+  try {
+    pqxx::work transaction(m_conn);
+    std::string query = "UPDATE chats set delivered = TRUE WHERE ";
+    query += "id = " + transaction.quote(t_user_chat.id()) + ";" ;
+
+    transaction.exec(query);
+    transaction.commit();
+
+  } catch (const std::exception &err) {
+    LOG_ERR("%s", err.what());
+    return false;
+  }
+
+  return true;
+}
+
+
+
 
 bool Postgres::logoff(const User &t_user) {
 
@@ -314,7 +438,7 @@ Users Postgres::result_to_users(AggregatedQueryResult &&t_result) {
 
 /* */
 
-std::string Postgres::update_query(const User &t_user,
+std::string Postgres::update_user_query(const User &t_user,
                                    pqxx::work &t_transaction) const {
 
   std::string query = "UPDATE users SET ";
@@ -340,6 +464,7 @@ std::string Postgres::update_query(const User &t_user,
   query += " WHERE id = " + t_transaction.quote(t_user.id()) + ";";
   return query;
 }
+
 
 std::string Postgres::list_contacts_query(const User &t_user,
                                           pqxx::work &t_transaction) const {
@@ -524,7 +649,7 @@ TEST_CASE("Postgres (ensure that you have postgres setup)") {
     User u = pg.search_user_by("pedro", "username"); // search for user we added
     bool res = u.update(to_update, User::Username);  // update object
     CHECK(res == true);
-    pg.update(u); // update record
+    pg.update_user(u); // update record
 
     // search for updated record
     User u2 = pg.search_user_by("marco", "username");
@@ -534,7 +659,7 @@ TEST_CASE("Postgres (ensure that you have postgres setup)") {
     // update back to what it was
     res = u2.update(username, User::Username);
     CHECK(res == true);
-    pg.update(u2);
+    pg.update_user(u2);
 
     // check if it is like it was before
     User u3 = pg.search_user_by("pedro", "username");
