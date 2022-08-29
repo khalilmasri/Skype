@@ -115,22 +115,13 @@ void WelcomeGui::hide_group(QString t_group)
 
 bool WelcomeGui::check_input(QString t_username, QString t_password)
 {
-    if ( "" == t_username)
+
+    if ( "" == t_username || "" == t_password)
     {
         return false;
     }
 
-    if ( "" == t_password)
-    {
-         return false;
-    }
-
-    if ( MIN_LEN > t_password.size())
-    {
-        return false;
-    }
-
-    if ( MIN_LEN > t_username.size())
+    if ( MIN_LEN > t_password.size() || MIN_LEN > t_username.size())
     {
         return false;
     }

@@ -1,4 +1,4 @@
-#include "user.hpp"
+#include "accounts.hpp"
 #include "logger.hpp"
 #include "reply.hpp"
 #include "string_utils.hpp"
@@ -13,7 +13,7 @@
 
 /* Public */
 
-bool User::register_user(ActiveConn& t_conn, Request& t_req) {
+bool Accounts::register_user(ActiveConn& t_conn, Request& t_req) {
     
     std::string response = "";
     std::string command = "CREATE " + m_username + " " + m_password; 
@@ -36,7 +36,7 @@ fail:
     return false;
 }
 
-bool User::login(ActiveConn& t_conn, Request& t_req) {
+bool Accounts::login(ActiveConn& t_conn, Request& t_req) {
 
     std::string response = "";
     std::string command = "LOGIN " + m_username + " " + m_password; 
@@ -57,34 +57,35 @@ bool User::login(ActiveConn& t_conn, Request& t_req) {
     m_password = "";
     
     return t_req.m_valid; 
+
 fail:
     return false;
 }
 
-bool User::set_username(std::string& t_username) {
+bool Accounts::set_username(std::string& t_username) {
 
     m_username = t_username;
 
     return true;
 }
 
-bool User::set_password(std::string& t_password) {
+bool Accounts::set_password(std::string& t_password) {
 
     m_password = t_password;
 
     return true;
 }
 
-std::string User::get_username(){
+std::string Accounts::get_username(){
     return m_username;
 }
 
-bool User::get_logged_in(){
+bool Accounts::get_logged_in(){
     return m_logged_in;
 }
 
 /* Private */
-bool User::valid_response(Reply::Code t_code, std::string& t_res){
+bool Accounts::valid_response(Reply::Code t_code, std::string& t_res){
 
     std::string code = Reply::get_message(t_code);
     auto found = t_res.find(code);
