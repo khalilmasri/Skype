@@ -44,7 +44,7 @@ UserChats Postgres::list_user_chats(const User &t_user, const bool t_pending, co
   try {
     pqxx::work transaction(m_conn);
 
-    std::string query = "SELECT DISTINCT id, created_at, sender_id, text, delivered"
+    std::string query = "SELECT DISTINCT id, created_at, sender_id, recipient_id, text, delivered"
                         " FROM chats WHERE";
 
     query += " ( recipient_id = " + std::to_string(t_user.id());
@@ -69,10 +69,10 @@ UserChats Postgres::list_user_chats(const User &t_user, const bool t_pending, co
     pqxx::result res = transaction.exec(query);
     transaction.commit();
 
-    res.for_each([&user_chats, &t_user](int id, std::string created_at, int sender_id,
+    res.for_each([&user_chats](int id, std::string created_at, int sender_id, int recipient_id,
                                           std::string text, bool delivered) {
           user_chats.push_back(
-              UserChat(id, created_at, sender_id, t_user.id(), text, delivered));
+              UserChat(id, created_at, sender_id, recipient_id, text, delivered));
         });
 
   } catch (const std::exception &err) {
