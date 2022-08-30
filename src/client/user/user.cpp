@@ -132,7 +132,4 @@ int Accounts::set_id(ActiveConn& t_conn, Request& t_req)
     m_id = stoi(pair);
 
     return true;
-
-fail:
-    return false;
 }

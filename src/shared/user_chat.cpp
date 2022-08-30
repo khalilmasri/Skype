@@ -70,13 +70,14 @@ void UserChat::set_delivered(bool t_delivered) { m_delivered = t_delivered ;}
 
 std::string UserChat::created_at_date() const {
    auto[date, _] = StringUtils::split_first(m_created_at);
-   LOG_INFO("%s", date.c_str());
    return date;
 }
 
 std::string UserChat::created_at_time() const {
-   auto[_, time] = StringUtils::split_first(m_created_at);
-   LOG_INFO("%s", time.c_str());
+    auto [_, time_long] = StringUtils::split_first(m_created_at);
+    auto [hours, time_rest] = StringUtils::split_first(time_long, ":");
+    auto [minutes, __] = StringUtils::split_first(time_rest, ":");
+    std::string time = hours + ":" + minutes;
    return time;
 }
 
@@ -117,7 +118,6 @@ template <typename T> T UserChat::get_field(std::string &t_field) {
   }
 
   if (t_field == "created_at") {
-    LOG_INFO(m_created_at); 
     return m_created_at;
   }
 

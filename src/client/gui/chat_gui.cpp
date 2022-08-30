@@ -20,6 +20,8 @@
 bool first_refresh = true;
 bool first_display = true;
 QTimer *timer = new QTimer();
+QString TODAY = "";
+QString YESTERDAY = "";
 
 ChatGui::ChatGui(QWidget *parent) :
     QDialog(parent),
@@ -41,10 +43,6 @@ ChatGui::ChatGui(QWidget *parent) :
 
 ChatGui::~ChatGui()
 {
-    // for ( auto &chat : m_contact_chat)
-    // {
-    //     delete chat;
-    // }
     delete m_ui;
     delete timer;
 }
@@ -56,6 +54,8 @@ void ChatGui::init()
     m_ui->chat_group->hide();
     refresh();
     JobBus::handle({Job::GETUSER});
+    TODAY =  QDateTime::currentDateTime().toString(QLatin1String("yyyy-MM-dd"));
+    YESTERDAY =  QDateTime::currentDateTime().addDays(-1).toString(QLatin1String("yyyy-MM-dd"));
 }
 
 void ChatGui::job_set_user(Job &t_job)
@@ -180,20 +180,28 @@ void ChatGui::job_load_chat(Job &t_job)
 
     for (auto &chat : t_job.m_chats)
     {   
-        QTime time = QTime::fromString(QString::fromStdString(chat.created_at_time()), "hh:mm");
-        qDebug() << time.toString();
-        std::cout << chat.created_at_time() << std::endl;
-        std::cout << chat.created_at() << std::endl;
-        // QString sent_time = QString::fromStdString(chat.created_at_time());
-        // sent_time = QTime::fromString(sent_time, "hh:mm").toString();
+        std::string time;
+        if ( TODAY == QString::fromStdString(chat.created_at_date()))
+        {
+            time = "Today " + chat.created_at_time();
+        } else if ( YESTERDAY == QString::fromStdString(chat.created_at_date()))
+        {
+            time = "Yesterday " + chat.created_at_time();
+        }else
+        {
+            time = chat.created_at_date() + " " + chat.created_at_time();
+        }
+
         if ( chat.sender() == m_user_id)
         {
-            //m_contact_chat[chat.recipient()].append(QString::fromStdString(chat.created_at_date()) + " " + sent_time );
+            m_contact_chat[chat.recipient()].append(m_user);
+            m_contact_chat[chat.recipient()].append(QString::fromStdString(time));
             m_contact_chat[chat.recipient()].append(QString::fromStdString(chat.text()+ "\n"));
         }
         else
         {
-            m_contact_chat[chat.sender()].append(QString::fromStdString(chat.created_at()));
+            m_contact_chat[chat.sender()].append(m_contact_list[chat.sender()]);
+            m_contact_chat[chat.sender()].append(QString::fromStdString(time));
             m_contact_chat[chat.sender()].append(QString::fromStdString(chat.text()+ "\n"));
         }
 
@@ -217,8 +225,6 @@ void ChatGui::job_send_msg(Job &t_job)
        return;
    }
 
-        std::cout << "here\n";
-
    QString user = m_current_selected.data(Qt::DisplayRole).toString();
    auto contact = m_contact_list.key(user);
 
@@ -226,9 +232,10 @@ void ChatGui::job_send_msg(Job &t_job)
    {
        return;
    }
-
-    m_contact_chat[t_job.m_intValue].append(t_job.m_time);
+    m_contact_chat[t_job.m_intValue].append(m_user);
+    m_contact_chat[t_job.m_intValue].append("Today " + t_job.m_time);
     m_contact_chat[t_job.m_intValue].append(QString::fromStdString(t_job.m_string + "\n"));
+    
     display_chat(user);
 }
 
@@ -243,7 +250,7 @@ void ChatGui::refresh()
     }
 
     JobBus::handle({Job::LIST});
-    JobBus::handle({Job::PENDING});
+    //JobBus::handle({Job::PENDING});
 }
 
 void ChatGui::send_msg()
@@ -252,7 +259,7 @@ void ChatGui::send_msg()
         return;
     }
 
-    QString time = QDateTime::currentDateTime().toString(QLatin1String("yyyy-MM-dd hh:mm"));
+    QString time = QDateTime::currentDateTime().toString(QLatin1String("hh:mm"));
     QString user = m_current_selected.data(Qt::DisplayRole).toString();
     auto contact = m_contact_list.key(user);
 
@@ -272,10 +279,10 @@ void ChatGui::send_msg()
     m_ui->message_txt->setText("");
 }
 
-void ChatGui::display_chat(QString &t_user)
+void ChatGui::display_chat(QString &t_contact)
 {
 
-    auto contact = m_contact_list.key(t_user);
+    auto contact = m_contact_list.key(t_contact);
 
     if (contact == 0)
     {
