@@ -13,14 +13,14 @@ elif [ "$1" == "--gen-extra" ]; then
 elif [ "$1" == "--gen-base" ]; then
     cd build; cmake -DCMAKE_EXTRA_FLAGS=OFF ../; make; cd ..
 
-elif [ "$1" == "--gen-nowarning" ]; then
-    cd build; cmake -DCMAKE_WARNING_FLAGS=OFF ../; make; cd ..
-
-elif [ "$1" == "--gen-warning" ]; then
-    cd build; cmake -DCMAKE_WARNING_FLAGS=ON ../; make; cd ..
-
 elif [ "$1" == "--make" ]; then
     cd build; make; cd .. 
+
+elif [ "$1" == "--client" ]; then
+    cd build; cmake -DSERVER=OFF -DCLIENT=ON ../; make; cd .. 
+
+elif [ "$1" == "--server" ]; then
+    cd build; cmake -DSERVER=ON -DCLIENT=OFF ../; make; cd .. 
 
 elif [ "$1" == "--run" ]; then
     
