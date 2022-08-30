@@ -7,7 +7,6 @@
 #include <QMessageBox>
 #include <QString>
 #include <string>
-#include <thread>
 #include <iostream>
 
 Program::Program()
@@ -19,12 +18,14 @@ Program::Program()
     m_bus = JobBus::get_instance();
 
     // Connecting Signals and slots
-    QObject::connect(m_bus, &JobBus::job_ready, this, &Program::handle_response);
+    
     
     // Creating the GUI
     m_welcome = new WelcomeGui();
     m_chat = new ChatGui();
-
+    QObject::connect(m_bus, &JobBus::job_ready, this, &Program::handle_response);
+    QObject::connect(m_chat, &ChatGui::ready_signal, m_welcome, &WelcomeGui::stop_loading);
+    QObject::connect(m_welcome, &WelcomeGui::stopped_loading, this, &Program::switch_to_chat);
     m_welcome->show();
 }
 
@@ -48,7 +49,7 @@ void Program::create_job_dispatcher()
         {Job::SEARCH,           [this](Job &t_job){m_chat->job_search(t_job);}},
         {Job::GETID,            [this](Job &t_job){m_chat->job_set_id(t_job);}},
         {Job::CHAT,             [this](Job &t_job){m_chat->job_load_chat(t_job);}},
-        {Job::PENDING,          [this](Job &t_job){m_chat->job_load_chat(t_job);}},
+        {Job::PENDING,          [this](Job &t_job){m_chat->job_load_pending(t_job);}},
         {Job::SEND,             [this](Job &t_job ){m_chat->job_send_msg(t_job);}}
     };
 }
@@ -78,7 +79,12 @@ void Program::job_login(Job &t_job)
     }
 
     JobBus::create({Job::GETID});
+    m_welcome->load_screen();
+    m_chat->init();
+}
+
+void Program::switch_to_chat()
+{
     m_welcome->hide();
     m_chat->show();
-    m_chat->init();
 }

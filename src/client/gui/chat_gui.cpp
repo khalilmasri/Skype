@@ -19,6 +19,7 @@
 
 bool first_refresh = true;
 bool first_display = true;
+bool pending_allowed = false;
 QTimer *timer = new QTimer();
 QString TODAY = "";
 QString YESTERDAY = "";
@@ -52,8 +53,8 @@ ChatGui::~ChatGui()
 void ChatGui::init()
 {
     m_ui->chat_group->hide();
-    refresh();
     JobBus::create({Job::GETUSER});
+    JobBus::create({Job::LIST});   
     TODAY =  QDateTime::currentDateTime().toString(QLatin1String("yyyy-MM-dd"));
     YESTERDAY =  QDateTime::currentDateTime().addDays(-1).toString(QLatin1String("yyyy-MM-dd"));
 }
@@ -71,6 +72,7 @@ void ChatGui::job_set_user(Job &t_job)
 
 void ChatGui::job_disp_contact(Job &t_job)
 {
+    LOG_INFO("Displaying contacts");
     if ( false == t_job.m_valid)
     {
         return;
@@ -85,6 +87,7 @@ void ChatGui::job_disp_contact(Job &t_job)
 
     if ( true == first_display)
     {
+        LOG_INFO("Sending Chat job to bus");
         JobBus::create({Job::CHAT});
         first_display = false;
     }
@@ -168,7 +171,7 @@ void ChatGui::reject()
 void ChatGui::job_load_chat(Job &t_job)
 {
 
-    if ( false == t_job.m_valid)
+     if ( false == t_job.m_valid)
     {
         return;
     }
@@ -178,36 +181,27 @@ void ChatGui::job_load_chat(Job &t_job)
         return;
     }
 
-    for (auto &chat : t_job.m_chats)
-    {   
-        std::string time;
-        if ( TODAY == QString::fromStdString(chat.created_at_date()))
-        {
-            time = "Today " + chat.created_at_time();
-        } else if ( YESTERDAY == QString::fromStdString(chat.created_at_date()))
-        {
-            time = "Yesterday " + chat.created_at_time();
-        }else
-        {
-            time = chat.created_at_date() + " " + chat.created_at_time();
-        }
+    LOG_INFO("Loading Chat first time...");
+    load_chat(t_job.m_chats);
+    pending_allowed = true;
+    LOG_INFO("Loaded Chat first time");
+    refresh();
+    emit ready_signal();
+}
 
-        if ( chat.sender() == m_user_id)
-        {
-            m_contact_chat[chat.recipient()].append(m_user);
-            m_contact_chat[chat.recipient()].append(QString::fromStdString(time) + "\n" + QString::fromStdString(chat.text()+ "\n"));           
-        }
-        else
-        {
-            m_contact_chat[chat.sender()].append(m_contact_list[chat.sender()]);
-            m_contact_chat[chat.sender()].append(QString::fromStdString(time) + "\n" + QString::fromStdString(chat.text()+ "\n"));           
-        }
-
-        if ( false == chat.delivered())
-        {
-            JobBus::create({Job::DELIVERED, std::to_string(chat.id())});
-        } 
+void ChatGui::job_load_pending(Job &t_job)
+{
+     if ( false == t_job.m_valid)
+    {
+        return;
     }
+
+    if ( true == t_job.m_chats.empty() || true == m_contact_list.empty())
+    {
+        return;
+    }
+
+    load_chat(t_job.m_chats);
 
     QString user = m_current_selected.data(Qt::DisplayRole).toString();
     display_chat(user);
@@ -250,8 +244,8 @@ void ChatGui::refresh()
         first_refresh = false;
     }
 
-    JobBus::create({Job::LIST});
     JobBus::create({Job::PENDING});
+    JobBus::create({Job::LIST});  
 }
 
 void ChatGui::send_msg()
@@ -293,6 +287,39 @@ void ChatGui::display_chat(QString &t_contact)
     m_ui->chat_box->scrollToBottom();
 }
 
+void ChatGui::load_chat(QVector<Chat> &chats)
+{
+    for (auto &chat : chats)
+    {   
+        std::string time;
+        if ( TODAY == QString::fromStdString(chat.created_at_date()))
+        {
+            time = "Today " + chat.created_at_time();
+        } else if ( YESTERDAY == QString::fromStdString(chat.created_at_date()))
+        {
+            time = "Yesterday " + chat.created_at_time();
+        }else
+        {
+            time = chat.created_at_date() + " " + chat.created_at_time();
+        }
+
+        if ( chat.sender() == m_user_id)
+        {
+            m_contact_chat[chat.recipient()].append(m_user);
+            m_contact_chat[chat.recipient()].append(QString::fromStdString(time) + "\n" + QString::fromStdString(chat.text()+ "\n"));           
+        }
+        else
+        {
+            m_contact_chat[chat.sender()].append(m_contact_list[chat.sender()]);
+            m_contact_chat[chat.sender()].append(QString::fromStdString(time) + "\n" + QString::fromStdString(chat.text()+ "\n"));           
+        }
+
+        if ( false == chat.delivered())
+        {
+            JobBus::create({Job::DELIVERED, std::to_string(chat.id())});
+        } 
+    }
+}
 
 // ***** SLOTS ***** //
 

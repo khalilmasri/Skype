@@ -37,6 +37,7 @@ private: // Methods
 
     // slots
     void job_login(Job &t_job);
+    void switch_to_chat();
 };
 
 #endif // PROGRAM_H

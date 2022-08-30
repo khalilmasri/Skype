@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>644</width>
-    <height>520</height>
+    <width>640</width>
+    <height>511</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,8 +17,8 @@
    <widget class="QGroupBox" name="Login_group">
     <property name="geometry">
      <rect>
-      <x>150</x>
-      <y>140</y>
+      <x>140</x>
+      <y>130</y>
       <width>341</width>
       <height>221</height>
      </rect>
@@ -124,8 +124,8 @@
    <widget class="QGroupBox" name="Register_group">
     <property name="geometry">
      <rect>
-      <x>140</x>
-      <y>120</y>
+      <x>130</x>
+      <y>110</y>
       <width>361</width>
       <height>261</height>
      </rect>
@@ -249,6 +249,20 @@
      </item>
     </layout>
    </widget>
+   <widget class="QLabel" name="loading">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>130</y>
+      <width>201</width>
+      <height>221</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
+    </property>
+   </widget>
+   <zorder>loading</zorder>
    <zorder>Register_group</zorder>
    <zorder>Login_group</zorder>
   </widget>
@@ -257,7 +271,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>644</width>
+     <width>640</width>
      <height>22</height>
     </rect>
    </property>

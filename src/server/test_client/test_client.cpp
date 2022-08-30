@@ -52,8 +52,8 @@ int main(void) {
 
   std::cout << "attempting to connect to server..." << std::endl;
 // >>>>>>> client_to_server
-  //std::string addr = "206.189.0.154";
-  std::string addr = "127.0.0.1";
+  std::string addr = "206.189.0.154";
+  //std::string addr = "127.0.0.1";
   Request req = conn.connect_socket(addr);
 
   if (!req.m_valid) {
@@ -86,10 +86,10 @@ int main(void) {
 
       std::string response = TextData::to_string(req.data());
 
-      if(c == "CHAT"){
-        chat_get_pending(response);
-        continue;
-      }
+      // if(c == "CHAT"){
+      //   chat_get_pending(response);
+      //   continue;
+      // }
     
       std::cout << response << std::endl;
     };

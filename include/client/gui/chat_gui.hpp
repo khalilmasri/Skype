@@ -34,6 +34,7 @@ public:
     void job_search(Job &t_job);
     void job_remove_user(Job &t_job);
     void job_load_chat(Job &t_job);
+    void job_load_pending(Job &t_job);
     void job_set_id(Job &t_job);
     void job_send_msg(Job &t_job);
 
@@ -46,6 +47,7 @@ private slots:
 signals:
     void on_send_clicked();
     void on_message_txt_returnPressed();
+    void ready_signal();
 
 private: // Variables
     Ui::ChatGui *m_ui;
@@ -59,7 +61,7 @@ private: // Variables
 private: // Methods
     void reject() override;
     void refresh();
-    void load_chat(QString t_contact);
+    void load_chat(QVector<Chat> &chats);
     void send_msg();
     void display_chat(QString &t_user);
 };

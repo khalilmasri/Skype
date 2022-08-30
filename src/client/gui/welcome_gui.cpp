@@ -8,6 +8,9 @@
 #include <QDesktopWidget>
 #include <QStyle>
 #include <QLineEdit>
+#include <QMovie>
+#include <QLabel>
+#include <QTimer>
 
 WelcomeGui::WelcomeGui(QWidget *parent)
     : QMainWindow(parent)
@@ -52,7 +55,21 @@ void WelcomeGui::job_create(Job &t_job)
     QMessageBox::information(nullptr, "register", "Account creation was success!");
     hide_group("register");
 }
-  
+
+void WelcomeGui::load_screen()
+{
+    m_ui->Login_group->hide();
+    m_ui->Register_group->hide();
+    m_loading_gif = new QMovie("../misc/gif/loading.gif");
+    m_ui->loading->setMovie(m_loading_gif);
+    m_loading_gif->start();
+}
+
+void WelcomeGui::stop_loading()
+{
+    m_loading_gif->stop();
+    emit stopped_loading();
+}
 // ***** PRIVATE ***** //
 
 void WelcomeGui::login()
@@ -99,20 +116,6 @@ fail:
     QMessageBox::information(nullptr, "Registeration", "Passwords don't match");
 }
 
-void WelcomeGui::hide_group(QString t_group)
-{
-    if ( "register" == t_group )
-    {
-        m_ui->Register_group->hide();
-        m_ui->Login_group->show();
-    }
-    else
-    {
-        m_ui->Login_group->hide();
-        m_ui->Register_group->show();
-    }
-}
-
 bool WelcomeGui::check_input(QString t_username, QString t_password)
 {
 
@@ -127,6 +130,23 @@ bool WelcomeGui::check_input(QString t_username, QString t_password)
     }
 
     return true;
+}
+
+void WelcomeGui::hide_group(QString t_group)
+{
+    if ( "register" == t_group )
+    {
+        m_ui->Register_group->hide();
+        m_ui->Login_group->show();
+    }
+    else if ( "both" == t_group )
+    {
+        
+    }else
+    {
+        m_ui->Login_group->hide();
+        m_ui->Register_group->show();
+    }
 }
 
 // ***** SLOTS ***** //
