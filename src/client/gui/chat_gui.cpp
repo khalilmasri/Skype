@@ -248,7 +248,7 @@ void ChatGui::refresh()
     }
 
     JobBus::handle({Job::LIST});
-    //JobBus::handle({Job::PENDING});
+    JobBus::handle({Job::PENDING});
 }
 
 void ChatGui::send_msg()
