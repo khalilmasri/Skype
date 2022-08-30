@@ -13,7 +13,6 @@
 #include <map>
 #include <vector>
 
-#define MAX_MSG_LEN 1024
 #define SERVER_PORT 5000
 
 class Client {

@@ -27,7 +27,8 @@ bool TextIO::receive(Request &t_req) const {
 
     char *received = new char[msg_length + 1]; // +1 for \0
     memset(received, 0, msg_length + 1);
-    int res = recv(t_req.m_socket, received, msg_length, 0);
+    
+    int res = recv(t_req.m_socket, received, msg_length, MSG_WAITALL);
     valid_msg = is_valid(res, "could not receive message.");
 
     if (valid_msg) {

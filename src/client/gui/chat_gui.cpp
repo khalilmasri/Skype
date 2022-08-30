@@ -78,6 +78,7 @@ void ChatGui::job_disp_contact(Job &t_job)
         return;
     }
 
+    m_ui->contact_list->clear();
     for ( auto &contact : t_job.m_contact_list)
     {
         m_ui->contact_list->addItem(contact);
@@ -91,7 +92,7 @@ void ChatGui::job_disp_contact(Job &t_job)
         JobBus::create({Job::CHAT});
         first_display = false;
     }
-
+   
     if (m_current_selected.isValid() == true)
     {
         m_ui->contact_list->selectionModel()->select(m_current_selected,  QItemSelectionModel::Select);

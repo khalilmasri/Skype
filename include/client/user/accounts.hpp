@@ -6,8 +6,6 @@
 
 #include <string>
 
-#define MAX_MSG_LEN 1024
-
 class Accounts {
 
 public:
