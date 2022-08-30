@@ -195,14 +195,12 @@ void ChatGui::job_load_chat(Job &t_job)
         if ( chat.sender() == m_user_id)
         {
             m_contact_chat[chat.recipient()].append(m_user);
-            m_contact_chat[chat.recipient()].append(QString::fromStdString(time));
-            m_contact_chat[chat.recipient()].append(QString::fromStdString(chat.text()+ "\n"));
+            m_contact_chat[chat.recipient()].append(QString::fromStdString(time) + "\n" + QString::fromStdString(chat.text()+ "\n"));           
         }
         else
         {
             m_contact_chat[chat.sender()].append(m_contact_list[chat.sender()]);
-            m_contact_chat[chat.sender()].append(QString::fromStdString(time));
-            m_contact_chat[chat.sender()].append(QString::fromStdString(chat.text()+ "\n"));
+            m_contact_chat[chat.sender()].append(QString::fromStdString(time) + "\n" + QString::fromStdString(chat.text()+ "\n"));           
         }
 
         if ( false == chat.delivered())
@@ -289,6 +287,11 @@ void ChatGui::display_chat(QString &t_contact)
         return;
     }
 
+    // for (auto &row : m_contact_chat[contact])
+    // {
+    //     qDebug() << row;
+    //     if ( )
+    // }
     m_ui->chat_box->setModel(new QStringListModel(m_contact_chat[contact]));
 }
 
