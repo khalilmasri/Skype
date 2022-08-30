@@ -68,6 +68,31 @@ std::size_t UserChat::text_length() const { return m_text.size(); }
 
 void UserChat::set_delivered(bool t_delivered) { m_delivered = t_delivered ;}
 
+std::string UserChat::created_at_date() const {
+   auto[date, _] = StringUtils::split_first(m_created_at);
+   return date;
+}
+
+std::string UserChat::created_at_time() const {
+   auto[_, time] = StringUtils::split_first(m_created_at);
+   return time;
+}
+
+
+bool UserChat::operator<(UserChat &rhs){
+   auto[date_left, time_left] = StringUtils::split_first(m_created_at);
+   auto[date_right, time_right] = StringUtils::split_first(rhs.created_at());
+
+   return compare_dates(date_left, date_right, LesserThan) && compare_times(time_left, time_right , LesserThan);
+}
+
+bool UserChat::operator>(UserChat &rhs){
+   auto[date_left, time_left] = StringUtils::split_first(m_created_at);
+   auto[date_right, time_right] = StringUtils::split_first(rhs.created_at());
+
+   return compare_dates(date_left, date_right, GreaterThan) && compare_times(time_left, time_right , GreaterThan);
+}
+
 std::string UserChat::to_string() const {
   return std::to_string(m_id) + m_FIELD_DELIM + m_created_at + m_FIELD_DELIM +
          std::to_string(m_sender) + m_FIELD_DELIM +
@@ -122,3 +147,68 @@ void UserChat::from_string(std::string &t_chat) {
     LOG_ERR("Error Attempting to load a UserChat from:  %s", t_chat.c_str());
   }
 }
+
+bool UserChat::compare_dates(std::string &t_lfs, std::string &t_rhs, ComparisonType t_comp_type){
+
+     StringUtils::StringVector left = StringUtils::split(t_lfs, "-");
+     StringUtils::StringVector right = StringUtils::split(t_rhs, "-");
+
+     if(left.size() != right.size()){
+       LOG_ERR("Bad date comparison '%s' and '%s'. Dates must have the same number o fields.", t_lfs.c_str(), t_rhs.c_str());
+       return false;
+      }
+
+     return compare(left, right, t_comp_type);
+}
+
+bool UserChat::compare_times(std::string &t_lfs, std::string &t_rhs, ComparisonType t_comp_type){
+
+     const int SECS = 2;
+     StringUtils::StringVector left = StringUtils::split(t_lfs, ":");
+     StringUtils::StringVector right = StringUtils::split(t_rhs, ":");
+
+     if(left.size() != 3 || right.size() != 3){
+       LOG_ERR("Bad time comparison '%s' and '%s'. Time must have 3 fields HH:MM:SS.mm.", t_lfs.c_str(), t_rhs.c_str());
+       return false;
+      }
+
+     auto[left_secs, left_milli] = StringUtils::split_first(left[SECS], ".");
+     left[SECS] = left_secs;
+     left.push_back(left_milli);
+
+    auto[right_secs, right_milli] = StringUtils::split_first(right[SECS], ".");
+     right[SECS] = right_secs;
+     right.push_back(right_milli);
+
+     return compare(left, right, t_comp_type);
+}
+
+
+bool UserChat::compare(std::vector<std::string> &t_lhs, std::vector<std::string> &t_rhs, ComparisonType t_comp_type) {
+
+     for(std::size_t i = 0; i < t_lhs.size(); i++ ){
+         try {
+           int l = std::stoi(t_lhs[i]);
+           int r = std::stoi(t_rhs[i]);
+
+    //      std::cout << std::string("left:") << l << std::string(" right: ") << r << std::endl;
+
+           if(t_comp_type == GreaterThan && l < r){
+      //        std::cout << "WAS FALSE" << std::endl;
+               return false;
+           }
+
+           if(t_comp_type == LesserThan && l > r){
+        //      std::cout << "WAS FALSE" << std::endl;
+               return false;
+           }
+
+         } catch(...){
+          LOG_ERR("Bad date field '%s' and '%s'. It must be a number.", t_lhs[i].c_str(), t_rhs[i].c_str());
+          return false;
+         }
+     }
+
+      return true;
+}
+

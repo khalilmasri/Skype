@@ -219,6 +219,7 @@ bool Postgres::add_user(const User &t_user) {
     LOG_ERR("Cannot add an empty user.");
     return false;
   }
+
   try {
     pqxx::work transaction(m_conn);
 
@@ -244,9 +245,9 @@ bool Postgres::add_user(const User &t_user) {
 /* */
 
 bool Postgres::add_user_chat(const UserChat &t_chat) {
-  LOG_ERR("Cannot add an empty user.");
 
   if (t_chat.empty()) {
+   LOG_ERR("Cannot add a new chat as an empty user.");
     return false;
   }
   try {
