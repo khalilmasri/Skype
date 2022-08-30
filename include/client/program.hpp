@@ -21,9 +21,6 @@ public:
     Program();
     ~Program();
 
-signals:
-    void wrapping();
-
 private slots:
     void handle_response();
 

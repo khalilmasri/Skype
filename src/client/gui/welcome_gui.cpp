@@ -63,9 +63,9 @@ void WelcomeGui::login()
 
     FAIL_IF( false == check_input(username, password));
 
-    JobBus::handle({Job::SETUSER, username.toStdString()});
-    JobBus::handle({Job::SETPASS, password.toStdString()});
-    JobBus::handle({Job::LOGIN});
+    JobBus::create({Job::SETUSER, username.toStdString()});
+    JobBus::create({Job::SETPASS, password.toStdString()});
+    JobBus::create({Job::LOGIN});
 
     return;
 fail:
@@ -88,9 +88,9 @@ void WelcomeGui::create()
         return;
     }
 
-    JobBus::handle({Job::SETUSER, username.toStdString()});
-    JobBus::handle({Job::SETPASS, password.toStdString()});
-    JobBus::handle({Job::CREATE});
+    JobBus::create({Job::SETUSER, username.toStdString()});
+    JobBus::create({Job::SETPASS, password.toStdString()});
+    JobBus::create({Job::CREATE});
 
     return;
 

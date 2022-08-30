@@ -38,6 +38,7 @@ JobBus* JobBus::get_instance()
 {
     if(!m_instance){
         m_instance = new JobBus();
+        QObject::connect(m_instance, &JobBus::new_job, m_instance, &JobBus::handle);
     }
 
     return m_instance;
@@ -47,34 +48,28 @@ JobBus::~JobBus()
 {
 }
 
-void JobBus::handle(Job &&t_job){
+void JobBus::create(Job &&t_job){
     m_jobQ.push(t_job);
+    emit JobBus::get_instance()->new_job();
 }
 
-void JobBus::handle(Job &t_job){
+void JobBus::create(Job &t_job){
     m_jobQ.push(t_job);
+    emit JobBus::get_instance()->new_job();
 }
 
-void JobBus::main_loop() {
+void JobBus::handle() {
    
     Job job;
 
-    while (false == m_exit_loop) {
-
-        if (false == m_jobQ.empty()) {
-            
-            bool res = m_jobQ.pop_try(job);
-
-            if ( false == res ) {
-                continue;
-            }
-
-            m_JobBus_map[job.m_command](job);
-            m_resQ.push(job);
-            emit JobBus::get_instance()->job_ready();
-        }
-    }
-  
+    if (false == m_jobQ.empty()) {      
+        
+        m_jobQ.pop_try(job);
+        m_JobBus_map[job.m_command](job);
+        m_resQ.push(job);
+        
+        emit JobBus::get_instance()->job_ready();
+    }  
 }
 
 bool JobBus::get_response(Job &t_job){

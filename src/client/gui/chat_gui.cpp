@@ -53,7 +53,7 @@ void ChatGui::init()
 {
     m_ui->chat_group->hide();
     refresh();
-    JobBus::handle({Job::GETUSER});
+    JobBus::create({Job::GETUSER});
     TODAY =  QDateTime::currentDateTime().toString(QLatin1String("yyyy-MM-dd"));
     YESTERDAY =  QDateTime::currentDateTime().addDays(-1).toString(QLatin1String("yyyy-MM-dd"));
 }
@@ -85,7 +85,7 @@ void ChatGui::job_disp_contact(Job &t_job)
 
     if ( true == first_display)
     {
-        JobBus::handle({Job::CHAT});
+        JobBus::create({Job::CHAT});
         first_display = false;
     }
 
@@ -133,7 +133,7 @@ void ChatGui::job_search(Job &t_job)
         return;
     }
 
-    JobBus::handle({Job::ADD, t_job.m_argument});
+    JobBus::create({Job::ADD, t_job.m_argument});
 }
 
 void ChatGui::job_remove_user(Job &t_job)
@@ -205,9 +205,11 @@ void ChatGui::job_load_chat(Job &t_job)
 
         if ( false == chat.delivered())
         {
-            JobBus::handle({Job::DELIVERED, std::to_string(chat.id())});
+            JobBus::create({Job::DELIVERED, std::to_string(chat.id())});
         } 
     }
+
+    display_chat(m_current_selected.data(Qt::DisplayRole).toString());
 }
 
 void ChatGui::job_set_id(Job &t_job)
@@ -247,8 +249,8 @@ void ChatGui::refresh()
         first_refresh = false;
     }
 
-    JobBus::handle({Job::LIST});
-    JobBus::handle({Job::PENDING});
+    JobBus::create({Job::LIST});
+    JobBus::create({Job::PENDING});
 }
 
 void ChatGui::send_msg()
@@ -272,14 +274,13 @@ void ChatGui::send_msg()
     job.m_intValue = contact;
     job.m_string = m_ui->message_txt->text().toStdString();
     job.m_argument = std::to_string(job.m_intValue) + " " + job.m_string;
-    JobBus::handle(job);
+    JobBus::create(job);
 
     m_ui->message_txt->setText("");
 }
 
 void ChatGui::display_chat(QString &t_contact)
 {
-
     auto contact = m_contact_list.key(t_contact);
 
     if (contact == 0)
@@ -334,5 +335,5 @@ void ChatGui::on_remove_clicked()
         return;
     }
 
-    JobBus::handle({Job::REMOVE, user});
+    JobBus::create({Job::REMOVE, user});
 }

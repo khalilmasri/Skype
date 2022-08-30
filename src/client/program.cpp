@@ -19,16 +19,7 @@ Program::Program()
     m_bus = JobBus::get_instance();
 
     // Connecting Signals and slots
-    QObject::connect(this, &Program::wrapping, m_bus, &JobBus::set_exit);
     QObject::connect(m_bus, &JobBus::job_ready, this, &Program::handle_response);
-
-    // Creating the main thread loop
-    //m_bus_loop = QThread::create(&JobBus::main_loop);
-    //m_bus_loop->start();
-
-    //
-    std::thread m_bus_loop(&JobBus::main_loop);
-    m_bus_loop.detach();
     
     // Creating the GUI
     m_welcome = new WelcomeGui();
@@ -39,8 +30,6 @@ Program::Program()
 
 Program::~Program()
 {
-    emit wrapping(); // sending a signal to close the bus
-    //m_bus_loop->wait();
     delete m_welcome;
     delete m_chat;
 }
@@ -88,7 +77,7 @@ void Program::job_login(Job &t_job)
         return;
     }
 
-    JobBus::handle({Job::GETID});
+    JobBus::create({Job::GETID});
     m_welcome->hide();
     m_chat->show();
     m_chat->init();

@@ -23,15 +23,16 @@ public:
     ~JobBus();
     
     // Job functionality 
-    static void main_loop();
+    static void handle();
     static void set_exit();
-    static void handle(Job &t_job);
-    static void handle(Job &&t_job);
+    static void create(Job &t_job);
+    static void create(Job &&t_job);
     static bool get_response(Job &t_job);
     static JobBus* get_instance();
 
 signals:
     void job_ready();
+    void new_job();
 
 private:
     static bool             m_exit_loop;
