@@ -28,10 +28,10 @@ endif()
 
 message("Enabled flags = ${CMAKE_CXX_FLAGS}")
 
-option(client "Build only client" OFF)
-option(server "Build only server" OFF)
+option(CLIENT "Build only client" OFF)
+option(SERVER "Build only server" OFF)
 
-if(NOT client AND NOT server)
+if(NOT CLIENT AND NOT SERVER)
 
     set(SERVER_PATH src/server)
     add_subdirectory(${SERVER_PATH})
@@ -40,14 +40,14 @@ if(NOT client AND NOT server)
     set(SERVER_TESTER_PATH src/server/test_client)
     add_subdirectory(${SERVER_TESTER_PATH})
 
-elseif(NOT client)
+elseif(NOT CLIENT)
 
     set(SERVER_PATH src/server)
     add_subdirectory(${SERVER_PATH})
     set(SERVER_TESTER_PATH src/server/test_client)
     add_subdirectory(${SERVER_TESTER_PATH})
 
-elseif(NOT server)
+elseif(NOT SERVER)
 
     set(CLIENT_PATH src/client)
     add_subdirectory(${CLIENT_PATH})
