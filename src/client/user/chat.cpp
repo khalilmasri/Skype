@@ -117,8 +117,8 @@ fail:
 QVector<Chat> Chat::parse_chat(std::string &t_response)
 {
   auto [code, response] = StringUtils::split_first(t_response);
-  auto [header, content] = StringUtils::split_first(response, m_HEADER_DELIM);
-  StringUtils::IntVector positions = StringUtils::split_to_ints(header, m_FIELD_DELIM);
+  auto [header, content] = StringUtils::split_first(response, m_HEADER_DELIM); // :
+  StringUtils::IntVector positions = StringUtils::split_to_ints(header, m_FIELD_DELIM); // ,
   StringUtils::StringVector chats = StringUtils::split_at(content, positions);
 
   QVector<Chat> user_chats;

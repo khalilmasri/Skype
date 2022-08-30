@@ -90,15 +90,16 @@ StringUtils::StringTuple StringUtils::split_at(const std::string &s,
   return StringTuple{s.substr(0, t_pos), s.substr(t_pos, s.size())};
 }
 
-StringUtils::StringVector StringUtils::split_at(const std::string &s,
-                                                const IntVector &t_pos) {
+StringUtils::StringVector StringUtils::split_at(const std::string &s, const IntVector &t_pos) {
 
   StringVector vec;
 
   for (std::size_t i = 0; i < t_pos.size() - 1; i++) {
-    vec.push_back(s.substr(t_pos.at(i), t_pos.at(i + 1)));
+    int start = t_pos.at(i);
+    int end = t_pos.at(i + 1) - t_pos.at(i);
+    vec.push_back(s.substr(start, end));
   }
-
+      
   return vec;
 }
 

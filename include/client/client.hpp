@@ -40,6 +40,7 @@ public:
 
     static void user_get_username           (Job &t_job);
     static void user_get_logged_in          (Job &t_job);
+    static void user_get_id                 (Job &t_job);
 
     // Chat commands
     static void chat_send                   (Job &t_job);

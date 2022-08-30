@@ -25,11 +25,27 @@ void chat_get_pending(std::string &response){
   StringUtils::StringVector chats = StringUtils::split_at(content, positions);
 
   std::vector<UserChat> user_chats;
+
   for(auto &chat : chats) {
      UserChat user_chat;
      user_chat.from_string(chat); // this methods loads string from server into the object.
      user_chats.push_back(user_chat);
   }
+
+    if(chats.size() >= 2){
+          auto chat1 = user_chats.at(0);
+          auto chat2 = user_chats.at(1);
+
+          std::cout <<  chat1.created_at() << " < " << chat2.created_at() << std::endl;
+          bool res = chat1 < chat2;
+
+          bool res2 = chat1 > chat2;
+         std::cout << res << std::endl;
+
+         std::cout <<  chat1.created_at() << " > " << chat2.created_at() << std::endl;
+         std::cout << res2 << std::endl;
+
+    }
 
   for(auto &user_chat : user_chats ){
        std::cout << user_chat.id() << std::endl;  // the id of the chat
@@ -86,10 +102,10 @@ int main(void) {
 
       std::string response = TextData::to_string(req.data());
 
- //     if(c == "PENDING"){
-  //      chat_get_pending(response);
-    //    continue;
-    //  }
+      if(c == "PENDING"){
+        chat_get_pending(response);
+        continue;
+      }
     
       std::cout << response << std::endl;
     };

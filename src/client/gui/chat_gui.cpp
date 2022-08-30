@@ -41,10 +41,10 @@ ChatGui::ChatGui(QWidget *parent) :
 
 ChatGui::~ChatGui()
 {
-    for ( auto &chat : m_contact_chat)
-    {
-        delete chat;
-    }
+    // for ( auto &chat : m_contact_chat)
+    // {
+    //     delete chat;
+    // }
     delete m_ui;
     delete timer;
 }
@@ -54,7 +54,7 @@ ChatGui::~ChatGui()
 void ChatGui::init()
 {
     m_ui->chat_group->hide();
-    refresh_contacts();
+    refresh();
     JobBus::handle({Job::GETUSER});
 }
 
@@ -76,7 +76,6 @@ void ChatGui::job_disp_contact(Job &t_job)
         return;
     }
 
-
     for ( auto &contact : t_job.m_contact_list)
     {
         m_ui->contact_list->addItem(contact);
@@ -86,7 +85,6 @@ void ChatGui::job_disp_contact(Job &t_job)
 
     if ( true == first_display)
     {
-        setup_contact_chat(FIRST);
         JobBus::handle({Job::CHAT});
         first_display = false;
     }
@@ -114,7 +112,6 @@ void ChatGui::job_add_user(Job &t_job)
     m_ui->contact_list->clearSelection();
     m_current_selected = m_ui->contact_list->currentIndex();
     m_ui->chat_group->hide();
-    setup_contact_chat(ADD, user);
 }
 
 void ChatGui::job_search(Job &t_job)
@@ -154,7 +151,6 @@ void ChatGui::job_remove_user(Job &t_job)
     m_ui->contact_list->clearSelection();
     m_current_selected = m_ui->contact_list->currentIndex();
     m_ui->chat_group->hide();
-    setup_contact_chat(REMOVE, user);
 }
 
 void ChatGui::reject()
@@ -172,58 +168,82 @@ void ChatGui::reject()
 void ChatGui::job_load_chat(Job &t_job)
 {
 
+    if ( false == t_job.m_valid)
+    {
+        return;
+    }
+
     if ( true == t_job.m_chats.empty() || true == m_contact_list.empty())
     {
         return;
     }
 
     for (auto &chat : t_job.m_chats)
-    {
-        QStringList data;
-        data = m_contact_chat[chat.id()]->stringList();
-        data.append(QString::fromStdString(chat.created_at()));
-        data.append(QString::fromStdString(chat.text()));
-        m_contact_chat[chat.id()]->setStringList(data);
+    {   
+        QTime time = QTime::fromString(QString::fromStdString(chat.created_at_time()), "hh:mm");
+        qDebug() << time.toString();
+        std::cout << chat.created_at_time() << std::endl;
+        std::cout << chat.created_at() << std::endl;
+        // QString sent_time = QString::fromStdString(chat.created_at_time());
+        // sent_time = QTime::fromString(sent_time, "hh:mm").toString();
+        if ( chat.sender() == m_user_id)
+        {
+            //m_contact_chat[chat.recipient()].append(QString::fromStdString(chat.created_at_date()) + " " + sent_time );
+            m_contact_chat[chat.recipient()].append(QString::fromStdString(chat.text()+ "\n"));
+        }
+        else
+        {
+            m_contact_chat[chat.sender()].append(QString::fromStdString(chat.created_at()));
+            m_contact_chat[chat.sender()].append(QString::fromStdString(chat.text()+ "\n"));
+        }
+
+        if ( false == chat.delivered())
+        {
+            JobBus::handle({Job::DELIVERED, std::to_string(chat.id())});
+        } 
     }
 }
 
-//void ChatGui::job_send_msg(Job &t_job)
-//{
-//    if ( false == t_job.m_valid)
-//    {
-//        return;
-//    }
-//
-//    QString user = m_current_selected.data(Qt::DisplayRole).toString();
-//    auto contact = m_contact_list.key(user);
-//
-//    if ( 0 == contact)
-//    {
-//        return;
-//    }
-//
-//    auto chat = m_contact_chat.find(m_contact_chat[contact].id());
-//
-//    if ( chat == m_contact_chat.end())
-//    {
-//        return;
-//    }
-//
-//}
+void ChatGui::job_set_id(Job &t_job)
+{
+    m_user_id = t_job.m_intValue;
+}
 
+void ChatGui::job_send_msg(Job &t_job)
+{   
 
+   if ( false == t_job.m_valid)
+   {
+       return;
+   }
+
+        std::cout << "here\n";
+
+   QString user = m_current_selected.data(Qt::DisplayRole).toString();
+   auto contact = m_contact_list.key(user);
+
+   if ( 0 == contact)
+   {
+       return;
+   }
+
+    m_contact_chat[t_job.m_intValue].append(t_job.m_time);
+    m_contact_chat[t_job.m_intValue].append(QString::fromStdString(t_job.m_string + "\n"));
+    display_chat(user);
+}
 
 // ***** PRIVATE ***** //
 
-void ChatGui::refresh_contacts()
+void ChatGui::refresh()
 {
     if (first_refresh == true ){
-        connect(timer, &QTimer::timeout, this, &ChatGui::refresh_contacts);
+        connect(timer, &QTimer::timeout, this, &ChatGui::refresh);
         timer->start(2000);
         first_refresh = false;
     }
 
     JobBus::handle({Job::LIST});
+    JobBus::handle({Job::PENDING});
 }
 
 void ChatGui::send_msg()
@@ -232,11 +252,21 @@ void ChatGui::send_msg()
         return;
     }
 
-    QString time = QDateTime::currentDateTime().toString(QLatin1String("hh:mm"));
+    QString time = QDateTime::currentDateTime().toString(QLatin1String("yyyy-MM-dd hh:mm"));
+    QString user = m_current_selected.data(Qt::DisplayRole).toString();
+    auto contact = m_contact_list.key(user);
 
+    if ( 0 == contact)
+    {
+        return;
+    }
+    
     Job job;
     job.m_command = Job::SEND;
     job.m_time = time;
+    job.m_intValue = contact;
+    job.m_string = m_ui->message_txt->text().toStdString();
+    job.m_argument = std::to_string(job.m_intValue) + " " + job.m_string;
     JobBus::handle(job);
 
     m_ui->message_txt->setText("");
@@ -247,40 +277,14 @@ void ChatGui::display_chat(QString &t_user)
 
     auto contact = m_contact_list.key(t_user);
 
-
     if (contact == 0)
     {
         return;
     }
 
-    m_ui->chat_box->setModel(m_contact_chat[contact]);
+    m_ui->chat_box->setModel(new QStringListModel(m_contact_chat[contact]));
 }
 
-void ChatGui::setup_contact_chat(Setup t_type, const QString &t_contact)
-{
-    if (FIRST == t_type)
-    {
-        for (auto it = m_contact_list.begin(); it != m_contact_list.end(); it++)
-        {
-            m_contact_chat[it.key()] = new QStringListModel;
-        }
-    }
-
-    auto contact = m_contact_list.key(t_contact);
-    if (contact == 0)
-    {
-        return;
-    }
-
-    if (ADD == t_type)
-    {
-        m_contact_chat[contact] = new QStringListModel;
-    }
-    else if (REMOVE == t_type)
-    {
-        delete m_contact_chat[contact];
-    }
-}
 
 // ***** SLOTS ***** //
 

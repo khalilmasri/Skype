@@ -34,6 +34,8 @@ public:
     void job_search(Job &t_job);
     void job_remove_user(Job &t_job);
     void job_load_chat(Job &t_job);
+    void job_set_id(Job &t_job);
+    void job_send_msg(Job &t_job);
 
 private slots:
     void on_contact_list_clicked(const QModelIndex &index);
@@ -48,19 +50,18 @@ signals:
 private: // Variables
     Ui::ChatGui *m_ui;
     QString     m_user;
+    int         m_user_id;
     QModelIndex m_current_selected;
     ContactGui  m_contact;
     QHash<int, QString> m_contact_list;
-    QHash<int, QStringListModel*> m_contact_chat;
-    enum Setup{FIRST, ADD, REMOVE};
+    QHash<int, QStringList> m_contact_chat;
 
 private: // Methods
     void reject() override;
-    void refresh_contacts();
+    void refresh();
     void load_chat(QString t_contact);
     void send_msg();
     void display_chat(QString &t_user);
-    void setup_contact_chat(Setup t_type, const QString &t_contact = QString(""));
 };
 
 #endif // CHAT_HPP

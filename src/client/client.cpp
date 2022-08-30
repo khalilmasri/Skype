@@ -124,6 +124,17 @@ void Client::user_get_logged_in(Job &t_job) {
    t_job.m_valid = m_user.get_logged_in();
 }
 
+void Client::user_get_id(Job &t_job)
+{
+   t_job.m_intValue = m_user.get_id();
+   
+   if ( -1 != t_job.m_intValue)
+   {
+      t_job.m_valid = true;
+   }
+}
+
+// CHAT Methods
 
 void Client::chat_send(Job &t_job){
    m_server_req.set_data(new TextData(t_job.m_argument));
@@ -136,7 +147,7 @@ void Client::chat_get_pending(Job &t_job){
    
    t_job.m_chats = m_chat.get_pending(m_server_conn, m_server_req);
 
-   if (false != t_job.m_chats.empty())
+   if (false == t_job.m_chats.empty())
    {
       t_job.m_valid = true;
    }
@@ -148,7 +159,7 @@ void Client::chat_get_all(Job &t_job){
 
    t_job.m_chats = m_chat.get_all(m_server_conn, m_server_req);
 
-   if (false != t_job.m_chats.empty())
+   if (false == t_job.m_chats.empty())
    {
       t_job.m_valid = true;
    }

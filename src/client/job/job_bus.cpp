@@ -27,7 +27,11 @@ JobBus::JobsMap JobBus::m_JobBus_map {
     {Job::LOGGED,           Client::user_get_logged_in},
     {Job::GETUSER,          Client::user_get_username},
     {Job::DISP_CONTACTS,    Client::contact_get_contacts},
-    {Job::CHAT,             Client::chat_get_all}
+    {Job::CHAT,             Client::chat_get_all},
+    {Job::SEND,             Client::chat_send},
+    {Job::GETID,            Client::user_get_id},
+    {Job::DELIVERED,        Client::chat_deliver},
+    {Job::PENDING,          Client::chat_get_pending}
 };
 
 JobBus* JobBus::get_instance()

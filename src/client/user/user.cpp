@@ -56,6 +56,7 @@ bool Accounts::login(ActiveConn& t_conn, Request& t_req) {
     m_logged_in = true;
     m_password = "";
     
+    set_id(t_conn, t_req);
     return t_req.m_valid; 
 
 fail:
@@ -84,6 +85,11 @@ bool Accounts::get_logged_in(){
     return m_logged_in;
 }
 
+int Accounts::get_id()
+{
+    return m_id;
+}
+
 /* Private */
 bool Accounts::valid_response(Reply::Code t_code, std::string& t_res){
 
@@ -94,5 +100,39 @@ bool Accounts::valid_response(Reply::Code t_code, std::string& t_res){
         return true;
     }
 
+    return false;
+}
+
+int Accounts::set_id(ActiveConn& t_conn, Request& t_req)
+{
+    std::string response = "";
+    std::string command = "SEARCH " + m_username;
+
+    t_req.set_data(new TextData(command));
+
+    t_conn.respond(t_req);
+    t_conn.receive(t_req);
+
+    if (false == t_req.m_valid)
+    {
+        LOG_ERR("Couldn't get user ID");
+        return false;
+    }
+    
+    response = TextData::to_string(t_req.data());
+    if ( false == valid_response(Reply::r_201, response))
+    {
+        LOG_ERR("Response error to get user ID");
+        return false;
+    }
+
+    auto [user_id, rest] = StringUtils::split_first(response, ",");
+    auto[key, pair] =  StringUtils::split_first(user_id, ":");
+
+    m_id = stoi(pair);
+
+    return true;
+
+fail:
     return false;
 }

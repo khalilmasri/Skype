@@ -55,11 +55,11 @@ VALUES (2, 1);
 
 CREATE TABLE IF NOT EXISTS chats (
      id BIGSERIAL NOT NULL PRIMARY KEY,
-     created_at DATE NOT NULL DEFAULT CURRENT_DATE,
+     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(2),
      sender_id INT NOT NULL,
      recipient_id INT NOT NULL,
-     delivered BOOLEAN NOT NULL
-     text TEXT,
+     delivered BOOLEAN NOT NULL,
+     text TEXT
 );
 
 ALTER TABLE chats 

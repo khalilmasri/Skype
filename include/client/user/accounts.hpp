@@ -20,12 +20,15 @@ public:
     
     std::string get_username();
     bool get_logged_in();
+    int get_id();
 
 private:
     std::string m_username;
     std::string m_password;
+    int m_id;
 
     bool m_logged_in = false;
+    int  set_id(ActiveConn& t_conn, Request& t_req);
     bool valid_response(Reply::Code t_code, std::string& t_res);
 };
 

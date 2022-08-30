@@ -6,6 +6,7 @@
 #include <QObject>
 #include <QMessageBox>
 #include <QString>
+#include <string>
 
 #include <iostream>
 
@@ -53,7 +54,10 @@ void Program::create_job_dispatcher()
         {Job::ADD,              [this](Job &t_job){m_chat->job_add_user(t_job);}},
         {Job::REMOVE,           [this](Job &t_job){m_chat->job_remove_user(t_job);}},
         {Job::SEARCH,           [this](Job &t_job){m_chat->job_search(t_job);}},
-        {Job::CHAT,             [this](Job &t_job){m_chat->job_load_chat(t_job);}}
+        {Job::GETID,            [this](Job &t_job){m_chat->job_set_id(t_job);}},
+        {Job::CHAT,             [this](Job &t_job){m_chat->job_load_chat(t_job);}},
+        {Job::PENDING,          [this](Job &t_job){m_chat->job_load_chat(t_job);}},
+        {Job::SEND,             [this](Job &t_job ){m_chat->job_send_msg(t_job);}}
     };
 }
 
@@ -81,6 +85,7 @@ void Program::job_login(Job &t_job)
         return;
     }
 
+    JobBus::handle({Job::GETID});
     m_welcome->hide();
     m_chat->show();
     m_chat->init();
