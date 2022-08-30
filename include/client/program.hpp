@@ -32,7 +32,7 @@ private: // Variables
     JobBus      *m_bus;
     WelcomeGui  *m_welcome;
     ChatGui     *m_chat;
-    QThread     *m_bus_loop;
+    //QThread     *m_bus_loop;
     JobDispatch m_table;
 
 private: // Methods

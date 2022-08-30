@@ -286,12 +286,7 @@ void ChatGui::display_chat(QString &t_contact)
     {
         return;
     }
-
-    // for (auto &row : m_contact_chat[contact])
-    // {
-    //     qDebug() << row;
-    //     if ( )
-    // }
+  
     m_ui->chat_box->setModel(new QStringListModel(m_contact_chat[contact]));
 }
 
