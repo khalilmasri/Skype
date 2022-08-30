@@ -33,15 +33,15 @@ void chat_get_pending(std::string &response){
   }
 
   for(auto &user_chat : user_chats ){
-   //    std::cout << user_chat.id() << std::endl;  // the id of the chat
+    //    std::cout << user_chat.id() << std::endl;  // the id of the chat
     //   std::cout << user_chat.created_at() << std::endl;  // when the chat was created (according to server timezone.)
-       std::cout << user_chat.sender() << std::endl;  // the ID of the sender of the message.
-    //   std::cout << user_chat.recipient() << std::endl;  // the ID of the recipient
+       std::cout <<  user_chat.sender() << std::endl;  // the ID of the sender of the message.
+       std::cout << user_chat.recipient() << std::endl;  // the ID of the recipient
    //    std::cout << user_chat.delivered() << std::endl;  // has the message been delivered to the recipient?
    //    std::cout << user_chat.text() << std::endl; // the actual chat text.
    //    std::cout << user_chat.text_length() << std::endl; // the length of the chat text.
-    //   std::cout << user_chat.empty() << std::endl; // is the UserChat object empty?
-     //  std::cout << user_chat.to_string() << std::endl; // convert a userChat object to string with a `,` as delimiter.
+  //   std::cout << user_chat.empty() << std::endl; // is the UserChat object empty?
+   //  std::cout << user_chat.to_string() << std::endl; // convert a userChat object to string with a `,` as delimiter.
   }
 }
 
@@ -51,9 +51,8 @@ int main(void) {
   ActiveConn conn(5000, new TextIO());
 
   std::cout << "attempting to connect to server..." << std::endl;
-  // this is the server address
 // >>>>>>> client_to_server
- // std::string addr = "206.189.0.154";
+  //std::string addr = "206.189.0.154";
   std::string addr = "127.0.0.1";
   Request req = conn.connect_socket(addr);
 
