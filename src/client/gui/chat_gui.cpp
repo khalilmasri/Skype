@@ -209,7 +209,8 @@ void ChatGui::job_load_chat(Job &t_job)
         } 
     }
 
-    display_chat(m_current_selected.data(Qt::DisplayRole).toString());
+    QString user = m_current_selected.data(Qt::DisplayRole).toString();
+    display_chat(user);
 }
 
 void ChatGui::job_set_id(Job &t_job)
@@ -289,6 +290,7 @@ void ChatGui::display_chat(QString &t_contact)
     }
   
     m_ui->chat_box->setModel(new QStringListModel(m_contact_chat[contact]));
+    m_ui->chat_box->scrollToBottom();
 }
 
 
