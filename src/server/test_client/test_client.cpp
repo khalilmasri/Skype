@@ -32,31 +32,16 @@ void chat_get_pending(std::string &response){
      user_chats.push_back(user_chat);
   }
 
-    if(chats.size() >= 2){
-          auto chat1 = user_chats.at(0);
-          auto chat2 = user_chats.at(1);
-
-          std::cout <<  chat1.created_at() << " < " << chat2.created_at() << std::endl;
-          bool res = chat1 < chat2;
-
-          bool res2 = chat1 > chat2;
-         std::cout << res << std::endl;
-
-         std::cout <<  chat1.created_at() << " > " << chat2.created_at() << std::endl;
-         std::cout << res2 << std::endl;
-
-    }
-
   for(auto &user_chat : user_chats ){
-       std::cout << user_chat.id() << std::endl;  // the id of the chat
-       std::cout << user_chat.created_at() << std::endl;  // when the chat was created (according to server timezone.)
+   //    std::cout << user_chat.id() << std::endl;  // the id of the chat
+    //   std::cout << user_chat.created_at() << std::endl;  // when the chat was created (according to server timezone.)
        std::cout << user_chat.sender() << std::endl;  // the ID of the sender of the message.
-       std::cout << user_chat.recipient() << std::endl;  // the ID of the recipient
-       std::cout << user_chat.delivered() << std::endl;  // has the message been delivered to the recipient?
-       std::cout << user_chat.text() << std::endl; // the actual chat text.
-       std::cout << user_chat.text_length() << std::endl; // the length of the chat text.
-       std::cout << user_chat.empty() << std::endl; // is the UserChat object empty?
-       std::cout << user_chat.to_string() << std::endl; // convert a userChat object to string with a `,` as delimiter.
+    //   std::cout << user_chat.recipient() << std::endl;  // the ID of the recipient
+   //    std::cout << user_chat.delivered() << std::endl;  // has the message been delivered to the recipient?
+   //    std::cout << user_chat.text() << std::endl; // the actual chat text.
+   //    std::cout << user_chat.text_length() << std::endl; // the length of the chat text.
+    //   std::cout << user_chat.empty() << std::endl; // is the UserChat object empty?
+     //  std::cout << user_chat.to_string() << std::endl; // convert a userChat object to string with a `,` as delimiter.
   }
 }
 
@@ -102,7 +87,7 @@ int main(void) {
 
       std::string response = TextData::to_string(req.data());
 
-      if(c == "PENDING"){
+      if(c == "CHAT"){
         chat_get_pending(response);
         continue;
       }

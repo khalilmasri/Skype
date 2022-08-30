@@ -47,7 +47,7 @@ UserChats Postgres::list_user_chats(const User &t_user, const bool t_pending, co
     std::string query = "SELECT DISTINCT id, created_at, sender_id, text, delivered"
                         " FROM chats WHERE";
 
-    query += " recipient_id = " + std::to_string(t_user.id());
+    query += " ( recipient_id = " + std::to_string(t_user.id());
 
     if (!t_sender.empty()) {
       query += " AND sender_id = " + std::to_string(t_sender.id());
@@ -55,6 +55,13 @@ UserChats Postgres::list_user_chats(const User &t_user, const bool t_pending, co
 
     if (t_pending) {
       query += " AND delivered = FALSE";
+    }
+
+    query += " ) ";
+
+    // when command is a CHAT and no sender_id is provided return all chats for the current user + it's own chat messages.
+    if(!t_pending && t_sender.empty()){
+       query += " OR sender_id = " + std::to_string(t_user.id());
     }
 
     query += " ORDER BY created_at ASC;";
