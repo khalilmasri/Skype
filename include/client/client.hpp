@@ -51,9 +51,9 @@ private:
     inline static Request       m_server_req = {};
     inline static ActiveConn    m_server_conn = ActiveConn(SERVER_PORT, new TextIO());
     
-    inline static Accounts m_user;
-    inline static Contacts m_contacts;
-    inline static Chat     m_chat;
+    inline static Accounts      m_user;
+    inline static Contacts      m_contacts;
+    inline static Chat          m_chat;
 
     static bool valid_response(Reply::Code t_code, std::string& t_res);
 };

@@ -6,5 +6,6 @@
         <file>icons8-phone-32.png</file>
         <file>icons8-email-send-24.png</file>
         <file>icons8-search-50.png</file>
+        <file>notification.png</file>
     </qresource>
 </RCC>

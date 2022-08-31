@@ -32,7 +32,9 @@ struct Job {
         CHAT,
         PENDING,
         DELIVERED,
+        NOTIFICATION,
 
+        DISCARD,
         NONE,
     };
 
@@ -44,7 +46,7 @@ struct Job {
     int m_intValue = -1;
     QHash<int, QString> m_contact_list = {};
     QVector<Chat> m_chats = {};
-    QString m_time = "";
+    QString m_qstring = "";
 };
 
 

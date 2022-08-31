@@ -31,7 +31,7 @@ JobBus::JobsMap JobBus::m_JobBus_map {
     {Job::SEND,             Client::chat_send},
     {Job::GETID,            Client::user_get_id},
     {Job::DELIVERED,        Client::chat_deliver},
-    {Job::PENDING,          Client::chat_get_pending}
+    {Job::PENDING,          Client::chat_get_pending},
 };
 
 JobBus* JobBus::get_instance()
@@ -66,9 +66,12 @@ void JobBus::handle() {
         
         m_jobQ.pop_try(job);
         m_JobBus_map[job.m_command](job);
-        m_resQ.push(job);
-        
-        emit JobBus::get_instance()->job_ready();
+
+        if ( Job::DISCARD != job.m_command )
+        {
+            m_resQ.push(job);
+            emit JobBus::get_instance()->job_ready();
+        }
     }  
 }
 

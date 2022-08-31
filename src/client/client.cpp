@@ -13,9 +13,12 @@
 #include "user_chat.hpp"
 #include "string_utils.hpp"
 #include "chat.hpp"
+#include "notification.hpp"
 
 #include <iostream>
 #include <vector>
+#include <QThreadPool>
+#include <QRunnable>
 
 /* Public */
 
@@ -45,7 +48,7 @@ fail:
 
 Client::~Client(){
    LOG_INFO("Disconnecting from server");
-      
+   
    std::string command = "EXIT";
    m_server_req.set_data(new TextData(command));
 
@@ -56,7 +59,7 @@ Client::~Client(){
    LOG_INFO("Server reply => %s", response.c_str());
 
    close(m_server_conn.get_socket());
-
+   
    LOG_INFO("Client disconnected\n");
 }
 
@@ -163,8 +166,13 @@ void Client::chat_get_pending(Job &t_job){
    if (false == t_job.m_chats.empty())
    {
       t_job.m_valid = true;
+      LOG_DEBUG("Getting pending chats is done!");
+      return;
    }
-   LOG_DEBUG("Getting pending chats is done!");
+
+   LOG_DEBUG("No pending messages!");
+   t_job.m_valid = false;
+   t_job.m_command = Job::DISCARD;
 }
 
 void Client::chat_get_all(Job &t_job){

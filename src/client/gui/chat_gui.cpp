@@ -44,6 +44,7 @@ ChatGui::ChatGui(QWidget *parent) :
 
 ChatGui::~ChatGui()
 {
+    delete m_notification;
     delete m_ui;
     delete timer;
 }
@@ -52,6 +53,7 @@ ChatGui::~ChatGui()
 
 void ChatGui::init()
 {
+    m_notification = new Notification();
     m_ui->chat_group->hide();
     JobBus::create({Job::GETUSER});
     JobBus::create({Job::LIST});   
@@ -128,7 +130,7 @@ void ChatGui::job_search(Job &t_job)
         return;
     }
 
-    QMessageBox::StandardButton ret = QMessageBox::information(nullptr, "Search " + user,
+    QMessageBox::StandardButton ret = QMessageBox::question(nullptr, "Search " + user,
                                                                user + " was found, would you like to add him?",
                                                                QMessageBox::Cancel | QMessageBox::Ok);
 
@@ -159,7 +161,7 @@ void ChatGui::job_remove_user(Job &t_job)
 
 void ChatGui::reject()
 {
-  QMessageBox::StandardButton ret = QMessageBox::information(nullptr, "Closing MySkype", "Are you sure you want to close MySkype?",
+  QMessageBox::StandardButton ret = QMessageBox::question(nullptr, "Closing MySkype", "Are you sure you want to close MySkype?",
                                                              QMessageBox::Ok | QMessageBox::Cancel);
 
 
@@ -183,7 +185,7 @@ void ChatGui::job_load_chat(Job &t_job)
     }
 
     LOG_INFO("Loading Chat first time...");
-    load_chat(t_job.m_chats);
+    load_chat(t_job.m_chats, false);
     pending_allowed = true;
     LOG_INFO("Loaded Chat first time");
     refresh();
@@ -202,7 +204,7 @@ void ChatGui::job_load_pending(Job &t_job)
         return;
     }
 
-    load_chat(t_job.m_chats);
+    load_chat(t_job.m_chats, true);
 
     QString user = m_current_selected.data(Qt::DisplayRole).toString();
     display_chat(user);
@@ -229,7 +231,7 @@ void ChatGui::job_send_msg(Job &t_job)
        return;
    }
     m_contact_chat[t_job.m_intValue].append(m_user);
-    m_contact_chat[t_job.m_intValue].append("Today " + t_job.m_time);
+    m_contact_chat[t_job.m_intValue].append("Today " + t_job.m_qstring);
     m_contact_chat[t_job.m_intValue].append(QString::fromStdString(t_job.m_string + "\n"));
     
     display_chat(user);
@@ -266,7 +268,7 @@ void ChatGui::send_msg()
     
     Job job;
     job.m_command = Job::SEND;
-    job.m_time = time;
+    job.m_qstring = time;
     job.m_intValue = contact;
     job.m_string = m_ui->message_txt->text().toStdString();
     job.m_argument = std::to_string(job.m_intValue) + " " + job.m_string;
@@ -288,7 +290,7 @@ void ChatGui::display_chat(QString &t_contact)
     m_ui->chat_box->scrollToBottom();
 }
 
-void ChatGui::load_chat(QVector<Chat> &chats)
+void ChatGui::load_chat(QVector<Chat> &chats, bool t_notification)
 {
     for (auto &chat : chats)
     {   
@@ -310,9 +312,14 @@ void ChatGui::load_chat(QVector<Chat> &chats)
             m_contact_chat[chat.recipient()].append(QString::fromStdString(time) + "\n" + QString::fromStdString(chat.text()+ "\n"));           
         }
         else
-        {
+        {  
             m_contact_chat[chat.sender()].append(m_contact_list[chat.sender()]);
-            m_contact_chat[chat.sender()].append(QString::fromStdString(time) + "\n" + QString::fromStdString(chat.text()+ "\n"));           
+            m_contact_chat[chat.sender()].append(QString::fromStdString(time) + "\n" + QString::fromStdString(chat.text()+ "\n"));   
+             if ( true == t_notification)
+            {         
+                m_notification->setPopupText(m_contact_list[chat.sender()] + "\n" + QString::fromStdString(chat.text().substr(0,10)));
+                m_notification->show();       
+            }        
         }
 
         if ( false == chat.delivered())
@@ -358,9 +365,9 @@ void ChatGui::on_remove_clicked()
     QString q_user =  m_current_selected.data().toString();
     std::string user = q_user.toStdString();
 
-    QMessageBox::StandardButton ret = QMessageBox::information(nullptr, "Remove " + q_user, "Are you sure you want to remove " + q_user + "?",
-                                                               QMessageBox::Abort | QMessageBox::Ok);
-    if ( QMessageBox::Abort == ret )
+    QMessageBox::StandardButton ret = QMessageBox::question(nullptr, "Remove " + q_user, "Are you sure you want to remove " + q_user + "?",
+                                                               QMessageBox::Cancel | QMessageBox::Ok);
+    if ( QMessageBox::Cancel == ret )
     {
         return;
     }

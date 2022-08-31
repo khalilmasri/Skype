@@ -2,12 +2,14 @@
 #include "job_bus.hpp"
 #include "logger.hpp"
 #include "fail_if.hpp"
+#include "notification.hpp"
 
 #include <QObject>
 #include <QMessageBox>
 #include <QString>
 #include <string>
 #include <iostream>
+
 
 Program::Program()
 {

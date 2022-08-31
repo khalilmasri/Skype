@@ -6,6 +6,7 @@
 #include "contact_gui.hpp"
 #include "contacts.hpp"
 #include "chat.hpp"
+#include "notification.hpp"
 
 #include <QModelIndex>
 #include <QDialog>
@@ -50,18 +51,19 @@ signals:
     void ready_signal();
 
 private: // Variables
-    Ui::ChatGui *m_ui;
-    QString     m_user;
-    int         m_user_id;
-    QModelIndex m_current_selected;
-    ContactGui  m_contact;
-    QHash<int, QString> m_contact_list;
+    Ui::ChatGui             *m_ui;
+    QString                 m_user;
+    int                     m_user_id;
+    QModelIndex             m_current_selected;
+    ContactGui              m_contact;
+    Notification            *m_notification;
+    QHash<int, QString>     m_contact_list;
     QHash<int, QStringList> m_contact_chat;
 
 private: // Methods
     void reject() override;
     void refresh();
-    void load_chat(QVector<Chat> &chats);
+    void load_chat(QVector<Chat> &chats, bool t_notification);
     void send_msg();
     void display_chat(QString &t_user);
 };
