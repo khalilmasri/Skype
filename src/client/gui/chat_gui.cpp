@@ -44,7 +44,6 @@ ChatGui::ChatGui(QWidget *parent) :
 
 ChatGui::~ChatGui()
 {
-    delete m_notification;
     delete m_ui;
 }
 
