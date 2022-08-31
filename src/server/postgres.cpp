@@ -30,7 +30,7 @@ Users Postgres::list_users() {
     });
 
   } catch (const std::exception &err) {
-    LOG_ERR("%s", err.what());
+    LOG_DEBUG("%s", err.what());
   }
 
   return users;
@@ -76,7 +76,7 @@ UserChats Postgres::list_user_chats(const User &t_user, const bool t_pending, co
         });
 
   } catch (const std::exception &err) {
-    LOG_ERR("%s", err.what());
+    LOG_DEBUG("%s", err.what());
   }
 
   return user_chats;
@@ -98,7 +98,7 @@ Users Postgres::list_user_contacts(const User &t_user) {
     row.to(result);
 
   } catch (const std::exception &err) {
-    LOG_ERR("%s", err.what());
+    LOG_DEBUG("%s", err.what());
     return Users(); // returns empty User vector
   }
 
@@ -127,7 +127,7 @@ User Postgres::search_user_by_token(const std::string &t_token) {
     row.to(results);
 
   } catch (const std::exception &err) {
-    LOG_ERR("%s", err.what());
+    LOG_DEBUG("%s", err.what());
     return User(); // return empty user
   }
 
@@ -162,7 +162,7 @@ User Postgres::search_user_by(const std::string &t_term, const char *t_field) {
     row.to(results);
 
   } catch (const std::exception &err) {
-    LOG_ERR("%s", err.what());
+    LOG_DEBUG("%s", err.what());
     return User(); // return empty user
   }
 
@@ -195,7 +195,7 @@ User Postgres::search_user_contact(const User &t_user, const std::string &t_cont
     row.to(results);
 
   } catch (const std::exception &err) {
-    LOG_ERR("%s", err.what());
+    LOG_DEBUG("%s", err.what());
     return User(); // return empty user
   }
 
@@ -221,7 +221,7 @@ UserChat Postgres::search_user_chat_by(const std::string &t_term, const char *t_
     row.to(results);
 
   } catch (const std::exception &err) {
-    LOG_ERR("%s", err.what());
+    LOG_DEBUG("%s", err.what());
     return UserChat(); // return empty user
   }
 
@@ -242,7 +242,7 @@ bool Postgres::user_contact_exists(const User &t_user, const User &t_contact) {
     transaction.commit();
 
   } catch (const std::exception &err) {
-    LOG_ERR("%s", err.what());
+    LOG_DEBUG("%s", err.what());
     return false;
   }
 
@@ -254,7 +254,7 @@ bool Postgres::user_contact_exists(const User &t_user, const User &t_contact) {
 bool Postgres::add_user(const User &t_user) {
 
   if (t_user.empty()) {
-    LOG_ERR("Cannot add an empty user.");
+    LOG_DEBUG("Cannot add an empty user.");
     return false;
   }
 
@@ -273,7 +273,7 @@ bool Postgres::add_user(const User &t_user) {
     transaction.commit();
 
   } catch (const std::exception &err) {
-    LOG_ERR("%s", err.what());
+    LOG_DEBUG("%s", err.what());
     return false;
   }
 
@@ -285,7 +285,7 @@ bool Postgres::add_user(const User &t_user) {
 bool Postgres::add_user_chat(const UserChat &t_chat) {
 
   if (t_chat.empty()) {
-   LOG_ERR("Cannot add a new chat as an empty user.");
+   LOG_DEBUG("Cannot add a new chat as an empty user.");
     return false;
   }
   try {
@@ -303,7 +303,7 @@ bool Postgres::add_user_chat(const UserChat &t_chat) {
     transaction.commit();
 
   } catch (const std::exception &err) {
-    LOG_ERR("%s", err.what());
+    LOG_DEBUG("%s", err.what());
     return false;
   }
 
@@ -315,7 +315,7 @@ bool Postgres::add_user_chat(const UserChat &t_chat) {
 bool Postgres::add_user_contact(const User &t_user, const User &t_contact) {
 
   if (t_user.empty() || t_contact.empty()) {
-    LOG_ERR("Cannot add an empty user.");
+    LOG_DEBUG("Cannot add an empty user.");
     return false;
   }
 
@@ -330,7 +330,7 @@ bool Postgres::add_user_contact(const User &t_user, const User &t_contact) {
     transaction.commit();
 
   } catch (const std::exception &err) {
-    LOG_ERR("%s", err.what());
+    LOG_DEBUG("%s", err.what());
     return false;
   }
 
@@ -342,7 +342,7 @@ bool Postgres::add_user_contact(const User &t_user, const User &t_contact) {
 bool Postgres::add_user_token(const User &t_user, const std::string &t_token) {
 
   if (t_user.empty()) {
-    LOG_ERR("Cannot add token to an empty user.");
+    LOG_DEBUG("Cannot add token to an empty user.");
     return false;
   }
 
@@ -356,7 +356,7 @@ bool Postgres::add_user_token(const User &t_user, const std::string &t_token) {
     transaction.commit();
 
   } catch (const std::exception &err) {
-    LOG_ERR("%s", err.what());
+    LOG_DEBUG("%s", err.what());
     return false;
   }
 
@@ -368,7 +368,7 @@ bool Postgres::add_user_token(const User &t_user, const std::string &t_token) {
 bool Postgres::remove_user(const User &t_user) {
 
   if (t_user.empty()) {
-    LOG_ERR("Cannot remove an empty user.");
+    LOG_DEBUG("Cannot remove an empty user.");
     return false;
   }
   try {
@@ -379,7 +379,7 @@ bool Postgres::remove_user(const User &t_user) {
     transaction.commit();
 
   } catch (const std::exception &err) {
-    LOG_ERR("%s", err.what());
+    LOG_DEBUG("%s", err.what());
     return false;
   }
 
@@ -391,7 +391,7 @@ bool Postgres::remove_user(const User &t_user) {
 bool Postgres::remove_user_token(const User &t_user) {
 
   if (t_user.empty()) {
-    LOG_ERR("Cannot remove token from an empty user.");
+    LOG_DEBUG("Cannot remove token from an empty user.");
     return false;
   }
   /* note that the app only support 1 session per user and will delete all tokens related 
@@ -404,7 +404,7 @@ bool Postgres::remove_user_token(const User &t_user) {
     transaction.commit();
 
   } catch (const std::exception &err) {
-    LOG_ERR("%s", err.what());
+    LOG_DEBUG("%s", err.what());
     return false;
   }
 
@@ -416,7 +416,7 @@ bool Postgres::remove_user_token(const User &t_user) {
 bool Postgres::remove_user_contact(const User &t_user, const User &t_contact) {
 
   if (t_user.empty() || t_contact.empty()) {
-    LOG_ERR("Cannot remove an empty user or contact.");
+    LOG_DEBUG("Cannot remove an empty user or contact.");
     return false;
   }
   try {
@@ -429,7 +429,7 @@ bool Postgres::remove_user_contact(const User &t_user, const User &t_contact) {
     transaction.commit();
 
   } catch (const std::exception &err) {
-    LOG_ERR("%s", err.what());
+    LOG_DEBUG("%s", err.what());
     return false;
   }
 
@@ -440,7 +440,7 @@ bool Postgres::remove_user_contact(const User &t_user, const User &t_contact) {
 
 bool Postgres::update_user(const User &t_user) {
   if (t_user.empty()) {
-    LOG_ERR("Cannot update an empty user.");
+    LOG_DEBUG("Cannot update an empty user.");
 
     return false;
   }
@@ -451,7 +451,7 @@ bool Postgres::update_user(const User &t_user) {
     transaction.commit();
 
   } catch (const std::exception &err) {
-    LOG_ERR("%s", err.what());
+    LOG_DEBUG("%s", err.what());
     return false;
   }
 
@@ -461,7 +461,7 @@ bool Postgres::update_user(const User &t_user) {
 
 bool Postgres::set_user_chat_to_delivered(const UserChat &t_user_chat) {
   if (t_user_chat.empty()) {
-    LOG_ERR("Cannot update an empty chat.");
+    LOG_DEBUG("Cannot update an empty chat.");
     return false;
   }
 
@@ -474,7 +474,7 @@ bool Postgres::set_user_chat_to_delivered(const UserChat &t_user_chat) {
     transaction.commit();
 
   } catch (const std::exception &err) {
-    LOG_ERR("%s", err.what());
+    LOG_DEBUG("%s", err.what());
     return false;
   }
 
@@ -496,7 +496,7 @@ bool Postgres::logoff(const User &t_user) {
     transaction.commit();
 
   } catch (const std::exception &err) {
-    LOG_ERR("%s", err.what());
+    LOG_DEBUG("%s", err.what());
     return false;
   }
 
