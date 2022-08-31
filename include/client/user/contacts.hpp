@@ -15,6 +15,7 @@
 struct Details{
     std::string username;
     std::string address;
+    std::string port;
     bool online;
 };
 

@@ -14,14 +14,9 @@
 
 QVector<Chat> Chat::get_pending(ActiveConn& t_conn, Request &t_req) 
 {  
-  std::string command = "PENDING";
+  std::string command = "PENDING " + TextData::to_string(t_req.data());
   std::string response = "";
   std::string argument = TextData::to_string(t_req.data());
-
-  if ("" != argument)
-  {
-    command += " " + argument;
-  }
 
   t_req.set_data(new TextData(command));
   
@@ -43,7 +38,7 @@ fail:
 
 QVector<Chat> Chat::get_all(ActiveConn& t_conn, Request &t_req)
 {
-  std::string command = "CHAT";
+  std::string command = "CHAT " + TextData::to_string(t_req.data());
   std::string response = "";
   
   t_req.set_data(new TextData(command));

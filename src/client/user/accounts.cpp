@@ -56,7 +56,10 @@ bool Accounts::login(ActiveConn& t_conn, Request& t_req) {
     m_logged_in = true;
     m_password = "";
     
+    auto [_ , m_token] = StringUtils::split_first(response);
+
     set_id(t_conn, t_req);
+    
     return t_req.m_valid; 
 
 fail:
@@ -90,6 +93,11 @@ int Accounts::get_id()
     return m_id;
 }
 
+std::string Accounts::get_token()
+{
+    return m_token;
+}
+
 /* Private */
 bool Accounts::valid_response(Reply::Code t_code, std::string& t_res){
 
@@ -106,7 +114,7 @@ bool Accounts::valid_response(Reply::Code t_code, std::string& t_res){
 int Accounts::set_id(ActiveConn& t_conn, Request& t_req)
 {
     std::string response = "";
-    std::string command = "SEARCH " + m_username;
+    std::string command = "SEARCH " + m_token + " " + m_username;
 
     t_req.set_data(new TextData(command));
 

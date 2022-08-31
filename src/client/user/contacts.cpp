@@ -21,7 +21,7 @@
 
 bool Contacts::list(ActiveConn& t_conn, Request& t_req) {
     
-    std::string command = "LIST";
+    std::string command = "LIST " + TextData::to_string(t_req.data());
     std::string response = "";
     t_req.set_data(new TextData(command));
 
@@ -156,7 +156,6 @@ QHash<int, QString> Contacts::display_contacts() {
 
     FAIL_IF_SILENT ( true == m_online_contacts.empty() );
 
-
     for (auto contact = m_online_contacts.begin(); contact != m_online_contacts.end(); contact++)
     {
         contact_list.insert(contact.key(), QString::fromStdString(contact->username));
@@ -228,6 +227,10 @@ void Contacts::pair_contact_details(std::string t_user) {
 
         if ( key == "address" ) {
             details.address = pair;
+        }
+
+        if ( key == "port") {
+            details.port = pair;
         }
     }
 

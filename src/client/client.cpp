@@ -76,30 +76,31 @@ void Client::contact_get_contacts(Job &t_job) {
 }
 
 void Client::contact_list(Job &t_job) {
+   m_server_req.set_data(new TextData(m_user.get_token()));
    t_job.m_valid = m_contacts.list(m_server_conn, m_server_req);
 }
 
 void Client::contact_search(Job &t_job) {
    LOG_DEBUG("Searching for user");
-   m_server_req.set_data(new TextData(t_job.m_argument));
+   m_server_req.set_data(new TextData(m_user.get_token() + " " + t_job.m_argument));
    t_job.m_valid = m_contacts.search(m_server_conn, m_server_req);
 }
 
 void Client::contact_add_user(Job &t_job) {
    LOG_DEBUG("Adding user");
-   m_server_req.set_data(new TextData(t_job.m_argument));
+   m_server_req.set_data(new TextData(m_user.get_token() + " " + t_job.m_argument));
    t_job.m_valid = m_contacts.add_user(m_server_conn, m_server_req);
 }
 
 void Client::contact_remove_user(Job &t_job) {
    LOG_DEBUG("Removing user");
-   m_server_req.set_data(new TextData(t_job.m_argument));
+   m_server_req.set_data(new TextData(m_user.get_token() + " " + t_job.m_argument));
    t_job.m_valid = m_contacts.remove_user(m_server_conn,m_server_req);
 }
 
 void Client::contact_available(Job &t_job) {
    LOG_DEBUG("Checking for user availability!");
-   m_server_req.set_data(new TextData(t_job.m_argument));
+   m_server_req.set_data(new TextData(m_user.get_token() + " " + t_job.m_argument));
    t_job.m_valid = m_contacts.available(m_server_conn, m_server_req);
 }
 
@@ -153,13 +154,13 @@ void Client::user_get_id(Job &t_job)
 
 void Client::chat_send(Job &t_job){
    LOG_DEBUG("Sending chat!");
-   m_server_req.set_data(new TextData(t_job.m_argument));
+   m_server_req.set_data(new TextData(m_user.get_token() + " " + t_job.m_argument));
    t_job.m_valid = m_chat.send(m_server_conn, m_server_req);
 }
 
 void Client::chat_get_pending(Job &t_job){
    LOG_DEBUG("Getting pending chats...");
-   m_server_req.set_data(new TextData(t_job.m_argument)); // ---->  GET CURRENT USER PENDING CHATS FROM A CONTACT ID = 4
+   m_server_req.set_data(new TextData(m_user.get_token() + " " + t_job.m_argument));
    
    t_job.m_chats = m_chat.get_pending(m_server_conn, m_server_req);
 
@@ -177,7 +178,7 @@ void Client::chat_get_pending(Job &t_job){
 
 void Client::chat_get_all(Job &t_job){
    LOG_DEBUG("Getting all chats...");
-   m_server_req.set_data(new TextData(t_job.m_argument));
+   m_server_req.set_data(new TextData(m_user.get_token() + " " + t_job.m_argument));
 
    t_job.m_chats = m_chat.get_all(m_server_conn, m_server_req);
 
@@ -191,7 +192,7 @@ void Client::chat_get_all(Job &t_job){
 void Client::chat_deliver(Job &t_job)
 {
    LOG_DEBUG("Delivering chats...");
-   m_server_req.set_data(new TextData(t_job.m_argument));
+   m_server_req.set_data(new TextData(m_user.get_token() + " " + t_job.m_argument));
    t_job.m_valid = m_chat.deliver(m_server_conn, m_server_req);
    LOG_DEBUG("Delivering chats done!");
 }
