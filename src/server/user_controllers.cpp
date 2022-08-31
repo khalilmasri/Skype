@@ -16,7 +16,8 @@ const std::string  UserControllers::m_CONTACT_DELIM = " ";
 void UserControllers::list(std::string &_, Request &t_req) {
   UNUSED_PARAMS(_);
 
-  User user = m_pg.search_user_by(t_req.m_address, "address");
+  // User user = m_pg.search_user_by(t_req.m_address, "address");
+  User user = m_pg.search_user_by_token(t_req.m_token);
 
   if (!user.empty()) {
     Users contacts = m_pg.list_user_contacts( user); 
@@ -79,7 +80,9 @@ void UserControllers::search(std::string &t_username, Request &t_req) {
 
 void UserControllers::add(std::string &t_contact_username, Request &t_req) {
 
-  User user = m_pg.search_user_by(t_req.m_address, "address");
+ // User user = m_pg.search_user_by(t_req.m_address, "address");
+ //
+  User user = m_pg.search_user_by_token(t_req.m_token);
   User contact = m_pg.search_user_by(t_contact_username, "username");
 
   if(user.username() == contact.username()){ // user cannot add itself.
@@ -104,7 +107,8 @@ void UserControllers::add(std::string &t_contact_username, Request &t_req) {
 
 void UserControllers::remove(std::string &t_contact_username, Request &t_req) {
 
-  User user = m_pg.search_user_by(t_req.m_address, "address");
+ // User user = m_pg.search_user_by(t_req.m_address, "address");
+  User user = m_pg.search_user_by_token(t_req.m_token);
   User contact = m_pg.search_user_by(t_contact_username, "username");
 
   if (!user.empty() && !contact.empty()) {
@@ -120,7 +124,8 @@ void UserControllers::remove(std::string &t_contact_username, Request &t_req) {
 void UserControllers::ping(std::string &_, Request &t_req) {
   UNUSED_PARAMS(_);
 
-  User user = m_pg.search_user_by(t_req.m_address, "address");
+  // User user = m_pg.search_user_by(t_req.m_address, "address");
+  User user = m_pg.search_user_by_token(t_req.m_token);
 
   if (user.empty()) {
     ControllerUtils::set_request_reply(Reply::r_301,
@@ -155,9 +160,10 @@ void UserControllers::available(std::string &t_username, Request &t_req) {
 void UserControllers::exit(std::string &_, Request &t_req) {
   UNUSED_PARAMS(_);
 
-  User user = m_pg.search_user_by(t_req.m_address, "address");
+  //User user = m_pg.search_user_by(t_req.m_address, "address");
+  User user = m_pg.search_user_by_token(t_req.m_token);
 
-  // logoff sets address column to NULL online to FALSE.
+  // if no token is passed in just exist
   if (!user.empty()) { // if user is logged in then logoff.
     m_pg.logoff(user);
     // destroys the session.
@@ -196,8 +202,9 @@ bool UserControllers::is_valid_token(std::string &t_token, Request &t_req){
   }
 
   return true;
-/**************** PRIVATE ****************/
 }
+
+/**************** PRIVATE ****************/
 
 void UserControllers::login_user(User &t_user, Request &t_req) {
 
@@ -230,8 +237,7 @@ void UserControllers::list_contacts(Users &t_contacts, Request &t_req) {
   }
 }
 
-bool UserControllers::is_empty(std::string &t_user, std::string &t_password,
-                           Request &t_req) {
+bool UserControllers::is_empty(std::string &t_user, std::string &t_password, Request &t_req) {
 
   bool res = t_user.empty() || t_password.empty();
 

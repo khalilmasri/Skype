@@ -94,8 +94,9 @@ void Router::invalid_command(Request &t_req) {
 
 /* these are the only commands that don't require user to be logged in */
 bool Router::require_login(ServerCommand::name t_cmd) {
-  return t_cmd != ServerCommand::Login && t_cmd != ServerCommand::Create &&
-         t_cmd != ServerCommand::Exit;
+  return t_cmd != ServerCommand::Login
+         && t_cmd != ServerCommand::Create
+         && t_cmd != ServerCommand::Exit;
 }
 
 /** TESTS **/
