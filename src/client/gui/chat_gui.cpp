@@ -46,7 +46,6 @@ ChatGui::~ChatGui()
 {
     delete m_notification;
     delete m_ui;
-    delete timer;
 }
 
 // ***** PUBLIC ***** //
