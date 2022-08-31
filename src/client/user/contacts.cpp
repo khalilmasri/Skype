@@ -13,7 +13,6 @@
 #include <sys/socket.h>
 #include <cstring>
 #include <algorithm>
-#include <QVector>
 #include <QString>
 #include <QDebug>
 #include <utility>
@@ -22,7 +21,7 @@
 
 bool Contacts::list(ActiveConn& t_conn, Request& t_req) {
     
-    std::string command = "LIST";
+    std::string command = "LIST " + TextData::to_string(t_req.data());
     std::string response = "";
     t_req.set_data(new TextData(command));
 
@@ -62,6 +61,7 @@ bool Contacts::search(ActiveConn& t_conn, Request& t_req){
     LOG_INFO("Searched database and found user %s!", user.c_str());
     
     return true;
+
 fail:
     return false;
 }
@@ -150,30 +150,20 @@ fail:
     return false;
 }
 
-QVector<QString> Contacts::display_contacts() {
+QHash<int, QString> Contacts::display_contacts() {
 
-    QVector<QString> contacts;
+    QHash<int, QString> contact_list;
 
     FAIL_IF_SILENT ( true == m_online_contacts.empty() );
 
-    for ( auto &[username, details] : m_online_contacts ) {
-        QString field = QString::fromUtf8(username.c_str());
-        contacts.push_back(field);
+    for (auto contact = m_online_contacts.begin(); contact != m_online_contacts.end(); contact++)
+    {
+        contact_list.insert(contact.key(), QString::fromStdString(contact->username));
     }
-
-    return contacts;
+    return contact_list;
 
 fail:
     return {};
-}
-
-bool Contacts::set_current_contact(std::string &t_current_contact){
-    m_current_contact = t_current_contact;
-    return true;
-}
-
-std::string Contacts::get_current_contact(){
-    return m_current_contact;
 }
 
 // /* Private */
@@ -202,9 +192,9 @@ void Contacts::update_contacts(std::string t_response) {
     }
 
     bool ret =  m_online_contacts.size() == m_old_contacts.size();
-    if ( false == ret ){
+    if ( false == ret){
         LOG_INFO("Updating map");
-        JobBus::handle({Job::DISP_CONTACTS});
+        JobBus::create({Job::DISP_CONTACTS});
     }
 }
 
@@ -213,18 +203,18 @@ void Contacts::pair_contact_details(std::string t_user) {
     StringUtils::StringVector user_fields = StringUtils::split(t_user, ",");
 
     Details details;
-    std::string username = "";
-    
+    int ID = 0;
+
     for(auto field : user_fields) {
         
         auto [key, pair] = StringUtils::split_first(field, ":");
         
         if ( key == "id" ) {
-            details.ID = stoi(pair);
+            ID = stoi(pair);
         }
 
         if ( key == "username" ) {
-            username = pair;
+            details.username = pair;
         }
 
         if ( key == "online" ) {
@@ -238,9 +228,13 @@ void Contacts::pair_contact_details(std::string t_user) {
         if ( key == "address" ) {
             details.address = pair;
         }
+
+        if ( key == "port") {
+            details.port = pair;
+        }
     }
 
-    if ( username != "" /*&& details.online == true */ ){
-        m_online_contacts.emplace(username, details);            
+    if ( ID != 0 /*&& details.online == true */ ){
+        m_online_contacts.insert(ID, details);
     }
 }

@@ -10,6 +10,15 @@
 #include <vector>
 #include <QVector>
 #include <QString>
+#include <QHash>
+
+struct Details{
+    std::string username;
+    std::string address;
+    std::string port;
+    bool online;
+};
+
 
 class Contacts {
 
@@ -21,20 +30,13 @@ public:
     bool available(ActiveConn& t_conn, Request& t_req);
 
     //contacts retrieval
-    bool set_current_contact(std::string &t_current_contact);
-    std::string get_current_contact();
-    QVector<QString> display_contacts();
+    std::string get_details(std::string &t_user);
+    QHash<int, QString> display_contacts();
 
 private:
 
-    struct Details{
-        int ID;
-        std::string address;
-        bool online;
-    };
-
-    std::unordered_map<std::string, struct Details> m_online_contacts;
-    std::unordered_map<std::string, struct Details> m_old_contacts;
+    QHash<int, struct Details> m_online_contacts;
+    QHash<int, struct Details> m_old_contacts;
 
     std::vector<std::string> m_contacts;
     std::string m_current_contact;

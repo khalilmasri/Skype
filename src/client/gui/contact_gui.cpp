@@ -8,6 +8,8 @@
 #include <QStyle>
 #include <QDesktopWidget>
 
+#include <iostream>
+
 ContactGui::ContactGui(QWidget *parent) :
     QDialog(parent),
     m_ui(new Ui::ContactGui)
@@ -49,9 +51,9 @@ void ContactGui::handle_action()
     std::string user = m_ui->lineEdit->text().toStdString();
 
     if ( SEARCH == m_type ){
-        JobBus::handle({Job::SEARCH, user});
+        JobBus::create({Job::SEARCH, user});
     } else {
-        JobBus::handle({Job::ADD, user});
+        JobBus::create({Job::ADD, user});
     }
 
     m_ui->lineEdit->setText("");

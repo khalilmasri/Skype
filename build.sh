@@ -13,19 +13,20 @@ elif [ "$1" == "--gen-extra" ]; then
 elif [ "$1" == "--gen-base" ]; then
     cd build; cmake -DCMAKE_EXTRA_FLAGS=OFF ../; make; cd ..
 
-elif [ "$1" == "--gen-nowarning" ]; then
-    cd build; cmake -DCMAKE_WARNING_FLAGS=OFF ../; make; cd ..
-
-elif [ "$1" == "--gen-warning" ]; then
-    cd build; cmake -DCMAKE_WARNING_FLAGS=ON ../; make; cd ..
-
 elif [ "$1" == "--make" ]; then
     cd build; make; cd .. 
+
+elif [ "$1" == "--client" ]; then
+    cd build; cmake -DSERVER=OFF -DCLIENT=ON ../; make; cd .. 
+
+elif [ "$1" == "--server" ]; then
+    cd build; cmake -DSERVER=ON -DCLIENT=OFF ../; make; cd .. 
 
 elif [ "$1" == "--run" ]; then
     
     if [ "$#" -eq 1 ]; then echo "You must provide an binary name to run."
-    else ./build.sh --clean-bin; cd build; cmake ../; make "$2"; ./bin/"$2" cd .. 
+    elif [ "$2" == "test_clinet" ] ; then ./build.sh --clean-bin; cd build; cmake ../; make "$2"; ./bin/"$2" cd .. 
+    else ./build.sh --clean-bin; ./build.sh --"$2"; cd build; cmake ../; make "$2"; ./bin/"$2" cd .. 
 fi
 
 elif [ "$1" == "--test" ]; then

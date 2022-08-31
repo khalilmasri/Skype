@@ -44,8 +44,9 @@ public:
   
 
   static const std::string m_HEADER_DELIM;
+  static const std::string m_FIELD_DELIM;
 
-  private:
+private:
   int           m_id;
   std::string   m_created_at;
   int           m_sender;
@@ -53,8 +54,6 @@ public:
   std::string   m_text;
   bool          m_delivered;
   bool          m_empty;
-
-  static const std::string m_FIELD_DELIM;
 
   enum ComparisonType {GreaterThan, LesserThan};
 

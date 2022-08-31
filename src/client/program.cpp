@@ -2,12 +2,14 @@
 #include "job_bus.hpp"
 #include "logger.hpp"
 #include "fail_if.hpp"
+#include "notification.hpp"
 
 #include <QObject>
 #include <QMessageBox>
 #include <QString>
-
+#include <string>
 #include <iostream>
+
 
 Program::Program()
 {
@@ -16,27 +18,21 @@ Program::Program()
 
     // Creating an instance || The reason I'm doing as singelton pattern is because we can't emit signals in static methods
     m_bus = JobBus::get_instance();
-
-    // Connecting Signals and slots
-    QObject::connect(this, &Program::wrapping, m_bus, &JobBus::set_exit);
-    QObject::connect(m_bus, &JobBus::job_ready, this, &Program::handle_response);
-
-    // Creating the main thread loop
-    m_bus_loop = QThread::create(&JobBus::main_loop);
-    m_bus_loop->start();
-
+    
     // Creating the GUI
     m_welcome = new WelcomeGui();
     m_chat = new ChatGui();
 
+    QObject::connect(m_bus, &JobBus::job_ready, this, &Program::handle_response);
+    QObject::connect(m_chat, &ChatGui::ready_signal, m_welcome, &WelcomeGui::stop_loading);
+    QObject::connect(m_welcome, &WelcomeGui::stopped_loading, this, &Program::switch_to_chat);
+    
     m_welcome->show();
+
 }
 
 Program::~Program()
 {
-    emit wrapping(); // sending a signal to close the bus
-    m_bus_loop->wait();
-
     delete m_welcome;
     delete m_chat;
 }
@@ -52,7 +48,11 @@ void Program::create_job_dispatcher()
         {Job::GETUSER,          [this](Job &t_job){m_chat->job_set_user(t_job);}},
         {Job::ADD,              [this](Job &t_job){m_chat->job_add_user(t_job);}},
         {Job::REMOVE,           [this](Job &t_job){m_chat->job_remove_user(t_job);}},
-        {Job::SEARCH,           [this](Job &t_job){m_chat->job_search(t_job);}}
+        {Job::SEARCH,           [this](Job &t_job){m_chat->job_search(t_job);}},
+        {Job::GETID,            [this](Job &t_job){m_chat->job_set_id(t_job);}},
+        {Job::CHAT,             [this](Job &t_job){m_chat->job_load_chat(t_job);}},
+        {Job::PENDING,          [this](Job &t_job){m_chat->job_load_pending(t_job);}},
+        {Job::SEND,             [this](Job &t_job){m_chat->job_send_msg(t_job);}}
     };
 }
 
@@ -80,7 +80,13 @@ void Program::job_login(Job &t_job)
         return;
     }
 
+    m_welcome->load_screen();
+    JobBus::create({Job::GETID}); 
+    m_chat->init();
+}
+
+void Program::switch_to_chat()
+{
     m_welcome->hide();
     m_chat->show();
-    m_chat->init();
 }

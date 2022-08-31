@@ -16,7 +16,6 @@ JobQueue JobBus::m_resQ;
 JobBus::JobsMap JobBus::m_JobBus_map {
 
     {Job::LIST,             Client::contact_list},
-    {Job::SELCONT,          Client::contact_set_current_contact},
     {Job::SEARCH,           Client::contact_search},
     {Job::ADD,              Client::contact_add_user},
     {Job::REMOVE,           Client::contact_remove_user},
@@ -27,14 +26,19 @@ JobBus::JobsMap JobBus::m_JobBus_map {
     {Job::LOGIN,            Client::user_login}, 
     {Job::LOGGED,           Client::user_get_logged_in},
     {Job::GETUSER,          Client::user_get_username},
-    {Job::GETCONT,          Client::contact_get_current_contact},
-    {Job::DISP_CONTACTS,    Client::contact_get_contacts}
+    {Job::DISP_CONTACTS,    Client::contact_get_contacts},
+    {Job::CHAT,             Client::chat_get_all},
+    {Job::SEND,             Client::chat_send},
+    {Job::GETID,            Client::user_get_id},
+    {Job::DELIVERED,        Client::chat_deliver},
+    {Job::PENDING,          Client::chat_get_pending},
 };
 
 JobBus* JobBus::get_instance()
 {
     if(!m_instance){
         m_instance = new JobBus();
+        QObject::connect(m_instance, &JobBus::new_job, m_instance, &JobBus::handle);
     }
 
     return m_instance;
@@ -44,34 +48,31 @@ JobBus::~JobBus()
 {
 }
 
-void JobBus::handle(Job &&t_job){
+void JobBus::create(Job &&t_job){
     m_jobQ.push(t_job);
+    emit JobBus::get_instance()->new_job();
 }
 
-void JobBus::handle(Job &t_job){
+void JobBus::create(Job &t_job){
     m_jobQ.push(t_job);
+    emit JobBus::get_instance()->new_job();
 }
 
-void JobBus::main_loop() {
+void JobBus::handle() {
    
     Job job;
 
-    while (false == m_exit_loop) {
+    if (false == m_jobQ.empty()) {      
+        
+        m_jobQ.pop_try(job);
+        m_JobBus_map[job.m_command](job);
 
-        if (false == m_jobQ.empty()) {
-            
-            bool res = m_jobQ.pop_try(job);
-
-            if ( false == res ) {
-                continue;
-            }
-
-            m_JobBus_map[job.m_command](job);
+        if ( Job::DISCARD != job.m_command )
+        {
             m_resQ.push(job);
             emit JobBus::get_instance()->job_ready();
         }
-    }
-  
+    }  
 }
 
 bool JobBus::get_response(Job &t_job){

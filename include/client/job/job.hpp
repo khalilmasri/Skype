@@ -1,35 +1,41 @@
 #ifndef JOB_H
 #define JOB_H
 
+#include "chat.hpp"
+#include "contacts.hpp"
+
 #include <QString>
 #include <QVector>
 #include <string>
 
 struct Job {
      enum Type {
+        // Contacts
+        LIST,
+        SEARCH,
+        ADD,
+        REMOVE,
+        AVAILABLE,
+        DISP_CONTACTS,
 
-        // bool return values from 0 - 19
-        LIST            = 0,
-        SEARCH          = 1,
-        ADD             = 2,
-        REMOVE          = 3,
-        AVAILABLE       = 4,
-        SETUSER         = 5,
-        SETPASS         = 6,
-        CREATE          = 7,
-        LOGIN           = 8,
-        LOGGED          = 9,
-        SELCONT         = 10,
+        // Accounts
+        SETUSER,      
+        SETPASS,       
+        CREATE,        
+        LOGIN,         
+        LOGGED,          
+        GETUSER,
+        GETID,
 
-        // std::string return from 20 - 29
-        GETUSER         = 20,
-        GETCONT         = 21,
+        // Chat
+        SEND,
+        CHAT,
+        PENDING,
+        DELIVERED,
+        NOTIFICATION,
 
-        // std::vector return values from 30 - 39
-        DISP_CONTACTS   = 30,
-        
-        // None
-        NONE            = 50,
+        DISCARD,
+        NONE,
     };
 
     Type m_command;
@@ -37,7 +43,10 @@ struct Job {
 
     bool m_valid = false;
     std::string m_string = "";
-    QVector<QString> m_vector = {};
+    int m_intValue = -1;
+    QHash<int, QString> m_contact_list = {};
+    QVector<Chat> m_chats = {};
+    QString m_qstring = "";
 };
 
 

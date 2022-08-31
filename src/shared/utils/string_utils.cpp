@@ -38,8 +38,7 @@ StringUtils::IntVector StringUtils::split_to_ints(const std::string &s,
     std::size_t val = std::stoi(s.substr(start, end - start));
     result.push_back(val);
   } catch (...) {
-    LOG_ERR(
-        "Attempted to split containing Integer but found non-numeric values.");
+    LOG_ERR("Attempted to split containing Integer but found non-numeric values.");
     return IntVector();
   }
 

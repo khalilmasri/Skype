@@ -22,6 +22,7 @@ file(GLOB CLIENT_SOURCES    "*.cpp"
                             "gui/ui/*.ui"
                             "job/*.cpp"
                             "user/*.cpp"
+                            "gui/notification/*.cpp"
                             "../shared/*.cpp"
                             "../shared/data/*.cpp"
                             "../shared/utils/*.cpp"
@@ -33,6 +34,7 @@ file(GLOB GUI_HEADERS       "../../include/client/gui/welcome_gui.hpp"
                             "../../include/client/gui/contact_gui.hpp"
                             "../../include/client/program.hpp"
                             "../../include/client/job/job_bus.hpp"
+                            "../../include/client/gui/notification/notification.hpp"
 )
 
 file(GLOB RESOURCES "../../misc/icons/resource.qrc")
@@ -58,6 +60,7 @@ set(INCLUDE_DIRS    ../../include/client
                     ../../include/shared/connection 
                     ../../include/shared/data 
                     ../../include/shared/utils
+                    ../../include/client/gui/notification
                 ) 
 
 # Set the include directory path

@@ -74,7 +74,10 @@ std::string UserChat::created_at_date() const {
 }
 
 std::string UserChat::created_at_time() const {
-   auto[_, time] = StringUtils::split_first(m_created_at);
+    auto [_, time_long] = StringUtils::split_first(m_created_at);
+    auto [hours, time_rest] = StringUtils::split_first(time_long, ":");
+    auto [minutes, __] = StringUtils::split_first(time_rest, ":");
+    std::string time = hours + ":" + minutes;
    return time;
 }
 

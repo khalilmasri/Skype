@@ -21,9 +21,6 @@ public:
     Program();
     ~Program();
 
-signals:
-    void wrapping();
-
 private slots:
     void handle_response();
 
@@ -32,7 +29,7 @@ private: // Variables
     JobBus      *m_bus;
     WelcomeGui  *m_welcome;
     ChatGui     *m_chat;
-    QThread     *m_bus_loop;
+    //QThread     *m_bus_loop;
     JobDispatch m_table;
 
 private: // Methods
@@ -40,6 +37,7 @@ private: // Methods
 
     // slots
     void job_login(Job &t_job);
+    void switch_to_chat();
 };
 
 #endif // PROGRAM_H
