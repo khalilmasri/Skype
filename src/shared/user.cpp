@@ -1,19 +1,19 @@
 #include "user.hpp"
 
 User::User(int t_id, std::string &t_username, std::string &t_password,
-           bool t_online, std::string &t_address)
+           bool t_online, std::string &t_address, std::string &t_port)
     : m_id(t_id), m_username(t_username), m_password(t_password),
-      m_online(t_online), m_address(t_address), m_empty(false) {}
+      m_online(t_online), m_address(t_address), m_port(t_port), m_empty(false) {}
 
 User::User(int t_id, const char *t_username, const char *t_password,
-           bool t_online, const char *t_address)
+           bool t_online, const char *t_address, std::string &t_port)
     : m_id(t_id), m_username(t_username), m_password(t_password),
-      m_online(t_online), m_address(t_address), m_empty(false) {}
+      m_online(t_online), m_address(t_address), m_port(t_port), m_empty(false) {}
 
 User::User(int t_id, std::string &t_username, bool t_online,
-           std::string &t_address)
+           std::string &t_address, std::string &t_port)
     : m_id(t_id), m_username(t_username), m_password(), m_online(t_online),
-      m_address(t_address), m_empty(false) {}
+      m_address(t_address),  m_port(t_port), m_empty(false) {}
 
 User::User() : m_empty(true) {}
 
@@ -28,6 +28,8 @@ void User::remove_password() { m_password = ""; };
 bool User::online() const { return m_online; }
 
 std::string User::address() const { return m_address; }
+
+std::string User::port() const { return m_port; }
 
 User::UpdatedFields User::updated_fields() const { return m_updated_fields; }
 
@@ -56,6 +58,11 @@ bool User::update(std::string &t_value, User::Field t_field) {
     m_address = t_value;
     m_updated_fields.push_back(Address);
     return true;
+  
+  case Port:
+    m_port = t_value;
+    m_updated_fields.push_back(Port);
+    return true;
   }
 
   return false;
@@ -67,14 +74,14 @@ std::string User::to_string() const {
   std::string user = ",username:";
   std::string online = ",online:";
   std::string address = ",address:";
+  std::string port = ",port:";
 
   if (m_password.empty()) {
     return id + std::to_string(m_id) + user + m_username +
-           online + (m_online ? "true" : "false") + address + m_address;
+           online + (m_online ? "true" : "false") + address + m_address + port + m_port;
   } else {
-
     return id + std::to_string(m_id) + user + m_username + pw + m_password +
-           online + (m_online ? "true" : "false") + address + m_address;
+           online + (m_online ? "true" : "false") + address + m_address + port + m_port;
   }
 }
 
@@ -88,7 +95,6 @@ bool User::set_online(std::string &t_value) {
   } else {
     return false;
   }
-
   m_updated_fields.push_back(Online);
   return true;
 }

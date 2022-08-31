@@ -36,7 +36,8 @@ void UserControllers::create(std::string &t_arg, Request &t_req) {
     return;
   }
 
-  User user(0, username, password, false, t_req.m_address);
+  std::string port = "1000"; //TODO:
+  User user(0, username, password, false, t_req.m_address, port);
   bool result = m_pg.add_user(user);
 
   if (result) {
@@ -218,6 +219,7 @@ void UserControllers::login_user(User &t_user, Request &t_req) {
 
   t_user.update("true", User::Online);
   t_user.update(t_req.m_address, User::Address);
+  t_user.update("1234", User::Port);
 
   bool token_res = m_pg.add_user_token(t_user, token);
   bool user_res = m_pg.update_user(t_user);

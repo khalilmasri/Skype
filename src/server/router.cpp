@@ -144,7 +144,8 @@ TEST_CASE(
 
   SUBCASE("LOGIN user") {
 
-    User u = User(0, "marcos", "1234", true, "127.0.0.1");
+    std::string port = "2000";
+    User u = User(0, "marcos", "1234", true, "127.0.0.1", port);
     pg.add_user(u); // add user for testing and not mess around with seed data.
 
     Request req;
