@@ -6,12 +6,14 @@
 #include <iostream>
 #include <vector>
 #include <QThread>
+#include <QTimer>
 
 bool JobBus::m_exit_loop = false;
 JobBus* JobBus::m_instance = nullptr;
 
 JobQueue JobBus::m_jobQ;
 JobQueue JobBus::m_resQ;
+
 
 JobBus::JobsMap JobBus::m_JobBus_map {
 
@@ -89,5 +91,25 @@ bool JobBus::get_response(Job &t_job){
 
     return true;
 } 
+        QTimer *timer = new QTimer();
 
+void JobBus::timer_start()
+{
+     QThread *run = QThread::create([]{
+    connect(timer, &QTimer::timeout, JobBus::get_instance(), &JobBus::repeated_tasks);
+    timer->start(1000); 
+    });
+         run->start();
+
+}
+void JobBus::repeated_tasks()
+{
+    std::cout << "here\n";
+    QThread *run = QThread::create([]{
+        JobBus::create({Job::PENDING});
+        JobBus::create({Job::LIST});  
+    });
+
+    run->start();
+}
 void JobBus::set_exit() { m_exit_loop = true; }

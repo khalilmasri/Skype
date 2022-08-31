@@ -17,10 +17,7 @@
 #include <QStyle>
 #include <QDebug>
 
-bool first_refresh = true;
 bool first_display = true;
-bool pending_allowed = false;
-QTimer *timer = new QTimer();
 QString TODAY = "";
 QString YESTERDAY = "";
 
@@ -184,9 +181,7 @@ void ChatGui::job_load_chat(Job &t_job)
 
     LOG_INFO("Loading Chat first time...");
     load_chat(t_job.m_chats, false);
-    pending_allowed = true;
     LOG_INFO("Loaded Chat first time");
-    refresh();
     emit ready_signal();
 }
 
@@ -236,18 +231,6 @@ void ChatGui::job_send_msg(Job &t_job)
 }
 
 // ***** PRIVATE ***** //
-
-void ChatGui::refresh()
-{
-    if (first_refresh == true ){
-        connect(timer, &QTimer::timeout, this, &ChatGui::refresh);
-        timer->start(2000);
-        first_refresh = false;
-    }
-
-    JobBus::create({Job::PENDING});
-    JobBus::create({Job::LIST});  
-}
 
 void ChatGui::send_msg()
 {

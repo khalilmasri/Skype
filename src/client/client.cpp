@@ -78,6 +78,7 @@ void Client::contact_get_contacts(Job &t_job) {
 void Client::contact_list(Job &t_job) {
    m_server_req.set_data(new TextData(m_user.get_token()));
    t_job.m_valid = m_contacts.list(m_server_conn, m_server_req);
+   t_job.m_command = Job::DISCARD;
 }
 
 void Client::contact_search(Job &t_job) {

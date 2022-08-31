@@ -29,6 +29,8 @@ public:
     static void create(Job &&t_job);
     static bool get_response(Job &t_job);
     static JobBus* get_instance();
+    static void repeated_tasks();
+    static void timer_start();
 
 signals:
     void job_ready();
