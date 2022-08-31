@@ -1,19 +1,23 @@
 #include "user_controllers.hpp"
 #include "doctest.h"
+#include "logger.hpp"
 #include "string_utils.hpp"
 #include "supress_unused_params_warnings.hpp"
 #include "text_data.hpp"
 #include "controller_utils.hpp"
 #include <iostream>
-
-#define CONTACT_DELIM " "
+#include "token_gen.hpp"
 
 Postgres UserControllers::m_pg = Postgres();
+
+const std::size_t  UserControllers::m_TOKEN_LENGTH = 38;
+const std::string  UserControllers::m_CONTACT_DELIM = " ";
 
 void UserControllers::list(std::string &_, Request &t_req) {
   UNUSED_PARAMS(_);
 
-  User user = m_pg.search_user_by(t_req.m_address, "address");
+  // User user = m_pg.search_user_by(t_req.m_address, "address");
+  User user = m_pg.search_user_by_token(t_req.m_token);
 
   if (!user.empty()) {
     Users contacts = m_pg.list_user_contacts( user); 
@@ -32,7 +36,8 @@ void UserControllers::create(std::string &t_arg, Request &t_req) {
     return;
   }
 
-  User user(0, username, password, false, t_req.m_address);
+  std::string port = "1000"; //TODO:
+  User user(0, username, password, false, t_req.m_address, port);
   bool result = m_pg.add_user(user);
 
   if (result) {
@@ -76,7 +81,9 @@ void UserControllers::search(std::string &t_username, Request &t_req) {
 
 void UserControllers::add(std::string &t_contact_username, Request &t_req) {
 
-  User user = m_pg.search_user_by(t_req.m_address, "address");
+ // User user = m_pg.search_user_by(t_req.m_address, "address");
+ //
+  User user = m_pg.search_user_by_token(t_req.m_token);
   User contact = m_pg.search_user_by(t_contact_username, "username");
 
   if(user.username() == contact.username()){ // user cannot add itself.
@@ -101,7 +108,8 @@ void UserControllers::add(std::string &t_contact_username, Request &t_req) {
 
 void UserControllers::remove(std::string &t_contact_username, Request &t_req) {
 
-  User user = m_pg.search_user_by(t_req.m_address, "address");
+ // User user = m_pg.search_user_by(t_req.m_address, "address");
+  User user = m_pg.search_user_by_token(t_req.m_token);
   User contact = m_pg.search_user_by(t_contact_username, "username");
 
   if (!user.empty() && !contact.empty()) {
@@ -117,7 +125,8 @@ void UserControllers::remove(std::string &t_contact_username, Request &t_req) {
 void UserControllers::ping(std::string &_, Request &t_req) {
   UNUSED_PARAMS(_);
 
-  User user = m_pg.search_user_by(t_req.m_address, "address");
+  // User user = m_pg.search_user_by(t_req.m_address, "address");
+  User user = m_pg.search_user_by_token(t_req.m_token);
 
   if (user.empty()) {
     ControllerUtils::set_request_reply(Reply::r_301,
@@ -152,11 +161,20 @@ void UserControllers::available(std::string &t_username, Request &t_req) {
 void UserControllers::exit(std::string &_, Request &t_req) {
   UNUSED_PARAMS(_);
 
-  User user = m_pg.search_user_by(t_req.m_address, "address");
+  //User user = m_pg.search_user_by(t_req.m_address, "address");
+  User user = m_pg.search_user_by_token(t_req.m_token);
 
-  // logoff sets address column to NULL online to FALSE.
-  if (!user.empty()) { // if user is logged in then logoff.
+  if(user.empty()){
+    LOG_INFO("No token was provided on EXIT. Forcefully removing %s session.", t_req.m_address.c_str());
+  }
+
+  // if no token is passed in look for users IP address and forcefully disconnect.
+  user = user.empty() ? m_pg.search_user_by(t_req.m_address, "address") : user;
+
+  if (!user.empty()) { 
     m_pg.logoff(user);
+    // destroys the session.
+    m_pg.remove_user_token(user);
   }
 
   t_req.m_exit = true;
@@ -180,16 +198,33 @@ bool UserControllers::ip_exists(Request &t_req) {
   return !user.empty();
 }
 
+bool UserControllers::is_valid_token(std::string &t_token, Request &t_req){
+
+  User user = m_pg.search_user_by_token(t_token);
+
+  if(user.empty()){
+     ControllerUtils::set_request_reply(Reply::r_202, t_req);
+     LOG_DEBUG("User requested without a valid token.")
+     return false;
+  }
+
+  return true;
+}
+
 /**************** PRIVATE ****************/
 
 void UserControllers::login_user(User &t_user, Request &t_req) {
 
+  std::string token = TokenGenerator::generate(m_TOKEN_LENGTH);
+
   t_user.update("true", User::Online);
   t_user.update(t_req.m_address, User::Address);
+  t_user.update("1234", User::Port);
 
-  bool res = m_pg.update_user(t_user);
+  bool token_res = m_pg.add_user_token(t_user, token);
+  bool user_res = m_pg.update_user(t_user);
 
-  ControllerUtils::set_request_reply(res, t_req);
+  ControllerUtils::set_request_reply(token_res && user_res, std::move(token), t_req);
 }
 
 void UserControllers::list_contacts(Users &t_contacts, Request &t_req) {
@@ -199,7 +234,7 @@ void UserControllers::list_contacts(Users &t_contacts, Request &t_req) {
     std::string reply_msg;
 
     for (auto &contact : t_contacts) {
-      reply_msg += contact.to_string() + CONTACT_DELIM;
+      reply_msg += contact.to_string() + m_CONTACT_DELIM;
     }
 
     reply_msg.pop_back(); // remove last delim
@@ -210,8 +245,7 @@ void UserControllers::list_contacts(Users &t_contacts, Request &t_req) {
   }
 }
 
-bool UserControllers::is_empty(std::string &t_user, std::string &t_password,
-                           Request &t_req) {
+bool UserControllers::is_empty(std::string &t_user, std::string &t_password, Request &t_req) {
 
   bool res = t_user.empty() || t_password.empty();
 

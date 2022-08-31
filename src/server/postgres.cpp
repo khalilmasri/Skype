@@ -24,13 +24,13 @@ Users Postgres::list_users() {
     transaction.commit();
 
     res.for_each([&users](int id, std::string username, std::string _,
-                          bool online, std::string address) {
+                          bool online, std::string address, std::string port) {
       UNUSED_PARAMS(_);
-      users.push_back(User(id, username, online, address));
+      users.push_back(User(id, username, online, address, port));
     });
 
   } catch (const std::exception &err) {
-    LOG_ERR("%s", err.what());
+    LOG_DEBUG("%s", err.what());
   }
 
   return users;
@@ -76,13 +76,11 @@ UserChats Postgres::list_user_chats(const User &t_user, const bool t_pending, co
         });
 
   } catch (const std::exception &err) {
-    LOG_ERR("%s", err.what());
+    LOG_DEBUG("%s", err.what());
   }
 
   return user_chats;
 }
-
-/* */
 
 /* */
 
@@ -100,12 +98,45 @@ Users Postgres::list_user_contacts(const User &t_user) {
     row.to(result);
 
   } catch (const std::exception &err) {
-    LOG_ERR("%s", err.what());
+    LOG_DEBUG("%s", err.what());
     return Users(); // returns empty User vector
   }
 
   return result_to_users(std::move(result));
 }
+
+/* */
+
+User Postgres::search_user_by_token(const std::string &t_token) {
+
+  std::tuple<int, std::string, std::string, bool, std::string, std::string> results;
+
+  try {
+    pqxx::work transaction( m_conn); 
+
+    std::string  query = "SELECT T.user_id, U.username, U.password, U.online, COALESCE(U.address, ' '), COALESCE(U.port, ' ')"
+                         " FROM tokens AS T"
+                         " JOIN users AS U"
+                         " ON T.user_id = U.id"
+                         " WHERE t.token = " + transaction.quote(t_token);
+                         
+
+    pqxx::row row = transaction.exec1(query);
+
+    transaction.commit();
+    row.to(results);
+
+  } catch (const std::exception &err) {
+    LOG_DEBUG("%s", err.what());
+    return User(); // return empty user
+  }
+
+  auto [id, username, password, online, address, port] = results;
+
+  return User(id, username, password, online, address, port);
+}
+
+/* */
 
 User Postgres::search_user_by(const char *t_term, const char *t_field) {
   std::string term(t_term);
@@ -116,42 +147,42 @@ User Postgres::search_user_by(const char *t_term, const char *t_field) {
 
 User Postgres::search_user_by(const std::string &t_term, const char *t_field) {
 
-  std::tuple<int, std::string, std::string, bool, std::string> results;
+  std::tuple<int, std::string, std::string, bool, std::string, std::string> results;
   std::string field(t_field);
 
   try {
-    pqxx::work transaction(
-        m_conn); // COALESCE substitute NULL with empty string
+    pqxx::work transaction( m_conn); 
+    // COALESCE substitutes NULL with empty string
     pqxx::row row =
         transaction.exec1("SELECT id, username, password, online, "
-                          "COALESCE(address, ' ') FROM users WHERE " +
+                          "COALESCE(address, ' '), COALESCE(port, ' ')  FROM users WHERE " +
                           field + " = " + transaction.quote(t_term));
 
     transaction.commit();
     row.to(results);
 
   } catch (const std::exception &err) {
-    LOG_ERR("%s", err.what());
+    LOG_DEBUG("%s", err.what());
     return User(); // return empty user
   }
 
-  auto [id, username, password, online, address] = results;
+  auto [id, username, password, online, address, port] = results;
 
-  return User(id, username, password, online, address);
+  return User(id, username, password, online, address, port);
 }
 
-User Postgres::search_user_contact(const User &t_user,
-                                   const char *t_contact_username) {
+/* */
+
+User Postgres::search_user_contact(const User &t_user, const char *t_contact_username) {
   std::string contact(t_contact_username);
   return search_user_contact(t_user, contact);
 }
 
 /* */
 
-User Postgres::search_user_contact(const User &t_user,
-                                   const std::string &t_contact_username) {
+User Postgres::search_user_contact(const User &t_user, const std::string &t_contact_username) {
 
-  std::tuple<int, std::string, std::string, bool, std::string> results;
+  std::tuple<int, std::string, std::string, bool, std::string, std::string> results;
 
   try {
     pqxx::work transaction(m_conn);
@@ -164,13 +195,13 @@ User Postgres::search_user_contact(const User &t_user,
     row.to(results);
 
   } catch (const std::exception &err) {
-    LOG_ERR("%s", err.what());
+    LOG_DEBUG("%s", err.what());
     return User(); // return empty user
   }
 
-  auto [id, username, password, online, address] = results;
+  auto [id, username, password, online, address, port] = results;
 
-  return User(id, username, password, online, address);
+  return User(id, username, password, online, address, port);
 }
 
 
@@ -190,7 +221,7 @@ UserChat Postgres::search_user_chat_by(const std::string &t_term, const char *t_
     row.to(results);
 
   } catch (const std::exception &err) {
-    LOG_ERR("%s", err.what());
+    LOG_DEBUG("%s", err.what());
     return UserChat(); // return empty user
   }
 
@@ -211,7 +242,7 @@ bool Postgres::user_contact_exists(const User &t_user, const User &t_contact) {
     transaction.commit();
 
   } catch (const std::exception &err) {
-    LOG_ERR("%s", err.what());
+    LOG_DEBUG("%s", err.what());
     return false;
   }
 
@@ -223,7 +254,7 @@ bool Postgres::user_contact_exists(const User &t_user, const User &t_contact) {
 bool Postgres::add_user(const User &t_user) {
 
   if (t_user.empty()) {
-    LOG_ERR("Cannot add an empty user.");
+    LOG_DEBUG("Cannot add an empty user.");
     return false;
   }
 
@@ -231,18 +262,18 @@ bool Postgres::add_user(const User &t_user) {
     pqxx::work transaction(m_conn);
 
     std::string query =
-        "INSERT INTO users (username, password, online, address) VALUES (";
+        "INSERT INTO users (username, password, online, address, port) VALUES (";
     query += transaction.quote(t_user.username()) + ",";
     query += transaction.quote(t_user.password()) + ",";
-    query +=
-        (t_user.online() ? std::string("TRUE") : std::string("FALSE")) + ",";
-    query += transaction.quote(t_user.address()) + " );";
+    query += (t_user.online() ? std::string("TRUE") : std::string("FALSE")) + ",";
+    query += transaction.quote(t_user.address()) + ",";
+    query += transaction.quote(t_user.port()) + " );";
 
     transaction.exec(query);
     transaction.commit();
 
   } catch (const std::exception &err) {
-    LOG_ERR("%s", err.what());
+    LOG_DEBUG("%s", err.what());
     return false;
   }
 
@@ -254,7 +285,7 @@ bool Postgres::add_user(const User &t_user) {
 bool Postgres::add_user_chat(const UserChat &t_chat) {
 
   if (t_chat.empty()) {
-   LOG_ERR("Cannot add a new chat as an empty user.");
+   LOG_DEBUG("Cannot add a new chat as an empty user.");
     return false;
   }
   try {
@@ -272,7 +303,7 @@ bool Postgres::add_user_chat(const UserChat &t_chat) {
     transaction.commit();
 
   } catch (const std::exception &err) {
-    LOG_ERR("%s", err.what());
+    LOG_DEBUG("%s", err.what());
     return false;
   }
 
@@ -284,7 +315,7 @@ bool Postgres::add_user_chat(const UserChat &t_chat) {
 bool Postgres::add_user_contact(const User &t_user, const User &t_contact) {
 
   if (t_user.empty() || t_contact.empty()) {
-    LOG_ERR("Cannot add an empty user.");
+    LOG_DEBUG("Cannot add an empty user.");
     return false;
   }
 
@@ -299,7 +330,33 @@ bool Postgres::add_user_contact(const User &t_user, const User &t_contact) {
     transaction.commit();
 
   } catch (const std::exception &err) {
-    LOG_ERR("%s", err.what());
+    LOG_DEBUG("%s", err.what());
+    return false;
+  }
+
+  return true;
+}
+
+/* */
+
+bool Postgres::add_user_token(const User &t_user, const std::string &t_token) {
+
+  if (t_user.empty()) {
+    LOG_DEBUG("Cannot add token to an empty user.");
+    return false;
+  }
+
+  try {
+    pqxx::work transaction(m_conn);
+    std::string query = "INSERT INTO tokens (user_id, token) VALUES (";
+    query += transaction.quote(t_user.id()) + ", ";
+    query += transaction.quote(t_token) + ");";
+
+    transaction.exec(query);
+    transaction.commit();
+
+  } catch (const std::exception &err) {
+    LOG_DEBUG("%s", err.what());
     return false;
   }
 
@@ -311,7 +368,7 @@ bool Postgres::add_user_contact(const User &t_user, const User &t_contact) {
 bool Postgres::remove_user(const User &t_user) {
 
   if (t_user.empty()) {
-    LOG_ERR("Cannot remove an empty user.");
+    LOG_DEBUG("Cannot remove an empty user.");
     return false;
   }
   try {
@@ -322,7 +379,32 @@ bool Postgres::remove_user(const User &t_user) {
     transaction.commit();
 
   } catch (const std::exception &err) {
-    LOG_ERR("%s", err.what());
+    LOG_DEBUG("%s", err.what());
+    return false;
+  }
+
+  return true;
+}
+
+/* */
+
+bool Postgres::remove_user_token(const User &t_user) {
+
+  if (t_user.empty()) {
+    LOG_DEBUG("Cannot remove token from an empty user.");
+    return false;
+  }
+  /* note that the app only support 1 session per user and will delete all tokens related 
+   * to a single user here 
+   * */
+  try {
+    pqxx::work transaction(m_conn);
+    std::string query = "DELETE FROM tokens where user_id = " + transaction.quote(t_user.id());
+    transaction.exec(query);
+    transaction.commit();
+
+  } catch (const std::exception &err) {
+    LOG_DEBUG("%s", err.what());
     return false;
   }
 
@@ -334,7 +416,7 @@ bool Postgres::remove_user(const User &t_user) {
 bool Postgres::remove_user_contact(const User &t_user, const User &t_contact) {
 
   if (t_user.empty() || t_contact.empty()) {
-    LOG_ERR("Cannot remove an empty user or contact.");
+    LOG_DEBUG("Cannot remove an empty user or contact.");
     return false;
   }
   try {
@@ -347,7 +429,7 @@ bool Postgres::remove_user_contact(const User &t_user, const User &t_contact) {
     transaction.commit();
 
   } catch (const std::exception &err) {
-    LOG_ERR("%s", err.what());
+    LOG_DEBUG("%s", err.what());
     return false;
   }
 
@@ -358,7 +440,7 @@ bool Postgres::remove_user_contact(const User &t_user, const User &t_contact) {
 
 bool Postgres::update_user(const User &t_user) {
   if (t_user.empty()) {
-    LOG_ERR("Cannot update an empty user.");
+    LOG_DEBUG("Cannot update an empty user.");
 
     return false;
   }
@@ -369,7 +451,7 @@ bool Postgres::update_user(const User &t_user) {
     transaction.commit();
 
   } catch (const std::exception &err) {
-    LOG_ERR("%s", err.what());
+    LOG_DEBUG("%s", err.what());
     return false;
   }
 
@@ -379,7 +461,7 @@ bool Postgres::update_user(const User &t_user) {
 
 bool Postgres::set_user_chat_to_delivered(const UserChat &t_user_chat) {
   if (t_user_chat.empty()) {
-    LOG_ERR("Cannot update an empty chat.");
+    LOG_DEBUG("Cannot update an empty chat.");
     return false;
   }
 
@@ -392,7 +474,7 @@ bool Postgres::set_user_chat_to_delivered(const UserChat &t_user_chat) {
     transaction.commit();
 
   } catch (const std::exception &err) {
-    LOG_ERR("%s", err.what());
+    LOG_DEBUG("%s", err.what());
     return false;
   }
 
@@ -407,14 +489,14 @@ bool Postgres::logoff(const User &t_user) {
   try {
     pqxx::work transaction(m_conn);
     std::string query =
-        "UPDATE users set address = NULL, online = FALSE where id = " +
+        "UPDATE users SET address = NULL, port = NULL, online = FALSE WHERE id = " +
         transaction.quote(t_user.id()) + ";";
 
     transaction.exec(query);
     transaction.commit();
 
   } catch (const std::exception &err) {
-    LOG_ERR("%s", err.what());
+    LOG_DEBUG("%s", err.what());
     return false;
   }
 
@@ -424,20 +506,23 @@ bool Postgres::logoff(const User &t_user) {
 /**** PRIVATE ****/
 
 Users Postgres::result_to_users(AggregatedQueryResult &&t_result) {
-  auto [_, ids, contacts, onlines, addreses] = t_result;
+  auto [_, ids, contacts, onlines, addreses, port] = t_result;
 
   StringVector ids_vec = StringUtils::split(ids, ",");
   StringVector contacts_vec = StringUtils::split(contacts, ",");
 
   StringVector onlines_vec = StringUtils::split(onlines, ",");
   StringVector addresses_vec = StringUtils::split(addreses, ",");
+
+  StringVector ports_vec = StringUtils::split(port, ",");
+
   Users users;
 
   for (std::size_t i = 0; i < ids_vec.size();
        i++) { // vector will always have the same length
     bool online = onlines_vec.at(i) == "true" ? true : false;
     int id = std::stoi(ids_vec.at(i));
-    User user = User(id, contacts_vec.at(i), online, addresses_vec.at(i));
+    User user = User(id, contacts_vec.at(i), online, addresses_vec.at(i), ports_vec.at(i));
     users.push_back(std::move(user));
   }
 
@@ -456,15 +541,21 @@ std::string Postgres::update_user_query(const User &t_user,
     case User::Username:
       query += "username = " + t_transaction.quote(t_user.username()) + ",";
       continue;
+
     case User::Password:
       query += "password = " + t_transaction.quote(t_user.password()) + ",";
       continue;
+
     case User::Address:
       query += "address = " + t_transaction.quote(t_user.address()) + ",";
       continue;
+
     case User::Online:
-      query += "online = " +
-               t_transaction.quote(t_user.online() ? "TRUE" : "FALSE") + ",";
+      query += "online = " + t_transaction.quote(t_user.online() ? "TRUE" : "FALSE") + ",";
+      continue;
+
+      case User::Port:
+      query += "port = " + t_transaction.quote(t_user.port()) + ",";;
       continue;
     }
   }
@@ -506,6 +597,13 @@ std::string Postgres::list_contacts_query(const User &t_user,
       "INNER JOIN users U3 "
       "ON C3.contact_id = U3.id "
       "WHERE U.id = C3.user_id "
+      "), "
+      "( "
+      "SELECT DISTINCT STRING_AGG(COALESCE(U5.port, ' '), ',') AS port "
+      "FROM contacts C5 "
+      "INNER JOIN users U5 "
+      "ON C5.contact_id = U5.id "
+      "WHERE U.id = C5.user_id "
       ") "
       "FROM contacts C "
       "JOIN users U "
@@ -522,7 +620,7 @@ Postgres::search_contact_query(const User &t_user,
                                pqxx::work &t_transaction) const {
 
   std::string query =
-      "SELECT U.id, U.username, U.password, U.online, U.address "
+      "SELECT U.id, U.username, U.password, U.online, U.address, U.port "
       "FROM contacts C "
       "INNER JOIN users U "
       "ON C.contact_id = U.id "
@@ -564,8 +662,9 @@ TEST_CASE("Postgres (ensure that you have postgres setup)") {
   }
 
   SUBCASE("list user contacts") {
-
-    User user(0, "khalil", "123", true, "123");
+     
+    std::string port("");
+    User user(0, "khalil", "123", true, "123", port);
 
     Users users = pg.list_user_contacts(user);
   }
@@ -633,7 +732,9 @@ TEST_CASE("Postgres (ensure that you have postgres setup)") {
 
   SUBCASE("Add and Remove new user") {
 
-    User u(0, "pedro", "1234", false, "123.43.453.12");
+    std::string port("123");
+    User u(0, "khalil", "123", true, "123", port);
+
     pg.add_user(u);
 
     User res = pg.search_user_by("pedro", "username");
@@ -648,7 +749,8 @@ TEST_CASE("Postgres (ensure that you have postgres setup)") {
   SUBCASE("Update Existing user") {
 
     // add user to udate so we don't break other tests
-    User u_add(0, "pedro", "1234", false, "123.43.453.12");
+    std::string port("123");
+    User u_add(0, "pedro", "1234", false, "123.43.453.12", port);
     pg.add_user(u_add);
 
     std::string username = "pedro";

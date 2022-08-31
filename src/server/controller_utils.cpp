@@ -21,3 +21,13 @@ void ControllerUtils::set_request_reply(bool t_valid, Request &t_req) {
   }
 }
 
+void ControllerUtils::set_request_reply(bool t_valid, std::string &&t_msg, Request &t_req) {
+  if (t_valid) {
+    set_request_reply(Reply::r_201, std::move(t_msg), t_req);
+
+  } else {
+    set_request_reply(Reply::r_500, t_req);
+  }
+}
+
+

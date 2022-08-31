@@ -9,6 +9,7 @@
 struct Request {
   int         m_socket;
   std::string m_address;
+  std::string m_token;
   bool        m_valid;
   bool        m_exit;
 
@@ -16,6 +17,8 @@ struct Request {
   ~Request();
 
   void        set_data(Data *t_data) ;
+  void        set_token(std::string &t_token);
+  void        set_token(std::string &&t_token);
   Data::type  data_type();
   bool        data_empty();
   const Data* data() const; // data returns const to prevent being modified anywhere else.

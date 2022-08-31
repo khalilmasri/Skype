@@ -19,7 +19,7 @@ void ChatControllers::send(std::string &t_arg, Request &t_req) {
     ControllerUtils::set_request_reply(Reply::r_502, t_req);
   }
 
-  User sender = m_pg.search_user_by(t_req.m_address, "address");
+  User sender = m_pg.search_user_by_token(t_req.m_token);
   User recipient = m_pg.search_user_by(recipient_id, "id");
   
   if (!sender.empty() && !recipient.empty()) {
@@ -86,8 +86,7 @@ void ChatControllers::delivered(std::string &t_arg, Request &t_req){
 /** PRIVATE **/
 
 void  ChatControllers::get_chats(std::string &t_arg, Request &t_req, const bool t_pending){
-  User user = m_pg.search_user_by(t_req.m_address, "address");
-
+   User user = m_pg.search_user_by_token(t_req.m_token);
 
   if (user.empty()) {
     ControllerUtils::set_request_reply(Reply::r_301, t_req);

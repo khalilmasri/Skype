@@ -42,11 +42,13 @@ void Server::disconnect_on_client_request(Request &t_req) {
 }
 
 void Server::disconnect_client_on_failure(Request &t_req) {
-  //  valid received always yields m_socket >= 0
-  //  only disconnections on errors for valid receives.
+  //  valid receives will always yields m_socket >= 0
   if (!t_req.m_valid && t_req.m_socket >= 0) {
     LOG_ERR("Client %s communication failed. Closing connection...",
             t_req.m_address.c_str());
+ 
+    std::string empty;
+    UserControllers::exit(empty, t_req); // forcefully calls exist to update database.
 
     m_conn.disconnect_client(t_req);
   }

@@ -1,9 +1,9 @@
 #include "router.hpp"
+#include "chat_controllers.hpp"
 #include "doctest.h"
 #include "server_commands.hpp"
 #include "string_utils.hpp"
 #include "text_data.hpp"
-#include "chat_controllers.hpp"
 
 #include <tuple>
 
@@ -17,12 +17,13 @@ Router::Router()
           {ServerCommand::Remove, UserControllers::remove},
           {ServerCommand::Ping, UserControllers::ping},
           {ServerCommand::Available, UserControllers::available},
-          {ServerCommand::Exit, UserControllers::exit}, 
-          {ServerCommand::Send, ChatControllers::send}, 
-          {ServerCommand::Pending, ChatControllers::pending}, 
-          {ServerCommand::Chat, ChatControllers::chat}, 
-          {ServerCommand::Delivered, ChatControllers::delivered}, 
-          {ServerCommand::None, UserControllers::none}, // this when calling unexisting command
+          {ServerCommand::Exit, UserControllers::exit},
+          {ServerCommand::Send, ChatControllers::send},
+          {ServerCommand::Pending, ChatControllers::pending},
+          {ServerCommand::Chat, ChatControllers::chat},
+          {ServerCommand::Delivered, ChatControllers::delivered},
+          {ServerCommand::None,
+           UserControllers::none}, // this when calling unexisting command
       }){};
 
 void Router::route(Request &t_req) {
@@ -32,13 +33,15 @@ void Router::route(Request &t_req) {
     return;
   }
 
-  auto [command, arguments] = parse(t_req);
+  auto [command, token, arguments] = parse(t_req);
 
-  if (!is_loggedin(command, t_req)) { // checks if IP exists in the database. If not, user has not logged in.
+  // checks if token is properly is correct
+  if (!is_loggedin(command, token, t_req)) { 
     return;
   }
 
   if (validate_argument(command, arguments)) {
+    t_req.set_token(std::move(token)); // token to the request struct
     m_controllers[command](arguments, t_req);
 
   } else {
@@ -49,14 +52,20 @@ void Router::route(Request &t_req) {
 Router::CmdTuple Router::parse(Request &t_req) {
 
   std::string raw_msg = TextData::to_string(t_req.data());
-  auto [command, arguments] = StringUtils::split_first(raw_msg);
+  auto [command, body] = StringUtils::split_first(raw_msg);
+  auto cmd = ServerCommand::get(command);
 
-  return std::make_tuple(ServerCommand::get(command), arguments);
+  if (require_login(cmd)) { // will parse token only if is command that require login
+    auto [token, arguments] = StringUtils::split_first(body);
+    return std::make_tuple(cmd, token, arguments);
+  }
+
+  return std::make_tuple(cmd, "", body);
 }
 
 bool Router::validate_argument(ServerCommand::name t_cmd, std::string &t_arg) {
 
-  if(ServerCommand::has_zero_or_more_arguments(t_cmd)){
+  if (ServerCommand::has_zero_or_more_arguments(t_cmd)) {
     return true;
   }
 
@@ -68,23 +77,27 @@ bool Router::validate_argument(ServerCommand::name t_cmd, std::string &t_arg) {
   }
 }
 
-bool Router::is_loggedin(ServerCommand::name t_cmd, Request &t_req) {
+bool Router::is_loggedin(ServerCommand::name t_cmd, std::string &t_token, Request &t_req) {
 
-  if (t_cmd != ServerCommand::Login && 
-      t_cmd != ServerCommand::Create && 
-       t_cmd != ServerCommand::Exit // exit command is allowed when user is not logged in.
-      ) {
-    return UserControllers::ip_exists(t_req);
+  if (require_login(t_cmd)) {
+      return UserControllers::is_valid_token(t_token, t_req);
+   // return UserControllers::ip_exists(t_req);
   }
 
   return true;
 }
 
-void Router::invalid_command(Request &t_req){
-    std::string reply = Reply::get_message(Reply::r_501);
-    t_req.set_data(new TextData(reply));
+void Router::invalid_command(Request &t_req) {
+  std::string reply = Reply::get_message(Reply::r_501);
+  t_req.set_data(new TextData(reply));
 }
-  
+
+/* these are the only commands that don't require user to be logged in */
+bool Router::require_login(ServerCommand::name t_cmd) {
+  return t_cmd != ServerCommand::Login
+         && t_cmd != ServerCommand::Create
+         && t_cmd != ServerCommand::Exit;
+}
 
 /** TESTS **/
 
@@ -93,7 +106,7 @@ TEST_CASE(
 
   Router router;
   Postgres pg; // just to check was written to database
-               
+
   SUBCASE("LIST Users contacts") {
     Request req;
     req.m_address = "123.453.3.1"; // must match user IP
@@ -131,7 +144,8 @@ TEST_CASE(
 
   SUBCASE("LOGIN user") {
 
-    User u = User(0, "marcos", "1234", true, "127.0.0.1");
+    std::string port = "2000";
+    User u = User(0, "marcos", "1234", true, "127.0.0.1", port);
     pg.add_user(u); // add user for testing and not mess around with seed data.
 
     Request req;

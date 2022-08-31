@@ -3,7 +3,7 @@
 const std::unordered_map<Reply::Code, std::string> Reply::m_replies {
   {r_200, "200 OK"},
   {r_201, "201"}, // appends
-  {r_202, "202 Please login"},
+  {r_202, "202 Invalid token. Please login"},
   {r_300, "300 Not OK"},
   {r_301, "301 User not found"},
   {r_302, "302 User already exist"},

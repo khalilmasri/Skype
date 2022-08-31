@@ -1,5 +1,6 @@
 DROP TABLE IF EXISTS chats;
 DROP TABLE IF EXISTS contacts;
+DROP TABLE IF EXISTS tokens;
 DROP TABLE IF EXISTS users;
 
 CREATE TABLE IF NOT EXISTS contacts (
@@ -13,7 +14,8 @@ CREATE TABLE IF NOT EXISTS users (
      username VARCHAR(100) NOT NULL UNIQUE, -- username must be unique
      password VARCHAR(100) NOT NULL, 
      online BOOLEAN NOT NULL,
-     address VARCHAR(100) UNIQUE -- IP must be unique
+     address VARCHAR(100),
+     port    VARCHAR(10)
 );
 
 ALTER TABLE contacts 
@@ -24,17 +26,17 @@ ALTER TABLE contacts
      ADD FOREIGN KEY (contact_id)
      REFERENCES users (id);
 
-INSERT INTO users(username, password, online, address)
-VALUES ('john', '1234', FALSE , NULL);
+INSERT INTO users(username, password, online, address, port)
+VALUES ('john', '1234', FALSE , NULL, NULL);
 
-INSERT INTO users(username, password, online, address)
-VALUES ('mario', '1234', FALSE , NULL);
+INSERT INTO users(username, password, online, address, port)
+VALUES ('mario', '1234', FALSE , NULL, NULL);
 
-INSERT INTO users(username, password, online, address)
-VALUES ('shakira', '1234', FALSE , NULL);
+INSERT INTO users(username, password, online, address, port)
+VALUES ('shakira', '1234', FALSE , NULL, NULL);
 
-INSERT INTO users(username, password, online, address)
-VALUES ('marcos', '1234', FALSE , NULL );
+INSERT INTO users(username, password, online, address, port)
+VALUES ('marcos', '1234', FALSE , NULL, NULL );
 
 INSERT INTO contacts(user_id, contact_id)
 VALUES (1, 2);
@@ -50,6 +52,20 @@ VALUES (3, 2);
 
 INSERT INTO contacts(user_id, contact_id)
 VALUES (2, 1);
+
+-- TOKENS
+
+CREATE TABLE IF NOT EXISTS tokens (
+    id BIGSERIAL NOT NULL PRIMARY KEY,
+     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(2),
+     user_id INT NOT NULL,
+     token VARCHAR(100)
+);
+
+ALTER TABLE tokens 
+  ADD FOREIGN KEY (user_id)
+  REFERENCES users(id);
+
 
 -- CHATS
 
