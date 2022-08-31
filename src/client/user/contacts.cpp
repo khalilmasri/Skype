@@ -150,16 +150,14 @@ fail:
     return false;
 }
 
-QHash<int, QString> Contacts::display_contacts() {
+QHash<int, struct Details> Contacts::display_contacts() {
 
-    QHash<int, QString> contact_list;
+    QHash<int, struct Details> contact_list;
 
     FAIL_IF_SILENT ( true == m_online_contacts.empty() );
 
-    for (auto contact = m_online_contacts.begin(); contact != m_online_contacts.end(); contact++)
-    {
-        contact_list.insert(contact.key(), QString::fromStdString(contact->username));
-    }
+    contact_list = m_online_contacts;
+
     return contact_list;
 
 fail:
@@ -184,14 +182,14 @@ void Contacts::update_contacts(std::string t_response) {
 
     StringUtils::StringVector users = StringUtils::split(t_response);
 
-    m_old_contacts = m_online_contacts;
+    auto size = m_online_contacts.size();
     m_online_contacts.clear();
 
     for ( auto &user : users) {
         pair_contact_details(user); 
     }
 
-    bool ret =  m_online_contacts.size() == m_old_contacts.size();
+    bool ret = (size == m_online_contacts.size());
     if ( false == ret){
         LOG_INFO("Updating map");
         JobBus::create({Job::DISP_CONTACTS});
@@ -211,6 +209,7 @@ void Contacts::pair_contact_details(std::string t_user) {
         
         if ( key == "id" ) {
             ID = stoi(pair);
+            details.ID = ID;
         }
 
         if ( key == "username" ) {

@@ -25,9 +25,13 @@ Program::Program()
 
     QObject::connect(m_bus, &JobBus::job_ready, this, &Program::handle_response);
     QObject::connect(m_chat, &ChatGui::ready_signal, m_welcome, &WelcomeGui::stop_loading);
+    QObject::connect(m_chat, &ChatGui::ready_signal, m_welcome, &JobBus::timer_start);
     QObject::connect(m_welcome, &WelcomeGui::stopped_loading, this, &Program::switch_to_chat);
-    QObject::connect(m_chat, &ChatGui::ready_signal, m_bus, &JobBus::timer_start);
+    QObject::connect(m_chat, &ChatGui::wrapping, m_bus, &JobBus::set_exit);
     
+    QThread *bus_loop = QThread::create(&JobBus::handle);
+    bus_loop->start();
+
     m_welcome->show();
 
 }

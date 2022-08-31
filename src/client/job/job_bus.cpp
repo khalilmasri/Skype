@@ -14,6 +14,7 @@ JobBus* JobBus::m_instance = nullptr;
 JobQueue JobBus::m_jobQ;
 JobQueue JobBus::m_resQ;
 
+QTimer *timer = new QTimer();
 
 JobBus::JobsMap JobBus::m_JobBus_map {
 
@@ -40,7 +41,6 @@ JobBus* JobBus::get_instance()
 {
     if(!m_instance){
         m_instance = new JobBus();
-        QObject::connect(m_instance, &JobBus::new_job, m_instance, &JobBus::handle);
     }
 
     return m_instance;
@@ -52,29 +52,32 @@ JobBus::~JobBus()
 
 void JobBus::create(Job &&t_job){
     m_jobQ.push(t_job);
-    emit JobBus::get_instance()->new_job();
 }
 
 void JobBus::create(Job &t_job){
     m_jobQ.push(t_job);
-    emit JobBus::get_instance()->new_job();
 }
 
 void JobBus::handle() {
    
     Job job;
 
-    if (false == m_jobQ.empty()) {      
+    while ( false == m_exit_loop)
+    {
+         if (false == m_jobQ.empty()) {      
         
-        m_jobQ.pop_try(job);
-        m_JobBus_map[job.m_command](job);
+            m_jobQ.pop_try(job);
+            m_JobBus_map[job.m_command](job);
 
-        if ( Job::DISCARD != job.m_command )
-        {
-            m_resQ.push(job);
-            emit JobBus::get_instance()->job_ready();
+            if ( Job::DISCARD != job.m_command )
+            {
+                m_resQ.push(job);
+                emit JobBus::get_instance()->job_ready();
+            }
         }
-    }  
+        QThread::usleep(100);  
+    }
+   
 }
 
 bool JobBus::get_response(Job &t_job){
@@ -91,25 +94,19 @@ bool JobBus::get_response(Job &t_job){
 
     return true;
 } 
-        QTimer *timer = new QTimer();
+       
 
 void JobBus::timer_start()
 {
-     QThread *run = QThread::create([]{
     connect(timer, &QTimer::timeout, JobBus::get_instance(), &JobBus::repeated_tasks);
-    timer->start(1000); 
-    });
-         run->start();
-
+    timer->start(1000);    
 }
+
 void JobBus::repeated_tasks()
 {
-    std::cout << "here\n";
-    QThread *run = QThread::create([]{
-        JobBus::create({Job::PENDING});
-        JobBus::create({Job::LIST});  
-    });
+    JobBus::create({Job::PENDING});
+    JobBus::create({Job::LIST});  
 
-    run->start();
 }
+
 void JobBus::set_exit() { m_exit_loop = true; }

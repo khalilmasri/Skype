@@ -44,7 +44,7 @@ struct Job {
     bool m_valid = false;
     std::string m_string = "";
     int m_intValue = -1;
-    QHash<int, QString> m_contact_list = {};
+    QHash<int, struct Details> m_contact_list = {};
     QVector<Chat> m_chats = {};
     QString m_qstring = "";
 };

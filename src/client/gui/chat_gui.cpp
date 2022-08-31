@@ -41,6 +41,7 @@ ChatGui::ChatGui(QWidget *parent) :
 
 ChatGui::~ChatGui()
 {
+    emit wrapping();
     delete m_ui;
 }
 
@@ -78,10 +79,11 @@ void ChatGui::job_disp_contact(Job &t_job)
     m_ui->contact_list->clear();
     for ( auto &contact : t_job.m_contact_list)
     {
-        m_ui->contact_list->addItem(contact);
-    }
+        m_ui->contact_list->addItem(QString::fromStdString(contact.username));
+    }   
 
-    m_contact_list = t_job.m_contact_list;
+  emit ready_signal();
+      m_contact_list = t_job.m_contact_list;
 
     if ( true == first_display)
     {
@@ -165,7 +167,7 @@ void ChatGui::reject()
       QDialog::reject();
     }
 }
-
+           
 void ChatGui::job_load_chat(Job &t_job)
 {
 
@@ -216,13 +218,14 @@ void ChatGui::job_send_msg(Job &t_job)
        return;
    }
 
-   QString user = m_current_selected.data(Qt::DisplayRole).toString();
-   auto contact = m_contact_list.key(user);
+    QString user = m_current_selected.data(Qt::DisplayRole).toString();
+    auto contact = search_contact_list(user, "username");
 
-   if ( 0 == contact)
-   {
-       return;
-   }
+    if ( 0 == contact)
+    {
+        return;
+    }
+    
     m_contact_chat[t_job.m_intValue].append(m_user);
     m_contact_chat[t_job.m_intValue].append("Today " + t_job.m_qstring);
     m_contact_chat[t_job.m_intValue].append(QString::fromStdString(t_job.m_string + "\n"));
@@ -240,7 +243,7 @@ void ChatGui::send_msg()
 
     QString time = QDateTime::currentDateTime().toString(QLatin1String("hh:mm"));
     QString user = m_current_selected.data(Qt::DisplayRole).toString();
-    auto contact = m_contact_list.key(user);
+    auto contact = search_contact_list(user, "username");
 
     if ( 0 == contact)
     {
@@ -260,7 +263,7 @@ void ChatGui::send_msg()
 
 void ChatGui::display_chat(QString &t_contact)
 {
-    auto contact = m_contact_list.key(t_contact);
+    auto contact = search_contact_list(t_contact, "username");
 
     if (contact == 0)
     {
@@ -294,11 +297,11 @@ void ChatGui::load_chat(QVector<Chat> &chats, bool t_notification)
         }
         else
         {  
-            m_contact_chat[chat.sender()].append(m_contact_list[chat.sender()]);
+            m_contact_chat[chat.sender()].append(QString::fromStdString(m_contact_list[chat.sender()].username));
             m_contact_chat[chat.sender()].append(QString::fromStdString(time) + "\n" + QString::fromStdString(chat.text()+ "\n"));   
              if ( true == t_notification)
             {         
-                m_notification->setPopupText(m_contact_list[chat.sender()] + "\n" + QString::fromStdString(chat.text().substr(0,10)));
+                m_notification->setPopupText(QString::fromStdString(m_contact_list[chat.sender()].username)+ "\n" + QString::fromStdString(chat.text().substr(0,20)));
                 m_notification->show();       
             }        
         }
@@ -310,6 +313,25 @@ void ChatGui::load_chat(QVector<Chat> &chats, bool t_notification)
     }
 }
 
+template <typename T>
+int ChatGui::search_contact_list(T t_value, QString t_type)
+{
+    
+    for (auto contact = m_contact_list.begin(); contact != m_contact_list.end(); contact++)
+    {
+        if (t_type == "online" && t_value == contact->online)
+        {
+            return contact->ID;
+        }
+
+        if (t_type == "username" && t_value == QString::fromStdString(contact->username))
+        {
+            return contact->ID;
+        } 
+    }
+
+    return 0;
+}
 // ***** SLOTS ***** //
 
 void ChatGui::on_contact_list_clicked(const QModelIndex &index)
