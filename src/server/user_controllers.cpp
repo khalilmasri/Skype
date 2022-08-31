@@ -163,8 +163,14 @@ void UserControllers::exit(std::string &_, Request &t_req) {
   //User user = m_pg.search_user_by(t_req.m_address, "address");
   User user = m_pg.search_user_by_token(t_req.m_token);
 
-  // if no token is passed in just exist
-  if (!user.empty()) { // if user is logged in then logoff.
+  if(user.empty()){
+    LOG_INFO("No token was provided on EXIT. Forcefully removing %s session.", t_req.m_address.c_str());
+  }
+
+  // if no token is passed in look for users IP address and forcefully disconnect.
+  user = user.empty() ? m_pg.search_user_by(t_req.m_address, "address") : user;
+
+  if (!user.empty()) { 
     m_pg.logoff(user);
     // destroys the session.
     m_pg.remove_user_token(user);
