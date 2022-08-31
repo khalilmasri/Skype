@@ -13,7 +13,7 @@ std::string TokenGenerator::generate(const int length) {
 }
 
 char TokenGenerator::random_char(){
-  const char charset[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*_-?abcdefghijklmnopqrstuvwxyz";
+  const char charset[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 
     const size_t max_index = strlen(charset) - 1;
     return charset[rand() % max_index];

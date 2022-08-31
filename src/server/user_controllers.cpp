@@ -5,10 +5,12 @@
 #include "text_data.hpp"
 #include "controller_utils.hpp"
 #include <iostream>
-
-#define CONTACT_DELIM " "
+#include "token_gen.hpp"
 
 Postgres UserControllers::m_pg = Postgres();
+
+const std::size_t  UserControllers::m_TOKEN_LENGTH = 38;
+const std::string  UserControllers::m_CONTACT_DELIM = " ";
 
 void UserControllers::list(std::string &_, Request &t_req) {
   UNUSED_PARAMS(_);
@@ -157,6 +159,8 @@ void UserControllers::exit(std::string &_, Request &t_req) {
   // logoff sets address column to NULL online to FALSE.
   if (!user.empty()) { // if user is logged in then logoff.
     m_pg.logoff(user);
+    // destroys the session.
+    m_pg.remove_user_token(user);
   }
 
   t_req.m_exit = true;
@@ -171,7 +175,7 @@ void UserControllers::none(std::string &_, Request &t_req) {
 
 bool UserControllers::ip_exists(Request &t_req) {
 
-  User user = m_pg.search_user_by(t_req.m_address, "address");
+User user = m_pg.search_user_by(t_req.m_address, "address");
 
   if (user.empty()) {
     ControllerUtils::set_request_reply(Reply::r_202, t_req);
@@ -184,12 +188,15 @@ bool UserControllers::ip_exists(Request &t_req) {
 
 void UserControllers::login_user(User &t_user, Request &t_req) {
 
+  std::string token = TokenGenerator::generate(m_TOKEN_LENGTH);
+
   t_user.update("true", User::Online);
   t_user.update(t_req.m_address, User::Address);
 
-  bool res = m_pg.update_user(t_user);
+  bool token_res = m_pg.add_user_token(t_user, token);
+  bool user_res = m_pg.update_user(t_user);
 
-  ControllerUtils::set_request_reply(res, t_req);
+  ControllerUtils::set_request_reply(token_res && user_res, std::move(token), t_req);
 }
 
 void UserControllers::list_contacts(Users &t_contacts, Request &t_req) {
@@ -199,7 +206,7 @@ void UserControllers::list_contacts(Users &t_contacts, Request &t_req) {
     std::string reply_msg;
 
     for (auto &contact : t_contacts) {
-      reply_msg += contact.to_string() + CONTACT_DELIM;
+      reply_msg += contact.to_string() + m_CONTACT_DELIM;
     }
 
     reply_msg.pop_back(); // remove last delim

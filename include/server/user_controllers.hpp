@@ -25,6 +25,8 @@ struct UserControllers {
 
   private:
   static Postgres m_pg;
+  static const std::size_t  m_TOKEN_LENGTH;
+  static const std::string  m_CONTACT_DELIM;
 
    /* list */
   static void  list_contacts(Users &t_contacts, Request &t_req);

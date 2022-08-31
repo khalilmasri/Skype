@@ -84,8 +84,6 @@ UserChats Postgres::list_user_chats(const User &t_user, const bool t_pending, co
 
 /* */
 
-/* */
-
 Users Postgres::list_user_contacts(const User &t_user) {
 
   AggregatedQueryResult result;
@@ -107,6 +105,39 @@ Users Postgres::list_user_contacts(const User &t_user) {
   return result_to_users(std::move(result));
 }
 
+/* */
+
+User Postgres::search_user_by_token(const std::string &t_token) {
+
+  std::tuple<int, std::string, std::string, bool, std::string> results;
+
+  try {
+    pqxx::work transaction( m_conn); 
+
+    std::string  query = "SELECT T.user_id, U.username, U.password, U.online, COALESCE(U.address, ' ')"
+                         " FROM tokens AS T"
+                         " JOIN users AS U"
+                         " ON T.user_id = U.id"
+                         " WHERE t.token = " + transaction.quote(t_token);
+                         
+
+    pqxx::row row = transaction.exec1(query);
+
+    transaction.commit();
+    row.to(results);
+
+  } catch (const std::exception &err) {
+    LOG_ERR("%s", err.what());
+    return User(); // return empty user
+  }
+
+  auto [id, username, password, online, address] = results;
+
+  return User(id, username, password, online, address);
+}
+
+/* */
+
 User Postgres::search_user_by(const char *t_term, const char *t_field) {
   std::string term(t_term);
   return search_user_by(term, t_field);
@@ -120,8 +151,8 @@ User Postgres::search_user_by(const std::string &t_term, const char *t_field) {
   std::string field(t_field);
 
   try {
-    pqxx::work transaction(
-        m_conn); // COALESCE substitute NULL with empty string
+    pqxx::work transaction( m_conn); 
+    // COALESCE substitutes NULL with empty string
     pqxx::row row =
         transaction.exec1("SELECT id, username, password, online, "
                           "COALESCE(address, ' ') FROM users WHERE " +
@@ -140,16 +171,16 @@ User Postgres::search_user_by(const std::string &t_term, const char *t_field) {
   return User(id, username, password, online, address);
 }
 
-User Postgres::search_user_contact(const User &t_user,
-                                   const char *t_contact_username) {
+/* */
+
+User Postgres::search_user_contact(const User &t_user, const char *t_contact_username) {
   std::string contact(t_contact_username);
   return search_user_contact(t_user, contact);
 }
 
 /* */
 
-User Postgres::search_user_contact(const User &t_user,
-                                   const std::string &t_contact_username) {
+User Postgres::search_user_contact(const User &t_user, const std::string &t_contact_username) {
 
   std::tuple<int, std::string, std::string, bool, std::string> results;
 
@@ -308,6 +339,32 @@ bool Postgres::add_user_contact(const User &t_user, const User &t_contact) {
 
 /* */
 
+bool Postgres::add_user_token(const User &t_user, const std::string &t_token) {
+
+  if (t_user.empty()) {
+    LOG_ERR("Cannot add token to an empty user.");
+    return false;
+  }
+
+  try {
+    pqxx::work transaction(m_conn);
+    std::string query = "INSERT INTO tokens (user_id, token) VALUES (";
+    query += transaction.quote(t_user.id()) + ", ";
+    query += transaction.quote(t_token) + ");";
+
+    transaction.exec(query);
+    transaction.commit();
+
+  } catch (const std::exception &err) {
+    LOG_ERR("%s", err.what());
+    return false;
+  }
+
+  return true;
+}
+
+/* */
+
 bool Postgres::remove_user(const User &t_user) {
 
   if (t_user.empty()) {
@@ -318,6 +375,31 @@ bool Postgres::remove_user(const User &t_user) {
     pqxx::work transaction(m_conn);
     std::string query =
         "DELETE FROM users where id = " + transaction.quote(t_user.id());
+    transaction.exec(query);
+    transaction.commit();
+
+  } catch (const std::exception &err) {
+    LOG_ERR("%s", err.what());
+    return false;
+  }
+
+  return true;
+}
+
+/* */
+
+bool Postgres::remove_user_token(const User &t_user) {
+
+  if (t_user.empty()) {
+    LOG_ERR("Cannot remove token from an empty user.");
+    return false;
+  }
+  /* note that the app only support 1 session per user and will delete all tokens related 
+   * to a single user here 
+   * */
+  try {
+    pqxx::work transaction(m_conn);
+    std::string query = "DELETE FROM tokens where user_id = " + transaction.quote(t_user.id());
     transaction.exec(query);
     transaction.commit();
 

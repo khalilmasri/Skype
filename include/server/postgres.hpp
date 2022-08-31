@@ -16,7 +16,9 @@ public:
 
   Users       list_users();
   Users       list_user_contacts(const User &t_user);
-  UserChats   list_user_chats(const User &t_user, const bool t_pending , const User &t_sender = User());
+  UserChats   list_user_chats(const User &t_user, const bool t_pending, const User &t_sender = User());
+
+  User        search_user_by_token(const std::string &t_token);
   User        search_user_by(const std::string &t_term, const char *t_field);
   User        search_user_by(const char *t_term, const char *t_field);
   UserChat    search_user_chat_by(const std::string &t_term, const char *t_field);
@@ -27,9 +29,11 @@ public:
   bool        add_user_chat(const UserChat &t_chat);
   bool        add_user(const User &t_user);
   bool        add_user_contact(const User &t_user, const User &t_contact);
+  bool        add_user_token(const User &t_user, const std::string &t_token);
 
   bool        remove_user(const User &t_user);
   bool        remove_user_contact(const User &t_user, const User &t_contact);
+  bool        remove_user_token(const User &t_user);
   bool        update_user(const User &t_user);
 
   bool        set_user_chat_to_delivered(const UserChat &t_user_chat);
