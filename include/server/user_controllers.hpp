@@ -23,6 +23,9 @@ struct UserControllers {
   // helper to check if user is logged in 
   static bool ip_exists(Request &t_req); 
 
+  // checks token is valid
+  static bool is_valid_token(std::string &t_token, Request &t_req);
+
   private:
   static Postgres m_pg;
   static const std::size_t  m_TOKEN_LENGTH;

@@ -1,5 +1,6 @@
 #include "user_controllers.hpp"
 #include "doctest.h"
+#include "logger.hpp"
 #include "string_utils.hpp"
 #include "supress_unused_params_warnings.hpp"
 #include "text_data.hpp"
@@ -175,7 +176,7 @@ void UserControllers::none(std::string &_, Request &t_req) {
 
 bool UserControllers::ip_exists(Request &t_req) {
 
-User user = m_pg.search_user_by(t_req.m_address, "address");
+  User user = m_pg.search_user_by(t_req.m_address, "address");
 
   if (user.empty()) {
     ControllerUtils::set_request_reply(Reply::r_202, t_req);
@@ -184,7 +185,19 @@ User user = m_pg.search_user_by(t_req.m_address, "address");
   return !user.empty();
 }
 
+bool UserControllers::is_valid_token(std::string &t_token, Request &t_req){
+
+  User user = m_pg.search_user_by_token(t_token);
+
+  if(user.empty()){
+     ControllerUtils::set_request_reply(Reply::r_202, t_req);
+     LOG_DEBUG("User requested without a valid token.")
+     return false;
+  }
+
+  return true;
 /**************** PRIVATE ****************/
+}
 
 void UserControllers::login_user(User &t_user, Request &t_req) {
 
