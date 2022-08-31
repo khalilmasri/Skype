@@ -78,8 +78,8 @@ void Program::job_login(Job &t_job)
         return;
     }
 
-    JobBus::create({Job::GETID});
     m_welcome->load_screen();
+    JobBus::create({Job::GETID}); 
     m_chat->init();
 }
 

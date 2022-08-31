@@ -66,9 +66,9 @@ void WelcomeGui::load_screen()
 }
 
 void WelcomeGui::stop_loading()
-{
-    m_loading_gif->stop();
-    emit stopped_loading();
+{ 
+    QTimer::singleShot(1500,m_loading_gif,SLOT(stop()));
+    QTimer::singleShot(1500,this, SIGNAL(stopped_loading()));
 }
 // ***** PRIVATE ***** //
 

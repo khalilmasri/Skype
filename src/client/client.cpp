@@ -63,13 +63,13 @@ Client::~Client(){
 /* Contact direct */
 
 void Client::contact_get_contacts(Job &t_job) {
-   LOG_TRACE("Getting contacts to display...")
+   LOG_DEBUG("Getting contacts to display...")
    t_job.m_contact_list = m_contacts.display_contacts();
 
    if (false == t_job.m_contact_list.empty()){
       t_job.m_valid = true;
    }
-   LOG_TRACE("Fetching display contacts is done!");
+   LOG_DEBUG("Fetching display contacts is done!");
 }
 
 void Client::contact_list(Job &t_job) {
@@ -77,25 +77,25 @@ void Client::contact_list(Job &t_job) {
 }
 
 void Client::contact_search(Job &t_job) {
-   LOG_TRACE("Searching for user");
+   LOG_DEBUG("Searching for user");
    m_server_req.set_data(new TextData(t_job.m_argument));
    t_job.m_valid = m_contacts.search(m_server_conn, m_server_req);
 }
 
 void Client::contact_add_user(Job &t_job) {
-   LOG_TRACE("Adding user");
+   LOG_DEBUG("Adding user");
    m_server_req.set_data(new TextData(t_job.m_argument));
    t_job.m_valid = m_contacts.add_user(m_server_conn, m_server_req);
 }
 
 void Client::contact_remove_user(Job &t_job) {
-   LOG_TRACE("Removing user");
+   LOG_DEBUG("Removing user");
    m_server_req.set_data(new TextData(t_job.m_argument));
    t_job.m_valid = m_contacts.remove_user(m_server_conn,m_server_req);
 }
 
 void Client::contact_available(Job &t_job) {
-   LOG_TRACE("Checking for user availability!");
+   LOG_DEBUG("Checking for user availability!");
    m_server_req.set_data(new TextData(t_job.m_argument));
    t_job.m_valid = m_contacts.available(m_server_conn, m_server_req);
 }
@@ -103,7 +103,7 @@ void Client::contact_available(Job &t_job) {
 
 /* User direct */
 void Client::user_set_username(Job &t_job){
-   LOG_TRACE("Setting username!");
+   LOG_DEBUG("Setting username!");
    t_job.m_valid = m_user.set_username(t_job.m_argument);
 }
 
@@ -112,17 +112,17 @@ void Client::user_set_password(Job &t_job){
 }
 
 void Client::user_register_user(Job &t_job){
-   LOG_TRACE("Registering user!");
+   LOG_DEBUG("Registering user!");
    t_job.m_valid = m_user.register_user(m_server_conn, m_server_req);
 }
 
 void Client::user_login(Job &t_job) {
-   LOG_TRACE("Logging to user!");
+   LOG_DEBUG("Logging to user!");
    t_job.m_valid = m_user.login(m_server_conn, m_server_req);
 }
 
 void Client::user_get_username(Job &t_job){
-   LOG_TRACE("Getting username!");
+   LOG_DEBUG("Getting username!");
    t_job.m_string = m_user.get_username();
 
    if ("" != t_job.m_string){
@@ -131,13 +131,13 @@ void Client::user_get_username(Job &t_job){
 }
 
 void Client::user_get_logged_in(Job &t_job) {
-   LOG_TRACE("Getting user log status!");
+   LOG_DEBUG("Getting user log status!");
    t_job.m_valid = m_user.get_logged_in();
 }
 
 void Client::user_get_id(Job &t_job)
 {
-   LOG_TRACE("Getting user ID!");
+   LOG_DEBUG("Getting user ID!");
    t_job.m_intValue = m_user.get_id();
    
    if ( -1 != t_job.m_intValue)
@@ -149,13 +149,13 @@ void Client::user_get_id(Job &t_job)
 // CHAT Methods
 
 void Client::chat_send(Job &t_job){
-   LOG_TRACE("Sending chat!");
+   LOG_DEBUG("Sending chat!");
    m_server_req.set_data(new TextData(t_job.m_argument));
    t_job.m_valid = m_chat.send(m_server_conn, m_server_req);
 }
 
 void Client::chat_get_pending(Job &t_job){
-   LOG_TRACE("Getting pending chats...");
+   LOG_DEBUG("Getting pending chats...");
    m_server_req.set_data(new TextData(t_job.m_argument)); // ---->  GET CURRENT USER PENDING CHATS FROM A CONTACT ID = 4
    
    t_job.m_chats = m_chat.get_pending(m_server_conn, m_server_req);
@@ -164,11 +164,11 @@ void Client::chat_get_pending(Job &t_job){
    {
       t_job.m_valid = true;
    }
-   LOG_TRACE("Getting pending chats is done!");
+   LOG_DEBUG("Getting pending chats is done!");
 }
 
 void Client::chat_get_all(Job &t_job){
-   LOG_TRACE("Getting all chats...");
+   LOG_DEBUG("Getting all chats...");
    m_server_req.set_data(new TextData(t_job.m_argument));
 
    t_job.m_chats = m_chat.get_all(m_server_conn, m_server_req);
@@ -177,13 +177,15 @@ void Client::chat_get_all(Job &t_job){
    {
       t_job.m_valid = true;
    }
-   LOG_TRACE("Getting all chats is done!");
+   LOG_DEBUG("Getting all chats is done!");
 }
 
 void Client::chat_deliver(Job &t_job)
 {
+   LOG_DEBUG("Delivering chats...");
    m_server_req.set_data(new TextData(t_job.m_argument));
    t_job.m_valid = m_chat.deliver(m_server_conn, m_server_req);
+   LOG_DEBUG("Delivering chats done!");
 }
 
 bool Client::valid_response(Reply::Code t_code, std::string& t_res) {
