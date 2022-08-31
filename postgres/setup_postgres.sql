@@ -1,5 +1,6 @@
 DROP TABLE IF EXISTS chats;
 DROP TABLE IF EXISTS contacts;
+DROP TABLE IF EXISTS tokens;
 DROP TABLE IF EXISTS users;
 
 CREATE TABLE IF NOT EXISTS contacts (
@@ -50,6 +51,24 @@ VALUES (3, 2);
 
 INSERT INTO contacts(user_id, contact_id)
 VALUES (2, 1);
+
+-- TOKENS
+
+CREATE TABLE IF NOT EXISTS tokens (
+    id BIGSERIAL NOT NULL PRIMARY KEY,
+     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP(2),
+     user_id INT NOT NULL,
+     token VARCHAR(100)
+);
+
+ALTER TABLE tokens 
+  ADD FOREIGN KEY (user_id)
+  REFERENCES users(id);
+
+
+INSERT INTO tokens(user_id, token)
+VALUES (1, 'abcabc');
+
 
 -- CHATS
 
