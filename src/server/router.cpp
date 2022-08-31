@@ -41,6 +41,7 @@ void Router::route(Request &t_req) {
   }
 
   if (validate_argument(command, arguments)) {
+    t_req.set_token(std::move(token)); // token to the request struct
     m_controllers[command](arguments, t_req);
 
   } else {
