@@ -1,5 +1,0 @@
-10.00 Pedro:
-Hello, world
-
-11.00 Pedro:
-Hello, world!
