@@ -91,6 +91,18 @@ QListView
     padding: 10px;
 }
 
+QListView[objectName ^= contact_list]
+{
+    background-color: #424242;
+    color: #fff;
+    font-weight: bold;
+    border-style: solid;
+    border-color: #242424;
+    border-width: 1px;
+    border-radius: 17px;
+    padding: 10px;
+}
+
 QGroupBox
 {
     font-weight: bold;

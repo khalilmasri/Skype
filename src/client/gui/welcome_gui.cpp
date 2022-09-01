@@ -3,6 +3,7 @@
 #include "job.hpp"
 #include "job_bus.hpp"
 #include "fail_if.hpp"
+#include "logger.hpp"
 
 #include <QMessageBox>
 #include <QDesktopWidget>
@@ -69,6 +70,7 @@ void WelcomeGui::stop_loading()
 { 
     QTimer::singleShot(1500,m_loading_gif,SLOT(stop()));
     QTimer::singleShot(1500,this, SIGNAL(stopped_loading()));
+    LOG_INFO("Loading complete!");
 }
 // ***** PRIVATE ***** //
 

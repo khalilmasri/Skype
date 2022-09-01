@@ -16,6 +16,9 @@
 #include <QMessageBox>
 #include <QStyle>
 #include <QDebug>
+#include <QStandardItemModel>
+#include <qicon.h>
+#include <qstandarditemmodel.h>
 
 bool first_display = true;
 QString TODAY = "";
@@ -76,14 +79,26 @@ void ChatGui::job_disp_contact(Job &t_job)
         return;
     }
 
-    m_ui->contact_list->clear();
+    auto model = new QStandardItemModel(this);
+    m_ui->contact_list->setModel(model);
+
     for ( auto &contact : t_job.m_contact_list)
     {
-        m_ui->contact_list->addItem(QString::fromStdString(contact.username));
+        m_contact_list[contact.ID] = contact;
+        
+        if ( true == contact.online)
+        {
+            model->appendRow(new QStandardItem(QIcon("../misc/icons/online.png"), contact.username));
+        }     
     }   
 
-  emit ready_signal();
-      m_contact_list = t_job.m_contact_list;
+    for ( auto &contact : t_job.m_contact_list)
+    {        
+        if ( false == contact.online)
+        {
+            model->appendRow(new QStandardItem(QIcon("../misc/icons/offline.png"), contact.username));
+        }     
+    }
 
     if ( true == first_display)
     {
@@ -94,7 +109,7 @@ void ChatGui::job_disp_contact(Job &t_job)
    
     if (m_current_selected.isValid() == true)
     {
-        m_ui->contact_list->selectionModel()->select(m_current_selected,  QItemSelectionModel::Select);
+        m_ui->contact_list->selectionModel()->select(m_current_selected, QItemSelectionModel::Select);
     }
 }
 
@@ -297,11 +312,11 @@ void ChatGui::load_chat(QVector<Chat> &chats, bool t_notification)
         }
         else
         {  
-            m_contact_chat[chat.sender()].append(QString::fromStdString(m_contact_list[chat.sender()].username));
+            m_contact_chat[chat.sender()].append(m_contact_list[chat.sender()].username);
             m_contact_chat[chat.sender()].append(QString::fromStdString(time) + "\n" + QString::fromStdString(chat.text()+ "\n"));   
              if ( true == t_notification)
             {         
-                m_notification->setPopupText(QString::fromStdString(m_contact_list[chat.sender()].username)+ "\n" + QString::fromStdString(chat.text().substr(0,20)));
+                m_notification->setPopupText(m_contact_list[chat.sender()].username + "\n" + QString::fromStdString(chat.text().substr(0,20)));
                 m_notification->show();       
             }        
         }
@@ -324,7 +339,7 @@ int ChatGui::search_contact_list(T t_value, QString t_type)
             return contact->ID;
         }
 
-        if (t_type == "username" && t_value == QString::fromStdString(contact->username))
+        if (t_type == "username" && t_value == contact->username)
         {
             return contact->ID;
         } 

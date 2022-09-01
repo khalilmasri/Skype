@@ -121,7 +121,7 @@
        </layout>
       </item>
       <item row="1" column="0">
-       <widget class="QListWidget" name="contact_list">
+       <widget class="QListView" name="contact_list">
         <property name="editTriggers">
          <set>QAbstractItemView::NoEditTriggers</set>
         </property>

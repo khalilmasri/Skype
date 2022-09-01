@@ -182,17 +182,34 @@ void Contacts::update_contacts(std::string t_response) {
 
     StringUtils::StringVector users = StringUtils::split(t_response);
 
-    auto size = m_online_contacts.size();
+    auto old_contacts = m_online_contacts;
     m_online_contacts.clear();
 
     for ( auto &user : users) {
         pair_contact_details(user); 
     }
 
-    bool ret = (size == m_online_contacts.size());
-    if ( false == ret){
-        LOG_INFO("Updating map");
-        JobBus::create({Job::DISP_CONTACTS});
+    if (old_contacts.size() != m_online_contacts.size())
+    {
+        LOG_DEBUG("Updating map");
+        JobBus::create({Job::DISP_CONTACTS}); 
+        return;
+    }
+
+    for (auto &contact : m_online_contacts)
+    {
+        if ( false == old_contacts.contains(contact.ID))
+        {
+            LOG_DEBUG("Updating map");
+            JobBus::create({Job::DISP_CONTACTS}); 
+            return; 
+        }
+        else if (old_contacts[contact.ID].online != contact.online)
+        {
+            LOG_DEBUG("Updating map");
+            JobBus::create({Job::DISP_CONTACTS}); 
+            return;
+        }
     }
 }
 
@@ -208,12 +225,15 @@ void Contacts::pair_contact_details(std::string t_user) {
         auto [key, pair] = StringUtils::split_first(field, ":");
         
         if ( key == "id" ) {
-            ID = stoi(pair);
-            details.ID = ID;
+            try
+            {
+                ID = stoi(pair);
+                details.ID = ID;
+            }catch(...){ LOG_ERR("Couldn't get ID")};
         }
 
         if ( key == "username" ) {
-            details.username = pair;
+            details.username = QString::fromStdString(pair);
         }
 
         if ( key == "online" ) {
@@ -225,15 +245,15 @@ void Contacts::pair_contact_details(std::string t_user) {
         }
 
         if ( key == "address" ) {
-            details.address = pair;
+            details.address = QString::fromStdString(pair);
         }
 
         if ( key == "port") {
-            details.port = pair;
+            details.port = QString::fromStdString(pair);
         }
     }
 
-    if ( ID != 0 /*&& details.online == true */ ){
+    if ( ID != 0 ){
         m_online_contacts.insert(ID, details);
     }
 }
