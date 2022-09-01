@@ -4,6 +4,9 @@
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QDebug>
+#include <qboxlayout.h>
+#include <qimage.h>
+#include <qpixmap.h>
  
 Notification::Notification(QWidget *parent) : QWidget(parent)
 {
@@ -17,16 +20,25 @@ Notification::Notification(QWidget *parent) : QWidget(parent)
     animation.setPropertyName("popupOpacity");      // 
     connect(&animation, &QAbstractAnimation::finished, this, &Notification::hide); 
  
-    label.setAlignment(Qt::AlignHCenter | Qt::AlignVCenter); 
-    label.setStyleSheet("QLabel { color : white; "
-                        "margin-top: 6px;"
-                        "margin-bottom: 6px;"
+    title.setAlignment(Qt::AlignHCenter | Qt::AlignVCenter); 
+    title.setStyleSheet("QLabel { color : white; "
+                        "margin-top: 2px;"
+                        "margin-bottom: 2px;"
                         "margin-left: 10px;"
                         "margin-right: 10px; }");
- 
-    layout.addWidget(&label, 0, 0);
+    
+    content.setAlignment(Qt::AlignHCenter | Qt::AlignVCenter); 
+    content.setStyleSheet("QLabel { color : white; "
+                        "margin-top: 2px;"
+                        "margin-bottom: 2px;"
+                        "margin-left: 10px;"
+                        "margin-right: 10px; }");
+
+    layout.addWidget(&title, 0, 0);
+    layout.addWidget(&content, 0, 0);
+    
     setLayout(&layout); 
- 
+
     timer = new QTimer();
     connect(timer, &QTimer::timeout, this, &Notification::hideAnimation);
 }
@@ -50,9 +62,11 @@ void Notification::paintEvent(QPaintEvent *event)
     painter.drawRoundedRect(roundedRect, 10, 10);
 }
  
-void Notification::setPopupText(const QString &text)
+void Notification::setPopupText(const QString &t_title, const QString &t_content)
 {
-    label.setText(text);    // Set the text in the Label
+    title.setText("<img src=../misc/icons/bell.png> "+t_title);    // Set the text in the Label
+    content.setText(t_content);
+
     adjustSize();           // With the recalculation notice sizes
 }
  

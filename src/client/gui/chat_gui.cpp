@@ -316,7 +316,7 @@ void ChatGui::load_chat(QVector<Chat> &chats, bool t_notification)
             m_contact_chat[chat.sender()].append(QString::fromStdString(time) + "\n" + QString::fromStdString(chat.text()+ "\n"));   
              if ( true == t_notification)
             {         
-                m_notification->setPopupText(m_contact_list[chat.sender()].username + "\n" + QString::fromStdString(chat.text().substr(0,20)));
+                m_notification->setPopupText((m_contact_list[chat.sender()].username), (QString::fromStdString(chat.text().substr(0,20))));
                 m_notification->show();       
             }        
         }

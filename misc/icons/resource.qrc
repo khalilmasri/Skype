@@ -9,5 +9,6 @@
         <file>online.png</file>
         <file>offline.png</file>
         <file>notification.png</file>
+        <file>bell.png</file>
     </qresource>
 </RCC>

@@ -6,6 +6,7 @@
 #include <QGridLayout>
 #include <QPropertyAnimation>
 #include <QTimer>
+#include <qboxlayout.h>
  
 class Notification : public QWidget
 {
@@ -23,7 +24,7 @@ protected:
     void paintEvent(QPaintEvent *event);    // The background will be drawn through the redraw method
  
 public slots:
-    void setPopupText(const QString& text); // Setting text notification
+    void setPopupText(const QString &t_title, const QString &t_content); // Setting text notification
     void show();                            /* own widget displaying method 
                                              * It is necessary to pre-animation settings
                                              * */
@@ -35,8 +36,10 @@ private slots:
                                              * */
  
 private:
-    QLabel label;           
-    QGridLayout layout;     
+    QLabel title;
+    QLabel content; 
+    QLabel icon;
+    QVBoxLayout layout;     
     QPropertyAnimation animation;  
     float popupOpacity;     
     QTimer *timer;          
