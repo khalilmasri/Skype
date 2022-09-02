@@ -4,3 +4,5 @@ compile_flags.txt
 .vscode
 CMakeLists.txt.user
 CMakeLists.txt.user*
+.cache/*
+.cache

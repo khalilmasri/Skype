@@ -47,6 +47,7 @@ private slots:
 
 signals:
     void on_send_clicked();
+    void wrapping();
     void on_message_txt_returnPressed();
     void ready_signal();
 
@@ -57,7 +58,7 @@ private: // Variables
     QModelIndex             m_current_selected;
     ContactGui              m_contact;
     Notification            *m_notification;
-    QHash<int, QString>     m_contact_list;
+    QHash<int, struct Details>     m_contact_list;
     QHash<int, QStringList> m_contact_chat;
 
 private: // Methods
@@ -66,6 +67,8 @@ private: // Methods
     void load_chat(QVector<Chat> &chats, bool t_notification);
     void send_msg();
     void display_chat(QString &t_user);
+    template <typename T>
+    int search_contact_list(T t_value, QString t_type);
 };
 
 #endif // CHAT_HPP

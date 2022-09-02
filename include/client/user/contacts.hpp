@@ -13,9 +13,10 @@
 #include <QHash>
 
 struct Details{
-    std::string username;
-    std::string address;
-    std::string port;
+    QString username;
+    QString address;
+    QString port;
+    int ID;
     bool online;
 };
 
@@ -31,15 +32,13 @@ public:
 
     //contacts retrieval
     std::string get_details(std::string &t_user);
-    QHash<int, QString> display_contacts();
+    QHash<int, struct Details> display_contacts();
 
 private:
 
     QHash<int, struct Details> m_online_contacts;
-    QHash<int, struct Details> m_old_contacts;
 
     std::vector<std::string> m_contacts;
-    std::string m_current_contact;
     
     void update_contacts(std::string t_response);
     void pair_contact_details(std::string t_user);
