@@ -24,11 +24,11 @@ class TextData : public Data {
      static              std::string to_string(const Data* t_data);
 
   private:
-   const Data::type      m_type = Data::Text;
    std::byte             *m_data;
    std::size_t            m_size;
 
+   const Data::type       m_type = Data::Text;
    void                   load_text(std::string &t_text);
-};
 
 #endif // !CONTROL_DATA_H
+};

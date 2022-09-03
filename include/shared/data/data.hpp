@@ -3,10 +3,10 @@
 
 #include <cstddef>
 
-class Data{
+class Data {
 
   public:
-    enum type {Audio, Video, Text};
+    enum type {AudioVideo, Text};
 
     virtual type get_type() const = 0;
     virtual std::byte* get_data() const = 0;

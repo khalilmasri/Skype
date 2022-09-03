@@ -3,15 +3,20 @@
 #include "text_data.hpp"
 
 Server::Server(int t_port)
-    : m_conn(t_port, new TextIO()), m_address(SERVER_ADDRESS) {
-  m_conn.setup(m_address);
+    : m_conn(t_port, new TextIO()), m_udp(5001, new TextIO()), m_address(SERVER_ADDRESS) {
+  m_conn.setup();
   m_conn.bind_and_listen(m_address);
-}
 
+  m_udp.setup(m_address);
+  m_udp.bind_socket();
+
+}
 void Server::main_loop() {
 
   while (true) {
     accept_connection(); // searches for new connection at every iteration
+                        
+    do_udp();
 
     Request req;
     m_conn.receive(req);
@@ -52,4 +57,11 @@ void Server::disconnect_client_on_failure(Request &t_req) {
 
     m_conn.disconnect_client(t_req);
   }
+}
+
+void Server::do_udp(){
+
+  Request req;
+   m_udp.receive(req);
+   std::cout << TextData::to_string(req.data()) << std::endl;
 }

@@ -41,8 +41,9 @@ bool TextIO::receive(Request &t_req) const {
   return valid_header && valid_msg;
 }
 
-int res = -1;
 bool TextIO::respond(Request &t_req) const {
+
+  int res = -1;
 
   if (!t_req.data_empty() && t_req.data_type() == Data::Text) {
 
@@ -78,15 +79,6 @@ std::string TextIO::create_header(int t_msg_length) const {
   return padding + msg_length;
 }
 
-bool TextIO::is_valid(int t_result, const char *t_msg) const {
-
-  // 0 means socket disconnected
-  if (t_result <= 0) {
-    LOG_ERR(t_msg);
-  }
-
-  return t_result >= 0;
-}
 
 /* TESTS */
 

@@ -16,13 +16,8 @@ class PassiveConn : public Connection {
   AddressMap     m_addresses;
 
 public:
-  PassiveConn(int t_port ,IOStrategy* t_io) : Connection(t_port), m_io(t_io){};
-  ~PassiveConn() {
-
-    shutdown(get_socket(), SHUT_RDWR);
-    m_poll.close_all(); // close all connected socket fds in poll;
-    delete m_io;
-  }
+  PassiveConn(int t_port ,IOStrategy* t_io);
+  ~PassiveConn();
 
   bool bind_and_listen(const std::string &t_address);
   Request accept_connection() ;

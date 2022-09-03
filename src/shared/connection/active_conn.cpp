@@ -36,7 +36,7 @@ Request ActiveConn::connect_socket(std::string &t_address) {
   }
 
   sockaddr_in address = get_address();
-  req.m_address       = address_tostring(address);
+  req.m_address       = Connection::address_tostring(address);
   req.m_socket        = get_socket();
 
   struct sockaddr *addr_ref = reinterpret_cast<struct sockaddr *>(&address);
