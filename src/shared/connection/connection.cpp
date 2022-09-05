@@ -58,9 +58,24 @@ int Connection::get_socket() const { return m_socket; }
 sockaddr_in Connection::get_address() const { return m_address; }
 int Connection::get_port() const { return m_port; };
 
-sockaddr_in Connection::to_sockaddr_in(const std::string &t_port, const std::string &t_address) {
 /* Static Public */
 
+std::string Connection::address_tostring(sockaddr_in t_address) {
+
+  char buffer[INET_ADDRSTRLEN] = {0};
+  const char *ip_address = inet_ntop(
+      AF_INET, reinterpret_cast<struct sockaddr *>(&t_address.sin_addr), buffer,
+      INET_ADDRSTRLEN);
+
+  return std::string(ip_address);
+}
+
+ std::string  Connection::port_tostring(sockaddr_in t_address){
+    int port = htons(t_address.sin_port);
+    return std::to_string(port);
+}
+
+sockaddr_in Connection::to_sockaddr_in(const std::string &t_port, const std::string &t_address) {
   sockaddr_in addr_in;
   memset(&addr_in, 0, sizeof(addr_in));
 
@@ -79,6 +94,7 @@ sockaddr_in Connection::to_sockaddr_in(const std::string &t_port, const std::str
 
   return addr_in;
 }
+
 
 /* Private */
 
@@ -111,15 +127,6 @@ bool Connection::set_address(const std::string &_address) {
   return is_valid(res, "Invalid IP address.");
 };
 
-std::string Connection::address_tostring(sockaddr_in t_address) {
-
-  char buffer[INET_ADDRSTRLEN] = {0};
-  const char *ip_address = inet_ntop(
-      AF_INET, reinterpret_cast<struct sockaddr *>(&t_address.sin_addr), buffer,
-      INET_ADDRSTRLEN);
-
-  return std::string(ip_address);
-}
 
 /* TEST
  *

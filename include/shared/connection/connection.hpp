@@ -23,6 +23,7 @@ class Connection {
   bool         reset_socket();
 
   static std::string  address_tostring(sockaddr_in t_address);
+  static std::string  port_tostring(sockaddr_in t_address);
   static sockaddr_in  to_sockaddr_in(const std::string &t_port, const std::string &t_address);
 
 private:

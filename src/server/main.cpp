@@ -15,6 +15,7 @@ int main(int ac, char *av[]) {
   }
 
   Server server(PORT);
+  server.spawn_udp_listener();
   server.main_loop();
 
   return 0;

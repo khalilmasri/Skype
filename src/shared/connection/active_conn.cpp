@@ -11,8 +11,7 @@
 
 ActiveConn::ActiveConn() : Connection(), m_io(nullptr) {}; 
 
-ActiveConn::ActiveConn(int t_port, IOStrategy *t_io): Connection(t_port), m_io(t_io){
-  };
+ActiveConn::ActiveConn(int t_port, IOStrategy *t_io): Connection(t_port), m_io(t_io){};
 
 
 ActiveConn::~ActiveConn() {

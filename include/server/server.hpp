@@ -8,12 +8,14 @@
 #include <string>
 
 #define SERVER_ADDRESS "127.0.0.1"
+#define UDP_PORT 7000
 
 class Server {
 
 public:
   Server(int t_port);
   void main_loop();
+  void spawn_udp_listener();
 
 private:
   PassiveConn m_conn;
@@ -25,7 +27,7 @@ private:
   void  disconnect_on_client_request(Request &t_req);
   void disconnect_client_on_failure(Request &t_req);
 
-  void do_udp();
+  void udp_worker();
 };
 
 #endif

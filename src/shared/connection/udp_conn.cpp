@@ -54,17 +54,22 @@ bool UDPConn::respond(Request &t_req) {
 
 TEST_CASE("UDPconn") {
 
-  auto conn = UDPConn(7000, new DataIO());
+  auto conn = UDPConn(7001, new DataIO());
   std::string addr = "127.0.0.1";
   conn.setup();
 
   Request req;
+ // "206.189.0.154:7000";
 
   req.set_data(new TextData("hello world"));
-  req.m_address = "206.189.0.154:7000";
+  req.m_address = "127.0.0.1:7000";
   req.m_valid = true;
   conn.respond(req);
-  //conn.receive(req);
+
+  conn.receive(req);
+
+  std::cout << "receiving..... " << std::endl;
+  std::cout << TextData::to_string(req.data()) << std::endl;
 
 
  // conn.receive()
