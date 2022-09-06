@@ -31,7 +31,7 @@ ChatGui::ChatGui(QWidget *parent) :
 {
     m_ui->setupUi(this);
     // Set the window to open the center of the screen with a fixed size
-    this->setGeometry(QStyle::alignedRect(Qt::LeftToRight,Qt::AlignCenter,this->size(),qApp->primaryScreen()));
+    this->setGeometry(QStyle::alignedRect(Qt::LeftToRight,Qt::AlignCenter,this->size(),qApp->primaryScreen()->availableGeometry()));
     this->setFixedSize(QSize(892, 700));
 
     QObject::connect(this, &ChatGui::on_send_clicked,                this, &ChatGui::send_msg);
@@ -335,7 +335,7 @@ int ChatGui::search_contact_list(T t_value, QString t_type)
     
     for (auto contact = m_contact_list.begin(); contact != m_contact_list.end(); contact++)
     {
-        if (t_type == "online" && t_value == contact->online)
+        if (t_type == "online" && t_value.toInt() == contact->online)
         {
             return contact->ID;
         }
