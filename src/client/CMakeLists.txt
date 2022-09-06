@@ -7,14 +7,10 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-# Find the packages needed
-set(OpenGL_GL_PREFERENCE LEGACY)
-find_package(SDL2 REQUIRED)
-find_package(OpenGL REQUIRED)
-include_directories(${SDL2_INCLUDE_DIRS})
-
-# QT5 specificas
-find_package(Qt5 COMPONENTS Widgets REQUIRED)
+# QT6    specificas
+set(CMAKE_PREFIX_PATH "gui/Qt6")
+find_package(Qt6 REQUIRED COMPONENTS Widgets)
+##find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 # Include all the source code with cpp extension
 file(GLOB CLIENT_SOURCES    "*.cpp" 
@@ -70,9 +66,10 @@ include_directories(${DOCTEST_INCLUDE_DIR})
 # Setting preferance on OpenGL
 
 # Linking the libraries
-target_link_libraries(${PROJECT_NAME} Qt5::Widgets)
+target_link_libraries(${PROJECT_NAME} Qt${QT_VERSION_MAJOR}::Widgets)
 target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} ${OPENGL_gl_LIBRARY})
+
 
 
 

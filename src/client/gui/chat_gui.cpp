@@ -12,7 +12,8 @@
 #include <QFile>
 #include <QDateTime>
 #include <QTextStream>
-#include <QDesktopWidget>
+#include <QScreen>
+#include <QWindow>
 #include <QMessageBox>
 #include <QStyle>
 #include <QDebug>
@@ -30,7 +31,7 @@ ChatGui::ChatGui(QWidget *parent) :
 {
     m_ui->setupUi(this);
     // Set the window to open the center of the screen with a fixed size
-    this->setGeometry(QStyle::alignedRect(Qt::LeftToRight,Qt::AlignCenter,this->size(),qApp->desktop()->availableGeometry()));
+    this->setGeometry(QStyle::alignedRect(Qt::LeftToRight,Qt::AlignCenter,this->size(),qApp->primaryScreen()));
     this->setFixedSize(QSize(892, 700));
 
     QObject::connect(this, &ChatGui::on_send_clicked,                this, &ChatGui::send_msg);
