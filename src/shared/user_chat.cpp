@@ -133,10 +133,11 @@ template <typename T> T UserChat::get_field(std::string &t_field) {
 void UserChat::from_string(std::string &t_chat) {
   auto [header, content] = StringUtils::split_first(t_chat, m_HEADER_DELIM);
 
-  std::size_t content_length = std::stoi(header);
-  auto [info, text] = StringUtils::split_at(content, content_length);
-
+  
   try {
+    std::size_t content_length = std::stoi(header);
+    auto [info, text] = StringUtils::split_at(content, content_length);
+
     StringUtils::StringVector fields = StringUtils::split(info, m_FIELD_DELIM);
 
     m_id = std::stoi(fields.at(0));
@@ -194,15 +195,11 @@ bool UserChat::compare(std::vector<std::string> &t_lhs, std::vector<std::string>
            int l = std::stoi(t_lhs[i]);
            int r = std::stoi(t_rhs[i]);
 
-    //      std::cout << std::string("left:") << l << std::string(" right: ") << r << std::endl;
-
            if(t_comp_type == GreaterThan && l < r){
-      //        std::cout << "WAS FALSE" << std::endl;
                return false;
            }
 
            if(t_comp_type == LesserThan && l > r){
-        //      std::cout << "WAS FALSE" << std::endl;
                return false;
            }
 
