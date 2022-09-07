@@ -42,7 +42,6 @@ ChatGui::ChatGui(QWidget *parent) :
     m_ui->remove->setAutoDefault(false);
 }
 
-
 ChatGui::~ChatGui()
 {
     emit wrapping();
