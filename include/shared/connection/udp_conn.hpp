@@ -10,6 +10,7 @@ class UDPConn : public Connection {
 
   public:
   UDPConn(int t_port, IOStrategy* t_io);
+  UDPConn(IOStrategy* t_io);
   bool bind_socket(const std::string &t_address);
 
   bool receive(Request &t_req);

@@ -65,7 +65,12 @@ int TextIO::read_header(int t_socket) const {
   std::string s(header);
   
   if (res == HEADER_LENGTH) { // read size must be the header length
+    try{
     return std::stoi(header);
+    } catch(...) {
+      LOG_ERR("The header is not a number: %s", header);
+      return 0;
+    }
   }
 
   return -1;

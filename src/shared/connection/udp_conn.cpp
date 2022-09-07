@@ -13,10 +13,16 @@
 #include "text_data.hpp"
 #include "data_io.hpp"
 
+// initiate conn as UDP/DGRAM SOCKET.
 UDPConn::UDPConn(int t_port, IOStrategy *t_io)
-    : Connection(t_port, SOCK_DGRAM), m_io(t_io) {} // initiate conn as UDP/DGRAM SOCKET.
+    : Connection(t_port, SOCK_DGRAM), m_io(t_io) {} 
+                                                    
+// unbound sockets does not need a port number so we don't need one. Kernel will assign updon sendfrom(4)
+ UDPConn::UDPConn(IOStrategy *t_io)
+    : Connection(0, SOCK_DGRAM), m_io(t_io) {} 
 
 bool UDPConn::bind_socket(const std::string &t_address) {
+
   bool valid = setup(t_address);
 
     if(!is_valid(valid, "Could not setup UDP connection.")){
@@ -54,15 +60,15 @@ bool UDPConn::respond(Request &t_req) {
 
 TEST_CASE("UDPconn") {
 
-  auto conn = UDPConn(7001, new DataIO());
-  std::string addr = "127.0.0.1";
+  auto conn = UDPConn(new DataIO());
   conn.setup();
 
   Request req;
  // "206.189.0.154:7000";
 
   req.set_data(new TextData("hello world"));
-  req.m_address = "127.0.0.1:7000";
+  req.m_address = "206.189.0.154:7000";
+ // req.m_address = "127.0.0.1:7000";
   req.m_valid = true;
   conn.respond(req);
 

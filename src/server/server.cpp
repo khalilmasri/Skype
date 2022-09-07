@@ -18,6 +18,8 @@ void Server::main_loop() {
     accept_connection(); // searches for new connection at every iteration
                          //
     Request req;
+
+   std::cout << "request loop...." << std::endl;
     m_conn.receive(req);
     m_router.route(req);
     m_conn.respond(req);
@@ -34,6 +36,8 @@ void Server::spawn_udp_listener() {
 void Server::accept_connection() {
 
   Request req = m_conn.accept_connection();
+
+  std::cout << "accepting a conn...." << std::endl;
 
   if (req.m_valid) {
     std::string reply = Reply::get_message(Reply::r_200);

@@ -11,7 +11,6 @@
 #include <errno.h>
 
 #define BUFFER_SIZE 512
-#define UDP_PORT 7001
 
 bool DataIO::respond(Request &t_req) const {
 
