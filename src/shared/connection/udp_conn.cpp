@@ -60,34 +60,20 @@ bool UDPConn::respond(Request &t_req) {
 
 TEST_CASE("UDPconn") {
 
-  auto conn = UDPConn(new DataIO());
-  conn.setup();
-
-  Request req;
- // "206.189.0.154:7000";
-
-  req.set_data(new TextData("hello world"));
-  req.m_address = "206.189.0.154:7000";
- // req.m_address = "127.0.0.1:7000";
-  req.m_valid = true;
-  conn.respond(req);
-
-  conn.receive(req);
-
-  std::cout << "receiving..... " << std::endl;
-  std::cout << TextData::to_string(req.data()) << std::endl;
-
-
- // conn.receive()
-   
- // auto receiver_conn = UDPConn(4000, new TextIO());
-
- // auto req = Request();
-
- // req.set_data(new TextData("hello, world"));
-
- // sender_conn.respond(req);
- // receiver_conn.receive(req);
-
- // CHECK("hello, world" == TextData::to_string(req.data()));
+//  auto conn = UDPConn(new DataIO());
+//  conn.setup();
+//
+//  Request req;
+// // "206.189.0.154:7000";
+//
+//  req.set_data(new TextData("hello world"));
+//  req.m_address = "206.189.0.154:7000";
+// // req.m_address = "127.0.0.1:7000";
+//  req.m_valid = true;
+//  conn.respond(req);
+//
+//  conn.receive(req);
+//
+//  std::cout << "receiving..... " << std::endl;
+//  std::cout << TextData::to_string(req.data()) << std::endl;
 }
