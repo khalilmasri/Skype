@@ -7,6 +7,7 @@
 #define CONFIG_FILE "/.skype.conf"
 #define CONFIG_PATH "/home/"
 #define CONFIG_DELIM "="
+#define CONFIG_COMMENT "#"
 
 #if __linux__
 namespace fs = std::filesystem;
@@ -24,8 +25,10 @@ class Config {
     void operator = (Config &lhs) = delete;
 
     // return an imutable reference
-    const std::string get(const std::string &t_key) const ;
-    const std::string get(const char *t_key) const;
+    template<typename T>
+    T get(const char *t_key) const;
+
+    const std::string get_db() const;
 
     static Config *get_instance();
     static void   free_instance();
@@ -41,7 +44,12 @@ class Config {
     std::string     read_config_file() const;
     void            load_config_contents(const std::string &t_contents);
 
-    bool            key_exists(const std::string &t_key) const;
+    void            set_server_address();
+
+    int                   get_int(const char *t_key) const;
+    const std::string     get_str(const char *t_key) const;
+
+    bool                  key_exists(const std::string &t_key) const;
 
 };
 

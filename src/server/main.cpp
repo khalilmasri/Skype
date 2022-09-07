@@ -3,10 +3,11 @@
 #define DOCTEST_CONFIG_IMPLEMENT
 #include "server.hpp"
 #include "tester.hpp"
-
-#define PORT 5000
+#include "config.hpp"
 
 int main(int ac, char *av[]) {
+
+  Config *config = Config::get_instance();
 
   int res = Tester::test(ac, av);
 
@@ -14,7 +15,7 @@ int main(int ac, char *av[]) {
     return res;
   }
 
-  Server server(PORT);
+  Server server(config->get<int>("TCP_PORT"));
   server.spawn_udp_listener();
   server.main_loop();
 

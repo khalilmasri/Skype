@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <type_traits>
 
 Config *Config::m_instance = nullptr;
 
@@ -42,32 +43,43 @@ void Config::free_instance() {
   m_instance = nullptr;
 }
 
-const std::string Config::get(const std::string &t_key) const {
+template <typename T> T Config::get(const char *t_key) const {
+  if (key_exists(t_key)) {
 
-  if(key_exists(t_key)){
-      return m_config.at(t_key);
+    if constexpr (std::is_same_v<T, const std::string>) {
+      return get_str(t_key);
+
+    } else if constexpr (std::is_same_v<T, int>) {
+      return get_int(t_key);
+    } else {
+      LOG_ERR(
+          "Invalid configuration type. Only const strings and ints allowed");
+      return {};
+    }
+
   } else {
-    LOG_ERR("Config key %s does not exists.", t_key.c_str());
-
+    LOG_ERR("Config key %s does not exists.", t_key);
     return {}; // returns an empty string if invalid key
   }
 }
 
-
-const std::string Config::get(const char *t_key) const {
-   std::string key(t_key);
-   return Config::get(key);
+const std::string Config::get_db() const {
+  return std::string("postgresql://") + m_config.at("DB_USER") + ":" +
+         m_config.at("DB_PASSWORD") + "@" + m_config.at("DB_ADDRESS") + ":" +
+         m_config.at("DB_PORT") + "/" + m_config.at("DB_NAME");
 }
 
 /***************************************************/
 /************** CONFIG DEFAULTS HERE  *************/
 
-
 void Config::load_defaults() {
   m_config = {
+      {"ENV", "DEV"},
       {"TCP_PORT", "5000"},
       {"UDP_PORT", "7000"},
       {"SERVER_ADDRESS", "127.0.0.1"},
+      {"LOCAL_IP", "127.0.0.1"},
+      {"REMOTE_IP", "127.0.0.1"},
       {"HEADER_LENGTH", "10"},
       {"DB_USER", "postgres"},
       {"DB_PASSWORD", "postgres"},
@@ -79,7 +91,7 @@ void Config::load_defaults() {
 /**************************************************/
 /**************************************************/
 
-std::string Config::read_config_file() const{
+std::string Config::read_config_file() const {
   std::ifstream file(m_PATH, std::ios::in | std::ios::binary);
 
   if (!fs::is_regular_file(m_PATH)) {
@@ -123,17 +135,45 @@ void Config::load_config_contents(const std::string &t_contents) {
               key.c_str());
     }
   }
+
+    set_server_address();
 }
 
+void Config::set_server_address() {
+  // CHANGES THE DEFAULT SERVER_ADDRESS DEPENDING ON ENV.
+  if (m_config.at("ENV") == "PROD") {
+    m_config["SERVER_ADDRESS"] = m_config.at("REMOTE_IP");
+  } else {
+    m_config["SERVER_ADDRESS"] = m_config.at("LOCAL_IP");
+  }
+}
 
-bool Config::key_exists(const std::string &t_key) const{
+bool Config::key_exists(const std::string &t_key) const {
   return m_config.find(t_key) != m_config.end();
 }
 
+int Config::get_int(const char *t_key) const {
+
+  try {
+    return std::stoi(m_config.at(t_key));
+  } catch (...) {
+
+    LOG_ERR("Attempted to get a config key as integer but value is not valid",
+            t_key);
+    return -1;
+  }
+}
+
+const std::string Config::get_str(const char *t_key) const {
+  return m_config.at(t_key);
+}
 
 TEST_CASE("Config singleton") {
   Config *config = Config::get_instance();
 
-  CHECK("localhost" == config->get("DB_ADDRESS"));
-  CHECK(config->get("BAD").empty()); // returns empty on bad key
+  CHECK("localhost" == config->get<const std::string>("DB_ADDRESS"));
+  CHECK(5000 == config->get<int>("TCP_PORT"));
+  CHECK(config->get<const std::string>("BAD")
+            .empty());                 // returns empty on bad key
+  CHECK(config->get<int>("BAD") == 0); // bad ints returns 0
 }

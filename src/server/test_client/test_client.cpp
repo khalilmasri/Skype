@@ -11,6 +11,9 @@
 #include "text_io.hpp"
 #include "user_chat.hpp"
 #include "udp_conn.hpp"
+#include "config.hpp"
+
+static Config *config = Config::get_instance();
 
 void test_tcp() {
 
@@ -20,7 +23,7 @@ void test_tcp() {
 
   std::cout << "attempting to connect to server..." << std::endl;
   // >>>>>>> client_to_server
-   std::string addr = "206.189.0.154";
+  std::string addr = config->get<const std::string>("SERVER_ADDRESS");
   // std::string addr = "127.0.0.1";
   Request req = conn.connect_socket(addr);
 

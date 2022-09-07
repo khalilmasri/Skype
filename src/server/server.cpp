@@ -2,15 +2,18 @@
 #include "data_io.hpp"
 #include "reply.hpp"
 #include "text_data.hpp"
+#include "config.hpp"
 #include <thread>
 
+static Config *config = Config::get_instance();
+
 Server::Server(int t_port)
-    : m_conn(t_port, new TextIO()), m_udp(UDP_PORT, new DataIO()),
-      m_address(SERVER_ADDRESS) {
+    : m_conn(t_port, new TextIO()), m_udp(config->get<int>("UDP_PORT"), new DataIO()),
+      m_address(config->get<const std::string>("SERVER_ADDRESS")) {
   m_conn.setup();
   m_conn.bind_and_listen(m_address);
 
-  m_udp.bind_socket(SERVER_ADDRESS);
+  m_udp.bind_socket(config->get<const std::string>("SERVER_ADDRESS"));
 }
 void Server::main_loop() {
 
@@ -19,7 +22,6 @@ void Server::main_loop() {
                          //
     Request req;
 
-   std::cout << "request loop...." << std::endl;
     m_conn.receive(req);
     m_router.route(req);
     m_conn.respond(req);
@@ -36,8 +38,6 @@ void Server::spawn_udp_listener() {
 void Server::accept_connection() {
 
   Request req = m_conn.accept_connection();
-
-  std::cout << "accepting a conn...." << std::endl;
 
   if (req.m_valid) {
     std::string reply = Reply::get_message(Reply::r_200);
@@ -74,7 +74,6 @@ void Server::udp_worker() {
     Request req;
     req.m_valid = true;
     m_udp.receive(req);
-    std::cout << TextData::to_string(req.data()) << std::endl;
     req.set_data(new TextData("hello there!"));
     m_udp.respond(req);
   }

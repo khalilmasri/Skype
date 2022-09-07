@@ -2,17 +2,31 @@
 #include "doctest.h"
 #include "logger.hpp"
 #include "string_utils.hpp"
+#include "config.hpp"
 #include "supress_unused_params_warnings.hpp"
 #include <exception>
 #include <tuple>
 #include <vector>
-
-#define DB "postgresql://postgres:postgres@localhost:5432/skype"
+#include <string.h>
 
 typedef std::vector<std::string> StringVector;
+typedef const std::string ConstStr;
 
-Postgres::Postgres() : m_conn(DB) {
-  LOG_INFO("Connected to database: %s", m_conn.dbname());
+static Config *config = Config::get_instance();
+const std::string Postgres::m_DB = config->get_db();
+
+Postgres::Postgres() {
+
+  if(m_DB.size() <= MAX_DB_PATH_NAME) {
+    strncpy(m_db, m_DB.c_str(), m_DB.size()); // must copy
+     m_conn = pqxx::connection(m_db);
+     LOG_INFO("Connected to database: %s", m_conn.dbname());
+
+  } else {
+    LOG_ERR("Could not initiate DB connection. The path string is to long -> %i", m_DB.size());
+
+  }
+  
 };
 
 Users Postgres::list_users() {
