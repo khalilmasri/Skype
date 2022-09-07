@@ -2,7 +2,8 @@
 
 #include <QPainter>
 #include <QApplication>
-#include <QDesktopWidget>
+#include <QScreen>
+#include <QWindow>
 #include <QDebug>
 #include <qboxlayout.h>
 #include <qimage.h>
@@ -34,8 +35,8 @@ Notification::Notification(QWidget *parent) : QWidget(parent)
                         "margin-left: 10px;"
                         "margin-right: 10px; }");
 
-    layout.addWidget(&title, 0, 0);
-    layout.addWidget(&content, 0, 0);
+    layout.addWidget(&title, 0);
+    layout.addWidget(&content, 0);
     
     setLayout(&layout); 
 
@@ -78,8 +79,8 @@ void Notification::show()
     animation.setStartValue(0.0);   // The start value is 0 (fully transparent widget)
     animation.setEndValue(1.0);     // End - completely opaque widget
  
-    setGeometry(QApplication::desktop()->availableGeometry().width() - 36 - width() + QApplication::desktop() -> availableGeometry().x(),
-                QApplication::desktop()->availableGeometry().height() - 36 - height() + QApplication::desktop() -> availableGeometry().y(),
+    setGeometry(QApplication::primaryScreen()->availableGeometry().width() - 36 - width() + QApplication::primaryScreen() -> availableGeometry().x(),
+                QApplication::primaryScreen()->availableGeometry().height() - 36 - height() + QApplication::primaryScreen() -> availableGeometry().y(),
                 width(),
                 height());
     QWidget::show();                

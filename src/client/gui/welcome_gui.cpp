@@ -6,9 +6,10 @@
 #include "logger.hpp"
 
 #include <QMessageBox>
-#include <QDesktopWidget>
 #include <QStyle>
 #include <QLineEdit>
+#include <QScreen>
+#include <QWindow>
 #include <QMovie>
 #include <QLabel>
 #include <QTimer>
@@ -21,7 +22,7 @@ WelcomeGui::WelcomeGui(QWidget *parent)
 
     // Set the window to open the center of the screen with a fixed size
     this->setGeometry(QStyle::alignedRect(Qt::LeftToRight,Qt::AlignCenter,this->size(),
-                        qApp->desktop()->availableGeometry()));
+                        qApp->primaryScreen()->availableGeometry()));
     
     this->setFixedSize(QSize(621, 473));
 

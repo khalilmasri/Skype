@@ -7,14 +7,9 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-# Find the packages needed
-set(OpenGL_GL_PREFERENCE LEGACY)
-find_package(SDL2 REQUIRED)
-find_package(OpenGL REQUIRED)
-include_directories(${SDL2_INCLUDE_DIRS})
-
-# QT5 specificas
-find_package(Qt5 COMPONENTS Widgets REQUIRED)
+# QT6 QT5 specificas
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 # Include all the source code with cpp extension
 file(GLOB CLIENT_SOURCES    "*.cpp" 
@@ -46,8 +41,20 @@ set(CMAKE_BINARY_DIR "../../bin")
 # Define the output to CMAKE_BINARY_DIR declared above
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
-# Executs the client the CLIENT_SOURCES
-add_executable(${PROJECT_NAME} ${CLIENT_SOURCES} ${GUI_HEADERS} ${RESOURCES})
+if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
+    qt_add_executable(${PROJECT_NAME} 
+        MANUAL_FINALIZATION
+        ${CLIENT_SOURCES} 
+        ${GUI_HEADERS} 
+        ${RESOURCES}
+    )
+else()
+    add_executable( ${PROJECT_NAME} 
+                    ${CLIENT_SOURCES} 
+                    ${GUI_HEADERS} 
+                    ${RESOURCES}
+                    )
+endif()
 
 
 # Define the include path
@@ -70,10 +77,18 @@ include_directories(${DOCTEST_INCLUDE_DIR})
 # Setting preferance on OpenGL
 
 # Linking the libraries
-target_link_libraries(${PROJECT_NAME} Qt5::Widgets)
-target_link_libraries(${PROJECT_NAME} ${SDL2_LIBRARIES})
-target_link_libraries(${PROJECT_NAME} ${OPENGL_gl_LIBRARY})
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
 
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+    MACOSX_BUNDLE TRUE
+    WIN32_EXECUTABLE TRUE
+)
 
+install(TARGETS ${PROJECT_NAME}
+    BUNDLE DESTINATION .
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
-    
+if(QT_VERSION_MAJOR EQUAL 6)
+    qt_finalize_executable(${PROJECT_NAME})
+endif()
