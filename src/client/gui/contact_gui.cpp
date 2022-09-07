@@ -6,7 +6,8 @@
 #include <QString>
 #include <string>
 #include <QStyle>
-#include <QDesktopWidget>
+#include <QScreen>
+#include <QWindow>
 
 #include <iostream>
 
@@ -16,7 +17,7 @@ ContactGui::ContactGui(QWidget *parent) :
 {
     m_ui->setupUi(this);
 
-    this->setGeometry(QStyle::alignedRect(Qt::LeftToRight,Qt::AlignCenter,this->size(),qApp->desktop()->availableGeometry()));
+    this->setGeometry(QStyle::alignedRect(Qt::LeftToRight,Qt::AlignCenter,this->size(),qApp->primaryScreen()->availableGeometry()));
     this->setFixedSize(QSize(395, 130));
 }
 
