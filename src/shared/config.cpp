@@ -69,27 +69,13 @@ const std::string Config::get_db() const {
          m_config.at("DB_PORT") + "/" + m_config.at("DB_NAME");
 }
 
-/***************************************************/
-/************** CONFIG DEFAULTS HERE  *************/
+/************** CONFIG DEFAULTS IN HEADER  *************/
 
 void Config::load_defaults() {
-  m_config = {
-      {"ENV", "DEV"},
-      {"TCP_PORT", "5000"},
-      {"UDP_PORT", "7000"},
-      {"SERVER_ADDRESS", "127.0.0.1"},
-      {"LOCAL_IP", "127.0.0.1"},
-      {"REMOTE_IP", "127.0.0.1"},
-      {"HEADER_LENGTH", "10"},
-      {"DB_USER", "postgres"},
-      {"DB_PASSWORD", "postgres"},
-      {"DB_ADDRESS", "localhost"},
-      {"DB_NAME", "skype"},
-      {"DB_PORT", "5432"},
-  };
+  m_config = Config::m_DEFAULTS;
 }
-/**************************************************/
-/**************************************************/
+
+/*****************************************************/
 
 std::string Config::read_config_file() const {
   std::ifstream file(m_PATH, std::ios::in | std::ios::binary);
@@ -113,7 +99,6 @@ std::string Config::read_config_file() const {
 
 void Config::load_config_contents(const std::string &t_contents) {
 
-  // std::cout << "config contents: " << t_contents << std::endl;
   StringUtils::StringVector split_string = StringUtils::split(t_contents, "\n");
 
   for (auto &val : split_string) {

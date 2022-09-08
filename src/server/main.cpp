@@ -19,5 +19,7 @@ int main(int ac, char *av[]) {
   server.spawn_udp_listener();
   server.main_loop();
 
+  config->free_instance();
+
   return 0;
 }
