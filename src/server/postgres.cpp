@@ -12,19 +12,18 @@
 typedef std::vector<std::string> StringVector;
 typedef const std::string ConstStr;
 
-static Config *config = Config::get_instance();
-const std::string Postgres::m_DB = config->get_db();
-
 Postgres::Postgres() {
+   Config *config = Config::get_instance();
+   std::string db_string = config->get_db();
 
-  if(m_DB.size() <= MAX_DB_PATH_NAME) {
-    strncpy(m_db, m_DB.c_str(), m_DB.size()); // must copy
+  if(db_string.size() <= MAX_DB_PATH_NAME) {
+    strncpy(m_db, db_string.c_str(), db_string.size()); // must copy
+     std::cout << m_db << std::endl;
      m_conn = pqxx::connection(m_db);
      LOG_INFO("Connected to database: %s", m_conn.dbname());
 
   } else {
-    LOG_ERR("Could not initiate DB connection. The path string is to long -> %i", m_DB.size());
-
+    LOG_ERR("Could not initiate DB connection. The path string is to long -> %i", db_string.size());
   }
   
 };
