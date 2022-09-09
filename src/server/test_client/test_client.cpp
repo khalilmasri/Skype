@@ -12,19 +12,18 @@
 #include "user_chat.hpp"
 #include "udp_conn.hpp"
 #include "config.hpp"
+#include "data_io.hpp"
 
 static Config *config = Config::get_instance();
 
 void test_tcp() {
 
-  ActiveConn conn(5000, new TextIO());
+  ActiveConn conn(config->get<int>("TCP_PORT"), new TextIO());
 
   std::cout << "Testing TCP connection." << std::endl;
 
   std::cout << "attempting to connect to server..." << std::endl;
-  // >>>>>>> client_to_server
   std::string addr = config->get<const std::string>("SERVER_ADDRESS");
-  // std::string addr = "127.0.0.1";
   Request req = conn.connect_socket(addr);
 
   if (!req.m_valid) {
@@ -44,7 +43,6 @@ void test_tcp() {
 
       auto [c, _] = StringUtils::split_first(line);
       if (line == "quit") {
-
         req.set_data(new TextData("EXIT"));
         conn.respond(req);
         break;
@@ -65,29 +63,42 @@ void test_udp() {
 
     std::cout << "Testing UDP connection." << std::endl;
 
-    auto conn = UDPConn(5001, new TextIO());
-    std::string addr = "127.0.0.1";
+    auto conn = UDPConn(new DataIO());
+    std::string addr = config->get<const std::string>("SERVER_ADDRESS");
     conn.bind_socket(addr);
+
     Request req;
+    req.m_valid = true;
+    req.m_address = addr + ":" + config->get<const std::string>("UDP_PORT");
 
-    req.set_data(new TextData("hello from client"));
-    conn.respond(req);
+    std::cout << req.m_address << std::endl;
 
-    conn.receive(req);
+    for (std::string line; std::getline(std::cin, line);) {
 
-    std::cout << TextData::to_string(req.data());
+      auto [c, _] = StringUtils::split_first(line);
+      if (line == "quit") {
+       break;
+      }
 
+      req.set_data(new TextData(line));
+      conn.respond(req);
+      conn.receive(req);
+
+      std::string response = TextData::to_string(req.data());
+
+      std::cout << response << std::endl;
+    };
 }
 
 int main(int ac, char **av) {
 
   if (ac > 1 && std::string(av[1]) == "TCP") {
     test_tcp();
-  } else if (ac > 1 && std::string(av[1]) == "UDP") {
 
+  } else if (ac > 1 && std::string(av[1]) == "UDP") {
     test_udp();
 
-  } else {
+  } else { // defaults to TCP
     test_tcp();
   }
 }
