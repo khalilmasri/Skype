@@ -58,4 +58,4 @@ elseif(NOT SERVER)
 endif()
 
 # Copies config.conf default to /home/$USER/.skype.conf
-configure_file(config.conf /home/$ENV{USER}/.skype.conf COPYONLY)
+configure_file(config.conf $ENV{HOME}/.skype.conf COPYONLY)
