@@ -5,6 +5,8 @@
 #include <vector>
 #include "user_chat.hpp"
 
+#define MAX_DB_PATH_NAME 100
+
 typedef std::vector<User> Users;
 typedef std::vector<UserChat> UserChats;
 typedef std::tuple<std::string, std::string, std::string, std::string, std::string, std::string> AggregatedQueryResult;
@@ -41,8 +43,10 @@ public:
   bool        logoff(const User &t_user);
 
 private:
+  char m_db[MAX_DB_PATH_NAME];
   pqxx::connection m_conn;
   std::string      m_table;
+  static const std::string m_DB;
 
   Users       result_to_users(AggregatedQueryResult &&t_results);
   std::string update_user_query(const User &t_user, pqxx::work &t_transaction) const;

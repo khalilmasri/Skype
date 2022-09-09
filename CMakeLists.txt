@@ -28,6 +28,7 @@ endif()
 
 message("Enabled flags = ${CMAKE_CXX_FLAGS}")
 
+
 option(CLIENT "Build only client" OFF)
 option(SERVER "Build only server" OFF)
 
@@ -55,3 +56,6 @@ elseif(NOT SERVER)
     add_subdirectory(${SERVER_TESTER_PATH})
 
 endif()
+
+# Copies config.conf default to /home/$USER/.skype.conf
+configure_file(config.conf $ENV{HOME}/.skype.conf COPYONLY)

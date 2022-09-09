@@ -12,7 +12,6 @@ public:
 private:
   int          read_header(int t_socket) const;
   std::string  create_header(int t_msg_length) const;
-  bool         is_valid(int t_result, const char *t_msg) const;
 
   ~TextIO(){};
 

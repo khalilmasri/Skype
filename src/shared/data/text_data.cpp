@@ -59,7 +59,6 @@ TEST_CASE("Text Data"){
   auto data_from_str= new TextData(str);
   auto data_from_c_str = new TextData(buffer);
 
-
   CHECK(TextData::to_string(data_from_const_char) == "Hello world!");
   CHECK(TextData::to_string(data_from_moved_str) == "hello there!");
   CHECK(TextData::to_string(data_from_str) == str);

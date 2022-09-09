@@ -1,10 +1,22 @@
 #include "passive_conn.hpp"
+#include "IO_strategy.hpp"
 #include "logger.hpp"
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
 #define QUEUE_SIZE 10
+
+/* Constructor & Destructor */
+PassiveConn::PassiveConn(int t_port, IOStrategy* t_io): Connection(t_port), m_io(t_io){};
+
+PassiveConn::~PassiveConn() {
+    shutdown(get_socket(), SHUT_RDWR);
+    m_poll.close_all(); // close all connected socket fds in poll;
+    delete m_io;
+  }
+
+/* Public */
 
 bool PassiveConn::bind_and_listen(const std::string &t_address) {
 
@@ -25,7 +37,6 @@ bool PassiveConn::bind_and_listen(const std::string &t_address) {
   return valid;
 }
 
-
 // TODO: TAKE REQ FOR ACCEPT AS WELL.
 
 Request PassiveConn::accept_connection() {
@@ -45,8 +56,8 @@ Request PassiveConn::accept_connection() {
 
   if (req.m_valid) {
     m_poll.add_socket(req.m_socket); // add new connections to poll.
-    m_addresses.emplace(req.m_socket, address_tostring(address)); // store copy of IP address.
-    req.m_address = address_tostring(address);
+    m_addresses.emplace(req.m_socket, Connection::address_tostring(address)); // store copy of IP address.
+    req.m_address = Connection::address_tostring(address);
   }
 
   return req;

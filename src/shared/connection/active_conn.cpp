@@ -11,8 +11,7 @@
 
 ActiveConn::ActiveConn() : Connection(), m_io(nullptr) {}; 
 
-ActiveConn::ActiveConn(int t_port, IOStrategy *t_io): Connection(t_port), m_io(t_io){
-  };
+ActiveConn::ActiveConn(int t_port, IOStrategy *t_io): Connection(t_port), m_io(t_io){};
 
 
 ActiveConn::~ActiveConn() {
@@ -36,7 +35,7 @@ Request ActiveConn::connect_socket(std::string &t_address) {
   }
 
   sockaddr_in address = get_address();
-  req.m_address       = address_tostring(address);
+  req.m_address       = Connection::address_tostring(address);
   req.m_socket        = get_socket();
 
   struct sockaddr *addr_ref = reinterpret_cast<struct sockaddr *>(&address);
