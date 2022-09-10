@@ -53,7 +53,7 @@ void CallControllers::accept(std::string &t_arg, Request &t_req) {
 
     } catch (...) {
       LOG_ERR("AwaitingUser id %s does not exist.", t_arg.c_str());
-      ControllerUtils::set_request_reply(Reply::r_301, t_req);
+      ControllerUtils::set_request_reply(Reply::r_307, t_req);
     }
   }
 };
@@ -75,7 +75,9 @@ void CallControllers::hangup(std::string &_, Request &t_req) {
   if (valid) {
     ControllerUtils::set_request_reply(Reply::r_200, t_req);
   } else {
-    ControllerUtils::set_request_reply(Reply::r_300, t_req);
+
+    LOG_ERR("AwaitingUser id %s does not exist.", user.id());
+    ControllerUtils::set_request_reply(Reply::r_307, t_req);
   }
 };
 
@@ -99,6 +101,37 @@ void  CallControllers::reject(std::string &t_arg, Request &t_req){
   } else {
     ControllerUtils::set_request_reply(Reply::r_301, t_req);
   }
+}
+
+
+/* */
+
+void CallControllers::ping(std::string &_, Request &t_req) {
+  UNUSED_PARAMS(_);
+
+  User user = m_pg.search_user_by_token(t_req.m_token);
+
+  if(user.empty()) {
+     ControllerUtils::set_request_reply(Reply::r_301, t_req);
+     return;
+  }
+   try {
+
+      AwaitingUser await_user = m_awaiting_users.get(user.id());
+
+    if(await_user.peer_address().empty()) {
+      // peer_address is empty when peer has not yet accepted the call
+       ControllerUtils::set_request_reply(Reply::r_203, t_req);
+
+    } else {
+       ControllerUtils::set_request_reply(Reply::r_201, await_user.peer_address(), t_req);
+
+    }
+
+   } catch(...) {
+     ControllerUtils::set_request_reply(Reply::r_307, t_req);
+
+   }
 }
 
 /* */

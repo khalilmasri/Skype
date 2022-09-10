@@ -12,9 +12,9 @@ struct CallControllers {
   static void  accept     (std::string &t_arg, Request &t_req);
   static void  hangup     (std::string &_, Request &t_req);
   static void  reject     (std::string &t_arg, Request &t_req);
+  static void  ping       (std::string &_, Request &t_req);
 
-
-  /* This method is a compromise that allows other controllers to access data from AwaitingUsers.
+  /* call_awaits is a compromise that allows other controllers to access data from AwaitingUsers.
    *
    * When the client calls LIST the server will also return if any contact is attempting to
    * the user (that called LIST). For that it requires access to AwaitingUsers in this controller.

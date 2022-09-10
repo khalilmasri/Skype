@@ -122,25 +122,6 @@ void UserControllers::remove(std::string &t_contact_username, Request &t_req) {
   }
 }
 
-void UserControllers::ping(std::string &_, Request &t_req) {
-  UNUSED_PARAMS(_);
-
-  // User user = m_pg.search_user_by(t_req.m_address, "address");
-  User user = m_pg.search_user_by_token(t_req.m_token);
-
-  if (user.empty()) {
-    ControllerUtils::set_request_reply(Reply::r_301,
-                      t_req); // didn't find a user. return not found
-
-  } else if (!user.online()) {
-    ControllerUtils::set_request_reply(Reply::r_202,
-                      t_req); // user is not online. Ask to login again.
-
-  } else {
-    ControllerUtils::set_request_reply(Reply::r_200, t_req); // user is online. return OK
-  }
-}
-
 void UserControllers::available(std::string &t_username, Request &t_req) {
 
   User user = m_pg.search_user_by(t_username, "username");

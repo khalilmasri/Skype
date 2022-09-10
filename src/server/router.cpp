@@ -17,7 +17,6 @@ Router::Router()
           {ServerCommand::Search, UserControllers::search},
           {ServerCommand::Add, UserControllers::add},
           {ServerCommand::Remove, UserControllers::remove},
-          {ServerCommand::Ping, UserControllers::ping},
           {ServerCommand::Available, UserControllers::available},
           {ServerCommand::Exit, UserControllers::exit},
 
@@ -32,6 +31,7 @@ Router::Router()
           {ServerCommand::Accept, CallControllers::accept},
           {ServerCommand::Hangup, CallControllers::hangup},
           {ServerCommand::Reject, CallControllers::reject},
+          {ServerCommand::Ping, CallControllers::ping},
 
           /* unexisting */
           {ServerCommand::None, UserControllers::none}, 
