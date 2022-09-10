@@ -9,6 +9,8 @@ struct StringUtils {
   typedef std::vector<std::string> StringVector;
   typedef std::vector<std::size_t> IntVector;
   typedef std::tuple<std::string, std::string> StringTuple;
+  typedef std::tuple<bool , int> IntTuple;
+ 
 
   /* split string by a delimiter 'delim' */
   static StringVector split(const std::string &s, const std::string &delim = " ");
@@ -30,6 +32,9 @@ struct StringUtils {
 
   /* split a string by a delimiter 'delim' and return the last split item  */
   static std::string  last(const std::string &s, const std::string &delim = " ");
+
+  /* converts a string numeric representation into an integer */
+  static IntTuple     to_int(const std::string &s);
   
   /* manipulates the string in place */
   static void         to_upper(std::string &s);
