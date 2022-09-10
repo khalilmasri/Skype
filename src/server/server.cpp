@@ -1,5 +1,5 @@
 #include "server.hpp"
-#include "data_io.hpp"
+#include "udp_text_io.hpp"
 #include "reply.hpp"
 #include "text_data.hpp"
 #include "config.hpp"
@@ -8,7 +8,7 @@
 static Config *config = Config::get_instance();
 
 Server::Server(int t_port)
-    : m_conn(t_port, new TextIO()), m_udp(config->get<int>("UDP_PORT"), new DataIO()),
+    : m_conn(t_port, new TextIO()), m_udp(config->get<int>("UDP_PORT"), new UDPTextIO()),
       m_address(config->get<const std::string>("SERVER_ADDRESS")) {
   m_conn.setup();
   m_conn.bind_and_listen(m_address);

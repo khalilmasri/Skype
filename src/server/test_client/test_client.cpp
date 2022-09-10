@@ -12,7 +12,7 @@
 #include "user_chat.hpp"
 #include "udp_conn.hpp"
 #include "config.hpp"
-#include "data_io.hpp"
+#include "udp_text_io.hpp"
 
 static Config *config = Config::get_instance();
 
@@ -63,7 +63,7 @@ void test_udp() {
 
     std::cout << "Testing UDP connection." << std::endl;
 
-    auto conn = UDPConn(new DataIO());
+    auto conn = UDPConn(new UDPTextIO());
     std::string addr = config->get<const std::string>("SERVER_ADDRESS");
     conn.bind_socket(addr);
 
