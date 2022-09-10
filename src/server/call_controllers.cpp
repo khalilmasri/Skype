@@ -94,7 +94,7 @@ void  CallControllers::reject(std::string &t_arg, Request &t_req){
   if (valid) {
     ControllerUtils::set_request_reply(Reply::r_200, t_req);
   } else {
-    ControllerUtils::set_request_reply(Reply::r_301, t_req);
+    ControllerUtils::set_request_reply(Reply::r_307, t_req);
   }
 }
 

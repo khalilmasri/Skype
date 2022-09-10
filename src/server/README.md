@@ -65,18 +65,41 @@ for more information on how to install Postgres locally as well as examples of q
 
        200 OK
        201 <data>
-       202 Please login
+       202 Invalid token. Please login
+       203 Awating
        300 Not OK
        301 User not found
        302 User already exist
        303 Recipient not found
        304 Sender not found
        305 Invalid chat id
+       306 Already awaiting. Please HANGUP before connecting
+       307 Connection requests not found for this user
        500 Internal server error
-       501 Invalid command
+       501 Invalid command or wrong number of arguments
        502 Empty argument
 
-## Commands 
+## Command token
+
+Apart from `LOGIN` and `CREATE`, All commands **must provide** a token back to the server. Clients
+can acquire a token by sending a `LOGIN` command to the server.
+      
+e.g 
+
+    LOGIN John 1234
+    201  Df345rdfdsFgdETfdDFG
+
+without arguments
+
+    LIST Df345rdfdsFgdETfdDFG
+    201 ...
+
+with arguments
+
+    PENDING Df345rdfdsFgdETfdDFG 4
+    201 ...
+
+## User Commands 
 
 If a command is not valid the server will return `501 Invalid command`.
 
@@ -167,29 +190,105 @@ Lists all current logged in users contacts. Users are delimited by a <space> cha
         500 Internal server error
 
 
-### `PING`
-      
-Client can ping the service to ensure connection is still valid.
-
-     PING
-
-Reply
-
-    200 OK
-
-
 ### `EXIT`
 
 Logs the current user out if a user is logged in. Server will disconnect upon receiving this command.
-
 
     EXIT
 
     201 Goobye.
 
+## Call commands commands
+
+### `CONNECT`
+
+Requests for an UDP, peer-to-peer audio/video connection to a peer client. **Note: a client can only have
+a single connection request at the time.**
+
+    CONNECT <contact_id>
+
+    200 OK
+    301 User not found
+    306 Already awaiting. Please HANGUP before connecting
+    500 Internal server error
+
+
+### `ACCEPT`
+
+Accepts an UDP, peer-to-peer audio/video connection from a peer client.
+
+    ACCEPT <contact_id>
+
+    201 <ip:port>
+    301 User not found
+    307 Connection requests not found for this user
+
+e.g
+
+    ACCEPT 2
+    201 127.0.0.1:4000
+
+Accepting an unexisting `CONNECT` requests
+
+    ACCEPT 1029220
+    307 Connection requests not found for this user
+
+### `PING`
+
+After sending a `CONNECT` request the client can ping the server to check if peer client has
+accepted its connection request.
+
+    PING 
+
+    201 <ip:port>
+    203 Awaiting
+    301 User not found
+    307 Connection requests not found for this user
+
+Pinging a request that has been accepted
+
+    PING
+    201 127.0.0.1:400
+
+Pinging a request still waiting
+
+    PING
+    203 Awaiting
+
+### `HANGUP`
+
+Allows the client who sent the `CONNECT` request to cancel it.
+
+    HANGUP 
+      
+    200 OK
+    301 User not found
+    307 Connection requests not found for this user
+
+### `REJECT`
+
+Peer clients receiving a `CONNECT` request can `REJECT` it. The client who has made the connection request
+will be notify on its next `PING` to the server.
+
+    REJECT <contact_id>
+      
+    200 OK
+    301 User not found
+    307 Connection requests not found for this user
+
+## Chat commands
+
 ### `SEND`
 
 Sends a chat messages to a contact.  The first argument is the `recipient_id`  and second argument the message.
+ 
+    SEND <contact_id> <message>
+
+    200 OK
+    303 Recipient not found
+    502 Empty Argument
+
+eg
 
     SEND 4 Hello world!
     200 OK
@@ -203,7 +302,15 @@ Sends a chat messages to a contact.  The first argument is the `recipient_id`  a
 
 Get pending chat messages from the current user. Client may pass in an **optional** argument specifying a `sender_id` to retrieve pending messages from a specific contact.
 
-All pending messages for the current user
+    PENDING 
+    PENDING <contact_id> 
+
+    201 <data>
+    301 User not found
+    304 Sender not found
+
+
+e.g. All pending messages for the current user
 
     PENDING
     201 0,50,104,147:22:2,2022-08-26,2,1,falseGreat, thanks for asking!22:4,2022-08-27,4,1,falseanother message for you love.22:5,2022-08-27,4,1,falsenothing like chats
@@ -247,6 +354,14 @@ As for the chat metadata, fields are delimited by a `,` and are the following
 
 ### `CHAT`
 
+    CHAT 
+    CHAT <contact_id> 
+
+    201 <data>
+    301 User not found
+    304 Sender not found
+
+
 Chat retrieves all chat messages from the current users. It follows the same convention as `PENDING` as in you can specify a `sender_id` or not.
 
 All chats
@@ -270,10 +385,17 @@ Bad sender id
 
 Informs the server which chats has been received/delivered so I can update the state of a chat message to `delivered = TRUE`.
 Accepts a list of chat ids delimited by a `,`.
+ 
+     DELIVERED <id1,id2,id3>
+
+     200 OK
+     305 Invalid chat <id>
+     502 Empty argument
+
+eg
 
      DELIVERED 1,2,3
      200 OK
-
 
 All ids in the list must be correct otherwise none will be updated.
 
@@ -283,6 +405,6 @@ All ids in the list must be correct otherwise none will be updated.
 
 `DELIVERED` must contain an argument
 
-     DELIVERED 1,2,2039
+     DELIVERED 
      502 Empty argument
 
