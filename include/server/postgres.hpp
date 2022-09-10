@@ -9,7 +9,7 @@
 
 typedef std::vector<User> Users;
 typedef std::vector<UserChat> UserChats;
-typedef std::tuple<std::string, std::string, std::string, std::string, std::string, std::string> AggregatedQueryResult;
+typedef std::tuple<std::string, std::string, std::string, std::string> AggregatedQueryResult;
 
 class Postgres {
 

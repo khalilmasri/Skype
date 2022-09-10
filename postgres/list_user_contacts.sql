@@ -21,15 +21,8 @@ SELECT DISTINCT U.username,
     INNER JOIN users U4
     ON C4.contact_id = U4.id
     WHERE U.id = C4.user_id
-  ),
-  (
-    SELECT DISTINCT STRING_AGG(COALESCE(U3.address, ' '), ',') AS address
-    FROM contacts C3
-    INNER JOIN users U3
-    ON C3.contact_id = U3.id
-    WHERE U.id = C3.user_id
   )
-
+  
 FROM contacts C
 JOIN users U
 ON C.user_id = U.id
