@@ -5,8 +5,10 @@
 #include "supress_unused_params_warnings.hpp"
 #include "text_data.hpp"
 #include "controller_utils.hpp"
-#include <iostream>
 #include "token_gen.hpp"
+
+/* to check for call requests */
+#include "call_controllers.hpp"
 
 Postgres UserControllers::m_pg = Postgres();
 
@@ -215,7 +217,12 @@ void UserControllers::list_contacts(Users &t_contacts, Request &t_req) {
     std::string reply_msg;
 
     for (auto &contact : t_contacts) {
-      reply_msg += contact.to_string() + m_CONTACT_DELIM;
+
+      // adds awaiting field informing client if a client is currently trying to make a call.
+      std::string awaiting = 
+       CallControllers::call_awaits(contact.id()) ?  ",awaiting:true": ",awaiting:false";
+
+      reply_msg += contact.to_string() + awaiting + m_CONTACT_DELIM;
     }
 
     reply_msg.pop_back(); // remove last delim

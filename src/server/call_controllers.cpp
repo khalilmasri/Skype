@@ -3,11 +3,6 @@
 #include "string_utils.hpp"
 #include "supress_unused_params_warnings.hpp"
 
-// TODO: TEST all the controllers again. You just added rejected.
-//       Move PING to this controllers.
-//       Add another field to LIST to inform peer that there is a connection request.
-//       NOTE: m_awaiting_users will have to be accessed from UserController. Make it Global?
-
 Postgres CallControllers::m_pg = Postgres();
 AwaitingUsers CallControllers::m_awaiting_users = AwaitingUsers();
 

@@ -46,5 +46,5 @@ bool AwaitingUsers::destroy(int t_awaiting_user_id) noexcept {
 }
 
 bool AwaitingUsers::exists(int t_awaiting_user_id) const noexcept {
-  return m_awaiting_users.find(t_awaiting_user_id) == m_awaiting_users.end();
+  return m_awaiting_users.find(t_awaiting_user_id) != m_awaiting_users.end();
 }
