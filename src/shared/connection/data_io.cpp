@@ -6,8 +6,6 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include <unistd.h>
-
-
 #include <errno.h>
 
 #define BUFFER_SIZE 512
@@ -49,12 +47,8 @@ bool DataIO::receive(Request &t_req) const {
     + ":"
     + Connection::port_tostring(addr_in); ;
 
-   std::cout << t_req.m_address << std::endl;
   t_req.set_data(new TextData(buffer));
  }
 
   return t_req.m_valid; 
 };
-
-
-// TODO: MANAGED TO SEND. needs to test receive and set up the punch hole UDP

@@ -24,7 +24,7 @@ void UserControllers::list(std::string &_, Request &t_req) {
     list_contacts(contacts, t_req);
      
   } else {
-    ControllerUtils::set_request_reply(Reply::r_500, t_req);
+    ControllerUtils::set_request_reply(Reply::r_301, t_req);
   }
 }
 

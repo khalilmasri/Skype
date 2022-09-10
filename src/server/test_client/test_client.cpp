@@ -71,8 +71,6 @@ void test_udp() {
     req.m_valid = true;
     req.m_address = addr + ":" + config->get<const std::string>("UDP_PORT");
 
-    std::cout << req.m_address << std::endl;
-
     for (std::string line; std::getline(std::cin, line);) {
 
       auto [c, _] = StringUtils::split_first(line);
