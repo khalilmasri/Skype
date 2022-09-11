@@ -19,7 +19,7 @@ bool AwaitingUsers::insert(AwaitingUser &&t_awaiting_user) noexcept {
 
   if (!result.second) {
     LOG_ERR(
-        "Did not insert user id %d to AwaitingUsers because it already exists.",
+        "Did not insert user id '%d' to AwaitingUsers because it already exists.",
         t_awaiting_user.id());
   }
 
@@ -35,13 +35,13 @@ bool AwaitingUsers::destroy(int t_awaiting_user_id) noexcept {
 
   // check if exists before destroying
   if (m_awaiting_users.find(t_awaiting_user_id) == m_awaiting_users.end()) {
-    LOG_ERR("Could not delete AwaitingUser id %d because it does not exist.",
+    LOG_ERR("Could not delete AwaitingUser id '%d' because it does not exist.",
             t_awaiting_user_id);
+
     return false;
   }
 
   m_awaiting_users.erase(t_awaiting_user_id);
-
   return true;
 }
 

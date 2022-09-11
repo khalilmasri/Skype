@@ -70,9 +70,8 @@ void CallControllers::hangup(std::string &_, Request &t_req) {
   if (valid) {
     ControllerUtils::set_request_reply(Reply::r_200, t_req);
   } else {
-
-    LOG_ERR("AwaitingUser id %s does not exist.", user.id());
     ControllerUtils::set_request_reply(Reply::r_307, t_req);
+
   }
 };
 

@@ -37,8 +37,9 @@ struct ServerCommand {
   static name get(const std::string &t_command);
   static bool has_zero_or_more_arguments(name t_cmd);
   static bool has_argument(name t_cmd);
-
+  static std::string to_string(name t_cmd);
   static int  argument_count(name t_cmd);
+
 private:
   const static std::unordered_map<std::string, name> m_commands;
 };
