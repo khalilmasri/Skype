@@ -33,16 +33,17 @@ option(CLIENT "Build only client" OFF)
 option(SERVER "Build only server" OFF)
 
 if(NOT CLIENT AND NOT SERVER)
-
     set(SERVER_PATH src/server)
     add_subdirectory(${SERVER_PATH})
     set(CLIENT_PATH src/client)
     add_subdirectory(${CLIENT_PATH})
     set(SERVER_TESTER_PATH src/server/test_client)
     add_subdirectory(${SERVER_TESTER_PATH})
+    set(P2P_TESTER_PATH src/client/p2p_test)
+    add_subdirectory(${P2P_TESTER_PATH})
+
 
 elseif(NOT CLIENT)
-
     set(SERVER_PATH src/server)
     add_subdirectory(${SERVER_PATH})
     set(SERVER_TESTER_PATH src/server/test_client)
@@ -54,6 +55,10 @@ elseif(NOT SERVER)
     add_subdirectory(${CLIENT_PATH})
     set(SERVER_TESTER_PATH src/server/test_client)
     add_subdirectory(${SERVER_TESTER_PATH})
+    set(P2P_TESTER_PATH src/client/p2p_test)
+    add_subdirectory(${P2P_TESTER_PATH})
+
+
 
 endif()
 
