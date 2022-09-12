@@ -1,32 +1,22 @@
 #include "postgres.hpp"
+#include "config.hpp"
 #include "doctest.h"
 #include "logger.hpp"
 #include "string_utils.hpp"
-#include "config.hpp"
 #include "supress_unused_params_warnings.hpp"
 #include <exception>
+#include <string.h>
 #include <tuple>
 #include <vector>
-#include <string.h>
 
 typedef std::vector<std::string> StringVector;
 typedef const std::string ConstStr;
 
-Postgres::Postgres() {
-   Config *config = Config::get_instance();
-   std::string db_string = config->get_db();
-
-  if(db_string.size() <= MAX_DB_PATH_NAME) {
-    strncpy(m_db, db_string.c_str(), db_string.size()); // must copy
-     std::cout << m_db << std::endl;
-     m_conn = pqxx::connection(m_db);
-     LOG_INFO("Connected to database: %s", m_conn.dbname());
-
-  } else {
-    LOG_ERR("Could not initiate DB connection. The path string is to long -> %i", db_string.size());
-  }
-  
-};
+Postgres::Postgres()
+    : m_config(Config::get_instance()), m_db(m_config->get_db()),
+      m_conn(m_db){
+          LOG_INFO("Connected to database: %s", m_conn.dbname());
+      };
 
 Users Postgres::list_users() {
   Users users;
@@ -51,13 +41,15 @@ Users Postgres::list_users() {
 
 /* */
 
-UserChats Postgres::list_user_chats(const User &t_user, const bool t_pending, const User &t_sender) {
+UserChats Postgres::list_user_chats(const User &t_user, const bool t_pending,
+                                    const User &t_sender) {
   UserChats user_chats;
 
   try {
     pqxx::work transaction(m_conn);
 
-    std::string query = "SELECT DISTINCT id, created_at, sender_id, recipient_id, text, delivered"
+    std::string query = "SELECT DISTINCT id, created_at, sender_id, "
+                        "recipient_id, text, delivered"
                         " FROM chats WHERE";
 
     query += " ( recipient_id = " + std::to_string(t_user.id());
@@ -72,9 +64,10 @@ UserChats Postgres::list_user_chats(const User &t_user, const bool t_pending, co
 
     query += " ) ";
 
-    // when command is a CHAT and no sender_id is provided return all chats for the current user + it's own chat messages.
-    if(!t_pending && t_sender.empty()){
-       query += " OR sender_id = " + std::to_string(t_user.id());
+    // when command is a CHAT and no sender_id is provided return all chats for
+    // the current user + it's own chat messages.
+    if (!t_pending && t_sender.empty()) {
+      query += " OR sender_id = " + std::to_string(t_user.id());
     }
 
     query += " ORDER BY created_at ASC;";
@@ -82,11 +75,12 @@ UserChats Postgres::list_user_chats(const User &t_user, const bool t_pending, co
     pqxx::result res = transaction.exec(query);
     transaction.commit();
 
-    res.for_each([&user_chats](int id, std::string created_at, int sender_id, int recipient_id,
-                                          std::string text, bool delivered) {
-          user_chats.push_back(
-              UserChat(id, created_at, sender_id, recipient_id, text, delivered));
-        });
+    res.for_each([&user_chats](int id, std::string created_at, int sender_id,
+                               int recipient_id, std::string text,
+                               bool delivered) {
+      user_chats.push_back(
+          UserChat(id, created_at, sender_id, recipient_id, text, delivered));
+    });
 
   } catch (const std::exception &err) {
     LOG_DEBUG("%s", err.what());
@@ -125,14 +119,15 @@ User Postgres::search_user_by_token(const std::string &t_token) {
   std::tuple<int, std::string, std::string, bool, std::string> results;
 
   try {
-    pqxx::work transaction( m_conn); 
+    pqxx::work transaction(m_conn);
 
-    std::string  query = "SELECT T.user_id, U.username, U.password, U.online, COALESCE(U.address, ' ')"
-                         " FROM tokens AS T"
-                         " JOIN users AS U"
-                         " ON T.user_id = U.id"
-                         " WHERE t.token = " + transaction.quote(t_token);
-                         
+    std::string query = "SELECT T.user_id, U.username, U.password, U.online, "
+                        "COALESCE(U.address, ' ')"
+                        " FROM tokens AS T"
+                        " JOIN users AS U"
+                        " ON T.user_id = U.id"
+                        " WHERE t.token = " +
+                        transaction.quote(t_token);
 
     pqxx::row row = transaction.exec1(query);
 
@@ -164,7 +159,7 @@ User Postgres::search_user_by(const std::string &t_term, const char *t_field) {
   std::string field(t_field);
 
   try {
-    pqxx::work transaction( m_conn); 
+    pqxx::work transaction(m_conn);
     // COALESCE substitutes NULL with empty string
     pqxx::row row =
         transaction.exec1("SELECT id, username, password, online, "
@@ -186,14 +181,16 @@ User Postgres::search_user_by(const std::string &t_term, const char *t_field) {
 
 /* */
 
-User Postgres::search_user_contact(const User &t_user, const char *t_contact_username) {
+User Postgres::search_user_contact(const User &t_user,
+                                   const char *t_contact_username) {
   std::string contact(t_contact_username);
   return search_user_contact(t_user, contact);
 }
 
 /* */
 
-User Postgres::search_user_contact(const User &t_user, const std::string &t_contact_username) {
+User Postgres::search_user_contact(const User &t_user,
+                                   const std::string &t_contact_username) {
 
   std::tuple<int, std::string, std::string, bool, std::string> results;
 
@@ -217,15 +214,15 @@ User Postgres::search_user_contact(const User &t_user, const std::string &t_cont
   return User(id, username, password, online, address);
 }
 
+UserChat Postgres::search_user_chat_by(const std::string &t_term,
+                                       const char *t_field) {
 
-UserChat Postgres::search_user_chat_by(const std::string &t_term, const char *t_field){
-
-  std::tuple<int, std::string, int, int,  bool, std::string> results;
+  std::tuple<int, std::string, int, int, bool, std::string> results;
 
   try {
     pqxx::work transaction(m_conn);
 
-    std::string query ="SELECT * FROM chats WHERE " + std::string(t_field);
+    std::string query = "SELECT * FROM chats WHERE " + std::string(t_field);
     query += " = " + t_term;
 
     pqxx::row row = transaction.exec1(query);
@@ -278,7 +275,8 @@ bool Postgres::add_user(const User &t_user) {
         "INSERT INTO users (username, password, online, address) VALUES (";
     query += transaction.quote(t_user.username()) + ",";
     query += transaction.quote(t_user.password()) + ",";
-    query += (t_user.online() ? std::string("TRUE") : std::string("FALSE")) + ",";
+    query +=
+        (t_user.online() ? std::string("TRUE") : std::string("FALSE")) + ",";
     query += transaction.quote(t_user.address()) + ");";
 
     transaction.exec(query);
@@ -297,7 +295,7 @@ bool Postgres::add_user(const User &t_user) {
 bool Postgres::add_user_chat(const UserChat &t_chat) {
 
   if (t_chat.empty()) {
-   LOG_DEBUG("Cannot add a new chat as an empty user.");
+    LOG_DEBUG("Cannot add a new chat as an empty user.");
     return false;
   }
   try {
@@ -406,12 +404,13 @@ bool Postgres::remove_user_token(const User &t_user) {
     LOG_DEBUG("Cannot remove token from an empty user.");
     return false;
   }
-  /* note that the app only support 1 session per user and will delete all tokens related 
-   * to a single user here 
+  /* note that the app only support 1 session per user and will delete all
+   * tokens related to a single user here
    * */
   try {
     pqxx::work transaction(m_conn);
-    std::string query = "DELETE FROM tokens where user_id = " + transaction.quote(t_user.id());
+    std::string query =
+        "DELETE FROM tokens where user_id = " + transaction.quote(t_user.id());
     transaction.exec(query);
     transaction.commit();
 
@@ -470,7 +469,6 @@ bool Postgres::update_user(const User &t_user) {
   return true;
 }
 
-
 bool Postgres::set_user_chat_to_delivered(const UserChat &t_user_chat) {
   if (t_user_chat.empty()) {
     LOG_DEBUG("Cannot update an empty chat.");
@@ -480,7 +478,7 @@ bool Postgres::set_user_chat_to_delivered(const UserChat &t_user_chat) {
   try {
     pqxx::work transaction(m_conn);
     std::string query = "UPDATE chats set delivered = TRUE WHERE ";
-    query += "id = " + transaction.quote(t_user_chat.id()) + ";" ;
+    query += "id = " + transaction.quote(t_user_chat.id()) + ";";
 
     transaction.exec(query);
     transaction.commit();
@@ -492,9 +490,6 @@ bool Postgres::set_user_chat_to_delivered(const UserChat &t_user_chat) {
 
   return true;
 }
-
-
-
 
 bool Postgres::logoff(const User &t_user) {
 
@@ -531,7 +526,8 @@ Users Postgres::result_to_users(AggregatedQueryResult &&t_result) {
        i++) { // vector will always have the same length
     bool online = onlines_vec.at(i) == "true" ? true : false;
 
-    auto[_, id] = StringUtils::to_int(ids_vec.at(i)); // on error will return -1
+    auto [_, id] =
+        StringUtils::to_int(ids_vec.at(i)); // on error will return -1
 
     User user = User(id, contacts_vec.at(i), online);
     users.push_back(std::move(user));
@@ -543,7 +539,7 @@ Users Postgres::result_to_users(AggregatedQueryResult &&t_result) {
 /* */
 
 std::string Postgres::update_user_query(const User &t_user,
-                                   pqxx::work &t_transaction) const {
+                                        pqxx::work &t_transaction) const {
 
   std::string query = "UPDATE users SET ";
 
@@ -562,16 +558,15 @@ std::string Postgres::update_user_query(const User &t_user,
       continue;
 
     case User::Online:
-      query += "online = " + t_transaction.quote(t_user.online() ? "TRUE" : "FALSE") + ",";
+      query += "online = " +
+               t_transaction.quote(t_user.online() ? "TRUE" : "FALSE") + ",";
       continue;
-
     }
   }
   query.pop_back(); // remove trailing comnma
   query += " WHERE id = " + t_transaction.quote(t_user.id()) + ";";
   return query;
 }
-
 
 std::string Postgres::list_contacts_query(const User &t_user,
                                           pqxx::work &t_transaction) const {
@@ -656,7 +651,7 @@ TEST_CASE("Postgres (ensure that you have postgres setup)") {
   }
 
   SUBCASE("list user contacts") {
-     
+
     User user(0, "khalil", "123", true, "123");
 
     Users users = pg.list_user_contacts(user);
