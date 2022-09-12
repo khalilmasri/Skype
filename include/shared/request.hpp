@@ -15,6 +15,8 @@ struct Request {
 
   Request(bool t_valid = false, bool t_exit = false);
   Request(const std::string &&t_address, bool t_valid = false, bool t_exit = false);
+  Request(const std::string &t_address, bool t_valid = false, bool t_exit = false);
+
   ~Request();
 
   void        set_data(Data *t_data) ;

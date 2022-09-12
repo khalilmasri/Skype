@@ -7,6 +7,9 @@ Request::Request(bool t_valid, bool t_exit)
 Request::Request(const std::string &&t_address, bool t_valid, bool t_exit)
     : m_socket(-1), m_address(t_address), m_valid(t_valid), m_exit(t_exit), m_data(nullptr){};
 
+Request::Request(const std::string &t_address, bool t_valid, bool t_exit)
+    : m_socket(-1), m_address(t_address), m_valid(t_valid), m_exit(t_exit), m_data(nullptr){};
+
 Request::~Request() { delete m_data; }
 
 void Request::set_data(Data *t_data) {
