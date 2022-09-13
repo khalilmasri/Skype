@@ -286,10 +286,12 @@ void P2P::handshake_initiator(Request &t_req) {
 
   std::string ok = Reply::get_message(Reply::r_200);
 
-  LOG_INFO("Intiator: sending 200 OK..")
+  LOG_INFO("Intiator: sending 200 OK to '%s' ", t_req.m_address.c_str());
 
   t_req.set_data(new TextData(ok));
   m_inbounds.respond(t_req);
+
+  LOG_INFO("Intiator: Sent! now waiting for response...")
   m_inbounds.receive(t_req);
 
   std::string response = TextData::to_string(t_req.data());
@@ -311,7 +313,7 @@ void P2P::handshake_acceptor(Request &t_req) {
 
   std::string ok = Reply::get_message(Reply::r_200);
 
-  LOG_INFO("Acceptor: waiting for 200..")
+  LOG_INFO("Acceptor: waiting for 200 from" , t_req.m_address.c_str());
 
   m_inbounds.receive(t_req);
   std::string response = TextData::to_string(t_req.data());
