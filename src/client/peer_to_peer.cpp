@@ -297,6 +297,9 @@ void P2P::handshake_initiator(Request &t_req) {
 
   t_req.set_data(new TextData(ok));
   m_inbounds.respond(t_req);
+  
+  LOG_INFO("Intiator: sending again!");
+  m_inbounds.respond(t_req);
 
   LOG_INFO("Intiator: Sent! now waiting for response...")
   m_inbounds.receive(t_req);
