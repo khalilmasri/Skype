@@ -5,6 +5,8 @@
 #include "reply.hpp"
 #include "server_commands.hpp"
 
+// TODO: Test peer handshake in two computers. 
+
 class P2P {
 
   public:
