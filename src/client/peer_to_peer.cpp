@@ -98,6 +98,12 @@ void P2P::handshake_peer() {
 
   Request req(m_peer_address, true);
 
+  auto [address, _port] = StringUtils::split_first(m_peer_address, ":");
+
+  LOG_INFO("Binding with address '%s'.", address.c_str());
+
+  m_inbounds.bind_socket(address);
+
   if (m_type == Acceptor) {
     handshake_acceptor(req);
   }
@@ -172,6 +178,7 @@ void P2P::accept_peer(std::string &t_peer_id) {
 
   if (m_last_reply == Reply::r_201) {
     m_status = Accepted;
+    std::cout << "response -> " + response << std::endl;
     m_peer_address = std::move(response);
 
   } else {
@@ -296,7 +303,7 @@ void P2P::handshake_initiator(Request &t_req) {
 
   std::string response = TextData::to_string(t_req.data());
 
-  LOG_INFO("Initiator: got response %s ", response.c_str());
+  LOG_INFO("Initiator: got response '%s' ", response.c_str());
 
   if (response == ok) {
     m_status = Connected;
@@ -313,7 +320,7 @@ void P2P::handshake_acceptor(Request &t_req) {
 
   std::string ok = Reply::get_message(Reply::r_200);
 
-  LOG_INFO("Acceptor: waiting for 200 from" , t_req.m_address.c_str());
+  LOG_INFO("Acceptor: waiting for 200 from '%s'. " , t_req.m_address.c_str());
 
   m_inbounds.receive(t_req);
   std::string response = TextData::to_string(t_req.data());
