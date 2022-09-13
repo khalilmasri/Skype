@@ -69,7 +69,7 @@ class Config {
    #if __APPLE__ || __MACH__ || __linux__
 
    /* path to .conf /home/$USER/.skype.conf for OSX & Linux */                                  
-   const fs::path      m_PATH {std::string(CONFIG_PATH) + getenv("USER") + std::string(CONFIG_FILE) };
+   const fs::path      m_PATH {getenv("HOME") + std::string(CONFIG_FILE) };
 
    #else
 
