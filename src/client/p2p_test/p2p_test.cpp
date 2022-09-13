@@ -72,14 +72,15 @@ void connect_to(P2P &p2p) {
       break;
     }
 
-    if(count == 10){
+    if(count > 10){
       std::cout << std::string("Breaking after ") + std::to_string(count) << std::endl;
+      p2p.hangup_peer();
+      return;
     }
 
     count++;
   }
 
-   p2p.hangup_peer();
   std::cout << "connect Accepted sucessfully!\n";
 }
 
@@ -120,7 +121,6 @@ int main(int ac, char **av) {
   } else {
     std::cout << "Please pass in 'john' or 'shakira' as users.\n";
   }
-
 
   p2p.handshake_peer();
 

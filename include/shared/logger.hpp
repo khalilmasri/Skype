@@ -6,6 +6,7 @@
 #include <map>
 #include <cstdio>
 #include <cstring>
+#include "config.hpp"
 
 enum logPriority{
     trace       = 0, 

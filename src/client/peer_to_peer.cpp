@@ -282,15 +282,19 @@ std::string P2P::send_server(std::string &&t_text_data) {
 
 /* */
 
-void P2P::handshake_acceptor(Request &t_req) {
+void P2P::handshake_initiator(Request &t_req) {
 
   std::string ok = Reply::get_message(Reply::r_200);
+
+  LOG_INFO("Intiator: sending 200 OK..")
 
   t_req.set_data(new TextData(ok));
   m_inbounds.respond(t_req);
   m_inbounds.receive(t_req);
 
   std::string response = TextData::to_string(t_req.data());
+
+  LOG_INFO("Initiator: got response %s ", response.c_str());
 
   if (response == ok) {
     m_status = Connected;
@@ -303,12 +307,16 @@ void P2P::handshake_acceptor(Request &t_req) {
 
 /* */
 
-void P2P::handshake_initiator(Request &t_req) {
+void P2P::handshake_acceptor(Request &t_req) {
 
   std::string ok = Reply::get_message(Reply::r_200);
 
+  LOG_INFO("Acceptor: waiting for 200..")
+
   m_inbounds.receive(t_req);
   std::string response = TextData::to_string(t_req.data());
+
+  LOG_INFO("Acceptor: got response ", response.c_str());
 
   if (response == ok) {
     m_status = Connected;

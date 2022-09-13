@@ -21,7 +21,7 @@ Config::Config() {
 
   } else {
     LOG_ERR(
-        "Could not find the .sype.conf file in the path %s.  Loading defaults",
+        "Could not find the .skype.conf file in your $HOME path '%s'.  Loading defaults",
         CONFIG_PATH);
   }
 }
