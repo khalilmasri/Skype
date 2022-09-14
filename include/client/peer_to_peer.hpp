@@ -3,6 +3,7 @@
 #include "udp_conn.hpp"
 #include "request.hpp"
 #include "reply.hpp"
+#include "local_ip.hpp"
 #include "server_commands.hpp"
 
 // TODO: Test peer handshake in two computers. 
@@ -41,10 +42,11 @@ class P2P {
   std::string   m_peer_address;
   std::string   m_token;
   UDPConn       m_inbounds;
-  UDPConn       m_outbounds;
+  UDPConn       m_outbounds; // NOTE: Not yet implemented. Still looking to see if will be needed.
   Status        m_status;
   Type          m_type;
   Reply::Code   m_last_reply;
+  LocalIP       m_local_ip;
 
   std::string   send_server(ServerCommand::name t_cmd, std::string &t_arg);
   std::string   send_server(ServerCommand::name t_cmd);

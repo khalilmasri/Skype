@@ -16,6 +16,8 @@ P2P::P2P(std::string &t_token) noexcept
       m_last_reply(Reply::None) {
 
   bind_sockets();
+
+  std::cout << m_local_ip.get_first() << " <--- local_IP" << std::endl;
 }
 
 /* Same constructor but moves the token string */
@@ -24,7 +26,9 @@ P2P::P2P(std::string &&t_token) noexcept
       m_outbounds(new UDPTextIO()), m_status(Idle), m_type(None),
       m_last_reply(Reply::None) {
 
-  bind_sockets();
+        bind_sockets();
+
+  std::cout << m_local_ip.get_first() << " <--- local_IP" << std::endl;
 }
 
 /* Public */
@@ -99,10 +103,6 @@ void P2P::handshake_peer() {
   Request req(m_peer_address, true);
 
   auto [address, _port] = StringUtils::split_first(m_peer_address, ":");
-
-  LOG_INFO("Binding with address '%s'.", address.c_str());
-
-  m_inbounds.bind_socket(address);
 
   if (m_type == Acceptor) {
     handshake_acceptor(req);
@@ -293,25 +293,24 @@ void P2P::handshake_initiator(Request &t_req) {
 
   std::string ok = Reply::get_message(Reply::r_200);
 
-  LOG_INFO("Intiator: sending 200 OK to '%s' ", t_req.m_address.c_str());
+  LOG_DEBUG("Intiator: sending 200 OK to '%s' to whole punch ", t_req.m_address.c_str());
 
   t_req.set_data(new TextData(ok));
   m_inbounds.respond(t_req);
   
-  LOG_INFO("Intiator: sending again!");
+  LOG_DEBUG("Intiator: Sending 200 OK to confirm.");
   m_inbounds.respond(t_req);
 
-  LOG_INFO("Intiator: Sent! now waiting for response...")
+  LOG_DEBUG("Intiator: Handhake sent. now waiting for 0K response...")
   m_inbounds.receive(t_req);
 
   std::string response = TextData::to_string(t_req.data());
 
-  LOG_INFO("Initiator: got response '%s' ", response.c_str());
-
   if (response == ok) {
+    LOG_INFO("P2P handshake with '%s' was sucessful. ", t_req.m_address.c_str());
     m_status = Connected;
   } else {
-    LOG_ERR("P2P handshake message '%s' should be '200 OK'. Handshake failed.",
+    LOG_ERR("Initiator: P2P handshake message '%s' should be '200 OK'. Handshake failed.",
             response.c_str());
     m_status = Error;
   }
@@ -323,7 +322,12 @@ void P2P::handshake_acceptor(Request &t_req) {
 
   std::string ok = Reply::get_message(Reply::r_200);
 
-  LOG_INFO("Acceptor: waiting for 200 from '%s'. " , t_req.m_address.c_str());
+  LOG_DEBUG("Acceptor: sending 200 OK to '%s' to whole punch ", t_req.m_address.c_str());
+
+  t_req.set_data(new TextData(ok));
+  m_inbounds.respond(t_req);
+
+  LOG_DEBUG("Acceptor: waiting for handshake confirmation from '%s'. " , t_req.m_address.c_str());
 
   m_inbounds.receive(t_req);
   std::string response = TextData::to_string(t_req.data());
@@ -331,8 +335,9 @@ void P2P::handshake_acceptor(Request &t_req) {
   LOG_INFO("Acceptor: got response ", response.c_str());
 
   if (response == ok) {
-    m_status = Connected;
+    LOG_INFO("Acceptor: P2P handshake with '%s' was sucessful. ", t_req.m_address.c_str());
 
+    m_status = Connected;
     t_req.set_data(new TextData(ok));
     m_inbounds.respond(t_req);
 
