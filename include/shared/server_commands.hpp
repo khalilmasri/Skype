@@ -11,15 +11,15 @@ struct ServerCommand {
     Create = 0,
     Login = 1,
     Send = 2,
+    Connect = 3,
+    Accept = 4,
 
     /* one argument */
     Search = 10,
     Add = 11,
     Remove = 12,
     Available = 13,
-    Connect = 14,
-    Accept = 15,
-    Reject = 16,
+    Reject = 14,
   
     /* no argument */
     List = 20,
