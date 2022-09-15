@@ -26,7 +26,7 @@ int AwaitingUser::peer_id() const { return m_peer_id; }
 /* if user and peer are on the same network return local address */
 std::string AwaitingUser::address() const {
 
-  if (m_peer_address == m_address) {
+  if (has_same_address()) {
     return m_local_address;
   }
 
@@ -36,7 +36,7 @@ std::string AwaitingUser::address() const {
 std::string AwaitingUser::peer_address() const {
 
 /* returns local address when in the same network */
-  if (m_peer_address == m_address) {
+  if (has_same_address()) {
     return m_peer_local_address;
   }
 
@@ -54,6 +54,15 @@ void AwaitingUser::set_peer_local_address(
   /* take the port from public address */
   auto [_, port] = StringUtils::split_first(m_peer_address);
   m_peer_local_address = t_peer_local_address + ":" + port;
+}
+
+/* Private */
+
+bool AwaitingUser::has_same_address() const {
+  auto[user_address, _uport] = StringUtils::split_first(m_address, ":");
+  auto[peer_address, _pport] = StringUtils::split_first(m_address, ":");
+
+  return user_address == peer_address;
 }
 
 /** AwaitingUsers **/

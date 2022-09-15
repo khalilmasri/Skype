@@ -25,6 +25,9 @@ struct AwaitingUser {
 
     std::string m_peer_address;
     std::string m_peer_local_address;
+
+    bool has_same_address() const;
+
 };
 
 class AwaitingUsers {
