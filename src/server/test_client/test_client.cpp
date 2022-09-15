@@ -22,8 +22,8 @@ void test_tcp() {
 
   std::cout << "Testing TCP connection." << std::endl;
 
-  std::cout << "attempting to connect to server..." << std::endl;
   std::string addr = config->get<const std::string>("SERVER_ADDRESS");
+  std::cout << "attempting to connect to server at " << addr  << "..." << std::endl;
   Request req = conn.connect_socket(addr);
 
   if (!req.m_valid) {

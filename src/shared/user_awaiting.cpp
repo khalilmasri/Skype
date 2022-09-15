@@ -1,26 +1,72 @@
 #include "user_awaiting.hpp"
 #include "logger.hpp"
+#include "string_utils.hpp"
 
-AwaitingUser::AwaitingUser(int t_id, int t_peer_id, const std::string &t_address)
+/* Constructors AwaitingUser */
+AwaitingUser::AwaitingUser(int t_id, int t_peer_id,
+                           const std::string &t_address)
     : m_id(t_id), m_peer_id(t_peer_id), m_address(t_address) {}
+
+AwaitingUser::AwaitingUser(int t_id, int t_peer_id,
+                           const std::string &t_address,
+                           const std::string &t_local_address)
+    : m_id(t_id), m_peer_id(t_peer_id), m_address(t_address),
+      m_local_address(t_local_address) {
+
+  /* Appends port from public to the local address */
+  auto [_, port] = StringUtils::split_first(m_address, ":");
+  m_local_address += ":" + port;
+}
+
+/* Getters */
 
 int AwaitingUser::id() const { return m_id; }
 int AwaitingUser::peer_id() const { return m_peer_id; }
-std::string AwaitingUser::address() const { return m_address; };
-std::string AwaitingUser::peer_address() const { return m_peer_address; }
-void AwaitingUser::set_peer_address(const std::string &t_peer_address) { m_peer_address = t_peer_address; }
+
+/* if user and peer are on the same network return local address */
+std::string AwaitingUser::address() const {
+
+  if (m_peer_address == m_address) {
+    return m_local_address;
+  }
+
+  return m_address;
+};
+
+std::string AwaitingUser::peer_address() const {
+
+/* returns local address when in the same network */
+  if (m_peer_address == m_address) {
+    return m_peer_local_address;
+  }
+
+  return m_peer_address;
+}
+
+/* Setters */
+
+void AwaitingUser::set_peer_address(const std::string &t_peer_address) {
+  m_peer_address = t_peer_address;
+}
+
+void AwaitingUser::set_peer_local_address(
+    const std::string &t_peer_local_address) {
+  /* take the port from public address */
+  auto [_, port] = StringUtils::split_first(m_peer_address);
+  m_peer_local_address = t_peer_local_address + ":" + port;
+}
 
 /** AwaitingUsers **/
 
 bool AwaitingUsers::insert(AwaitingUser &&t_awaiting_user) noexcept {
-  // returns a pair with iterator and bool if insert was succesful.
+  // returns a pair with iterator and bool if insert was successful.
   auto result =
       m_awaiting_users.insert({t_awaiting_user.id(), t_awaiting_user});
 
   if (!result.second) {
-    LOG_ERR(
-        "Did not insert user id '%d' to AwaitingUsers because it already exists.",
-        t_awaiting_user.id());
+    LOG_ERR("Did not insert user id '%d' to AwaitingUsers because it already "
+            "exists.",
+            t_awaiting_user.id());
   }
 
   return result.second;

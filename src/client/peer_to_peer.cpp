@@ -151,7 +151,10 @@ if (m_status != Connected) {
 
 void P2P::connect_peer(std::string &t_peer_id) {
 
-  std::string response = send_server(ServerCommand::Connect, t_peer_id);
+  /* add client local addr as arg to CONNECT */
+  std::string argument = t_peer_id + " " + m_local_ip.get_first();
+
+  std::string response = send_server(ServerCommand::Connect, argument);
 
   m_type = Initiator;
 
@@ -174,7 +177,9 @@ void P2P::accept_peer(std::string &t_peer_id) {
 
   m_type = Acceptor;
 
-  std::string response = send_server(ServerCommand::Accept, t_peer_id);
+  /* add client local addr as arg to ACCEPT */
+  std::string argument = t_peer_id + " " + m_local_ip.get_first();
+  std::string response = send_server(ServerCommand::Accept, argument);
 
   if (m_last_reply == Reply::r_201) {
     m_status = Accepted;
@@ -257,8 +262,7 @@ void P2P::hangup_peer() {
 
 std::string P2P::send_server(ServerCommand::name t_cmd, std::string &t_arg) {
 
-  std::string text_data =
-      ServerCommand::to_string(t_cmd) + m_DELIM + m_token + m_DELIM + t_arg;
+  std::string text_data = ServerCommand::to_string(t_cmd) + m_DELIM + m_token + m_DELIM + t_arg;
 
   return send_server(std::move(text_data));
 }
