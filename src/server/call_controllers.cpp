@@ -47,7 +47,9 @@ void CallControllers::accept(std::string &t_arg, Request &t_req) {
       await_user.set_peer_address(t_req.m_address);
       await_user.set_peer_local_address(local_address);
 
-      ControllerUtils::set_request_reply(Reply::r_201, await_user.address(), t_req);
+      /* Append LOCAL or WEB to the response so client knows address type */
+      std::string response = await_user.address() + " " + await_user.address_type();
+      ControllerUtils::set_request_reply(Reply::r_201, std::move(response), t_req);
 
     } catch (...) {
       LOG_ERR("AwaitingUser id %s does not exist.", t_arg.c_str());
@@ -121,7 +123,10 @@ void CallControllers::ping(std::string &_, Request &t_req) {
        ControllerUtils::set_request_reply(Reply::r_203, t_req);
 
     } else {
-       ControllerUtils::set_request_reply(Reply::r_201, await_user.peer_address(), t_req);
+
+        /* Append LOCAL or WEB to the response so client knows address type */
+       std::string response = await_user.peer_address() + " " + await_user.address_type();
+       ControllerUtils::set_request_reply(Reply::r_201, std::move(response), t_req);
 
     }
 

@@ -16,7 +16,7 @@ const std::string P2P::m_DELIM = " ";
 P2P::P2P(std::string &t_token) noexcept
     : m_token(t_token), m_inbounds(new UDPTextIO()),
       m_outbounds(new UDPTextIO()), m_status(Idle), m_type(None),
-      m_last_reply(Reply::None) {
+      m_last_reply(Reply::None), m_network_type(Unselected) {
 
   bind_sockets();
 }
@@ -25,7 +25,7 @@ P2P::P2P(std::string &t_token) noexcept
 P2P::P2P(std::string &&t_token) noexcept
     : m_token(std::move(t_token)), m_inbounds(new UDPTextIO()),
       m_outbounds(new UDPTextIO()), m_status(Idle), m_type(None),
-      m_last_reply(Reply::None) {
+      m_last_reply(Reply::None), m_network_type(Unselected) {
 
   bind_sockets();
 }
@@ -93,29 +93,14 @@ void P2P::handshake_peer() {
 
   Request req(m_peer_address, true);
 
-  /* peers are in the same private network */
-  if (has_same_address()) {
+  /* if m_network_type = WEB handshake will hole punch */
+  if (m_type == Acceptor) {
+    handshake_acceptor(req, m_network_type);
+  }
 
-    if (m_type == Acceptor) {
-      handshake_acceptor(req, Local);
-    }
-
-    if (m_type == Initiator) {
-      handshake_initiator(req, Local);
-    }
-
-    /* peers are on the Web */
-  } else {
-
-    if (m_type == Acceptor) {
-      handshake_acceptor(req, Web);
-    }
-
-    if (m_type == Initiator) {
-      handshake_initiator(req, Web);
-    }
-
-  } // - !else
+  if (m_type == Initiator) {
+    handshake_initiator(req, m_network_type);
+  }
 };
 
 void P2P::stream_out() {
@@ -186,7 +171,9 @@ void P2P::accept_peer(std::string &t_peer_id) {
 
   if (m_last_reply == Reply::r_201) {
     m_status = Accepted;
-    m_peer_address = std::move(response);
+    auto [address, address_type] = StringUtils::split_first(response);
+    m_peer_address = std::move(address);
+    m_network_type = address_type == "LOCAL" ? Local : Web;
 
   } else {
     m_status = Error;
@@ -226,7 +213,9 @@ void P2P::ping_peer() {
 
   if (m_last_reply == Reply::r_201) {
     m_status = Accepted;
-    m_peer_address = std::move(response);
+    auto [address, address_type] = StringUtils::split_first(response);
+    m_peer_address = std::move(address);
+    m_network_type = address_type == "LOCAL" ? Local : Web;
 
   } else if (m_last_reply == Reply::r_203) {
     m_status = Awaiting;
@@ -361,14 +350,8 @@ void P2P::handshake_initiator(Request &t_req, PeerNetwork t_peer_network) {
 
 /* */
 
-bool P2P::has_same_address() {
-  auto [address, _] = StringUtils::split_first(m_peer_address, ":");
-  return address == m_local_ip.get_first();
-}
-
-/* */
-
 bool P2P::invalid_to_handshake() {
+
   if (m_status != Accepted) {
     LOG_ERR("P2P::Status must be 'Accepted' to handshake. Was '%s'",
             status_to_string().c_str());
@@ -378,6 +361,11 @@ bool P2P::invalid_to_handshake() {
   if (m_peer_address.empty()) {
     LOG_ERR("'%s' failed to handshake. Peer address was not set correctly.",
             type_to_string().c_str());
+    return true;
+  }
+
+  if (m_network_type == Unselected) {
+    LOG_ERR("P2P::m_network_type must be Web or Local to handshake.");
     return true;
   }
 

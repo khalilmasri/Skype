@@ -33,6 +33,8 @@ std::string AwaitingUser::address() const {
   return m_address;
 };
 
+/* */
+
 std::string AwaitingUser::peer_address() const {
 
 /* returns local address when in the same network */
@@ -41,6 +43,16 @@ std::string AwaitingUser::peer_address() const {
   }
 
   return m_peer_address;
+}
+
+/* */
+
+std::string AwaitingUser::address_type(){
+  if (has_same_address()) {
+    return "LOCAL";
+  }
+
+  return "WEB";
 }
 
 /* Setters */
