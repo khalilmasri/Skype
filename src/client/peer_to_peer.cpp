@@ -9,7 +9,7 @@ static Config *config = Config::get_instance();
 const std::string P2P::m_DELIM = " ";
 
 // TODO: Server now takes a the local IP when public is the same.
-//       now must create the UDP connection for the local network. 
+//       now must create the UDP connection for the local network.
 
 /* Constructors */
 
@@ -27,7 +27,7 @@ P2P::P2P(std::string &&t_token) noexcept
       m_outbounds(new UDPTextIO()), m_status(Idle), m_type(None),
       m_last_reply(Reply::None) {
 
-        bind_sockets();
+  bind_sockets();
 }
 
 /* Public */
@@ -87,29 +87,35 @@ void P2P::reset() {
 
 void P2P::handshake_peer() {
 
-  if (m_status != Accepted) {
-    LOG_ERR("P2P::Status must be 'Accepted' to handshake. Was '%s'",
-            status_to_string().c_str());
-    return;
-  }
-
-  if (m_peer_address.empty()) {
-    LOG_ERR("'%s' failed to handshake. Peer address was not set correctly.",
-            type_to_string().c_str());
+  if (invalid_to_handshake()) {
     return;
   }
 
   Request req(m_peer_address, true);
 
-  auto [address, _port] = StringUtils::split_first(m_peer_address, ":");
+  /* peers are in the same private network */
+  if (has_same_address()) {
 
-  if (m_type == Acceptor) {
-    handshake_acceptor(req);
-  }
+    if (m_type == Acceptor) {
+      handshake_acceptor(req, Local);
+    }
 
-  if (m_type == Initiator) {
-    handshake_initiator(req);
-  }
+    if (m_type == Initiator) {
+      handshake_initiator(req, Local);
+    }
+
+    /* peers are on the Web */
+  } else {
+
+    if (m_type == Acceptor) {
+      handshake_acceptor(req, Web);
+    }
+
+    if (m_type == Initiator) {
+      handshake_initiator(req, Web);
+    }
+
+  } // - !else
 };
 
 void P2P::stream_out() {
@@ -128,10 +134,9 @@ void P2P::stream_out() {
   }
 }
 
-
 void P2P::stream_in() {
 
-if (m_status != Connected) {
+  if (m_status != Connected) {
     LOG_ERR("P2P::Status must be 'Connected' to stream. Was '%s'",
             status_to_string().c_str());
     return;
@@ -259,7 +264,8 @@ void P2P::hangup_peer() {
 
 std::string P2P::send_server(ServerCommand::name t_cmd, std::string &t_arg) {
 
-  std::string text_data = ServerCommand::to_string(t_cmd) + m_DELIM + m_token + m_DELIM + t_arg;
+  std::string text_data =
+      ServerCommand::to_string(t_cmd) + m_DELIM + m_token + m_DELIM + t_arg;
 
   return send_server(std::move(text_data));
 }
@@ -288,17 +294,51 @@ std::string P2P::send_server(std::string &&t_text_data) {
   return msg;
 }
 
-/* */
+void P2P::handshake_acceptor(Request &t_req, PeerNetwork t_peer_network) {
 
-void P2P::handshake_initiator(Request &t_req) {
+  /* peers in local network does not require to whole punch NAT */
+  if (t_peer_network == Web) {
+    hole_punch(t_req);
+  }
+
+  LOG_DEBUG("Acceptor: waiting for handshake confirmation from '%s'. ",
+            t_req.m_address.c_str());
 
   std::string ok = Reply::get_message(Reply::r_200);
 
-  LOG_DEBUG("Intiator: sending 200 OK to '%s' to whole punch ", t_req.m_address.c_str());
+  m_inbounds.receive(t_req);
+  std::string response = TextData::to_string(t_req.data());
 
+  LOG_DEBUG("Acceptor: got response '%s' ", response.c_str());
+
+  if (response == ok) {
+    LOG_INFO("Acceptor: P2P handshake with '%s' was sucessful. ",
+             t_req.m_address.c_str());
+
+    m_status = Connected;
+    t_req.set_data(new TextData(ok));
+    m_inbounds.respond(t_req);
+
+  } else {
+    LOG_ERR("P2P handshake message '%s' should be '200 OK'. Handshake failed.",
+            response.c_str());
+
+    m_status = Error;
+  }
+}
+
+/* */
+
+void P2P::handshake_initiator(Request &t_req, PeerNetwork t_peer_network) {
+
+  /* peers in local network does not require to whole punch NAT */
+  if (t_peer_network == Web) {
+    hole_punch(t_req);
+  }
+
+  std::string ok = Reply::get_message(Reply::r_200);
   t_req.set_data(new TextData(ok));
-  m_inbounds.respond(t_req);
-  
+
   LOG_DEBUG("Intiator: Sending 200 OK to confirm.");
   m_inbounds.respond(t_req);
 
@@ -308,10 +348,12 @@ void P2P::handshake_initiator(Request &t_req) {
   std::string response = TextData::to_string(t_req.data());
 
   if (response == ok) {
-    LOG_INFO("P2P handshake with '%s' was sucessful. ", t_req.m_address.c_str());
+    LOG_INFO("P2P handshake with '%s' was sucessful. ",
+             t_req.m_address.c_str());
     m_status = Connected;
   } else {
-    LOG_ERR("Initiator: P2P handshake message '%s' should be '200 OK'. Handshake failed.",
+    LOG_ERR("Initiator: P2P handshake message '%s' should be '200 OK'. "
+            "Handshake failed.",
             response.c_str());
     m_status = Error;
   }
@@ -319,34 +361,27 @@ void P2P::handshake_initiator(Request &t_req) {
 
 /* */
 
-void P2P::handshake_acceptor(Request &t_req) {
+bool P2P::has_same_address() {
+  auto [address, _] = StringUtils::split_first(m_peer_address, ":");
+  return address == m_local_ip.get_first();
+}
 
-  std::string ok = Reply::get_message(Reply::r_200);
+/* */
 
-  LOG_DEBUG("Acceptor: sending 200 OK to '%s' to whole punch ", t_req.m_address.c_str());
-
-  t_req.set_data(new TextData(ok));
-  m_inbounds.respond(t_req);
-
-  LOG_DEBUG("Acceptor: waiting for handshake confirmation from '%s'. " , t_req.m_address.c_str());
-
-  m_inbounds.receive(t_req);
-  std::string response = TextData::to_string(t_req.data());
-
-  LOG_INFO("Acceptor: got response ", response.c_str());
-
-  if (response == ok) {
-    LOG_INFO("Acceptor: P2P handshake with '%s' was sucessful. ", t_req.m_address.c_str());
-
-    m_status = Connected;
-    t_req.set_data(new TextData(ok));
-    m_inbounds.respond(t_req);
-
-  } else {
-    LOG_ERR("P2P handshake message '%s' should be '200 OK'. Handshake failed.",
-            response.c_str());
-    m_status = Error;
+bool P2P::invalid_to_handshake() {
+  if (m_status != Accepted) {
+    LOG_ERR("P2P::Status must be 'Accepted' to handshake. Was '%s'",
+            status_to_string().c_str());
+    return true;
   }
+
+  if (m_peer_address.empty()) {
+    LOG_ERR("'%s' failed to handshake. Peer address was not set correctly.",
+            type_to_string().c_str());
+    return true;
+  }
+
+  return false;
 }
 
 /* */
@@ -367,4 +402,16 @@ Request P2P::make_server_request(std::string &&t_text_data) {
 void P2P::bind_sockets() {
   m_inbounds.bind_socket(config->get<const std::string>("SERVER_ADDRESS"));
   m_outbounds.bind_socket(config->get<const std::string>("SERVER_ADDRESS"));
+}
+
+/* */
+
+void P2P::hole_punch(Request &t_req) {
+
+  std::string ok = Reply::get_message(Reply::r_200);
+
+  LOG_DEBUG("Hole punch: Sending 200 OK to '%s'...", t_req.m_address.c_str());
+
+  t_req.set_data(new TextData(ok));
+  m_inbounds.respond(t_req);
 }
