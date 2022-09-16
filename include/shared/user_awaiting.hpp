@@ -16,6 +16,9 @@ struct AwaitingUser {
     void        set_peer_address(const std::string &t_peer_address);
     void        set_peer_local_address(const std::string &t_peer_local_address);
 
+    /* returns LOCAL or WEB */
+    std::string address_type();
+
     private:
     int         m_id;
     int         m_peer_id;
