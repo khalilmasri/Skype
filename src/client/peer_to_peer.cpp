@@ -4,7 +4,6 @@
 #include "string_utils.hpp"
 #include "text_data.hpp"
 #include "udp_text_io.hpp"
-#include <unistd.h>
 
 static Config *config = Config::get_instance();
 const std::string P2P::m_DELIM = " ";
@@ -94,22 +93,14 @@ void P2P::handshake_peer() {
 
   Request req(m_peer_address, true);
 
-  if (m_type == Acceptor && m_network_type == Web) {
-    handshake_acceptor(req);
+  /* if m_network_type = WEB handshake will hole punch */
+  if (m_type == Acceptor) {
+    handshake_acceptor(req, m_network_type);
   }
 
-  if (m_type == Acceptor && m_network_type == Local) {
-    handshake_acceptor_local(req);
+  if (m_type == Initiator) {
+    handshake_initiator(req, m_network_type);
   }
-
-  if (m_type == Initiator && m_network_type == Web) {
-    handshake_initiator(req);
-  }
-
-  if (m_type == Initiator && m_network_type == Local) {
-    handshake_initiator_local(req);
-  }
-
 };
 
 void P2P::stream_out() {
@@ -292,76 +283,12 @@ std::string P2P::send_server(std::string &&t_text_data) {
   return msg;
 }
 
+void P2P::handshake_acceptor(Request &t_req, PeerNetwork t_peer_network) {
 
-void P2P::handshake_acceptor_local(Request &t_req) {
-
-  sleep(4);
-  hole_punch(t_req);
-
-  std::string ok = Reply::get_message(Reply::r_200);
-
-  LOG_DEBUG("Acceptor: waiting for handshake confirmation from '%s'. ",
-            t_req.m_address.c_str());
-
-  m_inbounds.receive(t_req);
-  std::string response = TextData::to_string(t_req.data());
-
-  LOG_DEBUG("Acceptor: got response '%s' ", response.c_str());
-
-  if (response == ok) {
-    LOG_INFO("Acceptor: P2P handshake with '%s' was sucessful. ",
-             t_req.m_address.c_str());
-
-    m_status = Connected;
-    t_req.set_data(new TextData(ok));
-    m_inbounds.respond(t_req);
-
-  } else {
-    LOG_ERR("P2P handshake message '%s' should be '200 OK'. Handshake failed.",
-            response.c_str());
-
-    m_status = Error;
+  /* peers in local network does not require to whole punch NAT */
+  if (t_peer_network == Web) {
+    hole_punch(t_req);
   }
-}
-
-/* */
-
-void P2P::handshake_initiator_local(Request &t_req) {
-
- // hole_punch(t_req);
-
-  std::string ok = Reply::get_message(Reply::r_200);
-  
-  LOG_DEBUG("Intiator: Handhake sent. now waiting for 0K response...")
-  m_inbounds.receive(t_req);
-
-  std::string response = TextData::to_string(t_req.data());
-
-  if (response == ok) {
-  t_req.set_data(new TextData(ok));
-
-    LOG_DEBUG("Intiator: Sending 200 OK to confirm.");
-    m_inbounds.respond(t_req);
-
-     m_status = Connected;
-  } else {
-    LOG_ERR("Initiator: P2P handshake message '%s' should be '200 OK'. "
-            "Handshake failed.",
-            response.c_str());
-
-    m_status = Error;
-  }
-}
-
-/* */
-
-
-/* */
-
-
-void P2P::handshake_acceptor(Request &t_req) {
-
-  hole_punch(t_req);
 
   LOG_DEBUG("Acceptor: waiting for handshake confirmation from '%s'. ",
             t_req.m_address.c_str());
@@ -391,9 +318,12 @@ void P2P::handshake_acceptor(Request &t_req) {
 
 /* */
 
-void P2P::handshake_initiator(Request &t_req) {
+void P2P::handshake_initiator(Request &t_req, PeerNetwork t_peer_network) {
 
-  hole_punch(t_req);
+  /* peers in local network does not require to whole punch NAT */
+  if (t_peer_network == Web) {
+    hole_punch(t_req);
+  }
 
   std::string ok = Reply::get_message(Reply::r_200);
   t_req.set_data(new TextData(ok));

@@ -57,11 +57,8 @@ class P2P {
   std::string   send_server(ServerCommand::name t_cmd);
   std::string   send_server(std::string &&t_text_data);
 
-  void          handshake_acceptor(Request &t_req);
-  void          handshake_initiator(Request &t_req);
-
-  void          handshake_acceptor_local(Request &t_req);
-  void          handshake_initiator_local(Request &t_req);
+  void          handshake_acceptor(Request &t_req, PeerNetwork t_peer_network);
+  void          handshake_initiator(Request &t_req , PeerNetwork t_peer_network);
 
   bool          invalid_to_handshake();
 
