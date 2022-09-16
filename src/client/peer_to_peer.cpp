@@ -16,8 +16,6 @@ P2P::P2P(std::string &t_token) noexcept
       m_last_reply(Reply::None) {
 
   bind_sockets();
-
-  std::cout << m_local_ip.get_first() << " <--- local_IP" << std::endl;
 }
 
 /* Same constructor but moves the token string */
@@ -27,8 +25,6 @@ P2P::P2P(std::string &&t_token) noexcept
       m_last_reply(Reply::None) {
 
         bind_sockets();
-
-  std::cout << m_local_ip.get_first() << " <--- local_IP" << std::endl;
 }
 
 /* Public */
@@ -55,7 +51,7 @@ std::string P2P::status_to_string() const {
     return std::string("Connected");
 
   case Error:
-    return std::string("Connected");
+    return std::string("Error");
   }
 }
 
@@ -143,7 +139,6 @@ if (m_status != Connected) {
   while (true) {
     m_inbounds.receive(req);
     std::string received = TextData::to_string(req.data());
-    std::cout << received << "\n";
   }
 }
 
@@ -183,7 +178,6 @@ void P2P::accept_peer(std::string &t_peer_id) {
 
   if (m_last_reply == Reply::r_201) {
     m_status = Accepted;
-    std::cout << "response -> " + response << std::endl;
     m_peer_address = std::move(response);
 
   } else {
