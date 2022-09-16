@@ -52,7 +52,7 @@ void AwaitingUser::set_peer_address(const std::string &t_peer_address) {
 void AwaitingUser::set_peer_local_address(
     const std::string &t_peer_local_address) {
   /* take the port from public address */
-  auto [_, port] = StringUtils::split_first(m_peer_address);
+  auto [_, port] = StringUtils::split_first(m_peer_address, ":");
   m_peer_local_address = t_peer_local_address + ":" + port;
 }
 

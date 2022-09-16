@@ -24,9 +24,10 @@ class P2P {
   std::string   type_to_string() const;
   Reply::Code   last_reply() const;
 
+  /* Reset the P2P connection */
   void          reset();
 
-  /* Once server   */
+  /* Peers are ready to connect to each other */
   void          handshake_peer();
   void          stream_out();
   void          stream_in();
@@ -39,6 +40,8 @@ class P2P {
   void          hangup_peer();
 
   private:
+  enum PeerNetwork {Local, Web};
+
   std::string   m_peer_address;
   std::string   m_token;
   UDPConn       m_inbounds;
@@ -48,15 +51,21 @@ class P2P {
   Reply::Code   m_last_reply;
   LocalIP       m_local_ip;
 
+  /* return the res message from the Server and sets m_last_reply with the Reply::Code */
   std::string   send_server(ServerCommand::name t_cmd, std::string &t_arg);
   std::string   send_server(ServerCommand::name t_cmd);
   std::string   send_server(std::string &&t_text_data);
 
-  void          handshake_acceptor(Request &t_req);
-  void          handshake_initiator(Request &t_req);
+  void          handshake_acceptor(Request &t_req, PeerNetwork t_peer_network);
+  void          handshake_initiator(Request &t_req , PeerNetwork t_peer_network);
+
+  bool          has_same_address();
+  bool          invalid_to_handshake();
 
   Request       make_server_request(std::string &&t_text_data);
   void          bind_sockets();
+
+  void          hole_punch(Request &t_req);
 
   
 

@@ -72,8 +72,9 @@ void connect_to(P2P &p2p) {
       break;
     }
 
-    if(count > 10){
-      std::cout << std::string("Breaking after ") + std::to_string(count) << std::endl;
+    if (count > 10) {
+      std::cout << std::string("Breaking after ") + std::to_string(count)
+                << std::endl;
       p2p.hangup_peer();
       return;
     }
