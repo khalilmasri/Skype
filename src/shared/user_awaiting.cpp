@@ -72,7 +72,7 @@ void AwaitingUser::set_peer_local_address(
 
 bool AwaitingUser::has_same_address() const {
   auto[user_address, _uport] = StringUtils::split_first(m_address, ":");
-  auto[peer_address, _pport] = StringUtils::split_first(m_address, ":");
+  auto[peer_address, _pport] = StringUtils::split_first(m_peer_address, ":");
 
   return user_address == peer_address;
 }
