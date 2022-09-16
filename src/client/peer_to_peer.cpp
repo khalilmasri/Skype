@@ -8,6 +8,9 @@
 static Config *config = Config::get_instance();
 const std::string P2P::m_DELIM = " ";
 
+// TODO: Server now takes a the local IP when public is the same.
+//       now must create the UDP connection for the local network. 
+
 /* Constructors */
 
 P2P::P2P(std::string &t_token) noexcept
