@@ -5,8 +5,7 @@
 #include "reply.hpp"
 #include "local_ip.hpp"
 #include "server_commands.hpp"
-
-// TODO: Test peer handshake in two computers. 
+#include <functional>
 
 class P2P {
 
@@ -29,8 +28,6 @@ class P2P {
 
   /* Peers are ready to connect to each other */
   void          handshake_peer();
-  void          stream_out();
-  void          stream_in();
 
   /* Calls to the server to connect to another peer */
   void          connect_peer(std::string &t_peer_id);
@@ -41,6 +38,7 @@ class P2P {
 
   private:
   enum PeerNetwork {Local, Web, Unselected};
+  enum StreamDir {In, Out};
 
   std::string   m_peer_address;
   std::string   m_token;
@@ -60,8 +58,8 @@ class P2P {
   void          handshake_acceptor(Request &t_req, PeerNetwork t_peer_network);
   void          handshake_initiator(Request &t_req , PeerNetwork t_peer_network);
 
-  bool          invalid_to_handshake();
 
+  bool          invalid_to_handshake();
   Request       make_server_request(std::string &&t_text_data);
   void          bind_sockets();
 

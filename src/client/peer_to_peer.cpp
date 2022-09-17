@@ -4,15 +4,16 @@
 #include "string_utils.hpp"
 #include "text_data.hpp"
 #include "udp_text_io.hpp"
+#include <thread>
 
 static Config *config = Config::get_instance();
 const std::string P2P::m_DELIM = " ";
+//    Next up: Work on streaming!
 const std::string P2P::m_LOCAL = "LOCAL";
 
-// TODO: Local network is working. 
-//       
-//    Next up: Work on streaming! 
-//       
+// TODO: Local network is working.
+//
+//
 
 /* Constructors */
 
@@ -90,8 +91,8 @@ void P2P::reset() {
 
 void P2P::handshake_peer() {
 
+  return;
   if (invalid_to_handshake()) {
-    return;
   }
 
   Request req(m_peer_address, true);
@@ -106,37 +107,6 @@ void P2P::handshake_peer() {
   }
 };
 
-void P2P::stream_out() {
-
-  if (m_status != Connected) {
-    LOG_ERR("P2P::Status must be 'Connected' to stream. Was '%s'",
-            status_to_string().c_str());
-    return;
-  }
-
-  Request req(m_peer_address, true);
-
-  while (true) {
-    req.set_data(new TextData("stream!"));
-    m_inbounds.respond(req);
-  }
-}
-
-void P2P::stream_in() {
-
-  if (m_status != Connected) {
-    LOG_ERR("P2P::Status must be 'Connected' to stream. Was '%s'",
-            status_to_string().c_str());
-    return;
-  }
-
-  Request req(m_peer_address, true);
-
-  while (true) {
-    m_inbounds.receive(req);
-    std::string received = TextData::to_string(req.data());
-  }
-}
 
 /* */
 
