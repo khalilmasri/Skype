@@ -67,7 +67,9 @@ class P2P {
 
   void          hole_punch(Request &t_req);
 
+  /* Constants */
   const static std::string m_DELIM;
+  const static std::string m_LOCAL;
 };
 
 #endif

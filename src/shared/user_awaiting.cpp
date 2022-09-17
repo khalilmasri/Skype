@@ -2,6 +2,10 @@
 #include "logger.hpp"
 #include "string_utils.hpp"
 
+/* Constants */
+ const std::string AwaitingUser::m_WEB = "WEB";
+ const std::string AwaitingUser::m_LOCAL = "LOCAL";
+
 /* Constructors AwaitingUser */
 AwaitingUser::AwaitingUser(int t_id, int t_peer_id,
                            const std::string &t_address)
@@ -23,9 +27,9 @@ AwaitingUser::AwaitingUser(int t_id, int t_peer_id,
 int AwaitingUser::id() const { return m_id; }
 int AwaitingUser::peer_id() const { return m_peer_id; }
 
-/* if user and peer are on the same network return local address */
 std::string AwaitingUser::address() const {
 
+/* returns local address when in the same network */
   if (has_same_address()) {
     return m_local_address;
   }
@@ -37,7 +41,6 @@ std::string AwaitingUser::address() const {
 
 std::string AwaitingUser::peer_address() const {
 
-/* returns local address when in the same network */
   if (has_same_address()) {
     return m_peer_local_address;
   }
@@ -49,10 +52,10 @@ std::string AwaitingUser::peer_address() const {
 
 std::string AwaitingUser::address_type(){
   if (has_same_address()) {
-    return "LOCAL";
+    return m_LOCAL;
   }
 
-  return "WEB";
+  return m_WEB;
 }
 
 /* Setters */
@@ -93,7 +96,7 @@ bool AwaitingUsers::insert(AwaitingUser &&t_awaiting_user) noexcept {
   return result.second;
 }
 
-// This method throws and must be wrapped in a try catch.
+// IMPORTANT: This method throws and must be wrapped in a try catch.
 AwaitingUser &AwaitingUsers::get(int t_awaiting_user_id) {
   return m_awaiting_users.at(t_awaiting_user_id);
 }

@@ -7,12 +7,11 @@
 
 static Config *config = Config::get_instance();
 const std::string P2P::m_DELIM = " ";
+const std::string P2P::m_LOCAL = "LOCAL";
 
 // TODO: Local network is working. 
-//       add README note for users with ufw firewall need to open for local network.
-//       sudo ufw allow from 192.168.15.0/24
 //       
-//       Next up: Work on streaming! 
+//    Next up: Work on streaming! 
 //       
 
 /* Constructors */
@@ -177,7 +176,7 @@ void P2P::accept_peer(std::string &t_peer_id) {
     m_status = Accepted;
     auto [address, address_type] = StringUtils::split_first(response);
     m_peer_address = std::move(address);
-    m_network_type = address_type == "LOCAL" ? Local : Web;
+    m_network_type = address_type == m_LOCAL ? Local : Web;
 
   } else {
     m_status = Error;
@@ -289,7 +288,7 @@ std::string P2P::send_server(std::string &&t_text_data) {
 
 void P2P::handshake_acceptor(Request &t_req, PeerNetwork t_peer_network) {
 
-  /* peers in local network does not require to whole punch NAT */
+  /* peers in local network does not require to hole punch the NAT */
   if (t_peer_network == Web) {
     hole_punch(t_req);
   }
@@ -324,7 +323,7 @@ void P2P::handshake_acceptor(Request &t_req, PeerNetwork t_peer_network) {
 
 void P2P::handshake_initiator(Request &t_req, PeerNetwork t_peer_network) {
 
-  /* peers in local network does not require to whole punch NAT */
+  /* peers in local network does not require to hole punch the NAT */
   if (t_peer_network == Web) {
     hole_punch(t_req);
   }

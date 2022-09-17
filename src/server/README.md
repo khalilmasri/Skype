@@ -195,7 +195,6 @@ Lists all current logged in users contacts. Users are delimited by a <space> cha
 Logs the current user out if a user is logged in. Server will disconnect upon receiving this command.
 
     EXIT
-
     201 Goobye.
 
 ## Call commands commands
@@ -205,27 +204,30 @@ Logs the current user out if a user is logged in. Server will disconnect upon re
 Requests for an UDP, peer-to-peer audio/video connection to a peer client. **Note: a client can only have
 a single connection request at the time.**
 
-    CONNECT <contact_id>
+    CONNECT <contact_id> <local_ip>
 
     200 OK
     301 User not found
     306 Already awaiting. Please HANGUP before connecting
     500 Internal server error
 
+e.g
+    CONNECT 1 192.168.0.14
+    200 OK
 
 ### `ACCEPT`
 
 Accepts an UDP, peer-to-peer audio/video connection from a peer client.
 
-    ACCEPT <contact_id>
+    ACCEPT <contact_id> <local_ip>
 
-    201 <ip:port>
+    201 <peer_ip:peer_port>
     301 User not found
     307 Connection requests not found for this user
 
 e.g
 
-    ACCEPT 2
+    ACCEPT 2 192.168.0.14
     201 127.0.0.1:4000
 
 Accepting an unexisting `CONNECT` requests

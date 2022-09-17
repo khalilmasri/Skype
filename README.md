@@ -54,7 +54,6 @@ Cleaning. `clean-all` will remove all build files requiring  `./build.sh --gen`.
            ./build.sh --clean-bin
            ./build.sh --clean-all
 
-
 ### Shared code
 
 The code in `src/shared` and `include/shared` is shared between the client and server.
