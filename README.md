@@ -13,6 +13,13 @@ The server is necessary because there is not way for a client to know other clie
 More on on the [server here](https://github.com/khalilmasri/Skype/tree/main/src/server).
 More on on the [setting up Postgres](https://github.com/khalilmasri/Skype/tree/main/postgres).
 
+### Firewall
+
+Clients within the same local network connect directly via LAN. If your computer is running a firewall
+such as `ufw`, that will block local traffic by default and the peer-to-peer connection will not work.
+You must allow IPs in your local network. For exemple, if you router IP is `192.168.178.0` then
+
+    sudo ufw allow from 192.168.178.0/24
 
 ###  Build System
 
@@ -46,6 +53,7 @@ Cleaning. `clean-all` will remove all build files requiring  `./build.sh --gen`.
            ./build.sh --clean
            ./build.sh --clean-bin
            ./build.sh --clean-all
+
 
 ### Shared code
 

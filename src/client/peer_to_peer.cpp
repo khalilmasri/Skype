@@ -8,8 +8,12 @@
 static Config *config = Config::get_instance();
 const std::string P2P::m_DELIM = " ";
 
-// TODO: Server now takes a the local IP when public is the same.
-//       now must create the UDP connection for the local network.
+// TODO: Local network is working. 
+//       add README note for users with ufw firewall need to open for local network.
+//       sudo ufw allow from 192.168.15.0/24
+//       
+//       Next up: Work on streaming! 
+//       
 
 /* Constructors */
 
