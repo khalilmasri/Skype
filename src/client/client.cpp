@@ -1,5 +1,6 @@
 #include "accounts.hpp"
 #include "accounts.hpp"
+#include "client.hpp"
 #include "user.hpp"
 #include "contacts.hpp"
 #include "active_conn.hpp"
@@ -15,6 +16,7 @@
 #include "chat.hpp"
 #include "notification.hpp"
 #include "config.hpp"
+#include "call.hpp"
 
 #include <iostream>
 #include <vector>
@@ -63,6 +65,8 @@ Client::~Client(){
 
    std::string response = TextData::to_string(m_server_req.data());
    LOG_INFO("Server reply => %s", response.c_str());
+
+   config->free_instance();
 
    close(m_server_conn.get_socket());
    
@@ -157,6 +161,19 @@ void Client::user_get_id(Job &t_job)
    }
 }
 
+void Client::user_get_token(Job &t_job)
+{
+   LOG_DEBUG("Getting user token!");
+   t_job.m_string = m_user.get_token();
+
+   if (t_job.m_string == "")
+   {
+      t_job.m_valid = false;
+      return;
+   }
+   
+   t_job.m_valid = true;
+}
 // CHAT Methods
 
 void Client::chat_send(Job &t_job){
@@ -202,6 +219,44 @@ void Client::chat_deliver(Job &t_job)
    m_server_req.set_data(new TextData(m_user.get_token() + " " + t_job.m_argument));
    t_job.m_valid = m_chat.deliver(m_server_conn, m_server_req);
    LOG_DEBUG("Delivering chats done!");
+}
+
+// Call redirection
+void Client::call_connect(Job &t_job)
+{
+   t_job.m_argument = m_user.get_token();
+
+   auto thread_work = [](Job &t_job){m_call.connect(t_job);};
+   QThread *call = QThread::create(thread_work);
+   call->start();
+
+   t_job.m_command = Job::DISCARD;
+}
+
+void Client::call_accept(Job &t_job)
+{
+   t_job.m_argument = m_user.get_token();
+
+   auto thread_work = [](Job &t_job){Client::m_call.accept(t_job);};
+   QThread *call = QThread::create(&m_call.accept, t_job);
+   call->start();
+
+   t_job.m_command = Job::DISCARD;
+}
+
+void Client::call_reject(Job &t_job)
+{
+   t_job.m_argument = m_user.get_token();
+
+   m_call.reject(t_job);
+   t_job.m_command = Job::DISCARD;
+
+}
+
+void Client::call_hangup(Job &t_job)
+{
+   m_call.hangup();
+   t_job.m_command = Job::DISCARD;
 }
 
 bool Client::valid_response(Reply::Code t_code, std::string& t_res) {

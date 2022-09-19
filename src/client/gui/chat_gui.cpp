@@ -3,6 +3,7 @@
 #include "logger.hpp"
 #include "fail_if.hpp"
 #include "chat.hpp"
+#include "call_gui.hpp"
 
 #include <QStringListModel>
 #include <QVector>
@@ -19,9 +20,11 @@
 #include <QDebug>
 #include <QStandardItemModel>
 #include <qicon.h>
+#include <qnamespace.h>
 #include <qstandarditemmodel.h>
 
 bool first_display = true;
+bool on_call = false;
 QString TODAY = "";
 QString YESTERDAY = "";
 
@@ -391,4 +394,51 @@ void ChatGui::on_remove_clicked()
     }
 
     JobBus::create({Job::REMOVE, user});
+}
+
+void ChatGui::on_call_clicked()
+{
+
+    if ( true == on_call)
+    {
+        QMessageBox::information(nullptr, "Error", "You are already on a call!", QMessageBox::Ok);
+        return;
+    }
+
+    m_call = new CallGui(this);
+    QString user =  m_current_selected.data(Qt::DisplayRole).toString();
+    int user_id = search_contact_list(user, "username");
+
+    if (user_id == 0)
+    {
+        QMessageBox::warning(nullptr, "Error","Something went wrong while calling " + user +"!\n Please try again later!",
+                                                               QMessageBox::Ok);
+        return;
+    } 
+
+    on_call = true;
+    m_call->call_init(m_token, user_id, user);
+}
+
+void ChatGui::on_video_clicked()
+{
+    if ( true == on_call)
+    {
+        QMessageBox::information(nullptr, "Error", "You are already on a call!", QMessageBox::Ok);
+        return;
+    }
+    
+    m_call = new CallGui(this);
+    QString user =  m_current_selected.data(Qt::DisplayRole).toString();
+    int user_id = search_contact_list(user, "username");
+
+    if (user_id == 0)
+    {
+        QMessageBox::warning(nullptr, "Error","Something went wrong while calling " + user +"!\n Please try again later!",
+                                                               QMessageBox::Ok);
+        return;
+    } 
+
+    on_call = true;
+    m_call->video_init(m_token, user_id, user);
 }

@@ -101,6 +101,7 @@ QListView[objectName ^= contact_list]
     border-width: 1px;
     border-radius: 17px;
     padding: 10px;
+    
 }
 
 QGroupBox
@@ -112,10 +113,56 @@ QGroupBox
     border-radius: 17px;
 }
 /*-----QPushButton-----*/
+QPushButton[objectName ^= webcam]
+{
+        background-color: grey;
+	    color: #fff;
+        font-weight: bold;
+        border-style: solid;
+        border-color: #242424;
+        border-width: 1px;
+        border-radius: 17px;
+        padding: 10px;
+
+}
+
+QPushButton[objectName ^= microphone]
+{
+        background-color: grey;
+	    color: #fff;
+        font-weight: bold;
+        border-style: solid;
+        border-color: #242424;
+        border-width: 1px;
+        border-radius: 17px;
+        padding: 10px;
+
+}
+
 QPushButton
 {
         background-color: #0C4A6E;
+	    color: #fff;
+        font-weight: bold;
+        border-style: solid;
+        border-color: #242424;
+        border-width: 1px;
+        border-radius: 17px;
+        padding: 10px;
+
+}
+
+QPushButton::hover
+{
+    background-color: #01579B;
 	color: #fff;
+
+}
+
+QPushButton[objectName ^= hangup]
+{
+        background-color: #FF3333;
+	    color: #fff;
         font-weight: bold;
         border-style: solid;
         border-color: #242424;
@@ -126,21 +173,18 @@ QPushButton
 }
 
 
-QPushButton::hover
-{
-        background-color: #01579B;
-	color: #fff;
 
+QPushButton::checked[objectName ^= microphone]
+{
+    background-color: #FF3333;
+	color: #fff;
 }
 
-
-QPushButton::pressed
+QPushButton::checked[objectName ^= webcam]
 {
-    background-color: #01579B;
+    background-color: #FF3333;
 	color: #fff;
-
 }
-
 
 /*-----QToolButton-----*/
 QToolButton

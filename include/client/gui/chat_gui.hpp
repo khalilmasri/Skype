@@ -7,12 +7,14 @@
 #include "contacts.hpp"
 #include "chat.hpp"
 #include "notification.hpp"
+#include "call_gui.hpp"
 
 #include <QModelIndex>
 #include <QDialog>
 #include <QVector>
 #include <QString>
 #include <QStringListModel>
+#include <string>
 
 namespace Ui {
 class ChatGui;
@@ -45,6 +47,10 @@ private slots:
     void on_search_clicked();
     void on_remove_clicked();
 
+    void on_call_clicked();
+
+    void on_video_clicked();
+
 signals:
     void on_send_clicked();
     void wrapping();
@@ -53,6 +59,7 @@ signals:
 
 private: // Variables
     Ui::ChatGui             *m_ui;
+    CallGui                 *m_call;
     QString                 m_user;
     int                     m_user_id;
     QModelIndex             m_current_selected;

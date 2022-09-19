@@ -33,7 +33,13 @@ struct Job {
         PENDING,
         DELIVERED,
         NOTIFICATION,
-
+        
+        // Call
+        CONNECT,
+        ACCEPT,
+        REJECT, 
+        HANGUP,
+        
         DISCARD,
         NONE,
     };

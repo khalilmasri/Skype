@@ -118,7 +118,7 @@ int main(int ac, char **av) {
   } else if (user == "shakira") { // shakira accepts
     accept_from(p2p);
   } else {
-    std::cout << "Please pass in 'john' or 'shakira' as users.\n";
+    std::cout << "Please pass in 'john' or 'shakping_peerira' as users.\n";
   }
 
   p2p.handshake_peer();

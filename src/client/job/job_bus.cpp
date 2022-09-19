@@ -4,6 +4,7 @@
 
 #include <ctime>
 #include <iostream>
+#include <qthread.h>
 #include <vector>
 #include <QThread>
 #include <QTimer>
@@ -35,6 +36,10 @@ JobBus::JobsMap JobBus::m_JobBus_map {
     {Job::GETID,            Client::user_get_id},
     {Job::DELIVERED,        Client::chat_deliver},
     {Job::PENDING,          Client::chat_get_pending},
+    {Job::CONNECT,          Client::call_connect},
+    {Job::ACCEPT,          Client::call_accept},
+    {Job::REJECT,          Client::call_reject},
+    {Job::HANGUP,          Client::call_hangup},
 };
 
 JobBus* JobBus::get_instance()
@@ -67,8 +72,9 @@ void JobBus::handle() {
          if (false == m_jobQ.empty()) {      
         
             m_jobQ.pop_try(job);
+            
             m_JobBus_map[job.m_command](job);
-
+           
             if ( Job::DISCARD != job.m_command )
             {
                 m_resQ.push(job);
