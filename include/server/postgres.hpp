@@ -3,6 +3,7 @@
 #include "logger.hpp"
 #include <pqxx/pqxx>
 #include <vector>
+#include "config.hpp"
 #include "user_chat.hpp"
 
 #define MAX_DB_PATH_NAME 100
@@ -43,9 +44,10 @@ public:
   bool        logoff(const User &t_user);
 
 private:
-  char m_db[MAX_DB_PATH_NAME];
-  pqxx::connection m_conn;
-  std::string      m_table;
+  Config           *m_config;
+  const std::string m_db;
+  pqxx::connection  m_conn;
+  std::string       m_table;
 
   Users       result_to_users(AggregatedQueryResult &&t_results);
   std::string update_user_query(const User &t_user, pqxx::work &t_transaction) const;

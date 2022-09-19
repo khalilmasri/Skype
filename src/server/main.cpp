@@ -9,6 +9,8 @@ int main(int ac, char *av[]) {
 
   Config *config = Config::get_instance();
 
+  srand(time(nullptr)); // seed srand for token generator
+
   int res = Tester::test(ac, av);
 
   if (res > 0) {

@@ -13,8 +13,6 @@
 #include <map>
 #include <vector>
 
-#define SERVER_PORT 5000
-
 class Client {
 
 public:
@@ -48,8 +46,8 @@ public:
     static void chat_deliver                (Job &t_job);
 
 private:
-    inline static Request       m_server_req = {};
-    inline static ActiveConn    m_server_conn = ActiveConn(SERVER_PORT, new TextIO());
+    static Request              m_server_req;
+    static ActiveConn           m_server_conn;
     
     inline static Accounts      m_user;
     inline static Contacts      m_contacts;

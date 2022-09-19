@@ -2,10 +2,8 @@
 #include <string.h>
 #include <algorithm>
 
-
 std::string TokenGenerator::generate(const int length) {
 
-  srand(time(0));
   std::string str(length, 0);
   std::generate_n(str.begin(), length, random_char);
 

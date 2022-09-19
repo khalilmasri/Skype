@@ -14,6 +14,7 @@
 #include "string_utils.hpp"
 #include "chat.hpp"
 #include "notification.hpp"
+#include "config.hpp"
 
 #include <iostream>
 #include <vector>
@@ -22,12 +23,17 @@
 
 /* Public */
 
+static Config *config = Config::get_instance();
+
+Request Client::m_server_req = {};
+ActiveConn Client::m_server_conn = ActiveConn(config->get<int>("TCP_PORT"), new TextIO());
+
 Client::Client(){  
 
    std::string response = "";
    LOG_INFO("Connecting to server...");
    
-   auto ip = std::string("206.189.0.154");
+   auto ip = config->get<const std::string>("SERVER_ADDRESS");
    m_server_req = m_server_conn.connect_socket(ip);
 
    m_server_conn.receive(m_server_req);
