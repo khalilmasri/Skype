@@ -1,5 +1,5 @@
 #include "server.hpp"
-#include "data_io.hpp"
+#include "udp_text_io.hpp"
 #include "reply.hpp"
 #include "text_data.hpp"
 #include "config.hpp"
@@ -8,7 +8,7 @@
 static Config *config = Config::get_instance();
 
 Server::Server(int t_port)
-    : m_conn(t_port, new TextIO()), m_udp(config->get<int>("UDP_PORT"), new DataIO()),
+    : m_conn(t_port, new TextIO()), m_udp(config->get<int>("UDP_PORT"), new UDPTextIO()),
       m_address(config->get<const std::string>("SERVER_ADDRESS")) {
   m_conn.setup();
   m_conn.bind_and_listen(m_address);
@@ -18,14 +18,14 @@ Server::Server(int t_port)
 void Server::main_loop() {
 
   while (true) {
-    accept_connection(); // searches for new connection at every iteration
-                         //
+    accept_connection(); // checks for new connection at every iteration
+                         
     Request req;
 
     m_conn.receive(req);
     m_router.route(req);
     m_conn.respond(req);
-    disconnect_on_client_request(req);
+    disconnect_client_on_request(req);
     disconnect_client_on_failure(req);
   }
 }
@@ -46,7 +46,7 @@ void Server::accept_connection() {
   }
 }
 
-void Server::disconnect_on_client_request(Request &t_req) {
+void Server::disconnect_client_on_request(Request &t_req) {
   if (t_req.m_exit) {
 
     LOG_INFO("Disconnecting %s. Goodbye.", t_req.m_address.c_str());
@@ -55,14 +55,14 @@ void Server::disconnect_on_client_request(Request &t_req) {
 }
 
 void Server::disconnect_client_on_failure(Request &t_req) {
-  //  valid receives will always yields m_socket >= 0
+
+  //  valid receives will always yield m_socket >= 0
   if (!t_req.m_valid && t_req.m_socket >= 0) {
     LOG_ERR("Client %s communication failed. Closing connection...",
             t_req.m_address.c_str());
 
     std::string empty;
-    UserControllers::exit(empty,
-                          t_req); // forcefully calls exist to update database.
+    UserControllers::exit(empty, t_req); // forcefully calls exist to update database.
 
     m_conn.disconnect_client(t_req);
   }
@@ -74,7 +74,8 @@ void Server::udp_worker() {
     Request req;
     req.m_valid = true;
     m_udp.receive(req);
-    req.set_data(new TextData("hello there!"));
+   // req.set_data(new TextData("hello there!"));
+    m_router.route(req);
     m_udp.respond(req);
   }
 }

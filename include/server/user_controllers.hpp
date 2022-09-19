@@ -13,7 +13,6 @@ struct UserControllers {
   static void  search    (std::string &t_username, Request &t_req);
   static void  add       (std::string &t_contact_username, Request &t_req);
   static void  remove    (std::string &t_contact_username, Request &t_req);
-  static void  ping      (std::string &_, Request &t_req);
   static void  available (std::string &_, Request &t_req);
   static void  exit      (std::string &_, Request &t_req);
 
@@ -21,8 +20,8 @@ struct UserControllers {
   static void  none      (std::string &_, Request &t_req); 
 
   // helper to check if user is logged in 
-  static bool ip_exists(Request &t_req); 
 
+  static bool ip_exists(Request &t_req); 
   // checks token is valid
   static bool is_valid_token(std::string &t_token, Request &t_req);
 

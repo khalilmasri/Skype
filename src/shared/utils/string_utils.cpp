@@ -103,6 +103,19 @@ StringUtils::StringVector StringUtils::split_at(const std::string &s, const IntV
   return vec;
 }
 
+
+StringUtils::IntTuple StringUtils::to_int(const std::string &s){
+
+  try{
+    int val = std::stoi(s);
+    return {true, val};
+
+  } catch(...){
+     LOG_ERR("Could not convert %s into an integer.", s.c_str());
+     return {false, -1};
+  }
+}
+
 void StringUtils::trim(std::string &s) {
   trim_left(s);
   trim_right(s);

@@ -5,8 +5,10 @@
 #include "supress_unused_params_warnings.hpp"
 #include "text_data.hpp"
 #include "controller_utils.hpp"
-#include <iostream>
 #include "token_gen.hpp"
+
+/* to check for call requests */
+#include "call_controllers.hpp"
 
 Postgres UserControllers::m_pg = Postgres();
 
@@ -24,7 +26,7 @@ void UserControllers::list(std::string &_, Request &t_req) {
     list_contacts(contacts, t_req);
      
   } else {
-    ControllerUtils::set_request_reply(Reply::r_500, t_req);
+    ControllerUtils::set_request_reply(Reply::r_301, t_req);
   }
 }
 
@@ -36,8 +38,7 @@ void UserControllers::create(std::string &t_arg, Request &t_req) {
     return;
   }
 
-  std::string port = "1000"; //TODO:
-  User user(0, username, password, false, t_req.m_address, port);
+  User user(0, username, password, false, t_req.m_address);
   bool result = m_pg.add_user(user);
 
   if (result) {
@@ -122,25 +123,6 @@ void UserControllers::remove(std::string &t_contact_username, Request &t_req) {
   }
 }
 
-void UserControllers::ping(std::string &_, Request &t_req) {
-  UNUSED_PARAMS(_);
-
-  // User user = m_pg.search_user_by(t_req.m_address, "address");
-  User user = m_pg.search_user_by_token(t_req.m_token);
-
-  if (user.empty()) {
-    ControllerUtils::set_request_reply(Reply::r_301,
-                      t_req); // didn't find a user. return not found
-
-  } else if (!user.online()) {
-    ControllerUtils::set_request_reply(Reply::r_202,
-                      t_req); // user is not online. Ask to login again.
-
-  } else {
-    ControllerUtils::set_request_reply(Reply::r_200, t_req); // user is online. return OK
-  }
-}
-
 void UserControllers::available(std::string &t_username, Request &t_req) {
 
   User user = m_pg.search_user_by(t_username, "username");
@@ -219,7 +201,6 @@ void UserControllers::login_user(User &t_user, Request &t_req) {
 
   t_user.update("true", User::Online);
   t_user.update(t_req.m_address, User::Address);
-  t_user.update("1234", User::Port);
 
   bool token_res = m_pg.add_user_token(t_user, token);
   bool user_res = m_pg.update_user(t_user);
@@ -234,7 +215,12 @@ void UserControllers::list_contacts(Users &t_contacts, Request &t_req) {
     std::string reply_msg;
 
     for (auto &contact : t_contacts) {
-      reply_msg += contact.to_string() + m_CONTACT_DELIM;
+
+      // adds awaiting field informing client if a client is currently trying to make a call.
+      std::string awaiting = 
+       CallControllers::call_awaits(contact.id()) ?  ",awaiting:true": ",awaiting:false";
+
+      reply_msg += contact.to_string() + awaiting + m_CONTACT_DELIM;
     }
 
     reply_msg.pop_back(); // remove last delim

@@ -17,12 +17,16 @@ struct ServerCommand {
     Add = 11,
     Remove = 12,
     Available = 13,
+    Connect = 14,
+    Accept = 15,
+    Reject = 16,
   
     /* no argument */
     List = 20,
     Ping = 21,
-    None = 24,
     Exit = 23,
+    None = 24,
+    Hangup = 25,
 
     /* may have 0 or more argument */
     Pending = 30, 

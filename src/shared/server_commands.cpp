@@ -9,12 +9,14 @@ const std::unordered_map<std::string, ServerCommand::name>
         {"PING", Ping},     {"AVAILABLE", Available},
         {"EXIT", Exit},     {"SEND", Send},
         {"CHAT", Chat },    {"PENDING", Pending },
-        {"DELIVERED", Delivered}
+        {"REJECT", Reject}, {"CONNECT", Connect},
+        {"ACCEPT", Accept}, {"HANGUP", Hangup},
+        {"DELIVERED", Delivered},
     };
 ServerCommand::name ServerCommand::get(const std::string &t_command) {
   try {
-
     return m_commands.at(t_command);
+
   } catch (...) {
 
     return None;

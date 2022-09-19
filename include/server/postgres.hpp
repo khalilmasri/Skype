@@ -9,7 +9,7 @@
 
 typedef std::vector<User> Users;
 typedef std::vector<UserChat> UserChats;
-typedef std::tuple<std::string, std::string, std::string, std::string, std::string, std::string> AggregatedQueryResult;
+typedef std::tuple<std::string, std::string, std::string, std::string> AggregatedQueryResult;
 
 class Postgres {
 
@@ -46,7 +46,6 @@ private:
   char m_db[MAX_DB_PATH_NAME];
   pqxx::connection m_conn;
   std::string      m_table;
-  static const std::string m_DB;
 
   Users       result_to_users(AggregatedQueryResult &&t_results);
   std::string update_user_query(const User &t_user, pqxx::work &t_transaction) const;

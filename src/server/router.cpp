@@ -1,5 +1,6 @@
 #include "router.hpp"
 #include "chat_controllers.hpp"
+#include "call_controllers.hpp"
 #include "doctest.h"
 #include "server_commands.hpp"
 #include "string_utils.hpp"
@@ -9,21 +10,31 @@
 
 Router::Router()
     : m_controllers({
+          /* user */
           {ServerCommand::List, UserControllers::list},
           {ServerCommand::Create, UserControllers::create},
           {ServerCommand::Login, UserControllers::login},
           {ServerCommand::Search, UserControllers::search},
           {ServerCommand::Add, UserControllers::add},
           {ServerCommand::Remove, UserControllers::remove},
-          {ServerCommand::Ping, UserControllers::ping},
           {ServerCommand::Available, UserControllers::available},
           {ServerCommand::Exit, UserControllers::exit},
+
+          /* chat */
           {ServerCommand::Send, ChatControllers::send},
           {ServerCommand::Pending, ChatControllers::pending},
           {ServerCommand::Chat, ChatControllers::chat},
           {ServerCommand::Delivered, ChatControllers::delivered},
-          {ServerCommand::None,
-           UserControllers::none}, // this when calling unexisting command
+
+          /* call */
+          {ServerCommand::Connect, CallControllers::connect},
+          {ServerCommand::Accept, CallControllers::accept},
+          {ServerCommand::Hangup, CallControllers::hangup},
+          {ServerCommand::Reject, CallControllers::reject},
+          {ServerCommand::Ping, CallControllers::ping},
+
+          /* unexisting */
+          {ServerCommand::None, UserControllers::none}, 
       }){};
 
 void Router::route(Request &t_req) {
@@ -81,7 +92,6 @@ bool Router::is_loggedin(ServerCommand::name t_cmd, std::string &t_token, Reques
 
   if (require_login(t_cmd)) {
       return UserControllers::is_valid_token(t_token, t_req);
-   // return UserControllers::ip_exists(t_req);
   }
 
   return true;
@@ -144,8 +154,7 @@ TEST_CASE(
 
   SUBCASE("LOGIN user") {
 
-    std::string port = "2000";
-    User u = User(0, "marcos", "1234", true, "127.0.0.1", port);
+    User u = User(0, "marcos", "1234", true, "127.0.0.1");
     pg.add_user(u); // add user for testing and not mess around with seed data.
 
     Request req;
