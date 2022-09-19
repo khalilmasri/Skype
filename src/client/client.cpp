@@ -226,7 +226,7 @@ void Client::call_connect(Job &t_job)
 {
    t_job.m_argument = m_user.get_token();
 
-   auto thread_work = [](Job &t_job){m_call.connect(t_job);};
+   auto thread_work = [&](){m_call.connect(t_job);};
    QThread *call = QThread::create(thread_work);
    call->start();
 
@@ -237,8 +237,8 @@ void Client::call_accept(Job &t_job)
 {
    t_job.m_argument = m_user.get_token();
 
-   auto thread_work = [](Job &t_job){Client::m_call.accept(t_job);};
-   QThread *call = QThread::create(&m_call.accept, t_job);
+   auto thread_work = [&](){m_call.accept(t_job);};
+   QThread *call = QThread::create(thread_work);
    call->start();
 
    t_job.m_command = Job::DISCARD;
@@ -255,7 +255,19 @@ void Client::call_reject(Job &t_job)
 
 void Client::call_hangup(Job &t_job)
 {
-   m_call.hangup();
+    static_cast<void>(t_job);
+    m_call.hangup();
+}
+
+void Client::call_webcam(Job &t_job)
+{
+   m_call.webcam();
+   t_job.m_command = Job::DISCARD;
+}
+
+void Client::call_mute(Job &t_job)
+{
+   m_call.mute();
    t_job.m_command = Job::DISCARD;
 }
 

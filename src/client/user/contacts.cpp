@@ -255,6 +255,6 @@ void Contacts::pair_contact_details(std::string t_user) {
 
     if ( ID != 0 ){
         m_online_contacts.insert(ID, details);
-        LOG_DEBUG("User => %s, Online => %s", details.username.toLocal8Bit().data(), (details.online)? "TRUE" : "FALSE");
+        LOG_TRACE("User => %s, Online => %s", details.username.toLocal8Bit().data(), (details.online)? "TRUE" : "FALSE");
     }
 }

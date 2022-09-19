@@ -39,6 +39,8 @@ struct Job {
         ACCEPT,
         REJECT, 
         HANGUP,
+        WEBCAM,
+        MUTE,
         
         DISCARD,
         NONE,

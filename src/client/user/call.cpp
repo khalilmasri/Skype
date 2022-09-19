@@ -1,8 +1,12 @@
 #include "call.hpp"
 #include "peer_to_peer.hpp"
 #include "logger.hpp"
+#include "job.hpp"
+#include "job_bus.hpp"
 
 #include <string>
+
+#define TIMEOUT 10
 
 void Call::connect(Job &t_job)
 {
@@ -41,8 +45,9 @@ void Call::connect(Job &t_job)
       return;
     }
 
-    if (count > 20) {
+    if (count > TIMEOUT) {
       LOG_INFO("Breaking after %d seconds", count);
+      JobBus::create({Job::HANGUP});
       call.hangup_peer();
       return;
     }
@@ -83,4 +88,28 @@ void Call::reject(Job &t_job)
 void Call::hangup()
 {
   m_hangup = true;
+}
+
+void Call::mute()
+{
+  if ( false == m_mute)
+  {
+    LOG_INFO("Mute ON");
+    m_mute = true;
+  }else{
+    LOG_INFO("Mute OFF");
+    m_mute = false;
+  }
+}
+
+void Call::webcam()
+{
+  if ( false == m_webcam)
+  {
+    LOG_INFO("Turning webcam");
+    m_webcam = true;
+  }else{
+    LOG_INFO("Closing webcam");
+    m_webcam = false;
+  }
 }

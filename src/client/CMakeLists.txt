@@ -79,7 +79,9 @@ include_directories(${DOCTEST_INCLUDE_DIR})
 # Setting preferance on OpenGL
 
 # Linking the libraries
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(${PROJECT_NAME} PRIVATE
+                      Qt${QT_VERSION_MAJOR}::Widgets
+                    )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}

@@ -251,6 +251,14 @@ void ChatGui::job_send_msg(Job &t_job)
     display_chat(user);
 }
 
+void ChatGui::job_hangup(Job &t_job)
+{
+    static_cast<void>(t_job);
+    on_call = false;
+
+    delete m_call;
+}
+
 // ***** PRIVATE ***** //
 
 void ChatGui::send_msg()
@@ -417,7 +425,7 @@ void ChatGui::on_call_clicked()
     } 
 
     on_call = true;
-    m_call->call_init(m_token, user_id, user);
+    m_call->call_init(user_id, user);
 }
 
 void ChatGui::on_video_clicked()
@@ -440,5 +448,5 @@ void ChatGui::on_video_clicked()
     } 
 
     on_call = true;
-    m_call->video_init(m_token, user_id, user);
+    m_call->video_init(user_id, user);
 }

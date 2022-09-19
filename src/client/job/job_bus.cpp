@@ -37,9 +37,11 @@ JobBus::JobsMap JobBus::m_JobBus_map {
     {Job::DELIVERED,        Client::chat_deliver},
     {Job::PENDING,          Client::chat_get_pending},
     {Job::CONNECT,          Client::call_connect},
-    {Job::ACCEPT,          Client::call_accept},
-    {Job::REJECT,          Client::call_reject},
-    {Job::HANGUP,          Client::call_hangup},
+    {Job::ACCEPT,           Client::call_accept},
+    {Job::REJECT,           Client::call_reject},
+    {Job::HANGUP,           Client::call_hangup},
+    {Job::WEBCAM,           Client::call_webcam},
+    {Job::MUTE,             Client::call_mute},
 };
 
 JobBus* JobBus::get_instance()
@@ -53,6 +55,7 @@ JobBus* JobBus::get_instance()
 
 JobBus::~JobBus()
 {
+    delete m_instance;
 }
 
 void JobBus::create(Job &&t_job){

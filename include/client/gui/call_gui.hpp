@@ -16,17 +16,22 @@ class CallGui : public QDialog
 public:
   explicit CallGui(QWidget *parent = nullptr);
   
-  void call_init(std::string &t_token, int t_contact_id, QString &t_username);
-  void video_init(std::string &t_token, int t_contact_id, QString &t_username);
+  void call_init(int t_contact_id, QString &t_username);
+  void video_init(int t_contact_id, QString &t_username);
 
   ~CallGui();
+
+private slots:
+  void on_webcam_clicked();
+  void on_microphone_clicked();
+  void on_hangup_clicked();
 
 private:
   Ui::CallGui *m_ui;
 
 private: // Methods
+  void reject() override;
 
-bool connect_to(P2P &t_call, std::string t_id);
 };
 
 #endif // CALL_GUI_HPP
