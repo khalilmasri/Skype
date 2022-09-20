@@ -8,8 +8,8 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 # QT6 QT5 specificas
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets Multimedia MultimediaWidgets)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Multimedia MultimediaWidgets)
 
 # Include all the source code with cpp extension
 file(GLOB CLIENT_SOURCES    "*.cpp" 
@@ -81,6 +81,8 @@ include_directories(${DOCTEST_INCLUDE_DIR})
 # Linking the libraries
 target_link_libraries(${PROJECT_NAME} PRIVATE
                       Qt${QT_VERSION_MAJOR}::Widgets
+                      Qt${QT_VERSION_MAJOR}::Multimedia 
+                      Qt${QT_VERSION_MAJOR}::MultimediaWidgets
                     )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES

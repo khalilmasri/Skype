@@ -8,6 +8,11 @@
 #include <string>
 #include <QMessageBox>
 
+#include <QCamera>
+#include <QMediaDevices>
+#include <QMediaCaptureSession>
+#include <QVideoWidget>
+
 
 CallGui::CallGui(QWidget *parent) :
   QDialog(parent),
@@ -44,6 +49,18 @@ void CallGui::video_init(int t_contact_id, QString &t_username)
   Job job = {Job::CONNECT};
   job.m_intValue = t_contact_id;
   job.m_valid = false;
+
+  QVideoWidget *videoWidget = new QVideoWidget(m_ui->frame);
+  videoWidget->resize(m_ui->frame->width(),m_ui->frame->height());
+  videoWidget->show();
+  
+  QCamera *camera = new QCamera(QMediaDevices::defaultVideoInput());
+
+  camera->start();
+
+  QMediaCaptureSession *session = new QMediaCaptureSession;
+  session->setCamera(camera);
+  session->setVideoOutput(videoWidget);
 
   JobBus::create(job);
   JobBus::create({Job::WEBCAM});

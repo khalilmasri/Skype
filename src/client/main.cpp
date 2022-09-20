@@ -22,7 +22,7 @@ int main(int argc, char *argv[]) {
   stylesheetFile.open(QFile::ReadOnly);
   QString styleSheet = QLatin1String(stylesheetFile.readAll());
   a.setStyleSheet(styleSheet);
-
+  
   Program *program = new Program();
 
   res = a.exec();
