@@ -210,12 +210,20 @@ void Contacts::update_contacts(std::string t_response) {
             JobBus::create({Job::DISP_CONTACTS}); 
             return;
         }
+        else if (old_contacts[contact.ID].awaiting != contact.awaiting) 
+        {  
+            LOG_DEBUG("Updating map");
+            JobBus::create({Job::DISP_CONTACTS}); 
+            return;
+        }
     }
 }
 
 void Contacts::pair_contact_details(std::string t_user) {
 
     StringUtils::StringVector user_fields = StringUtils::split(t_user, ",");
+    
+    //std::cout << t_user << std::endl;
 
     Details details;
     int ID = 0;
@@ -225,7 +233,7 @@ void Contacts::pair_contact_details(std::string t_user) {
         auto [key, pair] = StringUtils::split_first(field, ":");
         
         if ( key == "id" ) {
-            try
+            try 
             {
                 ID = stoi(pair);
                 details.ID = ID;
@@ -244,17 +252,18 @@ void Contacts::pair_contact_details(std::string t_user) {
             }
         }
 
-        if ( key == "address" ) {
-            details.address = QString::fromStdString(pair);
-        }
-
-        if ( key == "port") {
-            details.port = QString::fromStdString(pair);
+        if ( key == "awaiting" ) {
+            if ( pair == "true" )
+            {
+                details.awaiting = true;
+            }else{
+                details.awaiting = false;
+            }
         }
     }
 
     if ( ID != 0 ){
         m_online_contacts.insert(ID, details);
-        LOG_TRACE("User => %s, Online => %s", details.username.toLocal8Bit().data(), (details.online)? "TRUE" : "FALSE");
+        LOG_TRACE("User => %s, Online => %s Awaiting => %s", details.username.toLocal8Bit().data(), (details.online)? "TRUE" : "FALSE", (details.awaiting)? "TRUE" : "FALSE");
     }
 }

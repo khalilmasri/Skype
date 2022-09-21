@@ -1,0 +1,170 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1,
+						2,
+						3
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-MinSizeRel-f5ebdc15457944623624.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10"
+					},
+					"projectIndex" : 0,
+					"source" : "."
+				},
+				{
+					"build" : "src/client",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-src.client-MinSizeRel-7c52f98b19ec4326d08b.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.16"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 1,
+					"source" : "src/client",
+					"targetIndexes" : 
+					[
+						0,
+						1
+					]
+				},
+				{
+					"build" : "src/server/test_client",
+					"jsonFile" : "directory-src.server.test_client-MinSizeRel-2ce5cca545f7dc22d353.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 2,
+					"source" : "src/server/test_client",
+					"targetIndexes" : 
+					[
+						3
+					]
+				},
+				{
+					"build" : "src/client/p2p_test",
+					"jsonFile" : "directory-src.client.p2p_test-MinSizeRel-aba948387a3fe293191c.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.10"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 3,
+					"source" : "src/client/p2p_test",
+					"targetIndexes" : 
+					[
+						2
+					]
+				}
+			],
+			"name" : "MinSizeRel",
+			"projects" : 
+			[
+				{
+					"childIndexes" : 
+					[
+						1,
+						2,
+						3
+					],
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "skype"
+				},
+				{
+					"directoryIndexes" : 
+					[
+						1
+					],
+					"name" : "client",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						0,
+						1
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						2
+					],
+					"name" : "test_client",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						3
+					]
+				},
+				{
+					"directoryIndexes" : 
+					[
+						3
+					],
+					"name" : "p2p_test",
+					"parentIndex" : 0,
+					"targetIndexes" : 
+					[
+						2
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 1,
+					"id" : "client::@8ca63c80a879d0067daa",
+					"jsonFile" : "target-client-MinSizeRel-de0b629c1e1056e97d38.json",
+					"name" : "client",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "client_autogen::@8ca63c80a879d0067daa",
+					"jsonFile" : "target-client_autogen-MinSizeRel-791b0c0b2afbf0dce85f.json",
+					"name" : "client_autogen",
+					"projectIndex" : 1
+				},
+				{
+					"directoryIndex" : 3,
+					"id" : "p2p_test::@9ccb3e0d91f713cc0d37",
+					"jsonFile" : "target-p2p_test-MinSizeRel-861c6bfe717c077490c1.json",
+					"name" : "p2p_test",
+					"projectIndex" : 3
+				},
+				{
+					"directoryIndex" : 2,
+					"id" : "test_client::@9ad6b63d0f63d4fc563e",
+					"jsonFile" : "target-test_client-MinSizeRel-0a85c39af666960402eb.json",
+					"name" : "test_client",
+					"projectIndex" : 2
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/khalil/Projects/skype",
+		"source" : "/home/khalil/Projects/skype"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}

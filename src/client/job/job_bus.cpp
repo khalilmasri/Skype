@@ -76,8 +76,15 @@ void JobBus::handle() {
         
             m_jobQ.pop_try(job);
             
+            if ( Job::AWAITING == job.m_command)
+            {
+                m_resQ.push(job);
+                emit JobBus::get_instance()->job_ready();
+                continue;
+            }
+
             m_JobBus_map[job.m_command](job);
-           
+
             if ( Job::DISCARD != job.m_command )
             {
                 m_resQ.push(job);

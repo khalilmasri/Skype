@@ -59,6 +59,7 @@ void Program::create_job_dispatcher()
         {Job::PENDING,          [this](Job &t_job){m_chat->job_load_pending(t_job);}},
         {Job::SEND,             [this](Job &t_job){m_chat->job_send_msg(t_job);}},
         {Job::HANGUP,           [this](Job &t_job){m_chat->job_hangup(t_job);}},
+        {Job::AWAITING,         [this](Job &t_job){m_chat->job_awaiting(t_job);}},
     };
 }
 

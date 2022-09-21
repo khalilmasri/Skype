@@ -41,6 +41,7 @@ public:
     void job_set_id(Job &t_job);
     void job_send_msg(Job &t_job);
     void job_hangup(Job &t_job);
+    void job_awaiting(Job &t_job);
 
 private slots:
     void on_contact_list_clicked(const QModelIndex &index);

@@ -43,6 +43,8 @@ ChatGui::ChatGui(QWidget *parent) :
     m_ui->search->setAutoDefault(false);
     m_ui->add->setAutoDefault(false);
     m_ui->remove->setAutoDefault(false);
+    m_ui->call->setAutoDefault(false);
+    m_ui->video->setAutoDefault(false);
 }
 
 ChatGui::~ChatGui()
@@ -92,6 +94,15 @@ void ChatGui::job_disp_contact(Job &t_job)
         if ( true == contact.online)
         {
             model->appendRow(new QStandardItem(QIcon("../misc/icons/online.png"), contact.username));
+            if (contact.awaiting == true)
+            {
+                QMessageBox::StandardButton ret = QMessageBox::question(nullptr, "Incoming call from " + contact.username , "Would you like to answer " + contact.username + "?",
+                                                               QMessageBox::Cancel | QMessageBox::Ok);
+                if ( QMessageBox::Cancel == ret )
+                {
+                    LOG_INFO("Accepted call");
+                }
+            }
         }     
     }   
 
@@ -257,6 +268,12 @@ void ChatGui::job_hangup(Job &t_job)
     on_call = false;
 
     delete m_call;
+}
+
+void ChatGui::job_awaiting(Job &t_job)
+{
+
+
 }
 
 // ***** PRIVATE ***** //

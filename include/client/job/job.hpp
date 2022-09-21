@@ -36,6 +36,7 @@ struct Job {
         
         // Call
         CONNECT,
+        AWAITING,
         ACCEPT,
         REJECT, 
         HANGUP,

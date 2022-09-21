@@ -39,7 +39,7 @@ class Logger
 {
     private:
         std::mutex log_mutex;
-        logPriority priority = debug;
+        logPriority priority = trace;
 
         template<typename... Args>
         static void log(const char* msg_prio_str, logPriority msg_prio, const char* file,  int line, const char* func, const char* msg, Args... args)
