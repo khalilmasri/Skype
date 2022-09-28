@@ -4,6 +4,7 @@
 #include "fail_if.hpp"
 #include "chat.hpp"
 #include "call_gui.hpp"
+#include "ring_gui.hpp"
 
 #include <QStringListModel>
 #include <QVector>
@@ -94,16 +95,20 @@ void ChatGui::job_disp_contact(Job &t_job)
         if ( true == contact.online)
         {
             model->appendRow(new QStandardItem(QIcon("../misc/icons/online.png"), contact.username));
-            if (contact.awaiting == true)
-            {
-                QMessageBox::StandardButton ret = QMessageBox::question(nullptr, "Incoming call from " + contact.username , "Would you like to answer " + contact.username + "?",
-                                                               QMessageBox::Cancel | QMessageBox::Ok);
-                if ( QMessageBox::Cancel == ret )
-                {
-                    LOG_INFO("Accepted call");
-                }
-            }
         }     
+        if (contact.awaiting == true)
+            {
+                LOG_INFO("Incoming call!");
+                RingGui *ring = new RingGui();
+                ring->set_message(contact.username );
+                ring->show();
+                // QMessageBox::StandardButton ret = QMessageBox::question(nullptr, "Incoming call from " + contact.username , "Would you like to answer " + contact.username + "?",
+                //                                                QMessageBox::Cancel | QMessageBox::Ok);
+                // if ( QMessageBox::Cancel == ret )
+                // {
+                //     LOG_INFO("Accepted call");
+                // }
+            }
     }   
 
     for ( auto &contact : t_job.m_contact_list)

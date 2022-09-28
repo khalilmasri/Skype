@@ -139,6 +139,20 @@ QPushButton[objectName ^= microphone]
 
 }
 
+
+QPushButton[objectName ^= answer]
+{
+    background-color: #212121;
+	color: #fff;
+
+}
+
+QPushButton[objectName ^= ignore]
+{
+    background-color: #212121;
+	color: #fff;
+}
+
 QPushButton
 {
         background-color: #0C4A6E;
@@ -157,6 +171,19 @@ QPushButton::hover
     background-color: #01579B;
 	color: #fff;
 
+}
+
+QPushButton::hover[objectName ^= answer]
+{
+    background-color: #212121;
+	color: #fff;
+
+}
+
+QPushButton::hover[objectName ^= decline]
+{
+    background-color: #212121;
+	color: #fff;
 }
 
 QPushButton[objectName ^= hangup]
