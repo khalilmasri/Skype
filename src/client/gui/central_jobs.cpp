@@ -207,7 +207,8 @@ void CentralGui::job_awaiting(Job &t_job)
     return;
   }
 
-  RingGui *ring = new RingGui();
+  RingGui *ring = new RingGui(this);
+  QObject::connect(ring, &RingGui::start_call, this, &CentralGui::started_call);
   QString username = m_contact_list[t_job.m_intValue].username;
   ring->set_details(username, t_job.m_intValue );
   callers_table.insert(t_job.m_intValue, ring);

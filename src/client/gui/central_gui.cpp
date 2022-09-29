@@ -177,6 +177,7 @@ int CentralGui::search_contact_list(T t_value, QString t_type)
 
     return 0;
 }
+
 // ***** SLOTS ***** //
 
 void CentralGui::on_contact_list_clicked(const QModelIndex &index)
@@ -268,4 +269,27 @@ void CentralGui::on_video_clicked()
 
     m_on_call = true;
     m_call->video_init(user_id, user);
+}
+
+void CentralGui::started_call(int t_caller_id)
+{
+    if ( true == m_on_call)
+    {
+        QMessageBox::information(nullptr, "Error", "You are already on a call!", QMessageBox::Ok);
+        return;
+    }
+    
+    m_call = new CallGui(this);
+    QString user =  m_contact_list[t_caller_id].username;
+    int user_id = search_contact_list(user, "username");
+
+    if (user_id == 0)
+    {
+        QMessageBox::warning(nullptr, "Error","Something went wrong while calling " + user +"!\n Please try again later!",
+                                                               QMessageBox::Ok);
+        return;
+    } 
+
+    m_on_call = true;
+    m_call->call_init(t_caller_id, user);
 }

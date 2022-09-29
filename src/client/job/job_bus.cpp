@@ -80,7 +80,6 @@ void JobBus::handle() {
             
             m_JobBus_map[job.m_command](job);
             
-            LOG_INFO("Job => %d ", job.m_command);
             if ( Job::AWAITING == job.m_command && true == job.m_valid )
             {
                 m_resQ.push(job);

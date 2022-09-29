@@ -22,6 +22,9 @@ public slots:
     void on_ignore_clicked();
     void on_answer_clicked();
 
+signals:
+    void start_call(int t_caller);
+
 private:
     Ui::RingGui *m_ui;
     int m_caller_id;

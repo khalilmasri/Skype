@@ -5,6 +5,7 @@
 #include "job_bus.hpp"
 
 #include <string>
+#include <unistd.h>
 
 #define TIMEOUT 10
 
@@ -60,7 +61,7 @@ void Call::connect(Job &t_job)
 
   LOG_INFO("Call accepted");
   m_callers.append(t_job.m_intValue);
-
+  m_current = t_job.m_intValue;
   call.handshake_peer();
 }
 
@@ -72,10 +73,12 @@ void Call::accept(Job &t_job)
   std::string id = std::to_string(t_job.m_intValue);
   call.accept_peer(id);
 
+  usleep(1000);
   if (call.status() == P2P::Accepted) {
     LOG_INFO("Accepted was sucessful");
   } else {
     LOG_ERR("Accept failed.");
+    return;
   }
 
   LOG_INFO("Call accepted");

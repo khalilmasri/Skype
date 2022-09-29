@@ -48,10 +48,11 @@ private slots:
     void on_add_clicked();
     void on_search_clicked();
     void on_remove_clicked();
-
     void on_call_clicked();
-
     void on_video_clicked();
+
+public slots:
+    void started_call(int t_caller_id);
 
 signals:
     void on_send_clicked();

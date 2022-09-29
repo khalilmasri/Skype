@@ -91,8 +91,8 @@ void P2P::reset() {
 
 void P2P::handshake_peer() {
 
-  return;
   if (invalid_to_handshake()) {
+    return;
   }
 
   Request req(m_peer_address, true);
@@ -104,6 +104,7 @@ void P2P::handshake_peer() {
 
   if (m_type == Initiator) {
     handshake_initiator(req, m_network_type);
+
   }
 };
 

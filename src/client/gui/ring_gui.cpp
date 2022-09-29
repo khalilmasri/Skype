@@ -1,4 +1,5 @@
 #include "ring_gui.hpp"
+#include "central_gui.hpp"
 #include "job.hpp"
 #include "job_bus.hpp"
 #include "logger.hpp"
@@ -37,6 +38,9 @@ void RingGui::on_answer_clicked()
     job.m_intValue = m_caller_id;
     JobBus::create(job);
     LOG_INFO("Accepted call");
+
+    emit start_call(m_caller_id);
+    this->hide();
 }
 
 void RingGui::on_ignore_clicked()
