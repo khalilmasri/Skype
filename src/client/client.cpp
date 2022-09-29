@@ -62,7 +62,6 @@ void Client::client_exit(Job &t_job)
 {
    LOG_INFO("Disconnecting from server");
    
-   // TODO: FIX THAT LATER
    std::string command = "EXIT";
    m_server_req.set_data(new TextData(command));
 
@@ -75,9 +74,12 @@ void Client::client_exit(Job &t_job)
    config->free_instance();
 
    close(m_server_conn.get_socket());
+
+   t_job.m_command = Job::DISCARD;
    
    LOG_INFO("Client disconnected\n");
 }
+
 /* Contact direct */
 
 void Client::contact_get_contacts(Job &t_job) {
