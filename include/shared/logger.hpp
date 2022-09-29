@@ -17,7 +17,7 @@ enum logPriority{
     critical    = 0
 };
 
-#define DEBUG_ENABLED 0
+#define DEBUG_ENABLED 1
 
 #define LOG_TRACE(...)        Logger::Trace(__FILE__,__FUNCTION__, __LINE__, __VA_ARGS__);
 #define LOG_INFO(...)         Logger::Info(__FILE__, __FUNCTION__, __LINE__, __VA_ARGS__);

@@ -271,6 +271,12 @@ void Client::call_mute(Job &t_job)
    t_job.m_command = Job::DISCARD;
 }
 
+void Client::call_awaiting(Job &t_job)
+{
+   LOG_INFO("Awaiting call in client");
+   m_call.awaiting(t_job);
+}
+
 bool Client::valid_response(Reply::Code t_code, std::string& t_res) {
    
    std::string code = Reply::get_message(t_code);

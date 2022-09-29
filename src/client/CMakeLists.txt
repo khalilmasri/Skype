@@ -25,7 +25,7 @@ file(GLOB CLIENT_SOURCES    "*.cpp"
                         ) 
 
 file(GLOB GUI_HEADERS       "../../include/client/gui/welcome_gui.hpp"
-                            "../../include/client/gui/chat_gui.hpp"
+                            "../../include/client/gui/central_gui.hpp"
                             "../../include/client/gui/contact_gui.hpp"
                             "../../include/client/gui/call_gui.hpp"
                             "../../include/client/gui/ring_gui.hpp"

@@ -212,8 +212,10 @@ void Contacts::update_contacts(std::string t_response) {
         }
         else if (old_contacts[contact.ID].awaiting != contact.awaiting) 
         {  
-            LOG_DEBUG("Updating map");
-            JobBus::create({Job::DISP_CONTACTS}); 
+            LOG_DEBUG("Sending Awaitng call");
+            Job job = {Job::AWAITING};
+            job.m_intValue = contact.ID;
+            JobBus::create(job);
             return;
         }
     }

@@ -35,6 +35,7 @@ void Call::connect(Job &t_job)
     
     if (call.status() == P2P::Error) {
       LOG_ERR("ping returned an error. exiting....");
+      remove_caller(t_job.m_intValue);
       return;
     }
 
@@ -47,6 +48,7 @@ void Call::connect(Job &t_job)
 
     if (count > TIMEOUT) {
       LOG_INFO("Breaking after %d seconds", count);
+      remove_caller(t_job.m_intValue);
       JobBus::create({Job::HANGUP});
       call.hangup_peer();
       return;
@@ -56,6 +58,8 @@ void Call::connect(Job &t_job)
   }
 
   LOG_INFO("Call accepted");
+  m_callers.append(t_job.m_intValue);
+
   call.handshake_peer();
 }
 
@@ -74,6 +78,8 @@ void Call::accept(Job &t_job)
   }
 
   LOG_INFO("Call accepted");
+  m_callers.append(t_job.m_intValue);
+  m_current = t_job.m_intValue;
   call.handshake_peer();
 }
 
@@ -83,11 +89,41 @@ void Call::reject(Job &t_job)
 
   std::string id = std::to_string(t_job.m_intValue);
   call.reject_peer(id);
+
+  remove_caller(t_job.m_intValue);
+}
+
+void Call::awaiting(Job &t_job)
+{
+  t_job.m_valid = false;
+
+  auto it = std::find(m_callers.begin(), m_callers.end(), t_job.m_intValue);
+  
+  LOG_INFO("Getting the call");
+  
+  if ( m_callers.end() == it ) 
+  {
+    LOG_INFO("Getting the call was success");
+    m_callers.append(t_job.m_intValue);
+    t_job.m_valid = true;
+  }
+
 }
 
 void Call::hangup()
 {
   m_hangup = true;
+  
+  remove_caller(m_current);
+
+  m_current = -1;
+}
+
+void Call::remove_caller(int t_caller)
+{
+  try{
+    m_callers.removeOne(t_caller);
+  }catch(...){};
 }
 
 void Call::mute()

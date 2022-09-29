@@ -16,10 +16,15 @@ public:
     explicit RingGui(QWidget *parent = nullptr);
     ~RingGui();
 
-    void set_message(QString &t_user);
+    void set_details(QString &t_user, int t_id);
+
+public slots:
+    void on_ignore_clicked();
+    void on_answer_clicked();
 
 private:
     Ui::RingGui *m_ui;
+    int m_caller_id;
 };
 
 #endif // RING_GUI_HPP

@@ -144,6 +144,7 @@ QPushButton[objectName ^= answer]
 {
     background-color: #212121;
 	color: #fff;
+       border-color: #212121;
 
 }
 
@@ -151,6 +152,7 @@ QPushButton[objectName ^= ignore]
 {
     background-color: #212121;
 	color: #fff;
+    border-color: #212121;
 }
 
 QPushButton
@@ -165,24 +167,24 @@ QPushButton
         padding: 10px;
 
 }
-
-QPushButton::hover
-{
-    background-color: #01579B;
-	color: #fff;
-
-}
-
 QPushButton::hover[objectName ^= answer]
 {
     background-color: #212121;
 	color: #fff;
+    border-color: #212121;
 
 }
 
-QPushButton::hover[objectName ^= decline]
+QPushButton::hover[objectName ^= ignore]
 {
     background-color: #212121;
+	color: #fff;
+    border-color: #212121;
+}
+
+QPushButton::hover
+{
+    background-color: #01579B;
 	color: #fff;
 }
 
@@ -198,8 +200,6 @@ QPushButton[objectName ^= hangup]
         padding: 10px;
 
 }
-
-
 
 QPushButton::checked[objectName ^= microphone]
 {

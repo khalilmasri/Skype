@@ -1,4 +1,7 @@
 #include "ring_gui.hpp"
+#include "job.hpp"
+#include "job_bus.hpp"
+#include "logger.hpp"
 #include "ui/ui_ring.h"
 
 #include <QMovie>
@@ -9,6 +12,9 @@ RingGui::RingGui(QWidget *parent) :
     m_ui(new Ui::RingGui)
 {
     m_ui->setupUi(this);
+
+    m_ui->answer->setAutoDefault(false);
+    m_ui->ignore->setAutoDefault(false);
 }
 
 RingGui::~RingGui()
@@ -16,12 +22,29 @@ RingGui::~RingGui()
     delete m_ui;
 }
 
-void RingGui::set_message(QString &t_user)
+void RingGui::set_details(QString &t_user, int t_id)
 {
     this->setWindowTitle("Incoming call from " + t_user);
     m_ui->details->setText("Would you like to accept the call from " + t_user + "?");
-    QMovie *ringing_gif = new QMovie("../misc/gif/ringing.gif");
-    ringing_gif->setScaledSize(QSize(100,100));
-    m_ui->ringing->setMovie(ringing_gif);
-    ringing_gif->start();
+    m_caller_id = t_id;
 }
+
+/***** SIGNALS ******/ 
+
+void RingGui::on_answer_clicked()
+{
+    Job job = {Job::ACCEPT};
+    job.m_intValue = m_caller_id;
+    JobBus::create(job);
+    LOG_INFO("Accepted call");
+}
+
+void RingGui::on_ignore_clicked()
+{
+    Job job = {Job::REJECT};
+    job.m_intValue = m_caller_id;
+    JobBus::create(job);
+    
+    this->hide();
+}
+

@@ -17,16 +17,16 @@
 #include <string>
 
 namespace Ui {
-class ChatGui;
+class CentralGui;
 }
 
-class ChatGui : public QDialog
+class CentralGui : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit ChatGui(QWidget *parent = nullptr);
-    ~ChatGui();
+    explicit CentralGui(QWidget *parent = nullptr);
+    ~CentralGui();
 
     void init();
     void remove_user(QString t_user);
@@ -60,15 +60,16 @@ signals:
     void ready_signal();
 
 private: // Variables
-    Ui::ChatGui             *m_ui;
-    CallGui                 *m_call;
-    QString                 m_user;
-    int                     m_user_id;
-    QModelIndex             m_current_selected;
-    ContactGui              m_contact;
-    Notification            *m_notification;
-    QHash<int, struct Details>     m_contact_list;
-    QHash<int, QStringList> m_contact_chat;
+    Ui::CentralGui                  *m_ui;
+    CallGui                         *m_call;
+    QString                         m_user;
+    int                             m_user_id;
+    QModelIndex                     m_current_selected;
+    ContactGui                      m_contact;
+    Notification                    *m_notification;
+    QHash<int, struct Details>      m_contact_list;
+    QHash<int, QStringList>         m_contact_chat;
+    bool                            m_on_call = false;
 
 private: // Methods
     void reject() override;

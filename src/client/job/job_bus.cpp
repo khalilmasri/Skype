@@ -42,6 +42,7 @@ JobBus::JobsMap JobBus::m_JobBus_map {
     {Job::HANGUP,           Client::call_hangup},
     {Job::WEBCAM,           Client::call_webcam},
     {Job::MUTE,             Client::call_mute},
+    {Job::AWAITING,         Client::call_awaiting},
 };
 
 JobBus* JobBus::get_instance()
@@ -76,14 +77,15 @@ void JobBus::handle() {
         
             m_jobQ.pop_try(job);
             
-            if ( Job::AWAITING == job.m_command)
+            m_JobBus_map[job.m_command](job);
+            
+            LOG_INFO("Job => %d ", job.m_command);
+            if ( Job::AWAITING == job.m_command && true == job.m_valid )
             {
                 m_resQ.push(job);
                 emit JobBus::get_instance()->job_ready();
                 continue;
             }
-
-            m_JobBus_map[job.m_command](job);
 
             if ( Job::DISCARD != job.m_command )
             {
