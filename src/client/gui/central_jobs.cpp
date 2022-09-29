@@ -5,10 +5,11 @@
 
 #include <QStandardItemModel>
 #include <QMessageBox>
-
-
+#include <QHash>
 
 bool first_display = true;
+
+QHash<int , RingGui*> callers_table;
 
 void CentralGui::job_set_user(Job &t_job)
 {
@@ -197,8 +198,18 @@ void CentralGui::job_hangup(Job &t_job)
 void CentralGui::job_awaiting(Job &t_job)
 {
   LOG_INFO("Incoming call!");
+  
+  if ( false == t_job.m_boolValue)
+  {
+    callers_table[t_job.m_intValue]->hide();
+    delete callers_table[t_job.m_intValue];
+    callers_table.remove(t_job.m_intValue);
+    return;
+  }
+
   RingGui *ring = new RingGui();
   QString username = m_contact_list[t_job.m_intValue].username;
   ring->set_details(username, t_job.m_intValue );
-  ring->show();
+  callers_table.insert(t_job.m_intValue, ring);
+  ring->show(); 
 }

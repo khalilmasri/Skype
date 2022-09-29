@@ -43,6 +43,7 @@ JobBus::JobsMap JobBus::m_JobBus_map {
     {Job::WEBCAM,           Client::call_webcam},
     {Job::MUTE,             Client::call_mute},
     {Job::AWAITING,         Client::call_awaiting},
+    {Job::EXIT,             Client::client_exit},
 };
 
 JobBus* JobBus::get_instance()

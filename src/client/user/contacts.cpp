@@ -215,6 +215,7 @@ void Contacts::update_contacts(std::string t_response) {
             LOG_DEBUG("Sending Awaitng call");
             Job job = {Job::AWAITING};
             job.m_intValue = contact.ID;
+            job.m_boolValue = contact.awaiting;
             JobBus::create(job);
             return;
         }

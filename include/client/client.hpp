@@ -57,6 +57,9 @@ public:
     static void call_webcam                 (Job &t_job);
     static void call_awaiting               (Job &t_job);
 
+    // Client commands
+    static void client_exit                 (Job &t_job);
+
 private:
     static Request              m_server_req;
     static ActiveConn           m_server_conn;

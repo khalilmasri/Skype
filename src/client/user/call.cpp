@@ -42,7 +42,8 @@ void Call::connect(Job &t_job)
     if ( true == m_hangup)
     {
       LOG_DEBUG("Hanging up the call!");
-      m_hangup = false;
+      call.hangup_peer();
+      m_hangup = false;     
       return;
     }
 
@@ -95,7 +96,15 @@ void Call::reject(Job &t_job)
 
 void Call::awaiting(Job &t_job)
 {
-  t_job.m_valid = false;
+  
+  if ( false == t_job.m_boolValue ) 
+  {
+    remove_caller(t_job.m_intValue);
+    t_job.m_valid = true;
+    return;
+  }
+
+  t_job.m_valid = false; 
 
   auto it = std::find(m_callers.begin(), m_callers.end(), t_job.m_intValue);
   

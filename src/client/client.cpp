@@ -55,8 +55,14 @@ fail:
 }
 
 Client::~Client(){
+   JobBus::create({Job::EXIT});
+}
+
+void Client::client_exit(Job &t_job)
+{
    LOG_INFO("Disconnecting from server");
    
+   // TODO: FIX THAT LATER
    std::string command = "EXIT";
    m_server_req.set_data(new TextData(command));
 
@@ -72,7 +78,6 @@ Client::~Client(){
    
    LOG_INFO("Client disconnected\n");
 }
-
 /* Contact direct */
 
 void Client::contact_get_contacts(Job &t_job) {
