@@ -3,6 +3,7 @@
 #include <string>
 #include <filesystem>
 #include <unordered_map>
+#include <filesystem>
 
 #define CONFIG_FILE "/.skype.conf"
 #define CONFIG_PATH "/home/"
@@ -68,8 +69,11 @@ class Config {
 
    #if __APPLE__ || __MACH__ || __linux__
 
-   /* path to .conf /home/$USER/.skype.conf for OSX & Linux */                                  
-   const fs::path      m_PATH {std::string(CONFIG_PATH) + getenv("USER") + std::string(CONFIG_FILE) };
+   /* path to .conf /home/$USER/.skype.conf for OSX & Linux */ 
+  const fs::path         m_PATH {std::string(CONFIG_PATH) + getenv("USER") + std::string(CONFIG_FILE) };
+
+  /* path to .conf manually entered because M1 is different path than Intel Mac*/ 
+  // const fs::path         m_PATH = "/Users/chrisdallat/CLangProjects/skype/.skype.conf";
 
    #else
 
