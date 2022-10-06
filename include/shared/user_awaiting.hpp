@@ -9,14 +9,17 @@ struct AwaitingUser {
   AwaitingUser(int t_id, int t_peer_id, const std::string &t_address);
   AwaitingUser(int t_id, int t_peer_id, const std::string &t_address, const std::string &t_local_address);
 
+    /* Getters */
     int         id() const;
     int         peer_id() const;
     std::string address() const;
     std::string peer_address() const;
-    void        set_peer_address(const std::string &t_peer_address);
-    void        set_peer_local_address(const std::string &t_peer_local_address);
 
-    /* returns LOCAL or WEB */
+    /* Setters */
+    void        set_peer_local_address(const std::string &t_peer_local_address);
+    void        set_peer_address(const std::string &t_peer_address);
+
+    /* return m_LOCAL or m_WEB */
     std::string address_type();
 
     private:
@@ -31,6 +34,9 @@ struct AwaitingUser {
 
     bool has_same_address() const;
 
+    /* constants */
+    static const std::string m_WEB;
+    static const std::string m_LOCAL;
 };
 
 class AwaitingUsers {
@@ -45,7 +51,6 @@ class AwaitingUsers {
   typedef std::unordered_map<int, AwaitingUser> AwaitingUsersMap;
 
   AwaitingUsersMap m_awaiting_users;
-
 };
 
 #endif

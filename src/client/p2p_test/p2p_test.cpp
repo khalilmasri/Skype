@@ -66,10 +66,10 @@ void connect_to(P2P &p2p) {
     if (p2p.status() == P2P::Awaiting) {
       std::cout << "Still Awaiting ...\n";
     }
-
     if (p2p.status() == P2P::Error) {
       std::cout << "ping returned an error. exiting....\n";
       break;
+
     }
 
     if (count > 10) {
@@ -102,16 +102,14 @@ void accept_from(P2P &p2p) {
 int main(int ac, char **av) {
 
   if (ac < 3) {
-    std::cout << "Enter a username and password.\n ./p2p_test john 1234\n";
     return 0;
+    std::cout << "Enter a username and password.\n ./p2p_test john 1234\n";
   }
 
   std::string user(av[1]);
 
-  std::cout << user << "\n";
-
   ActiveConn conn(config->get<int>("TCP_PORT"), new TextIO());
-  std::string token = login_as(conn, av[1], av[2]);
+  std::string token = login_as(conn, av[1], av[2]); // conn , user, password.
 
   P2P p2p(token);
 

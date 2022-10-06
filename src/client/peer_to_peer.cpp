@@ -4,12 +4,16 @@
 #include "string_utils.hpp"
 #include "text_data.hpp"
 #include "udp_text_io.hpp"
+#include <thread>
 
 static Config *config = Config::get_instance();
 const std::string P2P::m_DELIM = " ";
+//    Next up: Work on streaming!
+const std::string P2P::m_LOCAL = "LOCAL";
 
-// TODO: Server now takes a the local IP when public is the same.
-//       now must create the UDP connection for the local network.
+// TODO: Local network is working.
+//
+//
 
 /* Constructors */
 
@@ -87,8 +91,8 @@ void P2P::reset() {
 
 void P2P::handshake_peer() {
 
+  return;
   if (invalid_to_handshake()) {
-    return;
   }
 
   Request req(m_peer_address, true);
@@ -103,37 +107,6 @@ void P2P::handshake_peer() {
   }
 };
 
-void P2P::stream_out() {
-
-  if (m_status != Connected) {
-    LOG_ERR("P2P::Status must be 'Connected' to stream. Was '%s'",
-            status_to_string().c_str());
-    return;
-  }
-
-  Request req(m_peer_address, true);
-
-  while (true) {
-    req.set_data(new TextData("stream!"));
-    m_inbounds.respond(req);
-  }
-}
-
-void P2P::stream_in() {
-
-  if (m_status != Connected) {
-    LOG_ERR("P2P::Status must be 'Connected' to stream. Was '%s'",
-            status_to_string().c_str());
-    return;
-  }
-
-  Request req(m_peer_address, true);
-
-  while (true) {
-    m_inbounds.receive(req);
-    std::string received = TextData::to_string(req.data());
-  }
-}
 
 /* */
 
@@ -173,7 +146,7 @@ void P2P::accept_peer(std::string &t_peer_id) {
     m_status = Accepted;
     auto [address, address_type] = StringUtils::split_first(response);
     m_peer_address = std::move(address);
-    m_network_type = address_type == "LOCAL" ? Local : Web;
+    m_network_type = address_type == m_LOCAL ? Local : Web;
 
   } else {
     m_status = Error;
@@ -285,7 +258,7 @@ std::string P2P::send_server(std::string &&t_text_data) {
 
 void P2P::handshake_acceptor(Request &t_req, PeerNetwork t_peer_network) {
 
-  /* peers in local network does not require to whole punch NAT */
+  /* peers in local network does not require to hole punch the NAT */
   if (t_peer_network == Web) {
     hole_punch(t_req);
   }
@@ -320,7 +293,7 @@ void P2P::handshake_acceptor(Request &t_req, PeerNetwork t_peer_network) {
 
 void P2P::handshake_initiator(Request &t_req, PeerNetwork t_peer_network) {
 
-  /* peers in local network does not require to whole punch NAT */
+  /* peers in local network does not require to hole punch the NAT */
   if (t_peer_network == Web) {
     hole_punch(t_req);
   }
