@@ -1,11 +1,12 @@
 #include "audio_device_config.hpp"
 #include <SDL2/SDL_audio.h>
 #include <SDL2/SDL_types.h>
+#include "logger.hpp"
 #include <iostream>
 
 AudioDevConfig *AudioDevConfig::m_instance = nullptr;
 
-AudioDevConfig *AudioDevConfig::get_instance() {
+auto AudioDevConfig::get_instance() -> AudioDevConfig * {
   if (m_instance == nullptr) {
     m_instance = new AudioDevConfig();
   }
@@ -28,20 +29,18 @@ void AudioDevConfig::select_output(std::size_t t_pos) {
   select_device(t_pos, Output);
 }
 
-std::string AudioDevConfig::get_input() const { return m_selected_input; }
-std::string AudioDevConfig::get_output() const { return m_selected_output; }
+auto AudioDevConfig::get_input() const -> std::string { return m_selected_input; }
+auto AudioDevConfig::get_output() const -> std::string { return m_selected_output; }
 
-AudioDevConfig::DeviceListConst AudioDevConfig::list_input_name() const {
+auto AudioDevConfig::list_input_name() const -> AudioDevConfig::DeviceListConst {
   return m_input_devs;
 }
-AudioDevConfig::DeviceListConst AudioDevConfig::list_output_name() const {
+auto AudioDevConfig::list_output_name() const -> AudioDevConfig::DeviceListConst {
   return m_output_devs;
 }
 
-std::size_t AudioDevConfig::input_count() const { return m_input_devs.size(); }
-std::size_t AudioDevConfig::output_count() const {
-  return m_output_devs.size();
-}
+auto AudioDevConfig::input_count() const -> std::size_t { return m_input_devs.size(); }
+auto AudioDevConfig::output_count() const -> std::size_t { return m_output_devs.size(); }
 
 void AudioDevConfig::get_device_list() {
 
@@ -56,33 +55,30 @@ void AudioDevConfig::get_device_list() {
 
     const char *input_name = SDL_GetAudioDeviceName(i, m_INPUT_DEV);
     const char *output_name = SDL_GetAudioDeviceName(i, m_OUTPUT_DEV);
-    if (input_name) {
+    if (static_cast<bool>(input_name)) {
       m_input_devs.push_back(input_name);
     }
 
-    if (output_name) {
+    if (static_cast<bool>(output_name)) {
       m_output_devs.push_back(output_name);
     }
   }
 }
 
 void AudioDevConfig::select_device(std::size_t t_pos, DevType m_type) {
-  bool valid = false;
-
   switch (m_type) {
   case Input:
     if (t_pos < m_input_devs.size()) {
       m_selected_input = m_input_devs.at(t_pos);
-      valid = true;
+    } else {
+    LOG_DEBUG("Could not select input device at position %d. Only %llu are available", t_pos, m_input_devs.size())
     }
+
   case Output:
     if (t_pos < m_output_devs.size()) {
       m_selected_output = m_output_devs.at(t_pos);
-      valid = true;
+    } else {
+    LOG_DEBUG("Could not select output device at position %d. Only %llu are available", t_pos, m_output_devs.size())
     }
-  }
-
-  if (!valid) {
-    std::cout << "Error: Could not select input. Bad position.\n"; // TODO: Log
   }
 }
