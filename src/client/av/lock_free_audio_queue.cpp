@@ -7,13 +7,12 @@ AudioPackage::AudioPackage(uint8_t *t_stream, int t_len) : m_len(t_len) {
 
   m_data.reserve(m_len);
 
-  int i;
+  int index;
 
-  for (i = 0; i < m_len; i++) {
-    m_data.push_back(t_stream[i]);
+  for (index = 0; index < m_len; index++) {
+    m_data.push_back(t_stream[index]);
   }
-
-  m_index = i;
+  m_index = index;
 }
 
 /* */
@@ -23,8 +22,8 @@ void AudioPackage::push_back(uint8_t t_value) {
   m_index++;
 }
 
-/* Queue */
 
+/* Queue */
 LockFreeAudioQueue::LockFreeAudioQueue() : m_head(new Node) {
   m_tail = m_head.load();
 };
@@ -51,22 +50,22 @@ void LockFreeAudioQueue::push(AudioPackage &&t_audio_package) {
 
 /* */
 
-std::shared_ptr<AudioPackage> LockFreeAudioQueue::pop() {
+auto LockFreeAudioQueue::pop() -> std::shared_ptr<AudioPackage> {
 
   Node *old_head = pop_head();
 
-  if (!old_head) { // if empty return empty shared ptr
-    return std::shared_ptr<AudioPackage>();
+  if (!(old_head == nullptr)) {
+    return {};  // if empty return empty shared ptr
   }
 
-  std::shared_ptr<AudioPackage> const result(old_head->m_audio_package);
+  std::shared_ptr<AudioPackage> result(old_head->m_audio_package);
   delete old_head;
   return result;
 }
 
 /* */
 
-LockFreeAudioQueue::Node *LockFreeAudioQueue::pop_head() {
+auto LockFreeAudioQueue::pop_head() -> LockFreeAudioQueue::Node * {
 
   Node *const old_head = m_head.load();
 
@@ -80,4 +79,4 @@ LockFreeAudioQueue::Node *LockFreeAudioQueue::pop_head() {
 
 /* */
 
-bool LockFreeAudioQueue::empty() { return m_head.load() == m_tail.load(); }
+auto LockFreeAudioQueue::empty() -> bool { return m_head.load() == m_tail.load(); }

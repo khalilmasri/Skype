@@ -16,7 +16,7 @@ struct AudioPackage {
   int m_len = 0;
   int m_index = 0;
 
-  AudioPackage(int t_len);
+  explicit AudioPackage(int t_len);
   AudioPackage(uint8_t *t_stream, int t_len);
 
   void push_back(uint8_t t_value);
@@ -30,25 +30,25 @@ public:
 
   /* delete copy contructor */
   LockFreeAudioQueue(const LockFreeAudioQueue &t_other) = delete;
-  LockFreeAudioQueue &operator=(const LockFreeAudioQueue &t_other) = delete;
+  auto operator=(const LockFreeAudioQueue &t_other) -> LockFreeAudioQueue & = delete;
 
   ~LockFreeAudioQueue();
 
   void push(AudioPackage &&t_audio_package);
-  std::shared_ptr<AudioPackage> pop();
-  bool empty();
+  auto pop() -> std::shared_ptr<AudioPackage>;
+  auto empty() -> bool;
 
 private:
   struct Node {
     std::shared_ptr<AudioPackage> m_audio_package;
     Node *m_next = nullptr;
-    Node() : m_next(nullptr){};
+    Node() = default;
   };
 
   std::atomic<Node *> m_head = nullptr;
 
   std::atomic<Node *> m_tail = nullptr;
-  Node *pop_head();
+  auto pop_head() -> Node *;
 };
 
 #endif // !LOCK_FREE_AUDIO_QUEUE_H
