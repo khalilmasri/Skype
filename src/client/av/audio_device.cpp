@@ -1,5 +1,6 @@
 #include "audio_device.hpp"
 #include "audio_device_config.hpp"
+#include "logger.hpp"
 
 #include <iostream>
 
@@ -8,7 +9,8 @@ VideoSettings *AudioDevice::m_VIDEO_SETTINGS = VideoSettings::get_instance();
 
 AudioDevice::AudioDevice(std::unique_ptr<LockFreeAudioQueue> &t_queue, Type t_type) {
 
-  SDL_AudioSpec want, have;
+  SDL_AudioSpec want;
+  SDL_AudioSpec have;
 
   AudioDevConfig *config = AudioDevConfig::get_instance();
 
@@ -41,7 +43,7 @@ AudioDevice::AudioDevice(std::unique_ptr<LockFreeAudioQueue> &t_queue, Type t_ty
   SDL_Log("Selecting Audio Device %s : %s\n", in_or_out,
           interface_name.c_str());
 
-  m_dev = SDL_OpenAudioDevice(interface_name.c_str(), (int)t_type, &want, &have,
+  m_dev = SDL_OpenAudioDevice(interface_name.c_str(), static_cast<int>(t_type), &want, &have,
                               SDL_AUDIO_ALLOW_FORMAT_CHANGE);
 
   if (m_dev == 0) {
@@ -58,14 +60,18 @@ void AudioDevice::open() {
   if (m_status == Closed) {
     SDL_PauseAudioDevice(m_dev, 0);
     m_status = Opened;
-  } // TODO: else Log on error
+  } else {
+     LOG_DEBUG("Audio device is already opened.");
+  }
 };
 
 void AudioDevice::close() {
   if (m_status == Opened) {
     SDL_PauseAudioDevice(m_dev, 1);
     m_status = Closed;
-  }; // TODO: else Log on error
+  } else {
+     LOG_DEBUG("Audio device is already closed.");
+  } 
 }
 
 void AudioDevice::wait(int t_frames) {
@@ -92,13 +98,13 @@ void AudioDevice::log_on_mismatch_audiospec(SDL_AudioSpec t_want, SDL_AudioSpec 
 
 void AudioDevice::audio_input_callback(void *user_data, Uint8 *stream, int len) {
 
-  LockFreeAudioQueue *queue = (LockFreeAudioQueue *)user_data;
+  auto *queue = static_cast<LockFreeAudioQueue *>(user_data);
   queue->push(AudioPackage(stream, len));
 };
 
 void AudioDevice::audio_output_callback(void *user_data, Uint8 *stream, int len) {
 
-  LockFreeAudioQueue *queue = (LockFreeAudioQueue *)user_data;
+  auto *queue = static_cast<LockFreeAudioQueue *>(user_data);
 
   auto audio = queue->pop();
 

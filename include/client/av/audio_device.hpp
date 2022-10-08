@@ -24,14 +24,14 @@ class AudioDevice {
   ~AudioDevice();
   void open();
   void close();
-  void wait(int t_frames);
+  static void wait(int t_frames);
 
   private:
     SDL_AudioDeviceID m_dev        = 0;
     Status            m_status     = Closed;
     
 
-    void log_on_mismatch_audiospec(SDL_AudioSpec t_want, SDL_AudioSpec t_have);
+    static void log_on_mismatch_audiospec(SDL_AudioSpec t_want, SDL_AudioSpec t_have);
 
     static void audio_input_callback(void *user_data, Uint8 *stream, int len);
     static void audio_output_callback(void *user_data, Uint8 *stream, int len);
