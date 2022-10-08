@@ -54,7 +54,7 @@ auto LockFreeAudioQueue::pop() -> std::shared_ptr<AudioPackage> {
 
   Node *old_head = pop_head();
 
-  if (!(old_head == nullptr)) {
+  if (old_head == nullptr) {
     return {};  // if empty return empty shared ptr
   }
 

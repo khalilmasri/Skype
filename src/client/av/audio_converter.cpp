@@ -7,6 +7,7 @@
 #include <libavcodec/defs.h>
 #include <libavutil/samplefmt.h>
 #include <thread>
+#include "logger.hpp"
 
 AudioSettings *AudioConverter::m_AUDIO_SETTINGS = AudioSettings::get_instance();
 VideoSettings *AudioConverter::m_VIDEO_SETTINGS = VideoSettings::get_instance();
@@ -19,12 +20,8 @@ AudioConverter::AudioConverter()
   m_encoder_codec = avcodec_find_encoder(m_AUDIO_SETTINGS->codec_id());
   m_decoder_codec = avcodec_find_decoder(m_AUDIO_SETTINGS->codec_id());
 
-  is_valid_pointer(m_encoder_codec,
-                   "Could not find encoder codec. Selecting alternative...");
-  is_valid_pointer(m_decoder_codec,
-                   "Could not find decoder codec. Selecting alternative...");
-
-  m_AUDIO_SETTINGS->codec_id_alt();
+  is_valid_pointer(m_encoder_codec, "Could not find encoder codec. Selecting alternative...");
+  is_valid_pointer(m_decoder_codec, "Could not find decoder codec. Selecting alternative...");
 
   if (!m_valid) {
     m_valid = true;
@@ -58,67 +55,67 @@ AudioConverter::AudioConverter()
 
 AudioConverter::~AudioConverter() { // free resources
 
-  if (m_encoder_context) {
+  if (m_encoder_context != nullptr) {
     avcodec_free_context(&m_encoder_context);
   }
 
-  if (m_decoder_context) {
+  if (m_decoder_context != nullptr) {
     avcodec_free_context(&m_decoder_context);
   }
 
-  if (m_parser) {
+  if (m_parser != nullptr) {
     av_parser_close(m_parser);
   }
 
-  if (m_frame) {
+  if (m_frame != nullptr) {
     av_frame_free(&m_frame);
   }
 
-  if (m_decode_frame) {
+  if (m_decode_frame != nullptr) {
     av_frame_free(&m_decode_frame);
   }
 
-  if (m_flush_frame) {
+  if (m_flush_frame != nullptr) {
     av_frame_free(&m_flush_frame);
   }
 
-  if (m_encode_packet) {
+  if (m_encode_packet != nullptr) {
     av_packet_free(&m_encode_packet);
   }
 
-  if (m_decode_packet) {
+  if (m_decode_packet != nullptr) {
     av_packet_free(&m_decode_packet);
   }
 }
 
 /* Public */
 
-std::size_t AudioConverter::frame_size_bytes() { // in bytes
+auto AudioConverter::frame_size_bytes() -> std::size_t { // in bytes
 
   int result = av_samples_get_buffer_size(
-      NULL, m_encoder_context->ch_layout.nb_channels,
+      nullptr, m_encoder_context->ch_layout.nb_channels,
       m_encoder_context->frame_size, m_encoder_context->sample_fmt, 0);
 
   if (is_valid(result, "Could not get the converter frame size.")) {
     return result;
-  } else {
-    return 0;
-  }
+  } 
+
+  return 0;
 }
 
 /* */
 
-std::size_t AudioConverter::frame_size_samples() const {
+auto AudioConverter::frame_size_samples() const -> std::size_t {
   return m_encoder_context->frame_size;
 }
 
 /* */
 
-bool AudioConverter::valid() const { return m_valid; }
+auto AudioConverter::valid() const -> bool { return m_valid; }
 
 /* */
 
-std::vector<uint8_t> AudioConverter::encode(AudioQueue &t_queue) {
+auto AudioConverter::encode(AudioQueue &t_queue) -> std::vector<uint8_t> {
 
   std::size_t capture_size = m_VIDEO_SETTINGS->capture_size_frames();
   std::vector<uint8_t> data;
@@ -140,11 +137,8 @@ std::vector<uint8_t> AudioConverter::encode(AudioQueue &t_queue) {
       i--;
       tries--;
     }
-
-    // will try to pull from queue a couple times and give up.
     if (tries <= 0) {
-      // TODO Log this error
-      std::cout << "Conversion did not complete. Queue is empty.\n";
+      LOG_DEBUG("Conversion did not complete. Audio Input Queue is empty. Try to increase AudioSettings::converter_max_tries.")
       break;
     }
   }
@@ -157,8 +151,7 @@ std::vector<uint8_t> AudioConverter::encode(AudioQueue &t_queue) {
 
 /* */
 
-bool AudioConverter::decode(AudioQueue &t_queue,
-                            std::vector<uint8_t> t_encoded_data) {
+auto AudioConverter::decode(AudioQueue &t_queue, std::vector<uint8_t> t_encoded_data) -> bool {
 
   uint8_t *data = t_encoded_data.data();
   std::size_t data_size = t_encoded_data.size();
@@ -169,14 +162,14 @@ bool AudioConverter::decode(AudioQueue &t_queue,
       return m_valid;
     }
 
-    if (!m_decode_frame) {
+    if (m_decode_frame == nullptr) {
       m_decode_frame = av_frame_alloc();
       is_valid_pointer(m_decode_frame, "Could not allocate decode frame.");
     }
 
     int result =
         av_parser_parse2(m_parser, m_decoder_context, &m_decode_packet->data,
-                         &m_decode_packet->size, data, data_size,
+                         &m_decode_packet->size, data, static_cast<int>(data_size),
                          AV_NOPTS_VALUE, AV_NOPTS_VALUE, 0);
 
     if (!is_valid(result, "Decoder could not parse input.")) {
@@ -186,9 +179,8 @@ bool AudioConverter::decode(AudioQueue &t_queue,
     data += result; // manipulate pointer to new position
     data_size -= result;
 
-    if (m_decode_packet->size) {
-      decode_frames(
-          t_queue); // will push to the queue when m_decoded_data is full
+    if (static_cast<bool>(m_decode_packet->size)) {
+      decode_frames(t_queue); // will push to the queue when m_decoded_data is full
     }
   }
 
@@ -266,18 +258,17 @@ void AudioConverter::encode_frames(std::vector<uint8_t> &t_data, bool t_flush) {
         break;
       }
 
-      else if (result == AVERROR_EOF) {
+        if (result == AVERROR_EOF) {
         // converter is done
         m_awaiting = false;
         break;
       }
 
-      else if (!is_valid(result, "Error encoding frame.")) {
+       if (!is_valid(result, "Error encoding frame.")) {
         break;
       }
 
-      for (std::size_t i = 0; i < m_encode_packet->size;
-           i++) { // push to output
+      for (int i = 0; i < m_encode_packet->size; i++) { // push to output
         t_data.push_back(m_encode_packet->data[i]);
       }
 
@@ -304,27 +295,28 @@ void AudioConverter::decode_frames(AudioQueue &m_queue) {
       break;
     }
 
-    else if (result == AVERROR_EOF) {
+    if (result == AVERROR_EOF) {
       // converted is done!
       m_awaiting = false;
       break;
     }
 
-    else if (!is_valid(result, "Error encoding frame.")) {
+    if (!is_valid(result, "Error encoding frame.")) {
       break;
     }
 
     data_size = av_get_bytes_per_sample(m_decoder_context->sample_fmt);
 
-    if (!is_valid(data_size, "Failed to calculate sample size in decoder.")) {
+    if (!is_valid(static_cast<int>(data_size), "Failed to calculate sample size in decoder.")) {
       break;
     }
 
-    for (int i = 0; i < m_decode_frame->nb_samples * data_size; i++) {
-
-      //  It will always be mono for skype
+    for (std::size_t i = 0; i < m_decode_frame->nb_samples * data_size; i++) {
+      //  It will always be mono for skype iterate channels anyway.
       for (int ch = 0; ch < m_decoder_context->ch_layout.nb_channels; ch++) {
-          uint8_t *data = (uint8_t*)m_decode_frame->data[ch];
+
+          auto *data = static_cast<uint8_t*>(m_decode_frame->data[ch]);
+
           uint8_t byte = data[i];
         if (m_decoded_data.m_index >= m_decoded_data.m_len) {
           m_queue->push(std::move(m_decoded_data));
@@ -341,7 +333,7 @@ void AudioConverter::decode_frames(AudioQueue &m_queue) {
 
 void AudioConverter::create_encoder_context() {
 
-  if (m_encoder_context) { // free previous contexts.
+  if (m_encoder_context != nullptr) { // free previous contexts.
     avcodec_free_context(&m_encoder_context);
   }
 
@@ -363,14 +355,14 @@ void AudioConverter::create_encoder_context() {
 
   if (m_valid) {
     set_channel_layout();
-    int result = avcodec_open2(m_encoder_context, m_encoder_codec, NULL);
+    int result = avcodec_open2(m_encoder_context, m_encoder_codec, nullptr);
     is_valid(result, "Could not open encoder codec.");
   }
 }
 
 void AudioConverter::create_decoder_context() {
 
-  if (m_decoder_context) { // free previous contexts.
+  if (m_decoder_context != nullptr) { // free previous contexts.
     avcodec_free_context(&m_decoder_context);
   }
 
@@ -380,7 +372,7 @@ void AudioConverter::create_decoder_context() {
   }
 
   if (m_valid) {
-    int result = avcodec_open2(m_decoder_context, m_decoder_codec, NULL);
+    int result = avcodec_open2(m_decoder_context, m_decoder_codec, nullptr);
     is_valid(result, "Could not open decoder codec.");
   }
 }
@@ -422,9 +414,7 @@ void AudioConverter::setup_frame() {
 
 /* */
 
-void AudioConverter::copy_to_frame(uint8_t *t_audio_buffer,
-                                   std::size_t t_frame_size_bytes,
-                                   std::size_t t_offset) {
+void AudioConverter::copy_to_frame(const uint8_t *t_audio_buffer, std::size_t t_frame_size_bytes, std::size_t t_offset) {
 
   int result = av_frame_make_writable(m_frame);
 
@@ -438,8 +428,7 @@ void AudioConverter::copy_to_frame(uint8_t *t_audio_buffer,
   }
 }
 
-void AudioConverter::write_zeros_to_frame(std::size_t t_frame_size_bytes,
-                                          std::size_t t_offset) {
+void AudioConverter::write_zeros_to_frame(std::size_t t_frame_size_bytes, std::size_t t_offset) {
 
   int result = av_frame_make_writable(m_frame);
 
@@ -456,12 +445,11 @@ void AudioConverter::write_zeros_to_frame(std::size_t t_frame_size_bytes,
 
 /* */
 
-bool AudioConverter::validate_sample_rate() {
+auto AudioConverter::validate_sample_rate() -> bool {
 
-  if (m_encoder_codec->supported_samplerates) {
-    for (int i = 0; m_encoder_codec->supported_samplerates[i]; i++) {
-      if (m_encoder_context->sample_rate ==
-          m_encoder_codec->supported_samplerates[i]) {
+  if (m_encoder_codec->supported_samplerates != nullptr) {
+    for (int i = 0; static_cast<bool>(m_encoder_codec->supported_samplerates[i]); i++) {
+      if (m_encoder_context->sample_rate == m_encoder_codec->supported_samplerates[i]) {
         return m_valid;
       }
     }
@@ -480,7 +468,7 @@ bool AudioConverter::validate_sample_rate() {
 
 /* */
 
-bool AudioConverter::validate_sample_format() {
+auto AudioConverter::validate_sample_format() -> bool {
 
   const enum AVSampleFormat *sample_formats = m_encoder_codec->sample_fmts;
   const enum AVSampleFormat *first_format = sample_formats;
@@ -507,8 +495,7 @@ bool AudioConverter::validate_sample_format() {
     sample_formats++;
   }
 
-  // TODO: LOG
-  std::cout << "Error: Could not set a valid sample format for this codec.\n";
+  LOG_ERR("Error: Could not set a valid sample format for this codec.\n")
   m_valid = false;
 
   return m_valid;
@@ -517,10 +504,10 @@ bool AudioConverter::validate_sample_format() {
 /* */
 
 template <typename T>
-bool AudioConverter::is_valid_pointer(T t_pointer, const char *t_msg) {
+auto AudioConverter::is_valid_pointer(T t_pointer, const char *t_msg) -> bool {
 
   if (t_pointer == nullptr) {
-    std::cout << t_msg << "\n";
+    LOG_ERR("%s", t_msg);
     m_valid = false;
   }
 
@@ -529,12 +516,10 @@ bool AudioConverter::is_valid_pointer(T t_pointer, const char *t_msg) {
 
 /* */
 
-bool AudioConverter::is_valid(int t_result, const char *t_msg) {
+auto AudioConverter::is_valid(int t_result, const char *t_msg) -> bool {
   if (t_result < 0) {
-
-    // TODO: LOG Error
     m_valid = false;
-    std::cout << t_msg << "\n";
+    LOG_ERR("%s", t_msg);
   }
 
   return m_valid;

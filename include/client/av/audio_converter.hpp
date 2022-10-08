@@ -16,16 +16,17 @@ extern "C" { // must use to link
 
 class AudioConverter {
 
-  typedef std::unique_ptr<LockFreeAudioQueue> AudioQueue;
+  using AudioQueue = std::unique_ptr<LockFreeAudioQueue>;
 
 public:
   AudioConverter();
-  std::size_t frame_size_bytes();
-  std::size_t frame_size_samples() const ;
-  bool valid() const;
 
-  std::vector<uint8_t> encode(AudioQueue &t_queue);
-  bool decode(AudioQueue &t_queue, std::vector<uint8_t> t_encoded_data);
+  auto frame_size_bytes() -> std::size_t;
+  [[nodiscard]] auto frame_size_samples() const -> std::size_t ;
+  [[nodiscard]] auto valid() const -> bool;
+
+  auto encode(AudioQueue &t_queue) -> std::vector<uint8_t>;
+  auto decode(AudioQueue &t_queue, std::vector<uint8_t> t_encoded_data) -> bool;
 
   ~AudioConverter();
 
@@ -56,16 +57,15 @@ private:
 
   void set_channel_layout();
   void setup_frame();
-  void copy_to_frame(uint8_t *t_audio_buffer, std::size_t t_frame_size_bytes, std::size_t t_offset);
+  void copy_to_frame(const uint8_t *t_audio_buffer, std::size_t t_frame_size_bytes, std::size_t t_offset);
   void write_zeros_to_frame(std::size_t t_frame_size_bytes, std::size_t t_offset);
 
-  bool validate_sample_format();
-  bool validate_sample_rate();
+  auto validate_sample_format() -> bool;
+  auto validate_sample_rate() -> bool;
   
   template<typename T>
-  bool is_valid_pointer(T t_pointer, const char *t_msg);
-
-  bool is_valid(int t_result, const char *t_msg);
+  auto is_valid_pointer(T t_pointer, const char *t_msg) -> bool;
+  auto is_valid(int t_result, const char *t_msg) -> bool;
 
 
   static AudioSettings *m_AUDIO_SETTINGS;
