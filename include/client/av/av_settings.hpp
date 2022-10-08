@@ -28,26 +28,25 @@ class AudioSettings {
   };
 
 public:
-  static AudioSettings *get_instance();
+  static auto get_instance() -> AudioSettings*;
 
   static void delete_instance();
 
-  int samplerate() const;
-  int bitrate() const;
-  int device_bitrate() const;
-  int channels() const;
-  bool is_mono() const;
-  int buffer_size() const;
-  int buffer_size_in_samples() const;
-  int bit_multiplier() const;
-  int converter_max_tries() const;
-  AVSampleFormat converter_format() const;
-
+  [[nodiscard]] auto samplerate() const -> int;
+  [[nodiscard]] auto bitrate() const -> int;
+  [[nodiscard]] auto device_bitrate() const -> int;
+  [[nodiscard]] auto channels() const -> int;
+  [[nodiscard]] auto is_mono() const -> bool;
+  [[nodiscard]] auto buffer_size() const -> int;
+  [[nodiscard]] auto buffer_size_in_samples() const -> int;
+  [[nodiscard]] auto bit_multiplier() const -> int;
+  [[nodiscard]] auto converter_max_tries() const -> int;
+  [[nodiscard]] auto converter_format() const -> AVSampleFormat;
   // the planar format just means that stereo channels are interleaved.
-  AVSampleFormat converter_format_planar() const;
-  SDL_AudioFormat device_format() const;
-  AVCodecID codec_id() const;
-  AVCodecID codec_id_alt() const;
+  [[nodiscard]] auto converter_format_planar() const -> AVSampleFormat;
+  [[nodiscard]] auto device_format() const -> SDL_AudioFormat;
+  [[nodiscard]] auto codec_id() const -> AVCodecID;
+  [[nodiscard]] auto codec_id_alt() const -> AVCodecID;
 
   AudioSettings(AudioSettings &lhs) = delete;
   void operator=(AudioSettings &lhs) = delete;
@@ -56,15 +55,15 @@ private:
   static AudioSettings *m_instance;
 
   CodecID m_codec_id = mp3;
-  CodecID m_codec_id_alt = mp2; // alternative in case first option is not avail.
+  CodecID m_codec_id_alt = mp2;                  // alternative in case first option is not avail.
   int m_channels = 1;
   int m_bitrate = 64000;
   int m_samplerate = 44100;
   SDL_AudioFormat m_device_format = s_float32Bits;
-  AVSampleFormat m_converter_format;         // will be set according to m_device_format
-  AVSampleFormat m_converter_format_planar;  // will be set according to m_device_format
-  int m_bit_multiplier;                      //  Will be set according to m_device_format
-  int m_buffer_size;                         //  will be set in the constructor
+  AVSampleFormat m_converter_format;            // will be set according to m_device_format
+  AVSampleFormat m_converter_format_planar;     // will be set according to m_device_format
+  int m_bit_multiplier;                         //  Will be set according to m_device_format
+  int m_buffer_size;                            //  will be set in the constructor
   int m_converter_max_tries = 10;
 
   AudioSettings();
@@ -75,18 +74,18 @@ private:
 class VideoSettings {
 
 public:
-  static VideoSettings *get_instance();
+  static auto get_instance() -> VideoSettings *;
 
   static void delete_instance();
 
   VideoSettings(VideoSettings &lhs) = delete;
   void operator=(VideoSettings &lhs) = delete;
 
-  int bitrate() const;
-  int width() const;
-  int height() const;
-  int framerate() const;
-  int capture_size_frames() const;
+  [[nodiscard]] auto bitrate() const -> int;
+  [[nodiscard]] auto width() const -> int;
+  [[nodiscard]] auto height() const -> int;
+  [[nodiscard]] auto framerate() const -> int;
+  [[nodiscard]] auto capture_size_frames() const -> int;
 
 private:
   static VideoSettings *m_instance;
