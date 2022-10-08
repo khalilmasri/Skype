@@ -9,23 +9,24 @@
 #include "text_data.hpp"
 #include "text_io.hpp"
 #include <iostream>
+#include "webcam.hpp"
+
 
 static Config *config = Config::get_instance();
 
-std::string login_as(ActiveConn &conn, const char *user, const char *pw) {
+auto login_as(ActiveConn &conn, const char *user, const char *password) -> std::string {
 
-  std::string addr = config->get<const std::string>("SERVER_ADDRESS");
+  auto addr = config->get<const std::string>("SERVER_ADDRESS");
   Request req = conn.connect_socket(addr);
 
   if (!req.m_valid) {
-    std::cout << "YOU MUST HAVE THE SERVER RUNNING TO RUN THIS TEST."
-              << std::endl;
+    std::cout << "YOU MUST HAVE THE SERVER RUNNING TO RUN THIS TEST." << std::endl;
     return {};
   }
 
   conn.receive(req); // ignore handshake
 
-  req.set_data(new TextData(std::string("LOGIN ") + user + " " + pw));
+  req.set_data(new TextData(std::string("LOGIN ") + user + " " + password));
   conn.respond(req);
   conn.receive(req);
 
@@ -45,8 +46,8 @@ void logout(ActiveConn &conn, std::string &token) {
 
 void connect_to(P2P &p2p) {
 
-  std::string id = "3";
-  p2p.connect_peer(id);
+  std::string user_id = "3";
+  p2p.connect_peer(user_id);
 
   if (p2p.status() != P2P::Awaiting) {
     std::cout << "did not call connect correctly. Exiting...\n";
@@ -87,9 +88,9 @@ void connect_to(P2P &p2p) {
 
 void accept_from(P2P &p2p) {
 
-  std::string id = "1";
+  std::string user_id = "1";
 
-  p2p.accept_peer(id);
+  p2p.accept_peer(user_id);
 
   if (p2p.status() == P2P::Accepted) {
     std::cout << "Accepted was sucessful\n";
@@ -99,17 +100,36 @@ void accept_from(P2P &p2p) {
   }
 }
 
-int main(int ac, char **av) {
+auto main(int argc, char **argv) -> int {
 
-  if (ac < 3) {
+  if (argc < 3) {
     return 0;
     std::cout << "Enter a username and password.\n ./p2p_test john 1234\n";
   }
 
-  std::string user(av[1]);
+  if(std::string(argv[1]) == "camera"){
+
+    auto webcam = Webcam();
+     int index = 0;
+
+    while(index < 30){
+     auto res = webcam.capture();
+
+     if(!webcam.valid()){
+       break;
+     }
+
+     index++;
+    }
+
+    return 0;
+
+  }
+
+  std::string user(argv[1]);
 
   ActiveConn conn(config->get<int>("TCP_PORT"), new TextIO());
-  std::string token = login_as(conn, av[1], av[2]); // conn , user, password.
+  std::string token = login_as(conn, argv[1], argv[2]); // conn , user, password.
 
   P2P p2p(token);
 
@@ -125,6 +145,6 @@ int main(int ac, char **av) {
 
   logout(conn, token);
 
-  config->free_instance();
+  Config::free_instance();
   return 0;
 }

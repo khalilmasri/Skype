@@ -6,19 +6,16 @@
 
 struct Tester {
 
-  static int test(int argc, char *argv[]) {
+  static auto test(int argc, char **argv) -> int {
     return do_test(argc > 1 && will_test(std::string(argv[1])));
   }
 
 private:
-  static bool will_test(std::string &&t_av) {
-    if (t_av == "--test") {
-      return true;
-    }
-    return false;
+  static auto will_test(std::string &&t_av) -> bool {
+    return t_av == "--test";
   }
 
-  static int do_test(bool t_will_test) {
+  static auto do_test(bool t_will_test) -> int {
     if (!t_will_test) {
       return 0;
     }
