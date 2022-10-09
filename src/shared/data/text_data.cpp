@@ -22,11 +22,12 @@ auto TextData::get_type() const -> Data::type { return m_type; }
 auto TextData::empty() const -> bool { return m_data.empty(); }
 auto TextData::size() const -> std::size_t { return m_data.size(); }
 auto TextData::get_data() const -> DataVector { return m_data; }
+
+/* */
+
 auto TextData::to_string(const Data *t_data) -> std::string {
 
-
   DataVector data = t_data->get_data();
-
   std::string buffer;
 
   for (auto &character : data) {
@@ -35,6 +36,8 @@ auto TextData::to_string(const Data *t_data) -> std::string {
 
   return buffer;
 }
+
+/* */
 
 void TextData::load_text(std::string &t_text) {
   for (char &character : t_text) {

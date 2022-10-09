@@ -263,19 +263,19 @@ void P2P::handshake_acceptor(Request &t_req, PeerNetwork t_peer_network) {
   LOG_DEBUG("Acceptor: waiting for handshake confirmation from '%s'. ",
             t_req.m_address.c_str());
 
-  std::string ok = Reply::get_message(Reply::r_200);
+  std::string ok_msg = Reply::get_message(Reply::r_200);
 
   m_inbounds.receive(t_req);
   std::string response = TextData::to_string(t_req.data());
 
   LOG_DEBUG("Acceptor: got response '%s' ", response.c_str());
 
-  if (response == ok) {
+  if (response == ok_msg) {
     LOG_INFO("Acceptor: P2P handshake with '%s' was sucessful. ",
              t_req.m_address.c_str());
 
     m_status = Connected;
-    t_req.set_data(new TextData(ok));
+    t_req.set_data(new TextData(ok_msg));
     m_inbounds.respond(t_req);
 
   } else {
@@ -295,8 +295,8 @@ void P2P::handshake_initiator(Request &t_req, PeerNetwork t_peer_network) {
     hole_punch(t_req);
   }
 
-  std::string ok = Reply::get_message(Reply::r_200);
-  t_req.set_data(new TextData(ok));
+  std::string ok_msg = Reply::get_message(Reply::r_200);
+  t_req.set_data(new TextData(ok_msg));
 
   LOG_DEBUG("Intiator: Sending 200 OK to confirm.");
   m_inbounds.respond(t_req);
@@ -306,7 +306,7 @@ void P2P::handshake_initiator(Request &t_req, PeerNetwork t_peer_network) {
 
   std::string response = TextData::to_string(t_req.data());
 
-  if (response == ok) {
+  if (response == ok_msg) {
     LOG_INFO("P2P handshake with '%s' was sucessful. ",
              t_req.m_address.c_str());
     m_status = Connected;

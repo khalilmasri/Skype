@@ -108,6 +108,8 @@ void test_conn(char *t_user, char *t_pw) {
 
   ActiveConn conn(config->get<int>("TCP_PORT"), new TextIO());
   std::string token = login_as(conn, t_user, t_pw); // conn , user, password.
+                                                    //
+  std::cout << token << std::endl;
 
   P2P p2p(token);
 
@@ -196,30 +198,28 @@ void connect_to(P2P &p2p) {
     return;
   }
 
-  int count = 0;
 
   while (p2p.status() != P2P::Accepted) {
 
+    int count = 0;
     std::cout << "Pinging ...\n";
 
     p2p.ping_peer();
-    sleep(2); // check every  2 second
+    sleep(2); // check every 2 second
 
     if (p2p.status() == P2P::Awaiting) {
       std::cout << "Still Awaiting ...\n";
     }
     if (p2p.status() == P2P::Error) {
       std::cout << "ping returned an error. exiting....\n";
-      break;
-    }
-
-    if (count > 10) {
-      std::cout << std::string("Breaking after ") + std::to_string(count)
-                << std::endl;
-      p2p.hangup_peer();
       return;
     }
 
+    if (count > 10) {
+      std::cout << std::string("Breaking after ") + std::to_string(count) << std::endl;
+      p2p.hangup_peer();
+      return;
+    }
     count++;
   }
 

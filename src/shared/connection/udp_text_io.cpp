@@ -14,14 +14,10 @@ auto UDPTextIO::respond(Request &t_req) const -> bool {
 
   auto[ip, port] = StringUtils::split_first(t_req.m_address,":");
 
-  std::string data = TextData::to_string(t_req.data());
-  std::array<char, m_BUFFER_SIZE>buffer;
-
-  memcpy(buffer.data() , data.c_str(), data.size());
-
+  std::string buffer  = TextData::to_string(t_req.data());
   sockaddr_in addr_in = Connection::to_sockaddr_in(port, ip);
 
- ssize_t res = sendto(t_req.m_socket, buffer.data(), m_BUFFER_SIZE, 0,
+ ssize_t res = sendto(t_req.m_socket, buffer.data(), buffer.size(), 0,
       reinterpret_cast<struct sockaddr *>(&addr_in), sizeof(addr_in));
 
   t_req.m_valid = is_valid(static_cast<int>(res), "UDPTextIO could not send.");
@@ -32,7 +28,7 @@ auto UDPTextIO::respond(Request &t_req) const -> bool {
 
 auto UDPTextIO::receive(Request &t_req) const -> bool {
 
-  std::array<char, m_BUFFER_SIZE>buffer;
+  std::string buffer(m_BUFFER_SIZE, '\0');
 
   sockaddr_in addr_in;
   socklen_t addr_len = sizeof(addr_in);
@@ -48,7 +44,7 @@ auto UDPTextIO::receive(Request &t_req) const -> bool {
     + ":"
     + Connection::port_tostring(addr_in); ;
 
-  t_req.set_data(new TextData(buffer.data()));
+  t_req.set_data(new TextData(buffer));
  }
 
   return t_req.m_valid; 
