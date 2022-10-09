@@ -55,10 +55,8 @@ class AwaitingUsers {
 
   private:
   using AwaitingUsersMap = std::unordered_map<int, AwaitingUser>;
-  using CountDownVec = std::vector<std::pair<int, int>>;
 
   AwaitingUsersMap m_awaiting_users;
-  CountDownVec m_countdown;
 };
 
 #endif

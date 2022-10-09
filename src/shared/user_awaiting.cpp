@@ -85,14 +85,14 @@ auto AwaitingUser::has_same_address() const -> bool {
 
 auto AwaitingUsers::insert(AwaitingUser &&t_awaiting_user) noexcept -> bool {
   // returns a pair with iterator and bool if insert was successful.
-  auto result =
-      m_awaiting_users.insert({t_awaiting_user.id(), t_awaiting_user});
+  auto result = m_awaiting_users.insert({t_awaiting_user.id(), t_awaiting_user});
 
   if (!result.second) {
     LOG_ERR("Did not insert user id '%d' to AwaitingUsers because it already "
             "exists.",
             t_awaiting_user.id());
   }
+
 
   return result.second;
 }

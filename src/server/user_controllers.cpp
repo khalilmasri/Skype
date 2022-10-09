@@ -138,7 +138,7 @@ void UserControllers::available(std::string &t_username, Request &t_req) {
   else {
     ControllerUtils::set_request_reply(Reply::r_201, user.to_string(), t_req);
   }
-}
+  }
 
 void UserControllers::exit(std::string &_, Request &t_req) {
   UNUSED_PARAMS(_);

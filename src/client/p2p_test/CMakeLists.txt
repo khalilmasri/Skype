@@ -16,6 +16,7 @@ find_package(OpenCV REQUIRED)
 
 # Include all the source code with cpp extension
 file(GLOB SERVER_SOURCES    "*.cpp"
+                            "../../shared/thread_safe_queue.cpp"
                             "../../shared/*.cpp"
                             "../../shared/data/*.cpp"
                             "../../shared/utils/*.cpp"

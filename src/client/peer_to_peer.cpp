@@ -276,9 +276,9 @@ void P2P::handshake_acceptor(Request &t_req, PeerNetwork t_peer_network) {
 
     m_status = Connected;
     t_req.set_data(new TextData(ok_msg));
-    m_inbounds.respond(t_req);
 
   } else {
+    m_inbounds.respond(t_req);
     LOG_ERR("P2P handshake message '%s' should be '200 OK'. Handshake failed.",
             response.c_str());
 

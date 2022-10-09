@@ -4,6 +4,7 @@
 #include "server.hpp"
 #include "tester.hpp"
 #include "config.hpp"
+#include "thread_safe_queue.hpp"
 
 int main(int ac, char *av[]) {
 

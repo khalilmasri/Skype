@@ -95,8 +95,8 @@ auto StreamIO::receive_data(Request &t_req, sockaddr_in *t_addrin,
 
   return recvfrom(t_req.m_socket, t_data.data(), t_data.size(), 0,
                   reinterpret_cast<struct sockaddr *>(t_addrin), &addr_len);
-}
 
+}
 auto StreamIO::make_header(Request &t_req) -> Data::DataVector {
 
   auto header = Data::DataVector();
