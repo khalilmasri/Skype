@@ -36,7 +36,7 @@ Webcam::~Webcam() {
 auto Webcam::capture() -> Webcam::WebcamFrames {
 
   if (!m_valid) {
-    LOG_ERR("Could not capture. Webcame in an invalid state.")
+    LOG_ERR("Could not capture. Webcam in an invalid state.")
   }
 
   int nb_frames = m_VIDEO_SETTINGS->capture_size_frames();
@@ -54,6 +54,7 @@ auto Webcam::capture() -> Webcam::WebcamFrames {
     cv::imshow("Camera", m_frame);
     std::vector<uchar> buffer;
 
+    /* We must wrap this in a try catch because cv::imencode may throw */
     try {
           bool result = cv::imencode(".jpeg", m_frame, buffer);
       if (result) {
@@ -69,7 +70,7 @@ auto Webcam::capture() -> Webcam::WebcamFrames {
 
     index++;
 
-    /* 1000ms / 25f = 40ms */
+    /* 1000ms / 25f = 40ms  when framerate() = 25fs */
     cv::waitKey(1000 / m_VIDEO_SETTINGS->framerate()); 
   }
 

@@ -421,9 +421,7 @@ void AudioConverter::setup_frame() {
 
 /* */
 
-void AudioConverter::copy_to_frame(const uint8_t *t_audio_buffer,
-                                   std::size_t t_frame_size_bytes,
-                                   std::size_t t_offset) {
+void AudioConverter::copy_to_frame(const uint8_t *t_audio_buffer, std::size_t t_frame_size_bytes, std::size_t t_offset) {
 
   int result = av_frame_make_writable(m_frame);
 
@@ -437,9 +435,7 @@ void AudioConverter::copy_to_frame(const uint8_t *t_audio_buffer,
   }
 }
 
-void AudioConverter::write_zeros_to_frame(std::size_t t_frame_size_bytes,
-                                          std::size_t t_offset) {
-
+void AudioConverter::write_zeros_to_frame(std::size_t t_frame_size_bytes, std::size_t t_offset) {
   int result = av_frame_make_writable(m_frame);
 
   is_valid(result, "Could not make frame writable.");
