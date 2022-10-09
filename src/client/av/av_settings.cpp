@@ -35,14 +35,17 @@ AudioSettings::AudioSettings() {
     m_bit_multiplier = 2;
     m_converter_format = AV_SAMPLE_FMT_S16;
     m_converter_format_planar = AV_SAMPLE_FMT_S16P;
+
   } else if (m_device_format == s_Int32Bits) {
     m_bit_multiplier = 4;
     m_converter_format = AV_SAMPLE_FMT_S32;
     m_converter_format_planar = AV_SAMPLE_FMT_S32P;
+
   } else {
     m_bit_multiplier = 4;
     m_converter_format = AV_SAMPLE_FMT_FLT;
     m_converter_format_planar = AV_SAMPLE_FMT_FLTP;
+
   }
 
   /* 44100hz / 25fps * 2 (@ 16bits) = 3528 */
@@ -63,6 +66,7 @@ auto AudioSettings::converter_format() const -> AVSampleFormat { return m_conver
 auto AudioSettings::converter_format_planar() const -> AVSampleFormat { return m_converter_format_planar; }
 auto AudioSettings::device_format() const -> SDL_AudioFormat { return m_device_format; };
 void AudioSettings::delete_instance() { delete m_instance; }
+
 auto AudioSettings::get_instance() -> AudioSettings * {
   if (m_instance == nullptr) {
     m_instance = new AudioSettings();

@@ -1,4 +1,5 @@
 #include "audio_converter.hpp"
+#include "logger.hpp"
 #include <chrono>
 #include <cmath>
 #include <cstdint>
@@ -7,7 +8,6 @@
 #include <libavcodec/defs.h>
 #include <libavutil/samplefmt.h>
 #include <thread>
-#include "logger.hpp"
 
 AudioSettings *AudioConverter::m_AUDIO_SETTINGS = AudioSettings::get_instance();
 VideoSettings *AudioConverter::m_VIDEO_SETTINGS = VideoSettings::get_instance();
@@ -20,8 +20,10 @@ AudioConverter::AudioConverter()
   m_encoder_codec = avcodec_find_encoder(m_AUDIO_SETTINGS->codec_id());
   m_decoder_codec = avcodec_find_decoder(m_AUDIO_SETTINGS->codec_id());
 
-  is_valid_pointer(m_encoder_codec, "Could not find encoder codec. Selecting alternative...");
-  is_valid_pointer(m_decoder_codec, "Could not find decoder codec. Selecting alternative...");
+  is_valid_pointer(m_encoder_codec,
+                   "Could not find encoder codec. Selecting alternative...");
+  is_valid_pointer(m_decoder_codec,
+                   "Could not find decoder codec. Selecting alternative...");
 
   if (!m_valid) {
     m_valid = true;
@@ -98,7 +100,7 @@ auto AudioConverter::frame_size_bytes() -> std::size_t { // in bytes
 
   if (is_valid(result, "Could not get the converter frame size.")) {
     return result;
-  } 
+  }
 
   return 0;
 }
@@ -138,7 +140,8 @@ auto AudioConverter::encode(AudioQueue &t_queue) -> std::vector<uint8_t> {
       tries--;
     }
     if (tries <= 0) {
-      LOG_DEBUG("Conversion did not complete. Audio Input Queue is empty. Try to increase AudioSettings::converter_max_tries.")
+      LOG_DEBUG("Conversion did not complete. Audio Input Queue is empty. Try "
+                "to increase AudioSettings::converter_max_tries.")
       break;
     }
   }
@@ -151,7 +154,8 @@ auto AudioConverter::encode(AudioQueue &t_queue) -> std::vector<uint8_t> {
 
 /* */
 
-auto AudioConverter::decode(AudioQueue &t_queue, std::vector<uint8_t> t_encoded_data) -> bool {
+auto AudioConverter::decode(AudioQueue &t_queue,
+                            std::vector<uint8_t> t_encoded_data) -> bool {
 
   uint8_t *data = t_encoded_data.data();
   std::size_t data_size = t_encoded_data.size();
@@ -167,10 +171,10 @@ auto AudioConverter::decode(AudioQueue &t_queue, std::vector<uint8_t> t_encoded_
       is_valid_pointer(m_decode_frame, "Could not allocate decode frame.");
     }
 
-    int result =
-        av_parser_parse2(m_parser, m_decoder_context, &m_decode_packet->data,
-                         &m_decode_packet->size, data, static_cast<int>(data_size),
-                         AV_NOPTS_VALUE, AV_NOPTS_VALUE, 0);
+    int result = av_parser_parse2(
+        m_parser, m_decoder_context, &m_decode_packet->data,
+        &m_decode_packet->size, data, static_cast<int>(data_size),
+        AV_NOPTS_VALUE, AV_NOPTS_VALUE, 0);
 
     if (!is_valid(result, "Decoder could not parse input.")) {
       return m_valid;
@@ -180,7 +184,8 @@ auto AudioConverter::decode(AudioQueue &t_queue, std::vector<uint8_t> t_encoded_
     data_size -= result;
 
     if (static_cast<bool>(m_decode_packet->size)) {
-      decode_frames(t_queue); // will push to the queue when m_decoded_data is full
+      decode_frames(
+          t_queue); // will push to the queue when m_decoded_data is full
     }
   }
 
@@ -229,6 +234,7 @@ void AudioConverter::encode_frames(std::vector<uint8_t> &t_data, bool t_flush) {
 
   if (!m_valid) {
     return;
+
   }
 
   int result;
@@ -258,13 +264,13 @@ void AudioConverter::encode_frames(std::vector<uint8_t> &t_data, bool t_flush) {
         break;
       }
 
-        if (result == AVERROR_EOF) {
+      if (result == AVERROR_EOF) {
         // converter is done
         m_awaiting = false;
         break;
       }
 
-       if (!is_valid(result, "Error encoding frame.")) {
+      if (!is_valid(result, "Error encoding frame.")) {
         break;
       }
 
@@ -307,7 +313,8 @@ void AudioConverter::decode_frames(AudioQueue &m_queue) {
 
     data_size = av_get_bytes_per_sample(m_decoder_context->sample_fmt);
 
-    if (!is_valid(static_cast<int>(data_size), "Failed to calculate sample size in decoder.")) {
+    if (!is_valid(static_cast<int>(data_size),
+                  "Failed to calculate sample size in decoder.")) {
       break;
     }
 
@@ -315,9 +322,9 @@ void AudioConverter::decode_frames(AudioQueue &m_queue) {
       //  It will always be mono for skype iterate channels anyway.
       for (int ch = 0; ch < m_decoder_context->ch_layout.nb_channels; ch++) {
 
-          auto *data = static_cast<uint8_t*>(m_decode_frame->data[ch]);
+        auto *data = static_cast<uint8_t *>(m_decode_frame->data[ch]);
 
-          uint8_t byte = data[i];
+        uint8_t byte = data[i];
         if (m_decoded_data.m_index >= m_decoded_data.m_len) {
           m_queue->push(std::move(m_decoded_data));
           m_decoded_data = AudioPackage(m_AUDIO_SETTINGS->buffer_size());
@@ -414,7 +421,9 @@ void AudioConverter::setup_frame() {
 
 /* */
 
-void AudioConverter::copy_to_frame(const uint8_t *t_audio_buffer, std::size_t t_frame_size_bytes, std::size_t t_offset) {
+void AudioConverter::copy_to_frame(const uint8_t *t_audio_buffer,
+                                   std::size_t t_frame_size_bytes,
+                                   std::size_t t_offset) {
 
   int result = av_frame_make_writable(m_frame);
 
@@ -428,7 +437,8 @@ void AudioConverter::copy_to_frame(const uint8_t *t_audio_buffer, std::size_t t_
   }
 }
 
-void AudioConverter::write_zeros_to_frame(std::size_t t_frame_size_bytes, std::size_t t_offset) {
+void AudioConverter::write_zeros_to_frame(std::size_t t_frame_size_bytes,
+                                          std::size_t t_offset) {
 
   int result = av_frame_make_writable(m_frame);
 
@@ -448,8 +458,10 @@ void AudioConverter::write_zeros_to_frame(std::size_t t_frame_size_bytes, std::s
 auto AudioConverter::validate_sample_rate() -> bool {
 
   if (m_encoder_codec->supported_samplerates != nullptr) {
-    for (int i = 0; static_cast<bool>(m_encoder_codec->supported_samplerates[i]); i++) {
-      if (m_encoder_context->sample_rate == m_encoder_codec->supported_samplerates[i]) {
+    for (int i = 0;
+         static_cast<bool>(m_encoder_codec->supported_samplerates[i]); i++) {
+      if (m_encoder_context->sample_rate ==
+          m_encoder_codec->supported_samplerates[i]) {
         return m_valid;
       }
     }
@@ -461,7 +473,6 @@ auto AudioConverter::validate_sample_rate() -> bool {
 
     m_encoder_context->sample_rate = next_supported;
   }
-
 
   return m_valid;
 }

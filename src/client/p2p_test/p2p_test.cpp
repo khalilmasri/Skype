@@ -1,32 +1,43 @@
 #define DOCTEST_CONFIG_IMPLEMENT
 
 #include "active_conn.hpp"
+#include "audio_converter.hpp"
+#include "audio_device.hpp"
 #include "config.hpp"
 #include "doctest.h"
+#include "lock_free_audio_queue.hpp"
 #include "peer_to_peer.hpp"
 #include "request.hpp"
 #include "string_utils.hpp"
 #include "text_data.hpp"
 #include "text_io.hpp"
-#include <iostream>
+#include "audio_device_config.hpp"
 #include "webcam.hpp"
-
+#include <iostream>
 
 static Config *config = Config::get_instance();
 
-auto login_as(ActiveConn &conn, const char *user, const char *password) -> std::string {
+void free_configs() {
+  VideoSettings::delete_instance();
+  AudioSettings::delete_instance();
+  AudioDevConfig::delete_instance();
+}
+
+auto login_as(ActiveConn &conn, const char *user, const char *password)
+    -> std::string {
 
   auto addr = config->get<const std::string>("SERVER_ADDRESS");
   Request req = conn.connect_socket(addr);
 
   if (!req.m_valid) {
-    std::cout << "YOU MUST HAVE THE SERVER RUNNING TO RUN THIS TEST." << std::endl;
+    std::cout << "YOU MUST HAVE THE SERVER RUNNING TO RUN THIS TEST."
+              << std::endl;
     return {};
   }
 
   conn.receive(req); // ignore handshake
-
   req.set_data(new TextData(std::string("LOGIN ") + user + " " + password));
+
   conn.respond(req);
   conn.receive(req);
 
@@ -70,7 +81,6 @@ void connect_to(P2P &p2p) {
     if (p2p.status() == P2P::Error) {
       std::cout << "ping returned an error. exiting....\n";
       break;
-
     }
 
     if (count > 10) {
@@ -107,30 +117,74 @@ auto main(int argc, char **argv) -> int {
     std::cout << "Enter a username and password.\n ./p2p_test john 1234\n";
   }
 
-  if(std::string(argv[1]) == "camera"){
+  if (std::string(argv[1]) == "audio") {
+
+  SDL_Init(SDL_INIT_AUDIO);
+
+  auto input_queue = std::make_unique<LockFreeAudioQueue>();
+  auto output_queue = std::make_unique<LockFreeAudioQueue>();
+
+  AudioDevice input_device(output_queue, AudioDevice::Input);
+  AudioDevice output_device(output_queue, AudioDevice::Output);
+
+  auto converter = AudioConverter();
+
+  std::cout << "Recording. Say something.\n";
+
+  input_device.open();
+   AudioDevice::wait(200); // record for 200 frames!
+  input_device.close();
+
+  std::cout << "Converting....\n";
+
+  while (!input_queue->empty()) {
+
+    if (!converter.valid()) {
+      std::cout << "Converter not valid\n";
+      break;
+    }
+
+    std::vector<uint8_t> encoded_audio = converter.encode(input_queue);
+    converter.decode(output_queue, encoded_audio);
+  }
+
+  std::cout << "done with input! Now playing the ouput of the recorded audio.\n";
+
+  output_device.open();
+  AudioDevice::wait(200);
+  output_device.close();
+
+  SDL_Quit();
+  free_configs();
+
+    return 0;
+  }
+
+  if (std::string(argv[1]) == "camera") {
 
     auto webcam = Webcam();
-     int index = 0;
+    int index = 0;
 
-    while(index < 30){
-     auto res = webcam.capture();
+    while (index < 30) {
+      auto res = webcam.capture();
 
-     if(!webcam.valid()){
-       break;
-     }
+      if (!webcam.valid()) {
+        break;
+      }
 
-     index++;
+      index++;
     }
 
     return 0;
-
   }
 
   std::string user(argv[1]);
 
   ActiveConn conn(config->get<int>("TCP_PORT"), new TextIO());
-  std::string token = login_as(conn, argv[1], argv[2]); // conn , user, password.
-
+  std::string token =
+      login_as(conn, argv[1], argv[2]); // conn , user, password.
+                                        //
+                                        // if(std::string(argv[1]) == "audio"){
   P2P p2p(token);
 
   if (user == "john") { // john connects
