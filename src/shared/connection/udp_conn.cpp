@@ -1,7 +1,7 @@
 #include "udp_conn.hpp"
 #include "doctest.h"
 #include <netdb.h>
-#include <string.h>
+#include <cstring>
 #include <sys/socket.h>
 #include <unistd.h>
 #include <iostream>
@@ -21,23 +21,21 @@ UDPConn::UDPConn(int t_port, IOStrategy *t_io)
  UDPConn::UDPConn(IOStrategy *t_io)
     : Connection(0, SOCK_DGRAM), m_io(t_io) {} 
 
-bool UDPConn::bind_socket(const std::string &t_address) {
+auto UDPConn::bind_socket(const std::string &t_address) -> bool {
 
-  bool valid = setup(t_address);
-
-    if(!is_valid(valid, "Could not setup UDP connection.")){
-     return valid;
-   }
+  if(!setup(t_address)){
+    return is_valid(-1, "Could not setup UDP connection.");
+  }
 
   auto address = get_address();
 
-  valid = bind(get_socket(), reinterpret_cast<struct sockaddr *>(&address),
+  int result = bind(get_socket(), reinterpret_cast<struct sockaddr *>(&address),
                  sizeof(address));
 
-  return is_valid(valid, "Could not bind socket in UDP connection.");
+  return is_valid(result, "Could not bind socket in UDP connection.");
 }
 
-bool UDPConn::receive(Request &t_req) {
+auto UDPConn::receive(Request &t_req) -> bool {
   t_req.m_socket = get_socket();
 
   if (t_req.m_valid) {
@@ -47,7 +45,7 @@ bool UDPConn::receive(Request &t_req) {
   return t_req.m_valid;
 }
 
-bool UDPConn::respond(Request &t_req) {
+auto UDPConn::respond(Request &t_req) -> bool {
   t_req.m_socket = get_socket();
 
   if (t_req.m_valid) {

@@ -10,11 +10,11 @@ class UDPConn : public Connection {
 
   public:
   UDPConn(int t_port, IOStrategy* t_io);
-  UDPConn(IOStrategy* t_io);
-  bool bind_socket(const std::string &t_address);
+  explicit UDPConn(IOStrategy* t_io);
+  auto bind_socket(const std::string &t_address) -> bool;
 
-  bool receive(Request &t_req);
-  bool respond(Request &t_req);
+  auto receive(Request &t_req) -> bool;
+  auto respond(Request &t_req) -> bool;
 
   private:
   std::string m_peer_address;
