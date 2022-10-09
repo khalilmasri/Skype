@@ -7,7 +7,7 @@
 class Connection {
 
   public:
-  enum ValidationLog { Info, Error, Debug, Critical };
+  enum ValidationLog { Info, Error, Debug, Trace, Critical };
 
   Connection() : m_port(-1), m_protocol(-1){};
   explicit Connection(int t_port, int t_protocol = SOCK_STREAM) // defaults TCP

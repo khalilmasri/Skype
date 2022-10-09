@@ -5,6 +5,11 @@
 #include <unordered_map>
 #include <vector>
 #include <tuple>
+#include <condition_variable>
+#include <mutex>
+#include <thread>
+#include <functional>
+
 
 struct AwaitingUser {
 
@@ -46,17 +51,34 @@ struct AwaitingUser {
 class AwaitingUsers {
   public: 
 
+     AwaitingUsers();
+     ~AwaitingUsers();
+
     auto insert(AwaitingUser &&t_awaiting_user) noexcept -> bool; 
     auto get(int t_awaiting_user_id) -> AwaitingUser &; 
     auto destroy(int t_awaiting_user_id) noexcept -> bool;
     auto exists(int t_awaiting_user_id) const noexcept -> bool;
-    // if user is not pinged after a period of time it will be automatically removed.
-    void ping (int t_awaiting_user_id) const noexcept;
+
+    void ping(int t_awaiting_user_id) noexcept;
 
   private:
+  enum TimeoutStatus     {Created, Pinged, Detached };
   using AwaitingUsersMap = std::unordered_map<int, AwaitingUser>;
+  using UserId           = int;
+  using Timeout          = std::tuple<UserId, TimeoutStatus>;
 
   AwaitingUsersMap m_awaiting_users;
+  std::vector<Timeout> m_timeouts;
+
+  std::mutex m_mutex;
+  std::thread m_timeout_worker;
+  bool        m_exit = false;
+  inline static const int m_TIMEOUT_WORKER_FREQUENCY = 2;
+
+  void update_timeout_status(int t_awaiting_user, TimeoutStatus t_new_status);
+
+  /* thread worker will run indefinetely */
+  void timeout_loop();
 };
 
 #endif

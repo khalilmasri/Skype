@@ -3,10 +3,10 @@
 
 //#include "job.hpp"
 
-#include <condition_variable>
 #include <memory>
 #include <queue>
 
+#include <condition_variable>
 #include <mutex>
 #include <thread>
 template <typename T> class ThreadSafeQueue {
@@ -39,7 +39,6 @@ public:
 private:
   std::mutex m_mutex;
   std::queue<std::shared_ptr<T>> m_queue;
-  std::condition_variable m_datacond;
 };
 
 #endif // JOB_QUEUE_H

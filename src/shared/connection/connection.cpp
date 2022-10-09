@@ -43,6 +43,10 @@ bool Connection::is_valid(int t_result, const char *t_msg,
     LOG_CRIT(t_msg);
   }
 
+  else if (t_result < 0 && t_log == Trace) {
+    LOG_TRACE(t_msg);
+  }
+
   return t_result >= 0;
 }
 

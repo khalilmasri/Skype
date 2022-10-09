@@ -1,6 +1,7 @@
 #include "user_awaiting.hpp"
 #include "logger.hpp"
 #include "string_utils.hpp"
+#include <chrono>
 
 /* Constants */
 const std::string AwaitingUser::m_WEB = "WEB";
@@ -83,9 +84,22 @@ auto AwaitingUser::has_same_address() const -> bool {
 
 /** AwaitingUsers **/
 
+AwaitingUsers::AwaitingUsers() {
+
+  // spawn a thread that checks call requests go adrift/detached.
+  auto worker = [this]() { timeout_loop(); };
+  m_timeout_worker = std::thread(worker);
+  m_timeout_worker.detach();
+}
+
+AwaitingUsers::~AwaitingUsers() { m_exit = true; }
+
+/* */
+
 auto AwaitingUsers::insert(AwaitingUser &&t_awaiting_user) noexcept -> bool {
   // returns a pair with iterator and bool if insert was successful.
-  auto result = m_awaiting_users.insert({t_awaiting_user.id(), t_awaiting_user});
+  auto result =
+      m_awaiting_users.insert({t_awaiting_user.id(), t_awaiting_user});
 
   if (!result.second) {
     LOG_ERR("Did not insert user id '%d' to AwaitingUsers because it already "
@@ -93,6 +107,10 @@ auto AwaitingUsers::insert(AwaitingUser &&t_awaiting_user) noexcept -> bool {
             t_awaiting_user.id());
   }
 
+  // add to timeouts
+  if (result.second) {
+    m_timeouts.emplace_back(t_awaiting_user.id(), Created);
+  }
 
   return result.second;
 }
@@ -102,9 +120,13 @@ auto AwaitingUsers::get(int t_awaiting_user_id) -> AwaitingUser & {
   return m_awaiting_users.at(t_awaiting_user_id);
 }
 
+/* */
+
 auto AwaitingUsers::destroy(int t_awaiting_user_id) noexcept -> bool {
 
   // check if exists before destroying
+
+  std::lock_guard<std::mutex> lock(m_mutex);
   if (m_awaiting_users.find(t_awaiting_user_id) == m_awaiting_users.end()) {
     LOG_ERR("Could not delete AwaitingUser id '%d' because it does not exist.",
             t_awaiting_user_id);
@@ -118,4 +140,54 @@ auto AwaitingUsers::destroy(int t_awaiting_user_id) noexcept -> bool {
 
 auto AwaitingUsers::exists(int t_awaiting_user_id) const noexcept -> bool {
   return m_awaiting_users.find(t_awaiting_user_id) != m_awaiting_users.end();
+}
+
+/* */
+
+void AwaitingUsers::ping(int t_awaiting_user_id) noexcept {
+  update_timeout_status(t_awaiting_user_id, Pinged);
+}
+
+/* Private */
+
+void AwaitingUsers::update_timeout_status(int t_awaiting_user, TimeoutStatus t_new_status) {
+
+  for (auto &[user_id, timeout_status] : m_timeouts) {
+
+    if (user_id == t_awaiting_user) {
+
+      std::lock_guard<std::mutex> lock(m_mutex);
+      timeout_status = t_new_status;
+    }
+  }
+}
+
+/* */
+
+void AwaitingUsers::timeout_loop() {
+
+  // this worker will run until parent class is destroyed.
+  while (!m_exit) {
+
+    if (!m_timeouts.empty()) {
+      int index = 0;
+      for (auto &[user_id, timeout_status] : m_timeouts) {
+
+        if (timeout_status == Detached) {
+          LOG_INFO("Timeout worker destroyed awaiting user %d because it because detached.", user_id);
+          destroy(user_id);
+          m_timeouts.erase(m_timeouts.begin() + index);
+
+        } else {
+          std::string status = timeout_status == Pinged ? "Pinged" : "Created";
+          LOG_INFO("Timeout worker set awaiting user id %d from % to Detached.", status.c_str(), user_id);
+          update_timeout_status(user_id, Detached);
+
+        }
+      }
+    }
+
+    std::this_thread::sleep_for(
+        std::chrono::seconds(m_TIMEOUT_WORKER_FREQUENCY));
+  };
 }
