@@ -4,12 +4,12 @@
 
 class UDPTextIO: public IOStrategy {
   public:
-  bool         receive(Request &t_req) const override;
-  bool         respond(Request &t_req) const override;
+  auto receive(Request &t_req) const -> bool override;
+  auto respond(Request &t_req) const -> bool override;
 
   private:
 
-  ~UDPTextIO(){};
+  ~UDPTextIO() override = default;
   inline static const int m_BUFFER_SIZE = 512;
 };
 
