@@ -3,24 +3,28 @@
 
 #include <string>
 #include <unordered_map>
+#include <vector>
+#include <tuple>
 
 struct AwaitingUser {
 
-  AwaitingUser(int t_id, int t_peer_id, const std::string &t_address);
-  AwaitingUser(int t_id, int t_peer_id, const std::string &t_address, const std::string &t_local_address);
+  struct Ids { int user_id; int peer_id; };
+
+  AwaitingUser(Ids ids, std::string t_address);
+  AwaitingUser(Ids ids, std::string t_address, std::string t_local_address);
 
     /* Getters */
-    int         id() const;
-    int         peer_id() const;
-    std::string address() const;
-    std::string peer_address() const;
+    [[nodiscard]] auto id() const -> int;
+    [[nodiscard]] auto peer_id() const -> int;
+    [[nodiscard]] auto address() const -> std::string;
+    [[nodiscard]] auto peer_address() const -> std::string;
 
     /* Setters */
-    void        set_peer_local_address(const std::string &t_peer_local_address);
-    void        set_peer_address(const std::string &t_peer_address);
+    void               set_peer_local_address(const std::string &t_peer_local_address);
+    void               set_peer_address(const std::string &t_peer_address);
 
     /* return m_LOCAL or m_WEB */
-    std::string address_type();
+    auto               address_type() -> std::string;
 
     private:
     int         m_id;
@@ -32,7 +36,7 @@ struct AwaitingUser {
     std::string m_peer_address;
     std::string m_peer_local_address;
 
-    bool has_same_address() const;
+    [[nodiscard]] auto has_same_address() const -> bool;
 
     /* constants */
     static const std::string m_WEB;
@@ -42,15 +46,19 @@ struct AwaitingUser {
 class AwaitingUsers {
   public: 
 
-    bool         insert(AwaitingUser &&t_awaiting_user) noexcept; 
-    AwaitingUser &get(int t_awaiting_user_id); 
-    bool         destroy(int t_awaiting_user_id) noexcept;
-    bool         exists(int t_awaiting_user_id) const noexcept;
+    auto insert(AwaitingUser &&t_awaiting_user) noexcept -> bool; 
+    auto get(int t_awaiting_user_id) -> AwaitingUser &; 
+    auto destroy(int t_awaiting_user_id) noexcept -> bool;
+    auto exists(int t_awaiting_user_id) const noexcept -> bool;
+    // if user is not pinged after a period of time it will be automatically removed.
+    void ping (int t_awaiting_user_id) const noexcept;
 
   private:
-  typedef std::unordered_map<int, AwaitingUser> AwaitingUsersMap;
+  using AwaitingUsersMap = std::unordered_map<int, AwaitingUser>;
+  using CountDownVec = std::vector<std::pair<int, int>>;
 
   AwaitingUsersMap m_awaiting_users;
+  CountDownVec m_countdown;
 };
 
 #endif

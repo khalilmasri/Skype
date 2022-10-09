@@ -22,17 +22,16 @@ struct CallControllers {
    * call_awaits does not modify AwaitingUsers
    * */
 
-  static bool call_awaits (int t_user_id);
+  static auto call_awaits (int t_user_id) -> bool;
 
   private:
-  typedef std::tuple<bool, int, std::string> Valid;
+  using Valid = std::tuple<bool, int, std::string>;
 
   static Postgres m_pg;
   static AwaitingUsers m_awaiting_users;
 
-  static Valid validate_user_and_argument(std::string &t_arg, Request &t_req, User &t_user);
-
-  static bool validate_local_address(std::string &t_local_address, Request &t_req);
+  static auto validate_user_and_argument(std::string &t_arg, Request &t_req, User &t_user) -> Valid;
+  static auto validate_local_address(std::string &t_local_address, Request &t_req) -> bool;
 };
 
 

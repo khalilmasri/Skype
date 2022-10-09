@@ -3,19 +3,20 @@
 #include "string_utils.hpp"
 
 /* Constants */
- const std::string AwaitingUser::m_WEB = "WEB";
- const std::string AwaitingUser::m_LOCAL = "LOCAL";
+const std::string AwaitingUser::m_WEB = "WEB";
+const std::string AwaitingUser::m_LOCAL = "LOCAL";
 
 /* Constructors AwaitingUser */
-AwaitingUser::AwaitingUser(int t_id, int t_peer_id,
-                           const std::string &t_address)
-    : m_id(t_id), m_peer_id(t_peer_id), m_address(t_address) {}
+AwaitingUser::AwaitingUser(Ids t_ids, std::string t_address)
+    : m_id(t_ids.user_id), m_peer_id(t_ids.peer_id),
+      m_address(std::move(t_address)) {}
 
-AwaitingUser::AwaitingUser(int t_id, int t_peer_id,
-                           const std::string &t_address,
-                           const std::string &t_local_address)
-    : m_id(t_id), m_peer_id(t_peer_id), m_address(t_address),
-      m_local_address(t_local_address) {
+AwaitingUser::AwaitingUser(Ids t_ids, std::string t_address,
+                           std::string t_local_address)
+
+    : m_id(t_ids.user_id), m_peer_id(t_ids.user_id),
+      m_address(std::move(t_address)),
+      m_local_address(std::move(t_local_address)) {
 
   /* Appends port from public to the local address */
   auto [_, port] = StringUtils::split_first(m_address, ":");
@@ -24,12 +25,12 @@ AwaitingUser::AwaitingUser(int t_id, int t_peer_id,
 
 /* Getters */
 
-int AwaitingUser::id() const { return m_id; }
-int AwaitingUser::peer_id() const { return m_peer_id; }
+auto AwaitingUser::id() const -> int { return m_id; }
+auto AwaitingUser::peer_id() const -> int { return m_peer_id; }
 
-std::string AwaitingUser::address() const {
+auto AwaitingUser::address() const -> std::string {
 
-/* returns local address when in the same network */
+  /* returns local address when in the same network */
   if (has_same_address()) {
     return m_local_address;
   }
@@ -39,7 +40,7 @@ std::string AwaitingUser::address() const {
 
 /* */
 
-std::string AwaitingUser::peer_address() const {
+auto AwaitingUser::peer_address() const -> std::string {
 
   if (has_same_address()) {
     return m_peer_local_address;
@@ -50,7 +51,7 @@ std::string AwaitingUser::peer_address() const {
 
 /* */
 
-std::string AwaitingUser::address_type(){
+auto AwaitingUser::address_type() -> std::string {
   if (has_same_address()) {
     return m_LOCAL;
   }
@@ -73,16 +74,16 @@ void AwaitingUser::set_peer_local_address(
 
 /* Private */
 
-bool AwaitingUser::has_same_address() const {
-  auto[user_address, _uport] = StringUtils::split_first(m_address, ":");
-  auto[peer_address, _pport] = StringUtils::split_first(m_peer_address, ":");
+auto AwaitingUser::has_same_address() const -> bool {
+  auto [user_address, _uport] = StringUtils::split_first(m_address, ":");
+  auto [peer_address, _pport] = StringUtils::split_first(m_peer_address, ":");
 
   return user_address == peer_address;
 }
 
 /** AwaitingUsers **/
 
-bool AwaitingUsers::insert(AwaitingUser &&t_awaiting_user) noexcept {
+auto AwaitingUsers::insert(AwaitingUser &&t_awaiting_user) noexcept -> bool {
   // returns a pair with iterator and bool if insert was successful.
   auto result =
       m_awaiting_users.insert({t_awaiting_user.id(), t_awaiting_user});
@@ -97,11 +98,11 @@ bool AwaitingUsers::insert(AwaitingUser &&t_awaiting_user) noexcept {
 }
 
 // IMPORTANT: This method throws and must be wrapped in a try catch.
-AwaitingUser &AwaitingUsers::get(int t_awaiting_user_id) {
+auto AwaitingUsers::get(int t_awaiting_user_id) -> AwaitingUser & {
   return m_awaiting_users.at(t_awaiting_user_id);
 }
 
-bool AwaitingUsers::destroy(int t_awaiting_user_id) noexcept {
+auto AwaitingUsers::destroy(int t_awaiting_user_id) noexcept -> bool {
 
   // check if exists before destroying
   if (m_awaiting_users.find(t_awaiting_user_id) == m_awaiting_users.end()) {
@@ -115,6 +116,6 @@ bool AwaitingUsers::destroy(int t_awaiting_user_id) noexcept {
   return true;
 }
 
-bool AwaitingUsers::exists(int t_awaiting_user_id) const noexcept {
+auto AwaitingUsers::exists(int t_awaiting_user_id) const noexcept -> bool {
   return m_awaiting_users.find(t_awaiting_user_id) != m_awaiting_users.end();
 }
