@@ -13,11 +13,8 @@ Request::Request(const std::string &t_address, bool t_valid, bool t_exit)
 Request::~Request() { delete m_data; }
 
 void Request::set_data(Data *t_data) {
-  if (m_data) {
     delete m_data;
-  }
-
-  m_data = t_data;
+   m_data = t_data;
 };
 
 void Request::set_token(std::string &token) { m_token = token;}
