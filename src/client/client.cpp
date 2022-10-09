@@ -1,5 +1,4 @@
 #include "accounts.hpp"
-#include "accounts.hpp"
 #include "client.hpp"
 #include "user.hpp"
 #include "contacts.hpp"
@@ -32,7 +31,7 @@ ActiveConn Client::m_server_conn = ActiveConn(config->get<int>("TCP_PORT"), new 
 
 Client::Client(){  
 
-   std::string response = "";
+   std::string response;
    LOG_INFO("Connecting to server...");
    
    auto ip = config->get<const std::string>("SERVER_ADDRESS");
@@ -66,7 +65,7 @@ Client::~Client(){
    std::string response = TextData::to_string(m_server_req.data());
    LOG_INFO("Server reply => %s", response.c_str());
 
-   config->free_instance();
+   Config::free_instance();
 
    close(m_server_conn.get_socket());
    
@@ -140,7 +139,7 @@ void Client::user_get_username(Job &t_job){
    LOG_DEBUG("Getting username!");
    t_job.m_string = m_user.get_username();
 
-   if ("" != t_job.m_string){
+   if (!t_job.m_string.empty()){
       t_job.m_valid = true;
    }
 }
@@ -166,7 +165,7 @@ void Client::user_get_token(Job &t_job)
    LOG_DEBUG("Getting user token!");
    t_job.m_string = m_user.get_token();
 
-   if (t_job.m_string == "")
+   if (t_job.m_string.empty())
    {
       t_job.m_valid = false;
       return;
@@ -276,9 +275,5 @@ bool Client::valid_response(Reply::Code t_code, std::string& t_res) {
    std::string code = Reply::get_message(t_code);
     auto found = t_res.find(code);
 
-    if ( found != std::string::npos){
-        return true;
-    }
-
-    return false;
+    return found != std::string::npos;
 }
