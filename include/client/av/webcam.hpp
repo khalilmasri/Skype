@@ -13,11 +13,10 @@ public:
   ~Webcam();
   [[nodiscard]] auto capture() -> WebcamFrames;
   [[nodiscard]] auto valid() const -> bool;
-  static void        wait();
 
 private:
   int                m_camera;
-  cv::Mat            m_frames;
+  cv::Mat            m_frame;
   cv::VideoCapture   m_capture;
   bool               m_valid = true;
 

@@ -11,8 +11,6 @@ VideoSettings *Webcam::m_VIDEO_SETTINGS = VideoSettings::get_instance();
 
 Webcam::Webcam() : m_camera(0) {
 
-//  std::string gs_pipeline = "v4l2src device=/dev/video0 ! videoconvert! videoscale ! video/x-raw, width=2592, height=600 ! appsink";
-
   m_capture.open(m_camera);
 
   if (!m_capture.isOpened()) {
@@ -20,17 +18,17 @@ Webcam::Webcam() : m_camera(0) {
     m_valid = false;
   }
 
-  if (m_capture.isOpened()) {
-    std::cout << "it is opened!" << std::endl;
-  }
-
+    LOG_INFO("Webcam has opened.")
+ 
  m_capture.set(cv::CAP_PROP_FRAME_WIDTH, m_VIDEO_SETTINGS->width());
  m_capture.set(cv::CAP_PROP_FRAME_HEIGHT, m_VIDEO_SETTINGS->height());
- m_frames = cv::Mat::zeros(m_VIDEO_SETTINGS->height(), m_VIDEO_SETTINGS->width(), CV_8UC3);
+ m_frame = cv::Mat::zeros(m_VIDEO_SETTINGS->height(), m_VIDEO_SETTINGS->width(), CV_8UC3);
 
 }
 
 Webcam::~Webcam() {
+
+  LOG_INFO("Releasing webcam resources.")
   m_capture.release();
  cv::destroyAllWindows();
 }
@@ -47,18 +45,17 @@ auto Webcam::capture() -> Webcam::WebcamFrames {
   frames_captured.reserve(nb_frames);
 
   while (m_valid && (nb_frames > index)) {
-    m_capture.read(m_frames);
+    m_capture.read(m_frame);
 
-    if (m_frames.empty()) {
+    if (m_frame.empty()) {
       LOG_ERR("Could not capture frame.");
       break;
     }
-
-    cv::imshow("Camera", m_frames);
+    cv::imshow("Camera", m_frame);
     std::vector<uchar> buffer;
 
     try {
-          bool result = cv::imencode(".jpeg", m_frames, buffer);
+          bool result = cv::imencode(".jpeg", m_frame, buffer);
       if (result) {
         frames_captured.push_back(std::move(buffer));
       } else {
@@ -71,10 +68,12 @@ auto Webcam::capture() -> Webcam::WebcamFrames {
     }
 
     index++;
+
+    /* 1000ms / 25f = 40ms */
+    cv::waitKey(1000 / m_VIDEO_SETTINGS->framerate()); 
   }
 
   return frames_captured;
 }
 
-void Webcam::wait() { cv::waitKey(25); }
 auto Webcam::valid() const -> bool { return m_valid; }

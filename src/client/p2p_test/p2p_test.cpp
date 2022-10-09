@@ -64,8 +64,7 @@ void test_audio() {
     converter.decode(output_queue, encoded_audio);
   }
 
-  std::cout
-      << "done with input! Now playing the ouput of the recorded audio.\n";
+  std::cout << "done with input! Now playing the ouput of the recorded audio.\n";
 
   output_device.open();
   AudioDevice::wait(200);
@@ -75,10 +74,9 @@ void test_audio() {
   free_configs();
 }
 
-/* Tests video
- *  ./build/bin/p2p_test video -
+/* Tests camera
+ *  ./build/bin/p2p_test camera -
  * */
-
 
 void test_video() {
   auto webcam = Webcam();
@@ -97,7 +95,7 @@ void test_video() {
   free_configs();
 }
 
-/* Tests video
+/* Tests UDP connection
  *   for accepting client
  *      ./build/bin/p2p_test shakira 1234 
  *   for connecting client
@@ -118,7 +116,7 @@ void test_conn(char *t_user, char *t_pw) {
   } else if (user == "shakira") { // shakira accepts
     accept_from(p2p);
   } else {
-    std::cout << "Please pass in 'john' or 'shakping_peerira' as users.\n";
+    std::cout << "Please pass in 'john' or 'shakira' as users.\n";
   }
 
   p2p.handshake_peer();
