@@ -13,10 +13,10 @@ class P2P {
 
   public:
   enum Status {Idle, Awaiting, Accepted, Connected, Error};
-  enum Type   { Initiator, Acceptor, None};
+  enum Type   { Initiator, Acceptor, None };
 
-  explicit P2P(std::string &t_token) noexcept;
-  explicit P2P(std::string &&t_token) noexcept;
+  explicit P2P(std::string &t_token) ;
+  explicit P2P(std::string &&t_token) ;
 
   /* getters */
   [[nodiscard]] auto status() const -> Status;
@@ -52,8 +52,7 @@ class P2P {
 
   std::string   m_peer_address;
   std::string   m_token;
-  UDPConn       m_inbounds;
-  UDPConn       m_outbounds; // NOTE: Not yet implemented. Still looking to see if will be needed.
+  UDPConn       m_conn;
   Status        m_status;
   Type          m_type;
   Reply::Code   m_last_reply;
