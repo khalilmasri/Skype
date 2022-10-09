@@ -8,12 +8,7 @@
 
 static Config *config = Config::get_instance();
 const std::string P2P::m_DELIM = " ";
-//    Next up: Work on streaming!
 const std::string P2P::m_LOCAL = "LOCAL";
-
-// TODO: Local network is working.
-//
-//
 
 /* Constructors */
 
@@ -36,45 +31,45 @@ P2P::P2P(std::string &&t_token) noexcept
 
 /* Public */
 
-P2P::Status P2P::status() const { return m_status; }
-P2P::Type P2P::type() const { return m_type; }
-Reply::Code P2P::last_reply() const { return m_last_reply; }
+auto P2P::status() const -> P2P::Status { return m_status; }
+auto P2P::type() const -> P2P::Type { return m_type; }
+auto P2P::last_reply() const -> Reply::Code { return m_last_reply; }
 
 /* */
 
-std::string P2P::status_to_string() const {
+auto P2P::status_to_string() const -> std::string {
 
   switch (m_status) {
   case Idle:
-    return std::string("Idle");
+    return "Idle";
 
   case Awaiting:
-    return std::string("Awaiting");
+    return "Awaiting";
 
   case Accepted:
-    return std::string("Accepted");
+    return "Accepted";
 
   case Connected:
-    return std::string("Connected");
+    return "Connected";
 
   case Error:
-    return std::string("Error");
+    return "Error";
   }
 }
 
 /* */
 
-std::string P2P::type_to_string() const {
+auto P2P::type_to_string() const -> std::string {
 
   switch (m_type) {
   case Initiator:
-    return std::string("Initiator");
+    return "Initiator";
 
   case Acceptor:
-    return std::string("Acceptor");
+    return "Acceptor";
 
   case None:
-    return std::string("None");
+    return "None";
   }
 }
 
@@ -91,9 +86,7 @@ void P2P::reset() {
 
 void P2P::handshake_peer() {
 
-  return;
-  if (invalid_to_handshake()) {
-  }
+  if (invalid_to_handshake()) { return; }
 
   Request req(m_peer_address, true);
 
@@ -105,6 +98,11 @@ void P2P::handshake_peer() {
   if (m_type == Initiator) {
     handshake_initiator(req, m_network_type);
   }
+
+
+  if(m_status == Connected){ // when connected swap the IO type to data stream
+    // TODO: PEDRO
+  };
 };
 
 
@@ -224,17 +222,16 @@ void P2P::hangup_peer() {
 
 /* Private */
 
-std::string P2P::send_server(ServerCommand::name t_cmd, std::string &t_arg) {
+auto P2P::send_server(ServerCommand::name t_cmd, std::string &t_arg) -> std::string {
 
-  std::string text_data =
-      ServerCommand::to_string(t_cmd) + m_DELIM + m_token + m_DELIM + t_arg;
+  std::string text_data = ServerCommand::to_string(t_cmd) + m_DELIM + m_token + m_DELIM + t_arg;
 
   return send_server(std::move(text_data));
 }
 
 /* */
 
-std::string P2P::send_server(ServerCommand::name t_cmd) {
+auto P2P::send_server(ServerCommand::name t_cmd) -> std::string {
 
   std::string text_data = ServerCommand::to_string(t_cmd) + m_DELIM + m_token;
 
@@ -243,7 +240,7 @@ std::string P2P::send_server(ServerCommand::name t_cmd) {
 
 /* */
 
-std::string P2P::send_server(std::string &&t_text_data) {
+auto P2P::send_server(std::string &&t_text_data) -> std::string {
 
   Request req = make_server_request(std::move(t_text_data));
   m_inbounds.respond(req);
@@ -323,7 +320,7 @@ void P2P::handshake_initiator(Request &t_req, PeerNetwork t_peer_network) {
 
 /* */
 
-bool P2P::invalid_to_handshake() {
+auto P2P::invalid_to_handshake() -> bool {
 
   if (m_status != Accepted) {
     LOG_ERR("P2P::Status must be 'Accepted' to handshake. Was '%s'",
@@ -347,7 +344,14 @@ bool P2P::invalid_to_handshake() {
 
 /* */
 
-Request P2P::make_server_request(std::string &&t_text_data) {
+void P2P::bind_sockets() {
+  m_inbounds.bind_socket(config->get<const std::string>("SERVER_ADDRESS"));
+  m_outbounds.bind_socket(config->get<const std::string>("SERVER_ADDRESS"));
+}
+
+/* */
+
+auto P2P::make_server_request(std::string &&t_text_data) -> Request {
 
   std::string address = config->get<const std::string>("SERVER_ADDRESS") + ":" +
                         config->get<const std::string>("UDP_PORT");
@@ -356,13 +360,6 @@ Request P2P::make_server_request(std::string &&t_text_data) {
   req.set_data(new TextData(t_text_data));
 
   return req;
-}
-
-/* */
-
-void P2P::bind_sockets() {
-  m_inbounds.bind_socket(config->get<const std::string>("SERVER_ADDRESS"));
-  m_outbounds.bind_socket(config->get<const std::string>("SERVER_ADDRESS"));
 }
 
 /* */
