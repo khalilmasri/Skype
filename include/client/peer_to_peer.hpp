@@ -25,6 +25,13 @@ class P2P {
   [[nodiscard]] auto type_to_string() const -> std::string;
   [[nodiscard]] auto last_reply() const -> Reply::Code;
 
+/* this method will return an read to go Request with the peers address for connection */
+  [[nodiscard]] auto make_request() const -> Request;
+
+  /* UDP connection to exchange data */
+  auto          send_package(Request &t_req) -> Request;
+  auto          receive_package(Request &t_req) -> Request;
+
   /* Reset the P2P connection */
   void          reset();
 
@@ -37,9 +44,6 @@ class P2P {
   void          reject_peer(std::string &t_peer_id);
   void          ping_peer();
   void          hangup_peer();
-
-  void          send_package();
-  void          receive_package();
 
   /**** PRIVATE IMPLEMENTATION ***/
 

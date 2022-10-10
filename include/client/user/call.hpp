@@ -29,6 +29,8 @@ private:
   bool m_webcam = false;
   bool m_mute = false;
   P2PPtr m_call = nullptr;
+  Request m_outbound_req;
+  Request m_inbounds_req;
 
   inline static const int m_TIMEOUT = 10;
 };

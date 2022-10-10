@@ -54,6 +54,11 @@ void Call::connect(Job &t_job) {
 
   LOG_INFO("Call accepted");
   m_call->handshake_peer();
+
+  // the call will make a ready to go request with peer address.
+  m_inbounds_req = m_call->make_request();
+  m_outbound_req = m_call->make_request();
+
 }
 
 void Call::accept(Job &t_job) {

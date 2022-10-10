@@ -35,6 +35,11 @@ auto UDPConn::bind_socket(const std::string &t_address) -> bool {
   return is_valid(result, "Could not bind socket in UDP connection.");
 }
 
+void UDPConn::set_strategy(IOStrategy *t_io){
+  delete m_io;
+  m_io = t_io;
+};
+
 auto UDPConn::receive(Request &t_req) -> bool {
   t_req.m_socket = get_socket();
 

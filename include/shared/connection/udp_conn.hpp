@@ -13,6 +13,8 @@ class UDPConn : public Connection {
   explicit UDPConn(IOStrategy* t_io);
   auto bind_socket(const std::string &t_address) -> bool;
 
+  void set_strategy(IOStrategy *t_io);
+
   auto receive(Request &t_req) -> bool;
   auto respond(Request &t_req) -> bool;
 

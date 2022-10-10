@@ -1,6 +1,7 @@
 #include "peer_to_peer.hpp"
 #include "config.hpp"
 #include "doctest.h"
+#include "stream_io.hpp"
 #include "string_utils.hpp"
 #include "text_data.hpp"
 #include "udp_text_io.hpp"
@@ -12,15 +13,15 @@ const std::string P2P::m_LOCAL = "LOCAL";
 
 /* Constructors */
 
-P2P::P2P(std::string &t_token) 
-    : m_token(t_token), m_conn(new UDPTextIO()), m_status(Idle),
-      m_type(None), m_last_reply(Reply::None), m_network_type(Unselected) {
+P2P::P2P(std::string &t_token)
+    : m_token(t_token), m_conn(new UDPTextIO()), m_status(Idle), m_type(None),
+      m_last_reply(Reply::None), m_network_type(Unselected) {
 
   bind_sockets();
 }
 
 /* Same constructor but moves the token string */
-P2P::P2P(std::string &&t_token) 
+P2P::P2P(std::string &&t_token)
     : m_token(std::move(t_token)), m_conn(new UDPTextIO()), m_status(Idle),
       m_type(None), m_last_reply(Reply::None), m_network_type(Unselected) {
 
@@ -32,6 +33,9 @@ P2P::P2P(std::string &&t_token)
 auto P2P::status() const -> P2P::Status { return m_status; }
 auto P2P::type() const -> P2P::Type { return m_type; }
 auto P2P::last_reply() const -> Reply::Code { return m_last_reply; }
+auto P2P::make_request() const -> Request {
+  return Request(m_peer_address, true);
+}
 
 /* */
 
@@ -71,6 +75,38 @@ auto P2P::type_to_string() const -> std::string {
   }
 }
 
+/* Sending Data to peer */
+
+auto P2P::send_package(Request &t_req) -> Request {
+
+  if (m_status == Connected) {
+    m_conn.respond(t_req);
+
+  } else {
+    t_req.m_valid = false;
+    LOG_DEBUG("Cannot send package. P2P Not connected.");
+
+  }
+
+  return t_req;
+}
+
+/* Receiving data from peer */
+
+auto P2P::receive_package(Request &t_req) -> Request {
+
+  if (m_status == Connected) {
+    m_conn.receive(t_req);
+
+  } else {
+    t_req.m_valid = false;
+    LOG_DEBUG("Cannot receive package. P2P Not connected.");
+
+  }
+
+  return t_req;
+}
+
 /* */
 
 void P2P::reset() {
@@ -88,7 +124,7 @@ void P2P::handshake_peer() {
     return;
   }
 
-  Request req(m_peer_address, true);
+  Request req(m_peer_address, true); // m_valid = true
 
   /* if m_network_type = WEB handshake will hole punch */
   if (m_type == Acceptor) {
@@ -98,9 +134,10 @@ void P2P::handshake_peer() {
   if (m_type == Initiator) {
     handshake_initiator(req, m_network_type);
   }
-
-  if (m_status == Connected) { // when connected swap the IO type to data stream
-    // TODO: PEDRO
+  // when connected swap the IO type to data stream
+  if (m_status == Connected) {
+    LOG_INFO("Setting UDP connection strategy to StreamIO");
+    m_conn.set_strategy(new StreamIO());
   };
 };
 
@@ -346,7 +383,6 @@ auto P2P::invalid_to_handshake() -> bool {
 
 void P2P::bind_sockets() {
   m_conn.bind_socket(config->get<const std::string>("SERVER_ADDRESS"));
-  m_outbounds.bind_socket(config->get<const std::string>("SERVER_ADDRESS"));
 }
 
 /* */
@@ -366,10 +402,10 @@ auto P2P::make_server_request(std::string &&t_text_data) -> Request {
 
 void P2P::hole_punch(Request &t_req) {
 
-  std::string ok = Reply::get_message(Reply::r_200);
+  std::string ok_msg = Reply::get_message(Reply::r_200);
 
   LOG_DEBUG("Hole punch: Sending 200 OK to '%s'...", t_req.m_address.c_str());
 
-  t_req.set_data(new TextData(ok));
+  t_req.set_data(new TextData(ok_msg));
   m_conn.respond(t_req);
 }
