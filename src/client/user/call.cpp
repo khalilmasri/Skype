@@ -125,6 +125,7 @@ auto Call::data_callback() -> AVStream::DataCallback {
   Request audio_req = m_call->make_request();
   Request video_req = m_call->make_request();
 
+
   return [this, &audio_req, &video_req](Webcam::WebcamFrames &&t_video,
                                         Data::DataVector &&t_audio) {
     // send video first
