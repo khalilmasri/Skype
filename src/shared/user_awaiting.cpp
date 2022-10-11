@@ -180,7 +180,7 @@ void AwaitingUsers::timeout_loop() {
 
         } else {
           std::string status = timeout_status == Pinged ? "Pinged" : "Created";
-          LOG_INFO("Timeout worker set awaiting user id %d from % to Detached.", status.c_str(), user_id);
+          LOG_INFO("Timeout worker set awaiting user id %s from %d to Detached.", status.c_str(), user_id);
           update_timeout_status(user_id, Detached);
 
         }
