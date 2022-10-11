@@ -9,9 +9,11 @@
 #include <unistd.h>
 
 void Call::connect(Job &t_job) {
+
   m_call = std::make_unique<P2P>(t_job.m_argument);
 
   std::string peer_id = std::to_string(t_job.m_intValue);
+
   m_call->connect_peer(peer_id);
 
   LOG_ERR("did not call connect correctly. Exiting...");
