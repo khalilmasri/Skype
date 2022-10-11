@@ -26,7 +26,7 @@
 
 static Config *config = Config::get_instance();
 
-Request Client::m_server_req = {};
+Request Client::m_server_req = Request(true);
 ActiveConn Client::m_server_conn = ActiveConn(config->get<int>("TCP_PORT"), new TextIO());
 
 Client::Client(){  
