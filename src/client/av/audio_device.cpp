@@ -4,23 +4,22 @@
 
 #include <iostream>
 
-AudioSettings *AudioDevice::m_AUDIO_SETTINGS = AudioSettings::get_instance();
-VideoSettings *AudioDevice::m_VIDEO_SETTINGS = VideoSettings::get_instance();
-
 AudioDevice::AudioDevice(std::unique_ptr<LockFreeAudioQueue> &t_queue, Type t_type) {
 
   SDL_AudioSpec want;
   SDL_AudioSpec have;
 
+  auto *config_audio = AudioSettings::get_instance();
+
   AudioDevConfig *config = AudioDevConfig::get_instance();
 
   SDL_zero(want);
 
-  want.freq = m_AUDIO_SETTINGS->samplerate();
-  want.format = m_AUDIO_SETTINGS->device_format();
-  want.channels = m_AUDIO_SETTINGS->channels();
+  want.freq = config_audio->samplerate();
+  want.format = config_audio->device_format();
+  want.channels = config_audio->channels();
   want.callback = t_type == Input ? audio_input_callback : audio_output_callback;
-  want.samples = m_AUDIO_SETTINGS ->buffer_size_in_samples(); // audio buffer is = 1 frame of video.
+  want.samples = config_audio->buffer_size_in_samples(); // audio buffer is = 1 frame of video.
   want.userdata = t_queue.get();
 
   // HERE: The program will print the input and output being used. 
@@ -75,7 +74,8 @@ void AudioDevice::close() {
 }
 
 void AudioDevice::wait(int t_frames) {
-  SDL_Delay(1000 / m_VIDEO_SETTINGS->framerate() * t_frames);
+  auto *config_video = VideoSettings::get_instance();
+  SDL_Delay(1000 / config_video->framerate() * t_frames);
 };
 
 void AudioDevice::log_on_mismatch_audiospec(SDL_AudioSpec t_want, SDL_AudioSpec t_have) {

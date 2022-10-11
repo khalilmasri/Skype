@@ -9,16 +9,18 @@
 #include <libavutil/samplefmt.h>
 #include <thread>
 
-AudioSettings *AudioConverter::m_AUDIO_SETTINGS = AudioSettings::get_instance();
-VideoSettings *AudioConverter::m_VIDEO_SETTINGS = VideoSettings::get_instance();
+//AudioSettings *AudioConverter::m_AUDIO_SETTINGS = AudioSettings::get_instance();
+//VideoSettings *AudioConverter::m_VIDEO_SETTINGS = VideoSettings::get_instance();
 
 /* Constructor */
 
-AudioConverter::AudioConverter()
-    : m_decoded_data(m_AUDIO_SETTINGS->buffer_size()) {
+AudioConverter::AudioConverter() {
 
-  m_encoder_codec = avcodec_find_encoder(m_AUDIO_SETTINGS->codec_id());
-  m_decoder_codec = avcodec_find_decoder(m_AUDIO_SETTINGS->codec_id());
+
+  const AudioSettings *audio_settings = AudioSettings::get_instance();
+
+  m_encoder_codec = avcodec_find_encoder(audio_settings->codec_id());
+  m_decoder_codec = avcodec_find_decoder(audio_settings->codec_id());
 
   is_valid_pointer(m_encoder_codec,
                    "Could not find encoder codec. Selecting alternative...");
@@ -27,8 +29,8 @@ AudioConverter::AudioConverter()
 
   if (!m_valid) {
     m_valid = true;
-    m_encoder_codec = avcodec_find_encoder(m_AUDIO_SETTINGS->codec_id_alt());
-    m_decoder_codec = avcodec_find_decoder(m_AUDIO_SETTINGS->codec_id_alt());
+    m_encoder_codec = avcodec_find_encoder(audio_settings->codec_id_alt());
+    m_decoder_codec = avcodec_find_decoder(audio_settings->codec_id_alt());
     is_valid_pointer(m_encoder_codec, "Could find encoder codec.");
     is_valid_pointer(m_decoder_codec, "Could find decoder codec");
   }
@@ -119,13 +121,16 @@ auto AudioConverter::valid() const -> bool { return m_valid; }
 
 auto AudioConverter::encode(AudioQueue &t_queue) -> std::vector<uint8_t> {
 
-  std::size_t capture_size = m_VIDEO_SETTINGS->capture_size_frames();
+  const VideoSettings *video_settings = VideoSettings::get_instance();
+  const AudioSettings *audio_settings = AudioSettings::get_instance();
+
+  std::size_t capture_size = video_settings->capture_size_frames();
   std::vector<uint8_t> data;
-  int tries = m_AUDIO_SETTINGS->converter_max_tries();
+  int tries = audio_settings->converter_max_tries();
 
   data.reserve(
       capture_size *
-      m_AUDIO_SETTINGS->buffer_size()); // allocating more we need so vector
+      audio_settings->buffer_size()); // allocating more we need so vector
                                         // don't allocate at every push_back.
 
   for (std::size_t i = 0; i < capture_size; i++) {
@@ -327,7 +332,7 @@ void AudioConverter::decode_frames(AudioQueue &m_queue) {
         uint8_t byte = data[i];
         if (m_decoded_data.m_index >= m_decoded_data.m_len) {
           m_queue->push(std::move(m_decoded_data));
-          m_decoded_data = AudioPackage(m_AUDIO_SETTINGS->buffer_size());
+          m_decoded_data = AudioPackage();
         }
 
         m_decoded_data.push_back(byte);
@@ -340,6 +345,8 @@ void AudioConverter::decode_frames(AudioQueue &m_queue) {
 
 void AudioConverter::create_encoder_context() {
 
+  const AudioSettings *audio_settings = AudioSettings::get_instance();
+
   if (m_encoder_context != nullptr) { // free previous contexts.
     avcodec_free_context(&m_encoder_context);
   }
@@ -350,13 +357,13 @@ void AudioConverter::create_encoder_context() {
   }
 
   if (m_valid) {
-    m_encoder_context->bit_rate = m_AUDIO_SETTINGS->bitrate();
-    m_encoder_context->sample_fmt = m_AUDIO_SETTINGS->converter_format();
+    m_encoder_context->bit_rate = audio_settings->bitrate();
+    m_encoder_context->sample_fmt = audio_settings->converter_format();
     validate_sample_format();
   }
 
   if (m_valid) {
-    m_encoder_context->sample_rate = m_AUDIO_SETTINGS->samplerate();
+    m_encoder_context->sample_rate = audio_settings->samplerate();
     validate_sample_rate();
   }
 
@@ -387,8 +394,9 @@ void AudioConverter::create_decoder_context() {
 void AudioConverter::set_channel_layout() {
 
   AVChannelLayout layout;
+  const AudioSettings *audio_settings = AudioSettings::get_instance();
 
-  if (m_AUDIO_SETTINGS->is_mono()) {
+  if (audio_settings->is_mono()) {
     layout = AV_CHANNEL_LAYOUT_MONO;
   } else {
 
@@ -480,6 +488,8 @@ auto AudioConverter::validate_sample_format() -> bool {
   const enum AVSampleFormat *sample_formats = m_encoder_codec->sample_fmts;
   const enum AVSampleFormat *first_format = sample_formats;
 
+  const AudioSettings *audio_settings = AudioSettings::get_instance();
+
   while (*sample_formats != AV_SAMPLE_FMT_NONE) {
     if (*sample_formats == m_encoder_context->sample_fmt) {
       return m_valid;
@@ -489,9 +499,10 @@ auto AudioConverter::validate_sample_format() -> bool {
   }
 
   // if sample format is not available for the codec try the planar alternative.
+
   sample_formats = first_format;
   AVSampleFormat planar_alternative =
-      m_AUDIO_SETTINGS->converter_format_planar();
+      audio_settings->converter_format_planar();
 
   while (*sample_formats != AV_SAMPLE_FMT_NONE) {
     if (*sample_formats == planar_alternative) {

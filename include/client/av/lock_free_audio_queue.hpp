@@ -16,7 +16,7 @@ struct AudioPackage {
   int m_len = 0;
   int m_index = 0;
 
-  explicit AudioPackage(int t_len);
+  AudioPackage();
   AudioPackage(uint8_t *t_stream, int t_len);
 
   void push_back(uint8_t t_value);
