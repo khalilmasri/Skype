@@ -3,7 +3,6 @@
 
 #include "data.hpp"
 #include "reply.hpp"
-#include "data.hpp"
 #include <string>
 
 struct Request {
@@ -13,18 +12,19 @@ struct Request {
   bool        m_valid;
   bool        m_exit;
 
-  Request(bool t_valid = false, bool t_exit = false);
-  Request(const std::string &&t_address, bool t_valid = false, bool t_exit = false);
-  Request(const std::string &t_address, bool t_valid = false, bool t_exit = false);
+  explicit Request(bool t_valid = false, bool t_exit = false);
+  explicit Request(const std::string &&t_address, bool t_valid = false, bool t_exit = false);
+  explicit Request(const std::string &t_address, bool t_valid = false, bool t_exit = false);
 
   ~Request();
 
-  void        set_data(Data *t_data) ;
-  void        set_token(std::string &t_token);
-  void        set_token(std::string &&t_token);
-  Data::type  data_type();
-  bool        data_empty();
-  const Data* data() const; // data returns const to prevent being modified anywhere else.
+  void               set_data(Data *t_data) ;
+  void               set_token(std::string &t_token);
+  void               set_token(std::string &&t_token);
+  auto               data_type() -> Data::type;
+  [[nodiscard]] auto data_empty() const -> bool;
+  // data returns const to prevent being modified anywhere else.
+  [[nodiscard]] auto data() const -> const Data*; 
 
 private:
   Data *m_data;

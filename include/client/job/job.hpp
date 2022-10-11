@@ -33,8 +33,19 @@ struct Job {
         PENDING,
         DELIVERED,
         NOTIFICATION,
-
+        
+        // Call
+        CONNECT,
+        AWAITING,
+        AWAITING_NOTIFY,
+        ACCEPT,
+        REJECT, 
+        HANGUP,
+        WEBCAM,
+        MUTE,
+        
         DISCARD,
+        EXIT,
         NONE,
     };
 
@@ -42,6 +53,7 @@ struct Job {
     std::string m_argument = "";
 
     bool m_valid = false;
+    bool m_boolValue = false;
     std::string m_string = "";
     int m_intValue = -1;
     QHash<int, struct Details> m_contact_list = {};

@@ -10,7 +10,7 @@
 class Server {
 
 public:
-  Server(int t_port);
+  explicit Server(int t_port);
 
   void        main_loop();
   void        spawn_udp_listener();

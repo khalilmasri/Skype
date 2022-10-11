@@ -1,6 +1,7 @@
 #include "peer_to_peer.hpp"
 #include "config.hpp"
 #include "doctest.h"
+#include "stream_io.hpp"
 #include "string_utils.hpp"
 #include "text_data.hpp"
 #include "udp_text_io.hpp"
@@ -8,74 +9,102 @@
 
 static Config *config = Config::get_instance();
 const std::string P2P::m_DELIM = " ";
-//    Next up: Work on streaming!
 const std::string P2P::m_LOCAL = "LOCAL";
-
-// TODO: Local network is working.
-//
-//
 
 /* Constructors */
 
-P2P::P2P(std::string &t_token) noexcept
-    : m_token(t_token), m_inbounds(new UDPTextIO()),
-      m_outbounds(new UDPTextIO()), m_status(Idle), m_type(None),
+P2P::P2P(std::string &t_token)
+    : m_token(t_token), m_conn(new UDPTextIO()), m_status(Idle), m_type(None),
       m_last_reply(Reply::None), m_network_type(Unselected) {
 
   bind_sockets();
 }
 
 /* Same constructor but moves the token string */
-P2P::P2P(std::string &&t_token) noexcept
-    : m_token(std::move(t_token)), m_inbounds(new UDPTextIO()),
-      m_outbounds(new UDPTextIO()), m_status(Idle), m_type(None),
-      m_last_reply(Reply::None), m_network_type(Unselected) {
+P2P::P2P(std::string &&t_token)
+    : m_token(std::move(t_token)), m_conn(new UDPTextIO()), m_status(Idle),
+      m_type(None), m_last_reply(Reply::None), m_network_type(Unselected) {
 
   bind_sockets();
 }
 
 /* Public */
 
-P2P::Status P2P::status() const { return m_status; }
-P2P::Type P2P::type() const { return m_type; }
-Reply::Code P2P::last_reply() const { return m_last_reply; }
+auto P2P::status() const -> P2P::Status { return m_status; }
+auto P2P::type() const -> P2P::Type { return m_type; }
+auto P2P::last_reply() const -> Reply::Code { return m_last_reply; }
+auto P2P::make_request() const -> Request {
+  return Request(m_peer_address, true);
+}
 
 /* */
 
-std::string P2P::status_to_string() const {
+auto P2P::status_to_string() const -> std::string {
 
   switch (m_status) {
   case Idle:
-    return std::string("Idle");
+    return "Idle";
 
   case Awaiting:
-    return std::string("Awaiting");
+    return "Awaiting";
 
   case Accepted:
-    return std::string("Accepted");
+    return "Accepted";
 
   case Connected:
-    return std::string("Connected");
+    return "Connected";
 
   case Error:
-    return std::string("Error");
+    return "Error";
   }
 }
 
 /* */
 
-std::string P2P::type_to_string() const {
+auto P2P::type_to_string() const -> std::string {
 
   switch (m_type) {
   case Initiator:
-    return std::string("Initiator");
+    return "Initiator";
 
   case Acceptor:
-    return std::string("Acceptor");
+    return "Acceptor";
 
   case None:
-    return std::string("None");
+    return "None";
   }
+}
+
+/* Sending Data to peer */
+
+auto P2P::send_package(Request &t_req) -> Request {
+
+  if (m_status == Connected) {
+    m_conn.respond(t_req);
+
+  } else {
+    t_req.m_valid = false;
+    LOG_DEBUG("Cannot send package. P2P Not connected.");
+
+  }
+
+  return t_req;
+}
+
+/* Receiving data from peer */
+
+auto P2P::receive_package(Request &t_req) -> Request {
+
+  if (m_status == Connected) {
+    m_conn.receive(t_req);
+
+  } else {
+    t_req.m_valid = false;
+    LOG_DEBUG("Cannot receive package. P2P Not connected.");
+
+  }
+
+  return t_req;
 }
 
 /* */
@@ -91,11 +120,11 @@ void P2P::reset() {
 
 void P2P::handshake_peer() {
 
-  return;
   if (invalid_to_handshake()) {
+    return;
   }
 
-  Request req(m_peer_address, true);
+  Request req(m_peer_address, true); // m_valid = true
 
   /* if m_network_type = WEB handshake will hole punch */
   if (m_type == Acceptor) {
@@ -104,9 +133,14 @@ void P2P::handshake_peer() {
 
   if (m_type == Initiator) {
     handshake_initiator(req, m_network_type);
-  }
-};
 
+  }
+  // when connected swap the IO type to data stream
+  if (m_status == Connected) {
+    LOG_INFO("Setting UDP connection strategy to StreamIO");
+    m_conn.set_strategy(new StreamIO());
+  };
+};
 
 /* */
 
@@ -224,7 +258,8 @@ void P2P::hangup_peer() {
 
 /* Private */
 
-std::string P2P::send_server(ServerCommand::name t_cmd, std::string &t_arg) {
+auto P2P::send_server(ServerCommand::name t_cmd, std::string &t_arg)
+    -> std::string {
 
   std::string text_data =
       ServerCommand::to_string(t_cmd) + m_DELIM + m_token + m_DELIM + t_arg;
@@ -234,7 +269,7 @@ std::string P2P::send_server(ServerCommand::name t_cmd, std::string &t_arg) {
 
 /* */
 
-std::string P2P::send_server(ServerCommand::name t_cmd) {
+auto P2P::send_server(ServerCommand::name t_cmd) -> std::string {
 
   std::string text_data = ServerCommand::to_string(t_cmd) + m_DELIM + m_token;
 
@@ -243,11 +278,11 @@ std::string P2P::send_server(ServerCommand::name t_cmd) {
 
 /* */
 
-std::string P2P::send_server(std::string &&t_text_data) {
+auto P2P::send_server(std::string &&t_text_data) -> std::string {
 
   Request req = make_server_request(std::move(t_text_data));
-  m_inbounds.respond(req);
-  m_inbounds.receive(req);
+  m_conn.respond(req);
+  m_conn.receive(req);
 
   std::string response = TextData::to_string(req.data());
   auto [code, msg] = StringUtils::split_first(response);
@@ -266,22 +301,22 @@ void P2P::handshake_acceptor(Request &t_req, PeerNetwork t_peer_network) {
   LOG_DEBUG("Acceptor: waiting for handshake confirmation from '%s'. ",
             t_req.m_address.c_str());
 
-  std::string ok = Reply::get_message(Reply::r_200);
+  std::string ok_msg = Reply::get_message(Reply::r_200);
 
-  m_inbounds.receive(t_req);
+  m_conn.receive(t_req);
   std::string response = TextData::to_string(t_req.data());
 
   LOG_DEBUG("Acceptor: got response '%s' ", response.c_str());
 
-  if (response == ok) {
+  if (response == ok_msg) {
     LOG_INFO("Acceptor: P2P handshake with '%s' was sucessful. ",
              t_req.m_address.c_str());
 
     m_status = Connected;
-    t_req.set_data(new TextData(ok));
-    m_inbounds.respond(t_req);
+    t_req.set_data(new TextData(ok_msg));
 
   } else {
+    m_conn.respond(t_req);
     LOG_ERR("P2P handshake message '%s' should be '200 OK'. Handshake failed.",
             response.c_str());
 
@@ -298,18 +333,18 @@ void P2P::handshake_initiator(Request &t_req, PeerNetwork t_peer_network) {
     hole_punch(t_req);
   }
 
-  std::string ok = Reply::get_message(Reply::r_200);
-  t_req.set_data(new TextData(ok));
+  std::string ok_msg = Reply::get_message(Reply::r_200);
+  t_req.set_data(new TextData(ok_msg));
 
   LOG_DEBUG("Intiator: Sending 200 OK to confirm.");
-  m_inbounds.respond(t_req);
+  m_conn.respond(t_req);
 
   LOG_DEBUG("Intiator: Handhake sent. now waiting for 0K response...")
-  m_inbounds.receive(t_req);
+  m_conn.receive(t_req);
 
   std::string response = TextData::to_string(t_req.data());
 
-  if (response == ok) {
+  if (response == ok_msg) {
     LOG_INFO("P2P handshake with '%s' was sucessful. ",
              t_req.m_address.c_str());
     m_status = Connected;
@@ -323,7 +358,7 @@ void P2P::handshake_initiator(Request &t_req, PeerNetwork t_peer_network) {
 
 /* */
 
-bool P2P::invalid_to_handshake() {
+auto P2P::invalid_to_handshake() -> bool {
 
   if (m_status != Accepted) {
     LOG_ERR("P2P::Status must be 'Accepted' to handshake. Was '%s'",
@@ -347,7 +382,13 @@ bool P2P::invalid_to_handshake() {
 
 /* */
 
-Request P2P::make_server_request(std::string &&t_text_data) {
+void P2P::bind_sockets() {
+  m_conn.bind_socket(config->get<const std::string>("SERVER_ADDRESS"));
+}
+
+/* */
+
+auto P2P::make_server_request(std::string &&t_text_data) -> Request {
 
   std::string address = config->get<const std::string>("SERVER_ADDRESS") + ":" +
                         config->get<const std::string>("UDP_PORT");
@@ -360,19 +401,12 @@ Request P2P::make_server_request(std::string &&t_text_data) {
 
 /* */
 
-void P2P::bind_sockets() {
-  m_inbounds.bind_socket(config->get<const std::string>("SERVER_ADDRESS"));
-  m_outbounds.bind_socket(config->get<const std::string>("SERVER_ADDRESS"));
-}
-
-/* */
-
 void P2P::hole_punch(Request &t_req) {
 
-  std::string ok = Reply::get_message(Reply::r_200);
+  std::string ok_msg = Reply::get_message(Reply::r_200);
 
   LOG_DEBUG("Hole punch: Sending 200 OK to '%s'...", t_req.m_address.c_str());
 
-  t_req.set_data(new TextData(ok));
-  m_inbounds.respond(t_req);
+  t_req.set_data(new TextData(ok_msg));
+  m_conn.respond(t_req);
 }

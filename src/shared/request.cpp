@@ -13,16 +13,13 @@ Request::Request(const std::string &t_address, bool t_valid, bool t_exit)
 Request::~Request() { delete m_data; }
 
 void Request::set_data(Data *t_data) {
-  if (m_data) {
     delete m_data;
-  }
-
-  m_data = t_data;
+   m_data = t_data;
 };
 
 void Request::set_token(std::string &token) { m_token = token;}
 void Request::set_token(std::string &&token) { m_token = token;}
 
-Data::type Request::data_type() { return m_data->get_type(); }
-bool Request::data_empty() { return m_data == nullptr; }
-const Data *Request::data() const { return m_data; }
+auto Request::data_type() -> Data::type { return m_data->get_type(); }
+auto Request::data_empty() const -> bool { return m_data == nullptr; }
+auto Request::data() const -> const Data * { return m_data; }

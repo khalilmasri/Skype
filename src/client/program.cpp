@@ -21,13 +21,13 @@ Program::Program()
     
     // Creating the GUI
     m_welcome = new WelcomeGui();
-    m_chat = new ChatGui();
+    m_chat = new CentralGui();
 
     QObject::connect(m_bus, &JobBus::job_ready, this, &Program::handle_response);
-    QObject::connect(m_chat, &ChatGui::ready_signal, m_welcome, &WelcomeGui::stop_loading);
-    QObject::connect(m_chat, &ChatGui::ready_signal, m_welcome, &JobBus::timer_start);
+    QObject::connect(m_chat, &CentralGui::ready_signal, m_welcome, &WelcomeGui::stop_loading);
+    QObject::connect(m_chat, &CentralGui::ready_signal, m_welcome, &JobBus::timer_start);
     QObject::connect(m_welcome, &WelcomeGui::stopped_loading, this, &Program::switch_to_chat);
-    QObject::connect(m_chat, &ChatGui::wrapping, m_bus, &JobBus::set_exit);
+    QObject::connect(m_chat, &CentralGui::wrapping, m_bus, &JobBus::set_exit);
     
     QThread *bus_loop = QThread::create(&JobBus::handle);
     bus_loop->start();
@@ -57,7 +57,9 @@ void Program::create_job_dispatcher()
         {Job::GETID,            [this](Job &t_job){m_chat->job_set_id(t_job);}},
         {Job::CHAT,             [this](Job &t_job){m_chat->job_load_chat(t_job);}},
         {Job::PENDING,          [this](Job &t_job){m_chat->job_load_pending(t_job);}},
-        {Job::SEND,             [this](Job &t_job){m_chat->job_send_msg(t_job);}}
+        {Job::SEND,             [this](Job &t_job){m_chat->job_send_msg(t_job);}},
+        {Job::HANGUP,           [this](Job &t_job){m_chat->job_hangup(t_job);}},
+        {Job::AWAITING,         [this](Job &t_job){m_chat->job_awaiting(t_job);}},
     };
 }
 

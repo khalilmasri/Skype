@@ -1,5 +1,5 @@
 #include "accounts.hpp"
-#include "accounts.hpp"
+#include "client.hpp"
 #include "user.hpp"
 #include "contacts.hpp"
 #include "active_conn.hpp"
@@ -15,6 +15,7 @@
 #include "chat.hpp"
 #include "notification.hpp"
 #include "config.hpp"
+#include "call.hpp"
 
 #include <iostream>
 #include <vector>
@@ -25,12 +26,12 @@
 
 static Config *config = Config::get_instance();
 
-Request Client::m_server_req = {};
+Request Client::m_server_req = Request(true);
 ActiveConn Client::m_server_conn = ActiveConn(config->get<int>("TCP_PORT"), new TextIO());
 
 Client::Client(){  
 
-   std::string response = "";
+   std::string response;
    LOG_INFO("Connecting to server...");
    
    auto ip = config->get<const std::string>("SERVER_ADDRESS");
@@ -53,6 +54,11 @@ fail:
 }
 
 Client::~Client(){
+   JobBus::create({Job::EXIT});
+}
+
+void Client::client_exit(Job &t_job)
+{
    LOG_INFO("Disconnecting from server");
    
    std::string command = "EXIT";
@@ -64,7 +70,11 @@ Client::~Client(){
    std::string response = TextData::to_string(m_server_req.data());
    LOG_INFO("Server reply => %s", response.c_str());
 
+   Config::free_instance();
+
    close(m_server_conn.get_socket());
+
+   t_job.m_command = Job::DISCARD;
    
    LOG_INFO("Client disconnected\n");
 }
@@ -136,7 +146,7 @@ void Client::user_get_username(Job &t_job){
    LOG_DEBUG("Getting username!");
    t_job.m_string = m_user.get_username();
 
-   if ("" != t_job.m_string){
+   if (!t_job.m_string.empty()){
       t_job.m_valid = true;
    }
 }
@@ -157,6 +167,19 @@ void Client::user_get_id(Job &t_job)
    }
 }
 
+void Client::user_get_token(Job &t_job)
+{
+   LOG_DEBUG("Getting user token!");
+   t_job.m_string = m_user.get_token();
+
+   if (t_job.m_string.empty())
+   {
+      t_job.m_valid = false;
+      return;
+   }
+   
+   t_job.m_valid = true;
+}
 // CHAT Methods
 
 void Client::chat_send(Job &t_job){
@@ -204,14 +227,74 @@ void Client::chat_deliver(Job &t_job)
    LOG_DEBUG("Delivering chats done!");
 }
 
+// Call redirection
+void Client::call_connect(Job &t_job)
+{
+   t_job.m_argument = m_user.get_token();
+
+   //TODO(@khalil): maybe this doesn't need to be on another thread
+   //               first we connect. if succesful we spawn a thread on another
+   //               method just for streaming the data.
+   //               Note that we need 2 THREADS. 1. streaming out data and 
+   //                                            2. reading data from socket and playing it.
+
+   auto thread_work = [&](){m_call.connect(t_job);}; 
+   QThread *call = QThread::create(thread_work);
+   call->start();
+
+   t_job.m_command = Job::DISCARD;
+}
+
+void Client::call_accept(Job &t_job)
+{
+   t_job.m_argument = m_user.get_token();
+
+   auto thread_work = [&](){m_call.accept(t_job);};
+
+   // TODO(@khalil): Same as line 228
+   QThread *call = QThread::create(thread_work);
+   call->start();
+
+   t_job.m_command = Job::DISCARD;
+}
+
+void Client::call_reject(Job &t_job)
+{
+   t_job.m_argument = m_user.get_token();
+
+   m_call.reject(t_job);
+   t_job.m_command = Job::DISCARD;
+
+}
+
+void Client::call_hangup(Job &t_job)
+{
+    static_cast<void>(t_job);
+    m_call.hangup();
+}
+
+void Client::call_webcam(Job &t_job)
+{
+   m_call.webcam();
+   t_job.m_command = Job::DISCARD;
+}
+
+void Client::call_mute(Job &t_job)
+{
+   m_call.mute();
+   t_job.m_command = Job::DISCARD;
+}
+
+void Client::call_awaiting(Job &t_job)
+{
+   LOG_INFO("Awaiting call in client");
+   m_call.awaiting(t_job);
+}
+
 bool Client::valid_response(Reply::Code t_code, std::string& t_res) {
    
    std::string code = Reply::get_message(t_code);
     auto found = t_res.find(code);
 
-    if ( found != std::string::npos){
-        return true;
-    }
-
-    return false;
+    return found != std::string::npos;
 }
