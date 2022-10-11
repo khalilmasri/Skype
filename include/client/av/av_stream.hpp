@@ -17,11 +17,9 @@ class AVStream {
   enum Status {Started, Stopped, Invalid};
 
   public:
-
-
   AVStream();
   using DataCallback =  std::function<void(Webcam::WebcamFrames&&, Data::DataVector&&)>;
-  ~AVStream()=default;
+ // ~AVStream();
 
   void start();
   void stop();

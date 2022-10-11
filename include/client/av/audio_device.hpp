@@ -35,9 +35,6 @@ class AudioDevice {
 
     static void audio_input_callback(void *user_data, Uint8 *stream, int len);
     static void audio_output_callback(void *user_data, Uint8 *stream, int len);
-
-    static AudioSettings *m_AUDIO_SETTINGS;
-    static VideoSettings *m_VIDEO_SETTINGS;
 };
 
 #endif

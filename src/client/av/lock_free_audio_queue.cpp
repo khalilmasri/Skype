@@ -1,7 +1,12 @@
 #include "lock_free_audio_queue.hpp"
 #include <iostream>
+#include "av_settings.hpp"
 
-AudioPackage::AudioPackage(int t_len) : m_len(t_len) { m_data.reserve(m_len); }
+AudioPackage::AudioPackage(){ 
+  auto *config = AudioSettings::get_instance();
+  m_len =  config->buffer_size();
+  m_data.reserve(m_len); 
+}
 
 AudioPackage::AudioPackage(uint8_t *t_stream, int t_len) : m_len(t_len) {
 

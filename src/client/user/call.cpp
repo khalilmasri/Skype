@@ -47,17 +47,15 @@ void Call::connect(Job &t_job) {
 
     if (count > m_TIMEOUT) {
       LOG_INFO("Breaking after %d seconds", count);
-      remove_caller(t_job.m_intValue);
-      JobBus::create({Job::HANGUP});
+      JobBus::create({Job::HANGUP}); // TODO(@khalil): is this correct?
       m_call->hangup_peer();
+      return;
     }
 
     count++;
   }
 
   LOG_INFO("Call accepted");
-  m_callers.append(t_job.m_intValue);
-  m_current = t_job.m_intValue;
   m_call->handshake_peer();
   // the call will make a ready to go request with peer address.
 }
@@ -78,9 +76,6 @@ void Call::accept(Job &t_job) {
   }
 
   LOG_INFO("Call accepted");
-  m_callers.append(t_job.m_intValue);
-  m_current = t_job.m_intValue;
-
   m_call->handshake_peer();
 }
 
@@ -172,6 +167,7 @@ auto Call::data_callback() -> AVStream::DataCallback {
 
   Request audio_req = m_call->make_request();
   Request video_req = m_call->make_request();
+
 
   return [this, &audio_req, &video_req](Webcam::WebcamFrames &&t_video,
                                         Data::DataVector &&t_audio) {

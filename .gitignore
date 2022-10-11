@@ -7,3 +7,5 @@ CMakeLists.txt.user
 CMakeLists.txt.user*
 .cache/*
 .cache
+.gdb_history
+.clang-tidy

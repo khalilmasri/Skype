@@ -23,7 +23,7 @@ private:
   cv::VideoCapture   m_capture;
   bool               m_valid = true;
 
-  static VideoSettings *m_VIDEO_SETTINGS;
+ // static VideoSettings *m_VIDEO_SETTINGS;
 };
 
 #endif // WEBCAM_HPP

@@ -7,7 +7,7 @@
 #include <string>
 #include <vector>
 
-VideoSettings *Webcam::m_VIDEO_SETTINGS = VideoSettings::get_instance();
+// VideoSettings *Webcam::m_VIDEO_SETTINGS = VideoSettings::get_instance();
 
 Webcam::Webcam() : m_camera(0) {
 
@@ -20,10 +20,12 @@ Webcam::Webcam() : m_camera(0) {
 
   LOG_INFO("Webcam has opened.")
 
-  m_capture.set(cv::CAP_PROP_FRAME_WIDTH, m_VIDEO_SETTINGS->width());
-  m_capture.set(cv::CAP_PROP_FRAME_HEIGHT, m_VIDEO_SETTINGS->height());
-  m_frame = cv::Mat::zeros(m_VIDEO_SETTINGS->height(),
-                           m_VIDEO_SETTINGS->width(), CV_8UC3);
+  const VideoSettings *video_settings = VideoSettings::get_instance();
+
+  m_capture.set(cv::CAP_PROP_FRAME_WIDTH, video_settings->width());
+  m_capture.set(cv::CAP_PROP_FRAME_HEIGHT, video_settings->height());
+  m_frame = cv::Mat::zeros(video_settings->height(), video_settings->width(),
+                           CV_8UC3);
 }
 
 Webcam::~Webcam() {
@@ -35,11 +37,13 @@ Webcam::~Webcam() {
 
 auto Webcam::capture() -> Webcam::WebcamFrames {
 
+  const VideoSettings *video_settings = VideoSettings::get_instance();
+
   if (!m_valid) {
     LOG_ERR("Could not capture. Webcam in an invalid state.")
   }
 
-  int nb_frames = m_VIDEO_SETTINGS->capture_size_frames();
+  int nb_frames = video_settings->capture_size_frames();
   int index = 0;
   WebcamFrames frames_captured;
   frames_captured.reserve(nb_frames);
@@ -97,8 +101,10 @@ auto Webcam::capture_frame() -> Data::DataVector {
 }
 
 void Webcam::wait() {
+
+  const VideoSettings *video_settings = VideoSettings::get_instance();
   /* 1000ms / 25f = 40ms  when framerate() = 25fs */
-  cv::waitKey(1000 / m_VIDEO_SETTINGS->framerate());
+  cv::waitKey(1000 / video_settings->framerate());
 }
 
 auto Webcam::valid() const -> bool { return m_valid; }

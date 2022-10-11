@@ -68,9 +68,8 @@ private:
   auto is_valid(int t_result, const char *t_msg) -> bool;
 
 
-  static AudioSettings *m_AUDIO_SETTINGS;
-  static VideoSettings *m_VIDEO_SETTINGS;
-
+ // static AudioSettings *m_AUDIO_SETTINGS;
+ // static VideoSettings *m_VIDEO_SETTINGS;
 };
 
 #endif
