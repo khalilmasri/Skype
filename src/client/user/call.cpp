@@ -1,9 +1,9 @@
 #include "call.hpp"
+#include "av_data.hpp"
 #include "job.hpp"
 #include "job_bus.hpp"
 #include "logger.hpp"
 #include "peer_to_peer.hpp"
-#include "av_data.hpp"
 
 #include <string>
 
@@ -88,21 +88,8 @@ void Call::reject(Job &t_job) {
 
 void Call::stream() {
 
-  /*  make_request will created a request with peer information based on
-   *  UDP connection established by m_call(P2P) */
-
-  Request audio_req = m_call->make_request();
-  Request video_req = m_call->make_request();
-
-  AVStream::DataCallback callback = [this, &audio_req, &video_req](Data::DataVector &&t_video,
-                                                Data::DataVector &&t_audio) {
-    
-    audio_req.set_data(new AVData(std::move(t_audio), Data::Audio));
-    video_req.set_data(new AVData(std::move(t_video), Data::Video));
-
-    m_call->send_package(video_req);
-    m_call->send_package(audio_req);
-  };
+  /* create the callback for DataStream */
+  AVStream::DataCallback callback  = data_callback();
 
   m_stream.start();
   m_stream.stream(callback);
@@ -128,4 +115,26 @@ void Call::webcam() {
     LOG_INFO("Closing webcam");
     m_webcam = false;
   }
+}
+
+auto Call::data_callback() -> AVStream::DataCallback {
+
+  /*  make_request will created a request with peer information based on
+   *  UDP connection established by m_call(P2P) */
+
+  Request audio_req = m_call->make_request();
+  Request video_req = m_call->make_request();
+
+  return [this, &audio_req, &video_req](Webcam::WebcamFrames &&t_video,
+                                        Data::DataVector &&t_audio) {
+    // send video first
+    for (Data::DataVector &frame_data : t_video) {
+      video_req.set_data(new AVData(std::move(frame_data), Data::Video));
+      m_call->send_package(video_req);
+    }
+
+    //  send audio
+    audio_req.set_data(new AVData(std::move(t_audio), Data::Audio));
+    m_call->send_package(audio_req);
+  };
 }

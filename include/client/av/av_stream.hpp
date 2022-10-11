@@ -19,8 +19,8 @@ class AVStream {
   public:
 
 
-  using DataCallback =  std::function<void(Data::DataVector&&, Data::DataVector&&)>;
   AVStream();
+  using DataCallback =  std::function<void(Webcam::WebcamFrames&&, Data::DataVector&&)>;
   ~AVStream();
 
   void start();

@@ -33,6 +33,8 @@ private:
   P2PPtr   m_call   = nullptr;
   AVStream m_stream;
 
+ auto data_callback() -> AVStream::DataCallback;
+
   inline static const int m_TIMEOUT = 10;
 };
 
