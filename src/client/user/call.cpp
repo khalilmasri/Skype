@@ -3,9 +3,9 @@
 #include "job_bus.hpp"
 #include "logger.hpp"
 #include "peer_to_peer.hpp"
+#include "av_data.hpp"
 
 #include <string>
-
 
 void Call::connect(Job &t_job) {
   m_call = std::make_unique<P2P>(t_job.m_argument);
@@ -44,7 +44,7 @@ void Call::connect(Job &t_job) {
 
     if (count > m_TIMEOUT) {
       LOG_INFO("Breaking after %d seconds", count);
-      JobBus::create({Job::HANGUP});
+      JobBus::create({Job::HANGUP}); // TODO(@khalil): is this correct?
       m_call->hangup_peer();
       return;
     }
@@ -54,16 +54,12 @@ void Call::connect(Job &t_job) {
 
   LOG_INFO("Call accepted");
   m_call->handshake_peer();
-
   // the call will make a ready to go request with peer address.
-  m_inbounds_req = m_call->make_request();
-  m_outbound_req = m_call->make_request();
-
 }
 
 void Call::accept(Job &t_job) {
 
-//  P2P call(t_job.m_argument);
+  //  P2P call(t_job.m_argument);
   m_call = std::make_unique<P2P>(t_job.m_argument);
 
   std::string user_id = std::to_string(t_job.m_intValue);
@@ -81,14 +77,36 @@ void Call::accept(Job &t_job) {
 
 void Call::reject(Job &t_job) {
 
-  if(nullptr != m_call){
-  std::string user_id = std::to_string(t_job.m_intValue);
-  m_call->reject_peer(user_id);
+  if (nullptr != m_call) {
+    std::string user_id = std::to_string(t_job.m_intValue);
+    m_call->reject_peer(user_id);
 
   } else {
     LOG_ERR("There are no existing calls to reject.");
-  } 
+  }
 }
+
+void Call::stream() {
+
+  /*  make_request will created a request with peer information based on
+   *  UDP connection established by m_call(P2P) */
+
+  Request audio_req = m_call->make_request();
+  Request video_req = m_call->make_request();
+
+  AVStream::DataCallback callback = [this, &audio_req, &video_req](Data::DataVector &&t_video,
+                                                Data::DataVector &&t_audio) {
+    
+    audio_req.set_data(new AVData(std::move(t_audio), Data::Audio));
+    video_req.set_data(new AVData(std::move(t_video), Data::Video));
+
+    m_call->send_package(video_req);
+    m_call->send_package(audio_req);
+  };
+
+  m_stream.start();
+  m_stream.stream(callback);
+};
 
 void Call::hangup() { m_hangup = true; }
 

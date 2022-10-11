@@ -64,7 +64,7 @@ private:
   AVSampleFormat m_converter_format_planar;     // will be set according to m_device_format
   int m_bit_multiplier;                         //  Will be set according to m_device_format
   int m_buffer_size;                            //  will be set in the constructor
-  int m_converter_max_tries = 10;
+  int m_converter_max_tries = 40;
 
   AudioSettings();
 };
@@ -94,7 +94,7 @@ private:
   int m_height = 480;
   int m_width = 640;
   int m_framerate = 25;
-  int m_capture_size = 5; // video frames @ 25 fps
+  int m_capture_size = 1; // video frames @ 25 fps
 
   VideoSettings();
 };

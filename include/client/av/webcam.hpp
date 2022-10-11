@@ -3,6 +3,7 @@
 
 #include <opencv2/opencv.hpp>
 #include "av_settings.hpp"
+#include "data.hpp"
 
 class Webcam
 {
@@ -12,7 +13,9 @@ public:
   Webcam();
   ~Webcam();
   [[nodiscard]] auto capture() -> WebcamFrames;
+  [[nodiscard]] auto capture_frame() -> Data::DataVector;
   [[nodiscard]] auto valid() const -> bool;
+  static void wait();
 
 private:
   int                m_camera;

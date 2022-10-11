@@ -18,19 +18,19 @@ Webcam::Webcam() : m_camera(0) {
     m_valid = false;
   }
 
-    LOG_INFO("Webcam has opened.")
- 
- m_capture.set(cv::CAP_PROP_FRAME_WIDTH, m_VIDEO_SETTINGS->width());
- m_capture.set(cv::CAP_PROP_FRAME_HEIGHT, m_VIDEO_SETTINGS->height());
- m_frame = cv::Mat::zeros(m_VIDEO_SETTINGS->height(), m_VIDEO_SETTINGS->width(), CV_8UC3);
+  LOG_INFO("Webcam has opened.")
 
+  m_capture.set(cv::CAP_PROP_FRAME_WIDTH, m_VIDEO_SETTINGS->width());
+  m_capture.set(cv::CAP_PROP_FRAME_HEIGHT, m_VIDEO_SETTINGS->height());
+  m_frame = cv::Mat::zeros(m_VIDEO_SETTINGS->height(),
+                           m_VIDEO_SETTINGS->width(), CV_8UC3);
 }
 
 Webcam::~Webcam() {
 
   LOG_INFO("Releasing webcam resources.")
   m_capture.release();
- cv::destroyAllWindows();
+  cv::destroyAllWindows();
 }
 
 auto Webcam::capture() -> Webcam::WebcamFrames {
@@ -54,27 +54,51 @@ auto Webcam::capture() -> Webcam::WebcamFrames {
     cv::imshow("Camera", m_frame);
     std::vector<uchar> buffer;
 
-    /* We must wrap this in a try catch because cv::imencode may throw */
-    try {
-          bool result = cv::imencode(".jpeg", m_frame, buffer);
-      if (result) {
-        frames_captured.push_back(std::move(buffer));
-      } else {
-        LOG_ERR("Error to encode frames during capture.")
-        m_valid = false;
-      }
-    } catch (std::exception &t_msg) {
-      LOG_ERR("OpenCV threw on convertion:\n %s. ", t_msg.what());
-      m_valid = false;
+    Data::DataVector data = capture_frame();
+
+    if (m_valid) {
+      frames_captured.push_back(std::move(data));
     }
 
     index++;
 
-    /* 1000ms / 25f = 40ms  when framerate() = 25fs */
-    cv::waitKey(1000 / m_VIDEO_SETTINGS->framerate()); 
+    Webcam::wait();
   }
 
   return frames_captured;
+}
+
+auto Webcam::capture_frame() -> Data::DataVector {
+
+  std::vector<uchar> buffer;
+
+  if (m_valid) {
+    m_capture.read(m_frame);
+
+    if (m_frame.empty()) {
+      LOG_ERR("Could not capture frame.");
+      return buffer;
+    }
+
+    try {
+      bool result = cv::imencode(".jpeg", m_frame, buffer);
+      if (!result) {
+        LOG_ERR("Error to encode frames during capture.")
+        m_valid = false;
+      }
+
+    } catch (std::exception &t_msg) {
+      LOG_ERR("OpenCV threw on convertion:\n %s. ", t_msg.what());
+      m_valid = false;
+    }
+  }
+
+  return buffer;
+}
+
+void Webcam::wait() {
+  /* 1000ms / 25f = 40ms  when framerate() = 25fs */
+  cv::waitKey(1000 / m_VIDEO_SETTINGS->framerate());
 }
 
 auto Webcam::valid() const -> bool { return m_valid; }

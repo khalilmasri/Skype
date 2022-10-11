@@ -13,11 +13,13 @@
 
 class AVStream {
   using AudioQueuePtr = std::unique_ptr<LockFreeAudioQueue>;
-  using DataCallback =  std::function<void(Data::DataVector&&)>;
 
-  enum Status {Valid, Invalid};
+  enum Status {Started, Stopped, Invalid};
 
   public:
+
+
+  using DataCallback =  std::function<void(Data::DataVector&&, Data::DataVector&&)>;
   AVStream();
   ~AVStream();
 
@@ -27,12 +29,13 @@ class AVStream {
 
 private:
   AudioQueuePtr       m_input_queue;
-  AudioQueuePtr       m_output_queue;
   AudioDevice         m_input;
-  AudioDevice         m_output;
+  Status              m_status = Stopped;
 
   AudioConverter     m_converter;
   Webcam             m_webcam;
+
+  void validate();
 };
 
 #endif
