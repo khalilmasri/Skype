@@ -1,5 +1,4 @@
 #include "accounts.hpp"
-#include "accounts.hpp"
 #include "client.hpp"
 #include "user.hpp"
 #include "contacts.hpp"
@@ -27,12 +26,12 @@
 
 static Config *config = Config::get_instance();
 
-Request Client::m_server_req = {};
+Request Client::m_server_req = Request(true);
 ActiveConn Client::m_server_conn = ActiveConn(config->get<int>("TCP_PORT"), new TextIO());
 
 Client::Client(){  
 
-   std::string response = "";
+   std::string response;
    LOG_INFO("Connecting to server...");
    
    auto ip = config->get<const std::string>("SERVER_ADDRESS");
@@ -71,7 +70,7 @@ void Client::client_exit(Job &t_job)
    std::string response = TextData::to_string(m_server_req.data());
    LOG_INFO("Server reply => %s", response.c_str());
 
-   config->free_instance();
+   Config::free_instance();
 
    close(m_server_conn.get_socket());
 
@@ -147,7 +146,7 @@ void Client::user_get_username(Job &t_job){
    LOG_DEBUG("Getting username!");
    t_job.m_string = m_user.get_username();
 
-   if ("" != t_job.m_string){
+   if (!t_job.m_string.empty()){
       t_job.m_valid = true;
    }
 }
@@ -173,7 +172,7 @@ void Client::user_get_token(Job &t_job)
    LOG_DEBUG("Getting user token!");
    t_job.m_string = m_user.get_token();
 
-   if (t_job.m_string == "")
+   if (t_job.m_string.empty())
    {
       t_job.m_valid = false;
       return;
@@ -233,7 +232,13 @@ void Client::call_connect(Job &t_job)
 {
    t_job.m_argument = m_user.get_token();
 
-   auto thread_work = [&](){m_call.connect(t_job);};
+   //TODO(@khalil): maybe this doesn't need to be on another thread
+   //               first we connect. if succesful we spawn a thread on another
+   //               method just for streaming the data.
+   //               Note that we need 2 THREADS. 1. streaming out data and 
+   //                                            2. reading data from socket and playing it.
+
+   auto thread_work = [&](){m_call.connect(t_job);}; 
    QThread *call = QThread::create(thread_work);
    call->start();
 
@@ -245,6 +250,8 @@ void Client::call_accept(Job &t_job)
    t_job.m_argument = m_user.get_token();
 
    auto thread_work = [&](){m_call.accept(t_job);};
+
+   // TODO(@khalil): Same as line 228
    QThread *call = QThread::create(thread_work);
    call->start();
 
@@ -289,9 +296,5 @@ bool Client::valid_response(Reply::Code t_code, std::string& t_res) {
    std::string code = Reply::get_message(t_code);
     auto found = t_res.find(code);
 
-    if ( found != std::string::npos){
-        return true;
-    }
-
-    return false;
+    return found != std::string::npos;
 }

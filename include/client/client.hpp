@@ -9,8 +9,6 @@
 #include "active_conn.hpp"
 #include "IO_strategy.hpp"
 #include "text_io.hpp"
-#include "chat.hpp"
-#include "call.hpp"
 
 #include <map>
 #include <vector>

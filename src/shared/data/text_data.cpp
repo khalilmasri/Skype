@@ -1,63 +1,60 @@
 #include "text_data.hpp"
-#include "string_utils.hpp"
-#include <string.h>
 #include "doctest.h"
+#include "string_utils.hpp"
+#include <cstring>
 
-TextData::TextData(std::string &t_text) : m_size(t_text.size()){
+TextData::TextData(std::string &t_text) {
+  m_data.reserve(t_text.size());
   load_text(t_text);
 };
 
-TextData::TextData(std::string &&t_text) : m_size(t_text.size()){
+TextData::TextData(std::string &&t_text) {
+  m_data.reserve(t_text.size());
   load_text(t_text);
 };
 
 TextData::TextData(const char *t_text) : TextData(std::string(t_text)) {}
 TextData::TextData(char *t_text) : TextData(std::string(t_text)) {}
 
-Data::type TextData::get_type() const { return m_type; }
+TextData::~TextData() = default;
 
-bool TextData::empty() const { return m_size == 0; }
+auto TextData::get_type() const -> Data::type { return m_type; }
+auto TextData::empty() const -> bool { return m_data.empty(); }
+auto TextData::size() const -> std::size_t { return m_data.size(); }
+auto TextData::get_data() const -> DataVector { return m_data; }
 
-std::size_t TextData::size() const { return m_size; }
+/* */
 
-std::byte *TextData::get_data() const { return m_data; }
+auto TextData::to_string(const Data *t_data) -> std::string {
 
-std::string TextData::to_string(const Data *t_data) {
-
-  std::byte *data = t_data->get_data();
-
+  DataVector data = t_data->get_data();
   std::string buffer;
 
-  for (std::size_t i = 0; i < t_data->size(); i++) {
-    buffer += std::to_integer<uint8_t>(data[i]);
+  for (auto &character : data) {
+    buffer += static_cast<char>(character);
   }
 
   return buffer;
 }
 
-TextData::~TextData() { delete[] m_data; }
+/* */
 
 void TextData::load_text(std::string &t_text) {
-
-  m_data = new std::byte[m_size];
-  std::size_t index = 0;
-
-  for (const char c : t_text) {
-    m_data[index] = static_cast<std::byte>(c);
-    index++;
+  for (char &character : t_text) {
+    m_data.push_back(character);
   }
 }
 
-TEST_CASE("Text Data"){
+TEST_CASE("Text Data") {
 
-  auto data_from_const_char = new TextData("Hello world!");
-  auto data_from_moved_str = new TextData(std::string("hello there!"));
+  auto *data_from_const_char = new TextData("Hello world!");
+  auto *data_from_moved_str = new TextData(std::string("hello there!"));
 
   std::string str("hello friends!");
-  char buffer[] = "C buffers!";
+  std::string buffer = "C buffers!";
 
-  auto data_from_str= new TextData(str);
-  auto data_from_c_str = new TextData(buffer);
+  auto *data_from_str = new TextData(str);
+  auto *data_from_c_str = new TextData(buffer);
 
   CHECK(TextData::to_string(data_from_const_char) == "Hello world!");
   CHECK(TextData::to_string(data_from_moved_str) == "hello there!");
@@ -71,27 +68,7 @@ TEST_CASE("Text Data"){
   delete data_from_moved_str;
   delete data_from_str;
   delete data_from_c_str;
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // m_data = std::byte<char*>(buffer);
 

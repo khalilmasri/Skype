@@ -5,6 +5,8 @@
 #include "logger.hpp"
 #include "peer_to_peer.hpp"
 
+#include <iostream>
+
 #include <string>
 #include <QMessageBox>
 
@@ -12,6 +14,7 @@
 #include <QMediaDevices>
 #include <QMediaCaptureSession>
 #include <QVideoWidget>
+#include <QVideoSink>
 
 
 CallGui::CallGui(QWidget *parent) :
@@ -58,9 +61,15 @@ void CallGui::video_init(int t_contact_id, QString &t_username)
 
   camera->start();
 
+
   QMediaCaptureSession *session = new QMediaCaptureSession;
   session->setCamera(camera);
   session->setVideoOutput(videoWidget);
+
+  QVideoSink * sink = new QVideoSink(session);
+
+  QSize s = sink->videoSize();
+  qInfo() << s;
 
   JobBus::create(job);
   JobBus::create({Job::WEBCAM});

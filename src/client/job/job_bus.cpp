@@ -1,6 +1,6 @@
 #include "job_bus.hpp"
 #include "client.hpp"
-#include "job_queue.hpp"
+#include "thread_safe_queue.hpp"
 
 #include <ctime>
 #include <iostream>
@@ -12,8 +12,8 @@
 bool JobBus::m_exit_loop = false;
 JobBus* JobBus::m_instance = nullptr;
 
-JobQueue JobBus::m_jobQ;
-JobQueue JobBus::m_resQ;
+ThreadSafeQueue JobBus::m_jobQ = ThreadSafeQueue<Job>();
+ThreadSafeQueue JobBus::m_resQ = ThreadSafeQueue<Job>();
 
 QTimer *timer = new QTimer();
 
@@ -48,7 +48,7 @@ JobBus::JobsMap JobBus::m_JobBus_map {
 
 JobBus* JobBus::get_instance()
 {
-    if(!m_instance){
+    if(m_instance == nullptr){
         m_instance = new JobBus();
     }
 

@@ -1,3 +1,4 @@
+#include "SDL.h"
 #define DOCTEST_CONFIG_IMPLEMENT
 #include "doctest.h"
 #include "tester.hpp"
@@ -13,19 +14,21 @@ int main(int argc, char *argv[]) {
   // This will run tests only when --test is passed to client
   int res = Tester::test(argc, argv);
 
+  SDL_Init(SDL_INIT_AUDIO);
+
   if (res > 0) {
     return res;
   }
 
-  QApplication a(argc, argv);
+  QApplication app(argc, argv);
   QFile stylesheetFile("../misc/stylesheet/stylesheet.qss");
   stylesheetFile.open(QFile::ReadOnly);
   QString styleSheet = QLatin1String(stylesheetFile.readAll());
-  a.setStyleSheet(styleSheet);
+  app.setStyleSheet(styleSheet);
   
   Program *program = new Program();
 
-  res = a.exec();
+  res = app.exec();
 
   delete program;
 

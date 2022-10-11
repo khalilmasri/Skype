@@ -3,29 +3,29 @@
 #include "logger.hpp"
 #include <arpa/inet.h>
 #include <netinet/in.h>
-#include <string.h>
+#include <cstring>
 #include <unistd.h>
 
 /* Public */
 
-bool Connection::setup(const std::string &t_address) {
+auto Connection::setup(const std::string &t_address) -> bool {
   m_is_setup = create_socket() && set_options() && set_address(t_address);
   return m_is_setup;
 }
 
-bool Connection::setup() {
+auto Connection::setup() -> bool {
   return create_socket();
 }
 
 
-bool Connection::reset_socket() {
+auto Connection::reset_socket() -> bool {
   close(m_socket);
   m_is_setup = create_socket();
   return m_is_setup;
 }
 
-bool Connection::is_valid(int t_result, const char *t_msg,
-                          ValidationLog t_log) const {
+auto Connection::is_valid(int t_result, const char *t_msg,
+                          ValidationLog t_log)  -> bool {
 
   if (t_result < 0 && t_log == Error) {
     LOG_ERR(t_msg);
@@ -43,10 +43,14 @@ bool Connection::is_valid(int t_result, const char *t_msg,
     LOG_CRIT(t_msg);
   }
 
+  else if (t_result < 0 && t_log == Trace) {
+    LOG_TRACE(t_msg);
+  }
+
   return t_result >= 0;
 }
 
-bool Connection::is_setup() const {
+auto Connection::is_setup() const -> bool {
   if (!m_is_setup) {
     LOG_ERR("The connection has not been set up.")
   }
@@ -54,28 +58,29 @@ bool Connection::is_setup() const {
   return m_is_setup;
 }
 
-int Connection::get_socket() const { return m_socket; }
-sockaddr_in Connection::get_address() const { return m_address; }
-int Connection::get_port() const { return m_port; };
+auto Connection::get_socket() const -> int { return m_socket; }
+auto Connection::get_address() const -> sockaddr_in { return m_address; }
+auto Connection::get_port() const -> int { return m_port; };
 
 /* Static Public */
 
-std::string Connection::address_tostring(sockaddr_in t_address) {
+auto Connection::address_tostring(sockaddr_in t_address) -> std::string {
 
-  char buffer[INET_ADDRSTRLEN] = {0};
+  std::string buffer(INET_ADDRSTRLEN, '\0');
+
   const char *ip_address = inet_ntop(
-      AF_INET, reinterpret_cast<struct sockaddr *>(&t_address.sin_addr), buffer,
+      AF_INET, reinterpret_cast<struct sockaddr *>(&t_address.sin_addr), buffer.data(),
       INET_ADDRSTRLEN);
 
-  return std::string(ip_address);
+  return { ip_address };
 }
 
- std::string  Connection::port_tostring(sockaddr_in t_address){
+ auto  Connection::port_tostring(sockaddr_in t_address) -> std::string{
     int port = htons(t_address.sin_port);
     return std::to_string(port);
 }
 
-sockaddr_in Connection::to_sockaddr_in(const std::string &t_port, const std::string &t_address) {
+auto Connection::to_sockaddr_in(const std::string &t_port, const std::string &t_address) -> sockaddr_in {
   sockaddr_in addr_in;
   memset(&addr_in, 0, sizeof(addr_in));
 
@@ -98,12 +103,12 @@ sockaddr_in Connection::to_sockaddr_in(const std::string &t_port, const std::str
 
 /* Private */
 
-bool Connection::create_socket() {
+auto Connection::create_socket() -> bool {
   m_socket = socket(AF_INET, m_protocol, 0);
   return is_valid(m_socket, "Could not create socket.");
 }
 
-bool Connection::set_options() {
+auto Connection::set_options() const -> bool {
 
   int opt = 1;
   int res_addr =
@@ -116,7 +121,7 @@ bool Connection::set_options() {
          is_valid(res_addr, "Invalid options - reuse address.");
 }
 
-bool Connection::set_address(const std::string &_address) {
+auto Connection::set_address(const std::string &_address) -> bool {
 
   int res = inet_pton(AF_INET, _address.c_str(),
                       &m_address.sin_addr); /* converts IP string */

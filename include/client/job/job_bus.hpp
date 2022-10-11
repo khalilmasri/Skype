@@ -2,7 +2,7 @@
 #define JOB_BUS_H
 
 #include "client.hpp"
-#include "job_queue.hpp"
+#include "thread_safe_queue.hpp"
 
 #include <unordered_map>
 #include <functional>
@@ -37,11 +37,11 @@ signals:
     void new_job();
 
 private:
-    static bool             m_exit_loop;
-    static JobsMap          m_JobBus_map;
-    static JobQueue         m_jobQ;
-    static JobQueue         m_resQ;
-    static JobBus           *m_instance;
+    static bool                  m_exit_loop;
+    static JobsMap               m_JobBus_map;
+    static ThreadSafeQueue<Job>  m_jobQ;
+    static ThreadSafeQueue<Job>  m_resQ;
+    static JobBus               *m_instance;
 };
 
 

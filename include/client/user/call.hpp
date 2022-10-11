@@ -6,19 +6,25 @@
 #include "active_conn.hpp"
 #include "job.hpp"
 #include "peer_to_peer.hpp"
+#include "av_stream.hpp"
 
 #include <QVector>
 #include <QString>
 #include <cstdint>
+#include <memory>
 
 class Call{
 
 public:
+  ~Call()= default;
+  
+  void create(Job &t_job);
   void connect(Job &t_job);
   void accept(Job &t_job);
   void reject(Job &t_job);
   void awaiting(Job &t_job);
   void remove_caller(int t_caller);
+  void stream();
   void webcam();
   void mute();
   void hangup();
@@ -26,9 +32,18 @@ public:
 private:
   QVector<int> m_callers;
   int          m_current;
-  bool m_hangup = false;
-  bool m_webcam = false;
-  bool m_mute = false;
+
+  using P2PPtr = std::unique_ptr<P2P>;
+
+  bool     m_hangup = false;
+  bool     m_webcam = false;
+  bool     m_mute   = false;
+  P2PPtr   m_call   = nullptr;
+  AVStream m_stream;
+
+ auto data_callback() -> AVStream::DataCallback;
+
+  inline static const int m_TIMEOUT = 10;
 };
 
 #endif // CALL_H

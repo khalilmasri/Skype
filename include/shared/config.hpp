@@ -69,11 +69,8 @@ class Config {
 
    #if __APPLE__ || __MACH__ || __linux__
 
-   /* path to .conf /home/$USER/.skype.conf for OSX & Linux */ 
-  const fs::path         m_PATH {std::string(CONFIG_PATH) + getenv("USER") + std::string(CONFIG_FILE) };
-
-  /* path to .conf manually entered because M1 is different path than Intel Mac*/ 
-  // const fs::path         m_PATH = "/Users/chrisdallat/CLangProjects/skype/.skype.conf";
+   /* path to .conf /home/$USER/.skype.conf for OSX & Linux */                                  
+   const fs::path      m_PATH { getenv("HOME") + std::string(CONFIG_FILE) };
 
    #else
 

@@ -20,7 +20,7 @@ void CallControllers::connect(std::string &t_arg, Request &t_req) {
     return;
   }
 
-  valid = m_awaiting_users.insert(AwaitingUser(user.id(), contact_id, t_req.m_address, local_address));
+  valid = m_awaiting_users.insert(AwaitingUser({ user.id(), contact_id }, t_req.m_address, local_address));
 
   if (valid) {
     ControllerUtils::set_request_reply(Reply::r_200, t_req);
@@ -114,39 +114,41 @@ void CallControllers::ping(std::string &_, Request &t_req) {
      ControllerUtils::set_request_reply(Reply::r_301, t_req);
      return;
   }
-   try {
-      AwaitingUser await_user = m_awaiting_users.get(user.id());
 
+  try {
+     AwaitingUser await_user = m_awaiting_users.get(user.id());
+
+     /* ping user so it doesn't get deleted by timeout functionality */
+     m_awaiting_users.ping(await_user.id());
 
     if(await_user.peer_address().empty()) {
-      // peer_address is empty when peer has not yet accepted the call
-       ControllerUtils::set_request_reply(Reply::r_203, t_req);
+       // peer_address is empty when peer has not yet accepted the call
+        ControllerUtils::set_request_reply(Reply::r_203, t_req);
 
-    } else {
+   } else {
 
-        /* Append LOCAL or WEB to the response so client knows address type */
-       std::string response = await_user.peer_address() + " " + await_user.address_type();
-       ControllerUtils::set_request_reply(Reply::r_201, std::move(response), t_req);
-
-    }
-
-   } catch(...) {
-     ControllerUtils::set_request_reply(Reply::r_307, t_req);
+       /* Append LOCAL or WEB to the response so client knows address type */
+      std::string response = await_user.peer_address() + " " + await_user.address_type();
+      ControllerUtils::set_request_reply(Reply::r_201, std::move(response), t_req);
 
    }
+
+  } catch(...) {
+    ControllerUtils::set_request_reply(Reply::r_307, t_req);
+
+  }
 }
 
 /* */
 
-bool CallControllers::call_awaits(int t_user_id) {
+auto CallControllers::call_awaits(int t_user_id) -> bool{
  return m_awaiting_users.exists(t_user_id);
 }
 
 /* Private */
 
-CallControllers::Valid
-CallControllers::validate_user_and_argument(std::string &t_arg, Request &t_req,
-                                            User &t_user) {
+auto CallControllers::validate_user_and_argument(std::string &t_arg, Request &t_req,
+                                            User &t_user) -> CallControllers::Valid {
 
   if (t_user.empty()) { // user doesn't exists
     ControllerUtils::set_request_reply(Reply::r_301, t_req);
@@ -165,7 +167,9 @@ CallControllers::validate_user_and_argument(std::string &t_arg, Request &t_req,
   return {true, contact_id, private_address};
 }
 
-bool CallControllers::validate_local_address(std::string &t_local_address, Request &t_req){
+/* */
+
+auto CallControllers::validate_local_address(std::string &t_local_address, Request &t_req) -> bool{
 
   if(t_local_address.empty()){
     ControllerUtils::set_request_reply(Reply::r_501, t_req);
