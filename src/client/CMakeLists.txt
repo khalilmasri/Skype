@@ -8,8 +8,18 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
 # QT6 QT5 specificas
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets Multimedia MultimediaWidgets)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Multimedia MultimediaWidgets)
+
+# Ffmpeg
+find_path(AVCODEC_INCLUDE_DIR libavcodec/avcodec.h)
+find_library(AVCODEC_LIBRARY avcodec)
+find_path(AVUTIL_INCLUDE_DIR libavutil/avutil.h)
+find_library(AVUTIL_LIBRARY avutil)
+
+# SDL & OpenCV
+find_package(SDL2 REQUIRED)
+find_package(OpenCV REQUIRED)
 
 # Include all the source code with cpp extension
 file(GLOB CLIENT_SOURCES    "*.cpp" 
@@ -18,6 +28,7 @@ file(GLOB CLIENT_SOURCES    "*.cpp"
                             "job/*.cpp"
                             "user/*.cpp"
                             "gui/notification/*.cpp"
+                            "av/*.cpp"
                             "../shared/*.cpp"
                             "../shared/data/*.cpp"
                             "../shared/utils/*.cpp"
@@ -25,10 +36,13 @@ file(GLOB CLIENT_SOURCES    "*.cpp"
                         ) 
 
 file(GLOB GUI_HEADERS       "../../include/client/gui/welcome_gui.hpp"
-                            "../../include/client/gui/chat_gui.hpp"
+                            "../../include/client/gui/central_gui.hpp"
                             "../../include/client/gui/contact_gui.hpp"
+                            "../../include/client/gui/call_gui.hpp"
+                            "../../include/client/gui/ring_gui.hpp"
                             "../../include/client/program.hpp"
                             "../../include/client/job/job_bus.hpp"
+                            "../../include/client/gui/"
                             "../../include/client/gui/notification/notification.hpp"
 )
 
@@ -56,32 +70,46 @@ else()
                     )
 endif()
 
-
 # Define the include path
 set(INCLUDE_DIRS    ../../include/client 
                     ../../include/client/gui
                     ../../include/client/user 
                     ../../include/client/job 
+                    ../../include/client/av
                     ../../include/shared     
                     ../../include/shared/test
                     ../../include/shared/connection 
                     ../../include/shared/data 
                     ../../include/shared/utils
                     ../../include/client/gui/notification
-                ) 
+                              ) 
 
-# Set the include directory path
-target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDE_DIRS})
+# Project includes + ffmpeg
+target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDE_DIRS} ${AVCODEC_INCLUDE_DIR} ${AVUTIL_INCLUDE_DIR} )
+
+#Tests
 include_directories(${DOCTEST_INCLUDE_DIR})
 
-# Setting preferance on OpenGL
+# SDL & OpenCV Includes
+include_directories(${SDL2_INCLUDE_DIRS})
+include_directories(${OpenCV_INCLUDE_DIRS})
 
 # Linking the libraries
-target_link_libraries(${PROJECT_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Widgets)
+target_link_libraries(${PROJECT_NAME} PRIVATE
+                      Qt${QT_VERSION_MAJOR}::Widgets
+                      Qt${QT_VERSION_MAJOR}::Multimedia 
+                      Qt${QT_VERSION_MAJOR}::MultimediaWidgets
+                      # AV
+                      ${AVCODEC_LIBRARY}
+                      ${AVUTIL_LIBRARY}
+                      ${SDL2_LIBRARIES}
+                      ${OpenCV_LIBS}
+                    #   -lz -lswresample -lva-drm -lva-x11 -lva -lvdpau -lX11 -llzma
+                    )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
-    MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
-    MACOSX_BUNDLE TRUE
+    # MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}
+    # MACOSX_BUNDLE TRUE
     WIN32_EXECUTABLE TRUE
 )
 

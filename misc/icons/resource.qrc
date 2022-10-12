@@ -10,5 +10,13 @@
         <file>offline.png</file>
         <file>notification.png</file>
         <file>bell.png</file>
+        <file>mute.png</file>
+        <file>call_hangup.png</file>
+        <file>menu.png</file>
+        <file>camera.png</file>
+        <file>camera_off.png</file>
+        <file>microphone.png</file>
+        <file>answer.png</file>
+        <file>decline.png</file>
     </qresource>
 </RCC>

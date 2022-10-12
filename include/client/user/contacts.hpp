@@ -14,10 +14,9 @@
 
 struct Details{
     QString username;
-    QString address;
-    QString port;
     int ID;
     bool online;
+    bool awaiting;
 };
 
 

@@ -9,19 +9,28 @@
 
 class P2P {
 
+  /**** PUBLIC INTERFACE ***/
+
   public:
   enum Status {Idle, Awaiting, Accepted, Connected, Error};
-  enum Type   { Initiator, Acceptor, None};
+  enum Type   { Initiator, Acceptor, None };
 
-  P2P(std::string &t_token) noexcept;
-  P2P(std::string &&t_token) noexcept;
+  explicit P2P(std::string &t_token) ;
+  explicit P2P(std::string &&t_token) ;
 
   /* getters */
-  Status        status() const;
-  std::string   status_to_string() const;
-  Type          type() const;
-  std::string   type_to_string() const;
-  Reply::Code   last_reply() const;
+  [[nodiscard]] auto status() const -> Status;
+  [[nodiscard]] auto status_to_string() const -> std::string;
+  [[nodiscard]] auto type() const -> Type;
+  [[nodiscard]] auto type_to_string() const -> std::string;
+  [[nodiscard]] auto last_reply() const -> Reply::Code;
+
+/* this method will return an read to go Request with the peers address for connection */
+  [[nodiscard]] auto make_request() const -> Request;
+
+  /* UDP connection to exchange data */
+  auto          send_package(Request &t_req) -> Request;
+  auto          receive_package(Request &t_req) -> Request;
 
   /* Reset the P2P connection */
   void          reset();
@@ -36,14 +45,18 @@ class P2P {
   void          ping_peer();
   void          hangup_peer();
 
+  /**** PRIVATE IMPLEMENTATION ***/
+
   private:
+  /* Defines if peers are in the local network or the Web */
   enum PeerNetwork {Local, Web, Unselected};
+
+  /* Defines the direction of the stream */
   enum StreamDir {In, Out};
 
   std::string   m_peer_address;
   std::string   m_token;
-  UDPConn       m_inbounds;
-  UDPConn       m_outbounds; // NOTE: Not yet implemented. Still looking to see if will be needed.
+  UDPConn       m_conn;
   Status        m_status;
   Type          m_type;
   Reply::Code   m_last_reply;
@@ -51,17 +64,17 @@ class P2P {
   PeerNetwork   m_network_type;
 
   /* return the res message from the Server and sets m_last_reply with the Reply::Code */
-  std::string   send_server(ServerCommand::name t_cmd, std::string &t_arg);
-  std::string   send_server(ServerCommand::name t_cmd);
-  std::string   send_server(std::string &&t_text_data);
+  auto          send_server(ServerCommand::name t_cmd, std::string &t_arg) -> std::string;
+  auto          send_server(ServerCommand::name t_cmd) -> std::string;
+  auto          send_server(std::string &&t_text_data) -> std::string;
 
   void          handshake_acceptor(Request &t_req, PeerNetwork t_peer_network);
   void          handshake_initiator(Request &t_req , PeerNetwork t_peer_network);
 
-
-  bool          invalid_to_handshake();
-  Request       make_server_request(std::string &&t_text_data);
+  auto          invalid_to_handshake() -> bool;
   void          bind_sockets();
+
+  static auto   make_server_request(std::string &&t_text_data) -> Request;
 
   void          hole_punch(Request &t_req);
 

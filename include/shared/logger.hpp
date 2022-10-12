@@ -9,12 +9,12 @@
 #include "config.hpp"
 
 enum logPriority{
-    trace       = 0, 
-    debug       = 1, 
-    info        = 2, 
-    warning     = 3, 
-    error       = 4,
-    critical    = 5
+    trace       = 5,
+    debug       = 4,
+    info        = 3,
+    warning     = 2,
+    error       = 1,
+    critical    = 0
 };
 
 #define DEBUG_ENABLED 1
@@ -39,7 +39,7 @@ class Logger
 {
     private:
         std::mutex log_mutex;
-        logPriority priority = critical;
+        logPriority priority = trace;
 
         template<typename... Args>
         static void log(const char* msg_prio_str, logPriority msg_prio, const char* file,  int line, const char* func, const char* msg, Args... args)

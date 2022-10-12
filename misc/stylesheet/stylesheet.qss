@@ -101,6 +101,7 @@ QListView[objectName ^= contact_list]
     border-width: 1px;
     border-radius: 17px;
     padding: 10px;
+    
 }
 
 QGroupBox
@@ -112,10 +113,23 @@ QGroupBox
     border-radius: 17px;
 }
 /*-----QPushButton-----*/
-QPushButton
+QPushButton[objectName ^= webcam]
 {
-        background-color: #0C4A6E;
-	color: #fff;
+        background-color: grey;
+	    color: #fff;
+        font-weight: bold;
+        border-style: solid;
+        border-color: #242424;
+        border-width: 1px;
+        border-radius: 17px;
+        padding: 10px;
+
+}
+
+QPushButton[objectName ^= microphone]
+{
+        background-color: grey;
+	    color: #fff;
         font-weight: bold;
         border-style: solid;
         border-color: #242424;
@@ -126,21 +140,78 @@ QPushButton
 }
 
 
-QPushButton::hover
+QPushButton[objectName ^= answer]
 {
-        background-color: #01579B;
+    background-color: #212121;
 	color: #fff;
+       border-color: #212121;
 
 }
 
+QPushButton[objectName ^= ignore]
+{
+    background-color: #212121;
+	color: #fff;
+    border-color: #212121;
+}
 
-QPushButton::pressed
+QPushButton
+{
+        background-color: #0C4A6E;
+	    color: #fff;
+        font-weight: bold;
+        border-style: solid;
+        border-color: #242424;
+        border-width: 1px;
+        border-radius: 17px;
+        padding: 10px;
+
+}
+QPushButton::hover[objectName ^= answer]
+{
+    background-color: #212121;
+	color: #fff;
+    border-color: #212121;
+
+}
+
+QPushButton::hover[objectName ^= ignore]
+{
+    background-color: #212121;
+	color: #fff;
+    border-color: #212121;
+}
+
+QPushButton::hover
 {
     background-color: #01579B;
 	color: #fff;
+}
+
+QPushButton[objectName ^= hangup]
+{
+        background-color: #FF3333;
+	    color: #fff;
+        font-weight: bold;
+        border-style: solid;
+        border-color: #242424;
+        border-width: 1px;
+        border-radius: 17px;
+        padding: 10px;
 
 }
 
+QPushButton::checked[objectName ^= microphone]
+{
+    background-color: #FF3333;
+	color: #fff;
+}
+
+QPushButton::checked[objectName ^= webcam]
+{
+    background-color: #FF3333;
+	color: #fff;
+}
 
 /*-----QToolButton-----*/
 QToolButton
