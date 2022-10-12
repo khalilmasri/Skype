@@ -291,5 +291,5 @@ void CentralGui::started_call(int t_caller_id)
     } 
 
     m_on_call = true;
-    m_call->call_accept(t_caller_id, user);
+    m_call->call_accept(user);
 }

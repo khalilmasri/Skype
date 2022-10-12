@@ -1,5 +1,6 @@
 #include "central_gui.hpp"
 #include "contacts.hpp"
+#include "logger.hpp"
 #include "ui/ui_central.h"
 #include "ring_gui.hpp"
 
@@ -190,6 +191,7 @@ void CentralGui::job_send_msg(Job &t_job)
 void CentralGui::job_hangup(Job &t_job)
 {
     static_cast<void>(t_job);
+    LOG_INFO("Hangup call");
     m_on_call = false;
 
     delete m_call;
@@ -197,7 +199,6 @@ void CentralGui::job_hangup(Job &t_job)
 
 void CentralGui::job_awaiting(Job &t_job)
 {
-  LOG_INFO("Incoming call!");
   
   if ( false == t_job.m_boolValue)
   {
@@ -207,6 +208,8 @@ void CentralGui::job_awaiting(Job &t_job)
     return;
   }
 
+  LOG_INFO("Incoming call!");
+  
   RingGui *ring = new RingGui(this);
   QObject::connect(ring, &RingGui::start_call, this, &CentralGui::started_call);
   QString username = m_contact_list[t_job.m_intValue].username;

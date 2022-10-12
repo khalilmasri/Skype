@@ -14,7 +14,10 @@ void Call::connect(Job &t_job) {
 
   std::string peer_id = std::to_string(t_job.m_intValue);
 
+  LOG_DEBUG("Initiating call");
   m_call->connect_peer(peer_id);
+  LOG_DEBUG("Call initiated, waiting for response...");
+
 
   if (m_call->status() != P2P::Awaiting) {
     LOG_ERR("did not call correctly. Exiting...");
@@ -98,6 +101,7 @@ void Call::awaiting(Job &t_job)
   
   if ( false == t_job.m_boolValue ) 
   {
+    LOG_INFO("Awaiting call ended");
     remove_caller(t_job.m_intValue);
     t_job.m_valid = true;
     return;

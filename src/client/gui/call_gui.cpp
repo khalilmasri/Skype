@@ -33,7 +33,7 @@ CallGui::~CallGui()
 
 // ***** PUBLIC ***** //
 
-void CallGui::call_accept(int t_contact_id, QString &t_username)
+void CallGui::call_accept(QString &t_username)
 {
   this->setWindowTitle("Call with " + t_username);
   m_ui->webcam->setChecked(true);
