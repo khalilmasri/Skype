@@ -7,6 +7,7 @@
 #include "job.hpp"
 #include "peer_to_peer.hpp"
 #include "av_stream.hpp"
+#include "av_playback.hpp"
 
 #include <QVector>
 #include <QString>
@@ -24,7 +25,12 @@ public:
   void reject(Job &t_job);
   void awaiting(Job &t_job);
   void remove_caller(int t_caller);
-  void stream();
+
+  /* Audio video IO */
+  void av_stream();
+  void av_playback();
+  /* */
+
   void webcam();
   void mute();
   void hangup();
@@ -35,11 +41,12 @@ private:
 
   using P2PPtr = std::unique_ptr<P2P>;
 
-  bool     m_hangup = false;
-  bool     m_webcam = false;
-  bool     m_mute   = false;
-  P2PPtr   m_call   = nullptr;
-  AVStream m_stream;
+  bool        m_hangup   = false;
+  bool        m_webcam   = false;
+  bool        m_mute     = false;
+  P2PPtr      m_p2pconn = nullptr;
+  AVStream    m_stream;
+  AVPlayback  m_playback;
 
  auto data_callback() -> AVStream::DataCallback;
 

@@ -72,7 +72,43 @@ auto Webcam::capture() -> Webcam::WebcamFrames {
   return frames_captured;
 }
 
+/* */
+
+auto Webcam::valid() const -> bool { return m_valid; }
+
+/* */
+
+void Webcam::convert(WebcamFrames &t_frames, CVMatQueue &t_output) {
+  for (auto &frame : t_frames) {
+    try {
+      cv::Mat mat_frame = cv::imdecode(frame, cv::IMREAD_COLOR);
+      t_output.push(mat_frame);
+
+    } catch (...) {
+      LOG_ERR("Error to decode frames.")
+      m_valid = false;
+    }
+  }
+}
+
+/* Statics */
+
+void Webcam::show(cv::Mat &t_frame) { cv::imshow("Camera", t_frame); };
+
+/* */
+
+void Webcam::wait() {
+
+  const VideoSettings *video_settings = VideoSettings::get_instance();
+  /* 1000ms / 25f = 40ms  when framerate() = 25fs */
+  cv::waitKey(1000 / video_settings->framerate());
+}
+
+/* Private */
+
 auto Webcam::capture_frame() -> Data::DataVector {
+
+  const VideoSettings *video_settings = VideoSettings::get_instance();
 
   std::vector<uchar> buffer;
 
@@ -85,7 +121,8 @@ auto Webcam::capture_frame() -> Data::DataVector {
     }
 
     try {
-      bool result = cv::imencode(".jpeg", m_frame, buffer);
+      bool result =
+          cv::imencode(video_settings->converter_type(), m_frame, buffer);
       if (!result) {
         LOG_ERR("Error to encode frames during capture.")
         m_valid = false;
@@ -99,12 +136,3 @@ auto Webcam::capture_frame() -> Data::DataVector {
 
   return buffer;
 }
-
-void Webcam::wait() {
-
-  const VideoSettings *video_settings = VideoSettings::get_instance();
-  /* 1000ms / 25f = 40ms  when framerate() = 25fs */
-  cv::waitKey(1000 / video_settings->framerate());
-}
-
-auto Webcam::valid() const -> bool { return m_valid; }

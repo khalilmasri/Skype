@@ -8,6 +8,7 @@
 class AVData : public Data {
 
 public:
+  explicit AVData();
   explicit AVData(Data::DataVector &&t_data, Data::type t_type);
   ~AVData() override;
 

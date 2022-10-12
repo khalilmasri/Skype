@@ -1,5 +1,8 @@
 #include "av_data.hpp"
 
+// passing not data creates an empty Data.
+AVData::AVData() : m_type(Data::Empty){};
+
 AVData::AVData(Data::DataVector &&t_data, Data::type t_type) : m_data(t_data), m_type(t_type) {}
 
 auto AVData::get_data() const -> Data::DataVector { return m_data; }

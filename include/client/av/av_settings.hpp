@@ -6,6 +6,7 @@ extern "C" { // required by linker
 }
 
 #include <SDL2/SDL_audio.h>
+#include <string>
 
 /* audio */
 
@@ -86,15 +87,17 @@ public:
   [[nodiscard]] auto height() const -> int;
   [[nodiscard]] auto framerate() const -> int;
   [[nodiscard]] auto capture_size_frames() const -> int;
+  [[nodiscard]] auto converter_type() const -> std::string;
 
 private:
   static VideoSettings *m_instance;
 
-  int m_bitrate = 40000;
-  int m_height = 480;
-  int m_width = 640;
-  int m_framerate = 25;
-  int m_capture_size = 1; // video frames @ 25 fps
+  int         m_bitrate = 40000;
+  int         m_height = 480;
+  int         m_width = 640;
+  int         m_framerate = 25;
+  int         m_capture_size = 1; // video frames @ 25 fps
+  std::string m_converter_type = ".jpeg";
 
   VideoSettings();
 };

@@ -14,6 +14,7 @@ auto VideoSettings::width() const -> int { return m_width; }
 auto VideoSettings::framerate() const -> int { return m_framerate; }
 auto VideoSettings::height() const -> int { return m_height; }
 auto VideoSettings::capture_size_frames() const -> int { return m_capture_size; }
+auto VideoSettings::converter_type() const -> std::string { return m_converter_type; }
 void VideoSettings::delete_instance() { delete m_instance; };
 
 auto VideoSettings::get_instance() -> VideoSettings * {
