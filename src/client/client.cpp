@@ -189,7 +189,7 @@ void Client::chat_send(Job &t_job){
 }
 
 void Client::chat_get_pending(Job &t_job){
-   LOG_DEBUG("Getting pending chats...");
+   LOG_TRACE("Getting pending chats...");
    m_server_req.set_data(new TextData(m_user.get_token() + " " + t_job.m_argument));
    
    t_job.m_chats = m_chat.get_pending(m_server_conn, m_server_req);
@@ -201,7 +201,7 @@ void Client::chat_get_pending(Job &t_job){
       return;
    }
 
-   LOG_DEBUG("No pending messages!");
+   LOG_TRACE("No pending messages!");
    t_job.m_valid = false;
    t_job.m_command = Job::DISCARD;
 }

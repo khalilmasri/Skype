@@ -16,9 +16,9 @@ void Call::connect(Job &t_job) {
 
   m_call->connect_peer(peer_id);
 
-  LOG_ERR("did not call connect correctly. Exiting...");
-  return;
   if (m_call->status() != P2P::Awaiting) {
+    LOG_ERR("did not call correctly. Exiting...");
+    return;
   }
 
   int count = 0;

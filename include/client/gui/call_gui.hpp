@@ -18,6 +18,7 @@ public:
   
   void call_init(int t_contact_id, QString &t_username);
   void video_init(int t_contact_id, QString &t_username);
+  void call_accept(int t_contact_id, QString &t_username);
 
   ~CallGui();
 

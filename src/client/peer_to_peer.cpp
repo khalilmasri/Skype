@@ -344,7 +344,7 @@ void P2P::handshake_initiator(Request &t_req, PeerNetwork t_peer_network) {
 
   std::string response = TextData::to_string(t_req.data());
 
-  if (response == ok_msg) {
+  if (ok_msg == response) {
     LOG_INFO("P2P handshake with '%s' was sucessful. ",
              t_req.m_address.c_str());
     m_status = Connected;
