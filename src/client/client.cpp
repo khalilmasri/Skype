@@ -232,15 +232,7 @@ void Client::call_connect(Job &t_job)
 {
    t_job.m_argument = m_user.get_token();
 
-   //TODO(@khalil): maybe this doesn't need to be on another thread
-   //               first we connect. if succesful we spawn a thread on another
-   //               method just for streaming the data.
-   //               Note that we need 2 THREADS. 1. streaming out data and 
-   //                                            2. reading data from socket and playing it.
-
-   auto thread_work = [&](){m_call.connect(t_job);}; 
-   QThread *call = QThread::create(thread_work);
-   call->start();
+   m_call.connect(t_job); 
 
    t_job.m_command = Job::DISCARD;
 }
@@ -249,11 +241,7 @@ void Client::call_accept(Job &t_job)
 {
    t_job.m_argument = m_user.get_token();
 
-   auto thread_work = [&](){m_call.accept(t_job);};
-
-   // TODO(@khalil): Same as line 228
-   QThread *call = QThread::create(thread_work);
-   call->start();
+   m_call.accept(t_job);
 
    t_job.m_command = Job::DISCARD;
 }

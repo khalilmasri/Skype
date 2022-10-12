@@ -68,6 +68,7 @@ void Call::accept(Job &t_job) {
   m_call = std::make_unique<P2P>(t_job.m_argument);
 
   std::string user_id = std::to_string(t_job.m_intValue);
+  LOG_INFO("Accepting call from %d", t_job.m_intValue);
   m_call->accept_peer(user_id);
 
   if (m_call->status() == P2P::Accepted) {

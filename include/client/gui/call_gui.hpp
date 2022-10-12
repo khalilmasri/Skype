@@ -25,6 +25,7 @@ private slots:
   void on_webcam_clicked();
   void on_microphone_clicked();
   void on_hangup_clicked();
+  void on_menu_clicked();
 
 private:
   Ui::CallGui *m_ui;
