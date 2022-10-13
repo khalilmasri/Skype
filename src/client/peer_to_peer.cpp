@@ -219,6 +219,7 @@ void P2P::ping_peer() {
   std::string response = send_server(ServerCommand::Ping);
 
   if (m_last_reply == Reply::r_201) {
+    LOG_INFO("Receive accept: '%s'", response.c_str());
     m_status = Accepted;
     auto [address, address_type] = StringUtils::split_first(response);
     m_peer_address = std::move(address);
@@ -228,9 +229,12 @@ void P2P::ping_peer() {
     m_status = Awaiting;
     LOG_INFO("%s", response.c_str());
 
+    // premptive hole punch.
+  } else if(m_last_reply == Reply::r_200) {
+
   } else {
     m_status = Error;
-    LOG_ERR("%s", response.c_str());
+    LOG_ERR("The response was '%s' and should have been 201 or 203", response.c_str());
   }
 }
 

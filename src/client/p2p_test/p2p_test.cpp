@@ -36,6 +36,9 @@ void connect_to(P2P &p2p);
 void accept_from(P2P &p2p);
 void free_configs();
 
+static Request audio_req;
+static Request video_req;
+
 /**** Main *****/
 
 auto main(int argc, char **argv) -> int {
@@ -59,7 +62,6 @@ auto main(int argc, char **argv) -> int {
     test_stream(argv[2]);
     return 0;
   }
-
   test_conn(argv[1], argv[2]);
   return 0;
 }
@@ -78,14 +80,12 @@ void test_stream(char *user) {
   P2P p2p = test_conn(user, password);
   auto p2p_ptr = std::make_unique<P2P>(p2p);
 
-  std:: cout << "no test conn?" << std::endl;
-
   auto stream = AVStream();
   auto playback = AVPlayback();
 
   // this callback is jsut to stop the stream on another thread.
   auto stop = [&u, &stream, &playback]() { 
-    std::this_thread::sleep_for(10s); // do it for 10 secs then quit.
+    std::this_thread::sleep_for(20s); // do it for 10 secs then quit.
 
     if(u == "john"){
       stream.stop();
@@ -118,10 +118,12 @@ void test_stream(char *user) {
 
 auto callback(std::unique_ptr<P2P> &p2p) -> AVStream::DataCallback {
 
-  Request audio_req = p2p->make_request();
-  Request video_req = p2p->make_request();
+  audio_req = p2p->make_request();
+  video_req = p2p->make_request();
 
-  return [&p2p, &audio_req, &video_req](Webcam::WebcamFrames &&t_video,
+  std::cout << "------------- Calling callbasck... \n";
+
+  return [&p2p](Webcam::WebcamFrames &&t_video,
                                        Data::DataVector &&t_audio) {
     // send video first
     for (Data::DataVector &frame_data : t_video) {

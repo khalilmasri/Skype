@@ -6,7 +6,9 @@ AVStream::AVStream() : m_input(m_input_queue, AudioDevice::Input) {}
 void AVStream::start() {
   if (m_status == Stopped) {
     m_input.open(); // audio
+    AudioDevice::wait(25);
     m_status = Started;
+
   } else {
     LOG_ERR("Could not START start AVStream because its status is: %s",
             m_status == Invalid ? "'Invalid'." : "'Started'.")
@@ -16,6 +18,7 @@ void AVStream::start() {
 void AVStream::stream(DataCallback &t_callback) {
 
   while (m_status == Started) {
+
 
     // take a frame and wait 1 frame worth of time
     Webcam::WebcamFrames encoded_video = m_webcam.capture();
