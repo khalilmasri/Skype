@@ -7,7 +7,7 @@
 #include "lock_free_audio_queue.hpp"
 #include "peer_to_peer.hpp"
 #include "webcam.hpp"
-
+#include <memory>
 #include <chrono>
 
 using namespace std::chrono_literals;
@@ -31,7 +31,7 @@ public:
   void read_package(P2PPtr &t_p2p_conn);
 
 private:
-  AudioQueuePtr m_audio_queue;
+  AudioQueuePtr m_audio_queue = std::make_unique<LockFreeAudioQueue>();
   AudioConverter m_audio_converter;
   AudioDevice m_audio_output;
   Status m_status = Stopped;

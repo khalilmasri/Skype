@@ -6,6 +6,7 @@
 #include <cstring>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <algorithm>
 #include <unistd.h>
 #include <cerrno>
 #include <array>
@@ -43,6 +44,8 @@ auto UDPTextIO::receive(Request &t_req) const -> bool {
   t_req.m_address = Connection::address_tostring(addr_in)
     + ":"
     + Connection::port_tostring(addr_in); ;
+
+   buffer.erase(std::find(buffer.begin(), buffer.end(), '\0'), buffer.end());
 
   t_req.set_data(new TextData(buffer));
  }

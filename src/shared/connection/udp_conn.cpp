@@ -29,10 +29,12 @@ auto UDPConn::bind_socket(const std::string &t_address) -> bool {
 
   auto address = get_address();
 
+
   int result = bind(get_socket(), reinterpret_cast<struct sockaddr *>(&address),
                  sizeof(address));
 
-  return is_valid(result, "Could not bind socket in UDP connection.");
+
+  return is_valid(result, "Warning: Did not bind UDP socket. If you are a client ignore this warning.");
 }
 
 void UDPConn::set_strategy(IOStrategy *t_io){

@@ -26,7 +26,7 @@ public:
   void stream(DataCallback &t_callback);
 
 private:
-  AudioQueuePtr       m_input_queue;
+  AudioQueuePtr       m_input_queue = std::make_unique<LockFreeAudioQueue>(); 
   AudioDevice         m_input;
   Status              m_status = Stopped;
 
