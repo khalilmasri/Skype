@@ -9,10 +9,9 @@
 #include "av_stream.hpp"
 #include "av_playback.hpp"
 
-#include <QVector>
-#include <QString>
 #include <cstdint>
 #include <memory>
+#include <QVector>
 
 class Call{
 
