@@ -15,6 +15,7 @@ auto VideoSettings::framerate() const -> int { return m_framerate; }
 auto VideoSettings::height() const -> int { return m_height; }
 auto VideoSettings::capture_size_frames() const -> int { return m_capture_size; }
 void VideoSettings::delete_instance() { delete m_instance; };
+auto VideoSettings::camera() -> int { return m_camera; };
 
 auto VideoSettings::get_instance() -> VideoSettings * {
 
@@ -24,6 +25,11 @@ auto VideoSettings::get_instance() -> VideoSettings * {
 
   return m_instance;
 };
+
+void VideoSettings::set_camera(int t_camera)
+{
+  m_camera = t_camera;
+}
 
 AudioSettings::AudioSettings() {
 

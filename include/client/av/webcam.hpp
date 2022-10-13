@@ -15,6 +15,7 @@ public:
   [[nodiscard]] auto capture() -> WebcamFrames;
   [[nodiscard]] auto capture_frame() -> Data::DataVector;
   [[nodiscard]] auto valid() const -> bool;
+  void start();
   static void wait();
 
 private:
@@ -23,7 +24,7 @@ private:
   cv::VideoCapture   m_capture;
   bool               m_valid = true;
 
- // static VideoSettings *m_VIDEO_SETTINGS;
+  VideoSettings *m_VIDEO_SETTINGS;
 };
 
 #endif // WEBCAM_HPP

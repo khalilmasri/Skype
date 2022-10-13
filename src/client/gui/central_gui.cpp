@@ -49,6 +49,7 @@ CentralGui::CentralGui(QWidget *parent) :
 CentralGui::~CentralGui()
 {
     emit wrapping();
+    LOG_INFO("Emitted wrapping");
     delete m_ui;
 }
 

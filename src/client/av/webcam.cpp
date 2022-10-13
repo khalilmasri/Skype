@@ -1,4 +1,5 @@
 #include "webcam.hpp"
+#include "av_settings.hpp"
 #include "logger.hpp"
 #include <exception>
 #include <opencv2/highgui.hpp>
@@ -9,8 +10,18 @@
 
 // VideoSettings *Webcam::m_VIDEO_SETTINGS = VideoSettings::get_instance();
 
-Webcam::Webcam() : m_camera(0) {
+Webcam::Webcam() {}
 
+Webcam::~Webcam() {
+  LOG_INFO("Releasing webcam resources.")
+  m_capture.release();
+  cv::destroyAllWindows();
+}
+
+void Webcam::start()
+{
+  m_VIDEO_SETTINGS = VideoSettings::get_instance();
+  m_camera = m_VIDEO_SETTINGS->camera();
   m_capture.open(m_camera);
 
   if (!m_capture.isOpened()) {
@@ -26,13 +37,6 @@ Webcam::Webcam() : m_camera(0) {
   m_capture.set(cv::CAP_PROP_FRAME_HEIGHT, video_settings->height());
   m_frame = cv::Mat::zeros(video_settings->height(), video_settings->width(),
                            CV_8UC3);
-}
-
-Webcam::~Webcam() {
-
-  LOG_INFO("Releasing webcam resources.")
-  m_capture.release();
-  cv::destroyAllWindows();
 }
 
 auto Webcam::capture() -> Webcam::WebcamFrames {

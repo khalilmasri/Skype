@@ -1,5 +1,7 @@
 #include "SDL.h"
 #include "config.hpp"
+#include <qthread.h>
+#include <unistd.h>
 #define DOCTEST_CONFIG_IMPLEMENT
 #include "audio_device_config.hpp"
 #include "doctest.h"
@@ -11,6 +13,7 @@
 #include <iostream>
 #include <thread>
 
+#define WRAPPING 1
 
 /* / *****!SECTION
 
@@ -49,6 +52,8 @@ int main(int argc, char *argv[]) {
   delete program;
 
   SDL_Quit();
+
+  QThread::sleep(WRAPPING);
 
   return res;
 }

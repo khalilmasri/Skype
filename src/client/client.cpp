@@ -54,7 +54,6 @@ fail:
 }
 
 Client::~Client(){
-   JobBus::create({Job::EXIT});
 }
 
 void Client::client_exit(Job &t_job)
@@ -76,7 +75,7 @@ void Client::client_exit(Job &t_job)
 
    t_job.m_command = Job::DISCARD;
    
-   LOG_INFO("Client disconnected\n");
+   LOG_INFO("Client disconnected");
 }
 
 /* Contact direct */

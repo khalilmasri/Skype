@@ -86,6 +86,8 @@ public:
   [[nodiscard]] auto height() const -> int;
   [[nodiscard]] auto framerate() const -> int;
   [[nodiscard]] auto capture_size_frames() const -> int;
+  [[nodiscard]] auto camera() -> int;
+  void set_camera(int t_camera);
 
 private:
   static VideoSettings *m_instance;
@@ -95,6 +97,7 @@ private:
   int m_width = 640;
   int m_framerate = 25;
   int m_capture_size = 1; // video frames @ 25 fps
+  int m_camera = 0;
 
   VideoSettings();
 };

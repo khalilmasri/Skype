@@ -513,7 +513,7 @@ auto AudioConverter::validate_sample_format() -> bool {
     sample_formats++;
   }
 
-  LOG_ERR("Error: Could not set a valid sample format for this codec.\n")
+  LOG_ERR("Could not set a valid sample format for this codec.")
   m_valid = false;
 
   return m_valid;

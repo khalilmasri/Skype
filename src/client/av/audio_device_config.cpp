@@ -16,7 +16,7 @@ auto AudioDevConfig::get_instance() -> AudioDevConfig * {
       SDL_Init(SDL_INIT_AUDIO);
     }
 
-    std::cout << "Audio device init!\n" << std::endl;
+    LOG_INFO("Audio device init!");
     m_instance = new AudioDevConfig();
   }
 
