@@ -17,6 +17,7 @@ void AVPlayback::start(P2PPtr &t_p2pconn) {
 
       // read_package from network between frames
       read_package_for(t_p2pconn);
+
     };
 
   } else {
@@ -50,40 +51,43 @@ void AVPlayback::buffer(P2PPtr &t_p2p_conn, std::size_t nb_packages) {
 void AVPlayback::read_package_for(P2PPtr &t_p2pconn, std::size_t nb_frames) {
 
   auto video_settings = VideoSettings::get_instance();
-  auto now = std::chrono::steady_clock::now();
-  // calculate milliseconds based on the framerate.
-  auto deadline = std::chrono::milliseconds(
-      (1000 / video_settings->framerate()) * nb_frames);
+  auto now            = std::chrono::steady_clock::now();
 
-  // read packages until deadline
+  /* calculate milliseconds based on the framerate. */
+  auto deadline       = std::chrono::milliseconds
+                                ( (1000 / video_settings->framerate()) * nb_frames);
+
+  /* read packages until deadline */
+  /* if there is nothing to receive read_package may take longer than deadline */
   while (since(now).count() < deadline.count()) {
     read_package(t_p2pconn);
   };
+
 }
 
 void AVPlayback::read_package(P2PPtr &t_p2pconn) {
 
   VideoSettings *video_settings = VideoSettings::get_instance();
-  int capture_size = video_settings->capture_size_frames();
-  Request req = t_p2pconn->make_request();
-  int read_size = 0;
+  int capture_size              = video_settings->capture_size_frames();
+  Request req                   = t_p2pconn->make_request();
+  int read_size                 = 0;
 
   Webcam::WebcamFrames frames;
   frames.reserve(capture_size);
 
-  // we should read exactly the number of frames captured by the other client
+  /* we should read exactly the number of frames captured by the other client */
   while (read_size < capture_size) {
 
-    // receive package from network and validate if it is the correct data type
+    /* receive package from network and validate if it is the correct data type */
     t_p2pconn->receive_package(req);
     const Data *data = req.data();
 
-   // if empty try again 
+   /* if empty try again  */
     if (req.data_type() == Data::Empty) {
       continue;
     }
 
-    // There is an error. Wrong data type.
+    /* There is an error. Wrong data type. */
     if (!valid_data_type(data, Data::Video)) {
       break;
     }
@@ -94,13 +98,13 @@ void AVPlayback::read_package(P2PPtr &t_p2pconn) {
 
   LOG_DEBUG("read %d video frames from socket.", read_size);
 
-  /* convert and load push to video frames queue buffer */
+  /* convert and push  franes to video queue buffer */
   if (m_status != Invalid) {
     m_webcam.convert(frames, m_video_queue);
   }
 
   
-  // read until we got data
+  /* If package is empty,read again until we get data */
   if (req.data_type() == Data::Empty) {
     while(req.data_type() == Data::Empty) {
       t_p2pconn->receive_package(req);

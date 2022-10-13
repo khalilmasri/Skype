@@ -40,16 +40,18 @@ private:
 
   void load_audio(const Data *t_audio_data);
 
-// count time 
-template <
-    class result_t   = std::chrono::milliseconds,
-    class clock_t    = std::chrono::steady_clock,
-    class duration_t = std::chrono::milliseconds
->
+/* time counter */
 
+template <
+    typename result_t   = std::chrono::milliseconds,
+    typename clock_t    = std::chrono::steady_clock,
+    typename duration_t = std::chrono::milliseconds
+>
 auto since(std::chrono::time_point<clock_t, duration_t> const& start) {
     return std::chrono::duration_cast<result_t>(clock_t::now() - start);
 }
+
+/* */
 
   auto valid_data_type(const Data *t_data, Data::type t_type) -> bool;
   auto valid_read_size(int t_read_size, int t_correct_size) -> bool;

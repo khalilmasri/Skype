@@ -98,8 +98,8 @@ void Call::reject(Job &t_job) {
 void Call::awaiting(Job &t_job)
 {
   
-  if ( false == t_job.m_boolValue ) {
     remove_caller(t_job.m_intValue);
+    if ( false == t_job.m_boolValue ) {
     t_job.m_valid = true;
     return;
   }
@@ -153,9 +153,13 @@ void Call::av_stream() {
 /* */
 
 void Call::av_playback(){
-  // buffers n data packages
-  // of av data (each packages has VideoSettings::m_capture_size
-  // frames of audio and video)
+
+  /* NOTE: AVPlayback::buffer(conn, n);
+   *       buffers 'n' number of data packages of AVdata before playback.
+   *       A package has VideoSettings::m_capture_size
+   *       frames of audio and video.
+   */
+
   m_playback.buffer(m_p2pconn, 5);
   m_playback.start(m_p2pconn);
 }
