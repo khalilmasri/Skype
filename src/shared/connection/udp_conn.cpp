@@ -19,7 +19,7 @@ UDPConn::UDPConn(int t_port, IOStrategy *t_io)
                                                     
 // unbound sockets does not need a port number so we don't need one. Kernel will assign updon sendfrom(4)
  UDPConn::UDPConn(IOStrategy *t_io)
-    : Connection(0, SOCK_DGRAM), m_io(t_io) {} 
+    : Connection(7000, SOCK_DGRAM), m_io(t_io) {} 
 
 auto UDPConn::bind_socket(const std::string &t_address) -> bool {
 
