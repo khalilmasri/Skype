@@ -91,7 +91,7 @@ auto Connection::to_sockaddr_in(const std::string &t_port, const std::string &t_
     addr_in.sin_port = htons(port);
 
   } catch (...) {
-    LOG_ERR("Invalid port integer %s", t_port.c_str());
+    LOG_ERR("Invalid port integer '%s'", t_port.c_str());
     addr_in.sin_port = htons(0); /// if cannot convert set port to 0.
   }
 

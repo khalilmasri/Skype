@@ -124,7 +124,7 @@ void P2P::handshake_peer() {
     return;
   }
 
-  Request req(m_peer_address, true); // m_valid = true
+  Request req(m_peer_address + ":" + std::to_string(m_conn.get_port()), true); // m_valid = true
 
   /* if m_network_type = WEB handshake will hole punch */
   if (m_type == Acceptor) {
@@ -228,10 +228,6 @@ void P2P::ping_peer() {
   } else if (m_last_reply == Reply::r_203) {
     m_status = Awaiting;
     LOG_INFO("%s", response.c_str());
-
-    // premptive hole punch.
-  } else if(m_last_reply == Reply::r_200) {
-
   } else {
     m_status = Error;
     LOG_ERR("The response was '%s' and should have been 201 or 203", response.c_str());
