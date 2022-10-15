@@ -18,6 +18,7 @@ public:
   [[nodiscard]] auto capture() -> WebcamFrames;
   [[nodiscard]] auto valid() const -> bool;
   void               convert(WebcamFrames &t_frames, CVMatQueue &t_output);
+  void               stop();
 
   static void show(cv::Mat &t_frame);
   void start();

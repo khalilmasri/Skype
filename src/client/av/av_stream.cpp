@@ -9,6 +9,7 @@ AVStream::AVStream() : m_input(m_input_queue, AudioDevice::Input) {}
 void AVStream::start() {
   if (m_status == Stopped) {
     m_input.open();        // audio
+    m_webcam.start();
     AudioDevice::wait(25); // frames
     m_status = Started;
 
@@ -23,15 +24,10 @@ void AVStream::stream(DataCallback &t_callback) {
   while (m_status == Started) {
 
     // take a frame and wait 1 frame worth of time
-    LOG_DEBUG("Capturing video and encoding video...")
     Webcam::WebcamFrames encoded_video = m_webcam.capture();
-    LOG_DEBUG("Video capture done!")
 
     // convert first audio buffer from the audio queue.
-    LOG_DEBUG("Pulling audio from queue and converting...")
     Data::DataVector encoded_audio = m_converter.encode(m_input_queue);
-    LOG_DEBUG("Audio encoding done!")
-
     // check if conversion and frame capture were successful
     validate();
 
@@ -42,6 +38,7 @@ void AVStream::stream(DataCallback &t_callback) {
 void AVStream::stop() {
   if (m_status == Started) {
     m_input.close();
+    m_webcam.stop();
     m_status = Stopped;
   } else {
     LOG_ERR("Cannot STOP AVStream because its status is: %s",
@@ -60,9 +57,8 @@ using namespace std::chrono_literals;
 TEST_CASE("AVStreaming") {
 
   auto stream = AVStream();
-
   auto stop = [&stream]() {
-    std::this_thread::sleep_for(20s); // do it for 10 secs then quit.
+    std::this_thread::sleep_for(2s); // do it for 10 secs then quit.
     stream.stop();
   };
 

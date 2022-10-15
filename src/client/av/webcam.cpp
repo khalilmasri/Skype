@@ -10,13 +10,14 @@
 Webcam::Webcam() {}
 
 Webcam::~Webcam() {
-  LOG_INFO("Releasing webcam resources.")
-  m_capture.release();
-  cv::destroyAllWindows();
+
+  if (m_capture.isOpened()) {
+    LOG_INFO("Camera was not closed. Releasing in destructor.")
+    stop();
+  }
 }
 
-void Webcam::start()
-{
+void Webcam::start() {
   m_VIDEO_SETTINGS = VideoSettings::get_instance();
   m_camera = m_VIDEO_SETTINGS->camera();
   m_capture.open(m_camera);
@@ -28,35 +29,40 @@ void Webcam::start()
 
   LOG_INFO("Webcam has opened.")
 
-  const VideoSettings *video_settings = VideoSettings::get_instance();
-
-  m_capture.set(cv::CAP_PROP_FRAME_WIDTH, video_settings->width());
-  m_capture.set(cv::CAP_PROP_FRAME_HEIGHT, video_settings->height());
-  m_frame = cv::Mat::zeros(video_settings->height(), video_settings->width(),
+  m_capture.set(cv::CAP_PROP_FRAME_WIDTH, m_VIDEO_SETTINGS->width());
+  m_capture.set(cv::CAP_PROP_FRAME_HEIGHT, m_VIDEO_SETTINGS->height());
+  m_frame = cv::Mat::zeros(m_VIDEO_SETTINGS->height(), m_VIDEO_SETTINGS->width(),
                            CV_8UC3);
+}
+
+void Webcam::stop() {
+  LOG_INFO("Releasing webcam resources.")
+  m_capture.release();
+  cv::destroyAllWindows();
 }
 
 auto Webcam::capture() -> Webcam::WebcamFrames {
 
-  const VideoSettings *video_settings = VideoSettings::get_instance();
 
   if (!m_valid) {
     LOG_ERR("Could not capture. Webcam in an invalid state.")
   }
 
-  int nb_frames = video_settings->capture_size_frames();
+
+  int nb_frames = m_VIDEO_SETTINGS->capture_size_frames();
   int index = 0;
   WebcamFrames frames_captured;
   frames_captured.reserve(nb_frames);
 
   while (m_valid && (nb_frames > index)) {
+
     m_capture.read(m_frame);
 
     if (m_frame.empty()) {
       LOG_ERR("Could not capture frame.");
       break;
     }
-    cv::imshow("Camera", m_frame);
+
     std::vector<uchar> buffer;
 
     Data::DataVector data = capture_frame();
@@ -66,10 +72,12 @@ auto Webcam::capture() -> Webcam::WebcamFrames {
     }
 
     index++;
-
+    // cv::imshow("Camera", m_frame);
     Webcam::wait();
+
   }
 
+  
   return frames_captured;
 }
 
@@ -98,18 +106,16 @@ void Webcam::show(cv::Mat &t_frame) { cv::imshow("Camera", t_frame); };
 
 /* */
 
-void Webcam::wait() {
-
+void Webcam::wait() { // STATIC
   const VideoSettings *video_settings = VideoSettings::get_instance();
   /* 1000ms / 25f = 40ms  when framerate() = 25fs */
+  LOG_DEBUG("Waiting ---> %d", 1000 / video_settings->framerate())
   cv::waitKey(1000 / video_settings->framerate());
 }
 
 /* Private */
 
 auto Webcam::capture_frame() -> Data::DataVector {
-
-  const VideoSettings *video_settings = VideoSettings::get_instance();
 
   std::vector<uchar> buffer;
 
@@ -122,8 +128,7 @@ auto Webcam::capture_frame() -> Data::DataVector {
     }
 
     try {
-      bool result =
-          cv::imencode(video_settings->converter_type(), m_frame, buffer);
+      bool result = cv::imencode(m_VIDEO_SETTINGS->converter_type(), m_frame, buffer);
       if (!result) {
         LOG_ERR("Error to encode frames during capture.")
         m_valid = false;

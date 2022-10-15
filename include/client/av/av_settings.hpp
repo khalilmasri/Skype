@@ -100,7 +100,7 @@ private:
   int m_height = 480;
   int m_width = 640;
   int m_framerate = 25;
-  int m_capture_size = 1; // video frames @ 25 fps
+  int m_capture_size = 2; // video frames @ 25 fps
   int m_camera = 0;
 
   VideoSettings();
