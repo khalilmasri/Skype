@@ -14,6 +14,7 @@ class AudioSettings {
 
   enum CodecID {
     mp3 = AV_CODEC_ID_MP3,
+    mp3_alt = AV_CODEC_ID_MP3ADU,
     mp2 = AV_CODEC_ID_MP2,
     vorbis = AV_CODEC_ID_VORBIS,
     opus = AV_CODEC_ID_OPUS,
@@ -56,7 +57,7 @@ private:
   static AudioSettings *m_instance;
 
   CodecID m_codec_id = mp3;
-  CodecID m_codec_id_alt = mp2;                  // alternative in case first option is not avail.
+  CodecID m_codec_id_alt = mp3_alt;                  // alternative in case first option is not avail.
   int m_channels = 1;
   int m_bitrate = 128000;
   int m_samplerate = 44100;
