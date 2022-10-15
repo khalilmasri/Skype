@@ -314,9 +314,9 @@ void P2P::handshake_acceptor(Request &t_req, PeerNetwork t_peer_network) {
 
     m_status = Connected;
     t_req.set_data(new TextData(ok_msg));
+    m_conn.respond(t_req);
 
   } else {
-    m_conn.respond(t_req);
     LOG_ERR("P2P handshake message '%s' should be '200 OK'. Handshake failed.",
             response.c_str());
 
@@ -339,7 +339,7 @@ void P2P::handshake_initiator(Request &t_req, PeerNetwork t_peer_network) {
   LOG_DEBUG("Intiator: Sending 200 OK to confirm.");
   m_conn.respond(t_req);
 
-  LOG_DEBUG("Intiator: Handhake sent. now waiting for 0K response...")
+  LOG_DEBUG("Intiator: Handshake sent. now waiting for OK response...")
   m_conn.receive(t_req);
 
   std::string response = TextData::to_string(t_req.data());
