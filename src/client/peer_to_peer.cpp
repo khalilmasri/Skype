@@ -110,10 +110,10 @@ auto P2P::receive_package(Request &t_req) -> Request {
 /* */
 
 void P2P::reset() {
-  m_last_reply = Reply::None;
+  m_last_reply   = Reply::None;
   m_peer_address = {};
-  m_status = Idle;
-  m_type = None;
+  m_status       = Idle;
+  m_type         = None;
 }
 
 /* */
@@ -148,7 +148,6 @@ void P2P::connect_peer(std::string &t_peer_id) {
 
   /* add client local addr as arg to CONNECT */
   std::string argument = t_peer_id + " " + m_local_ip.get_first();
-
   std::string response = send_server(ServerCommand::Connect, argument);
 
   m_type = Initiator;
@@ -177,10 +176,10 @@ void P2P::accept_peer(std::string &t_peer_id) {
   std::string response = send_server(ServerCommand::Accept, argument);
 
   if (m_last_reply == Reply::r_201) {
-    m_status = Accepted;
+    m_status                     = Accepted;
     auto [address, address_type] = StringUtils::split_first(response);
-    m_peer_address = std::move(address);
-    m_network_type = address_type == m_LOCAL ? Local : Web;
+    m_peer_address               = std::move(address);
+    m_network_type               = address_type == m_LOCAL ? Local : Web;
 
   } else {
     m_status = Error;
@@ -192,8 +191,7 @@ void P2P::accept_peer(std::string &t_peer_id) {
 
 void P2P::reject_peer(std::string &t_peer_id) {
 
-  m_type = Acceptor;
-
+  m_type               = Acceptor;
   std::string response = send_server(ServerCommand::Reject, t_peer_id);
 
   if (m_last_reply == Reply::r_200) {
@@ -219,18 +217,20 @@ void P2P::ping_peer() {
   std::string response = send_server(ServerCommand::Ping);
 
   if (m_last_reply == Reply::r_201) {
-    LOG_INFO("Receive accept: '%s'", response.c_str());
-    m_status = Accepted;
+
+    m_status                     = Accepted;
     auto [address, address_type] = StringUtils::split_first(response);
-    m_peer_address = std::move(address);
-    m_network_type = address_type == "LOCAL" ? Local : Web;
+    m_peer_address               = std::move(address);
+    m_network_type               = address_type == "LOCAL" ? Local : Web;
 
   } else if (m_last_reply == Reply::r_203) {
     m_status = Awaiting;
     LOG_INFO("%s", response.c_str());
+
   } else {
     m_status = Error;
     LOG_ERR("The response was '%s' and should have been 201 or 203", response.c_str());
+
   }
 }
 

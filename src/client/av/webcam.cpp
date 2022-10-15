@@ -7,8 +7,6 @@
 #include <string>
 #include <vector>
 
-// VideoSettings *Webcam::m_VIDEO_SETTINGS = VideoSettings::get_instance();
-
 Webcam::Webcam() : m_camera(0) {
 
   m_capture.open(m_camera);

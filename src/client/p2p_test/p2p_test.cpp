@@ -83,7 +83,7 @@ void test_stream(char *user) {
   auto stream = AVStream();
   auto playback = AVPlayback();
 
-  // this callback is jsut to stop the stream on another thread.
+  // this callback is just to stop the stream on another thread.
   auto stop = [&u, &stream, &playback]() { 
     std::this_thread::sleep_for(20s); // do it for 10 secs then quit.
 
@@ -118,13 +118,14 @@ void test_stream(char *user) {
 
 auto callback(std::unique_ptr<P2P> &p2p) -> AVStream::DataCallback {
 
-  audio_req = p2p->make_request();
-  video_req = p2p->make_request();
-
-  std::cout << "------------- Calling callbasck... \n";
-
+  
   return [&p2p](Webcam::WebcamFrames &&t_video,
                                        Data::DataVector &&t_audio) {
+
+   audio_req = p2p->make_request();
+   video_req = p2p->make_request();
+
+
     // send video first
     for (Data::DataVector &frame_data : t_video) {
       video_req.set_data(new AVData(std::move(frame_data), Data::Video));

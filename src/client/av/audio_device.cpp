@@ -78,6 +78,13 @@ void AudioDevice::wait(int t_frames) {
   SDL_Delay(1000 / config_video->framerate() * t_frames);
 };
 
+void AudioDevice::start_sdl(){
+  Uint32 subsystem_init = 0;
+  if (SDL_WasInit(subsystem_init & SDL_INIT_AUDIO) <= 0) {
+    SDL_Init(SDL_INIT_AUDIO);
+  }
+}
+
 void AudioDevice::log_on_mismatch_audiospec(SDL_AudioSpec t_want, SDL_AudioSpec t_have) {
 
   if (t_have.channels != t_want.channels) {

@@ -15,15 +15,12 @@ int main(int argc, char *argv[]) {
   // This will run tests only when --test is passed to client
   int res = Tester::test(argc, argv);
 
-  if (res > 0) {
+  // don't launch guy when testing.
+  if (res > 0 || Tester::did_test(argc, argv)) {
     return res;
   }
 
-  Uint32 subsystem_init = 0;
-
-  if (SDL_WasInit(subsystem_init & SDL_INIT_AUDIO) <= 0) {
-    SDL_Init(SDL_INIT_AUDIO);
-  }
+  AudioDevice::start_sdl(); // SDL init
 
   QApplication a(argc, argv);
   QFile stylesheetFile("../misc/stylesheet/stylesheet.qss");

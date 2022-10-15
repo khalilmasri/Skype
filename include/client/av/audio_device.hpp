@@ -26,6 +26,8 @@ class AudioDevice {
   void close();
   static void wait(int t_frames);
 
+  static void start_sdl();
+
   private:
     SDL_AudioDeviceID m_dev        = 0;
     Status            m_status     = Closed;
