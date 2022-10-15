@@ -50,12 +50,11 @@ void AVPlayback::buffer(P2PPtr &t_p2p_conn, std::size_t nb_packages) {
 
 void AVPlayback::read_package_for(P2PPtr &t_p2pconn, std::size_t nb_frames) {
 
-  auto video_settings = VideoSettings::get_instance();
+  auto *video_settings = VideoSettings::get_instance();
   auto now            = std::chrono::steady_clock::now();
 
   /* calculate milliseconds based on the framerate. */
-  auto deadline       = std::chrono::milliseconds
-                                ( (1000 / video_settings->framerate()) * nb_frames);
+  auto deadline       = std::chrono::milliseconds ( (1000 / video_settings->framerate()) * nb_frames);
 
   /* read packages until deadline */
   /* if there is nothing to receive read_package may take longer than deadline */
@@ -67,7 +66,7 @@ void AVPlayback::read_package_for(P2PPtr &t_p2pconn, std::size_t nb_frames) {
 
 void AVPlayback::read_package(P2PPtr &t_p2pconn) {
 
-  VideoSettings *video_settings = VideoSettings::get_instance();
+  auto *video_settings          = VideoSettings::get_instance();
   int capture_size              = video_settings->capture_size_frames();
   Request req                   = t_p2pconn->make_request();
   int read_size                 = 0;

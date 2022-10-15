@@ -8,7 +8,7 @@
 class Data {
 
 public:
-  enum type { Audio = 0, Video = 1, Text = 2, Empty = 3 };
+  enum type { Audio = 1, Video = 2, Text = 3, Empty = 4 };
   using DataVector = std::vector<uint8_t>;
 
   [[nodiscard]] virtual auto get_type() const -> type = 0;

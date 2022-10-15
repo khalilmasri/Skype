@@ -26,8 +26,13 @@ void AVStream::stream(DataCallback &t_callback) {
     // take a frame and wait 1 frame worth of time
     Webcam::WebcamFrames encoded_video = m_webcam.capture();
 
+    LOG_DEBUG("Encoded video size: %d", encoded_video.size());
+
     // convert first audio buffer from the audio queue.
     Data::DataVector encoded_audio = m_converter.encode(m_input_queue);
+
+    LOG_DEBUG("Encoded audio size: %d", encoded_audio.size());
+
     // check if conversion and frame capture were successful
     validate();
 
@@ -54,29 +59,29 @@ void AVStream::validate() {
 
 using namespace std::chrono_literals;
 
-TEST_CASE("AVStreaming") {
-
-  auto stream = AVStream();
-  auto stop = [&stream]() {
-    std::this_thread::sleep_for(2s); // do it for 10 secs then quit.
-    stream.stop();
-  };
-
-
-  AVStream::DataCallback cb = [](Webcam::WebcamFrames &&t_video,
-                                 Data::DataVector &&t_audio) {
-    std::cout << "frames: " << t_video.size() << std::endl;
-    std::cout << "audio bites: " << t_audio.size() << std::endl;
-  };
-
-  SUBCASE("Testing case") {
-
-    stream.start();
-    std::thread t(stop);
-
-    stream.stream(cb);
-    
-    t.join();
-    // CHECK(2 == 1);
-  }
-}
+//TEST_CASE("AVStreaming") {
+//
+//  auto stream = AVStream();
+//  auto stop = [&stream]() {
+//    std::this_thread::sleep_for(2s); // do it for 10 secs then quit.
+//    stream.stop();
+//  };
+//
+//
+//  AVStream::DataCallback cb = [](Webcam::WebcamFrames &&t_video,
+//                                 Data::DataVector &&t_audio) {
+//    std::cout << "frames: " << t_video.size() << std::endl;
+//    std::cout << "audio bites: " << t_audio.size() << std::endl;
+//  };
+//
+//  SUBCASE("Testing case") {
+//
+//    stream.start();
+//    std::thread t(stop);
+//
+//    stream.stream(cb);
+//    
+//    t.join();
+//    // CHECK(2 == 1);
+//  }
+//}

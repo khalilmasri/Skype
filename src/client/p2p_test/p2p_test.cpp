@@ -108,7 +108,6 @@ void test_stream(char *user) {
 
   // shakira receives
   if(u == "shakira"){
-
     playback.buffer(p2p_ptr, 1);
     playback.start(p2p_ptr);
   }
