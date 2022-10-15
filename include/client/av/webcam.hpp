@@ -20,6 +20,8 @@ public:
   void               convert(WebcamFrames &t_frames, CVMatQueue &t_output);
 
   static void show(cv::Mat &t_frame);
+  void start();
+
   static void wait();
 
 private:
@@ -30,7 +32,7 @@ private:
 
   auto capture_frame() -> Data::DataVector;
 
- // static VideoSettings *m_VIDEO_SETTINGS;
+  VideoSettings *m_VIDEO_SETTINGS;
 };
 
 #endif // WEBCAM_HPP

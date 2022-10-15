@@ -5,6 +5,7 @@
 
 #include <cstring>
 #include <netinet/in.h>
+#include <algorithm>
 #include <arpa/inet.h>
 #include <algorithm>
 #include <unistd.h>
@@ -45,8 +46,7 @@ auto UDPTextIO::receive(Request &t_req) const -> bool {
     + ":"
     + Connection::port_tostring(addr_in); ;
 
-   buffer.erase(std::find(buffer.begin(), buffer.end(), '\0'), buffer.end());
-
+  buffer.erase(std::find(buffer.begin(), buffer.end(), '\0'), buffer.end());
   t_req.set_data(new TextData(buffer));
  }
 

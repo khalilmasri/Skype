@@ -15,8 +15,8 @@ void Call::connect(Job &t_job) {
   m_p2pconn->connect_peer(peer_id);
 
   LOG_ERR("did not call connect correctly. Exiting...");
-  return;
   if (m_p2pconn->status() != P2P::Awaiting) {
+    return;
   }
 
   int count = 0;
@@ -68,6 +68,7 @@ void Call::accept(Job &t_job) {
 
   std::string user_id = std::to_string(t_job.m_intValue);
   m_p2pconn->accept_peer(user_id);
+  LOG_INFO("Accepting call from %d", t_job.m_intValue);
 
   if (m_p2pconn->status() == P2P::Accepted) {
     LOG_INFO("Accepted was sucessful");
@@ -95,11 +96,12 @@ void Call::reject(Job &t_job) {
 
 /* */
 
-void Call::awaiting(Job &t_job)
-{
+void Call::awaiting(Job &t_job) {
   
+  if ( false == t_job.m_boolValue ) {
+
+    LOG_INFO("Awaiting call ended");
     remove_caller(t_job.m_intValue);
-    if ( false == t_job.m_boolValue ) {
     t_job.m_valid = true;
     return;
   }

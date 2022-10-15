@@ -57,7 +57,7 @@ class Logger
                     std::printf(msg, args...);
                     #pragma clang diagnostic pop
 
-                    std::cout << std::endl;
+                    std::cout << "\033[0m" << std::endl;
                 }
             }
         }
@@ -83,31 +83,31 @@ class Logger
         template<typename... Args>
         static void Debug(const char* file, const char* func, int line, const char* msg, Args... args)
         {
-            log("[Debug]||", debug, file, line, func, msg, args...);
+            log("\x1B[33m[Debug]||", debug, file, line, func, msg, args...);
         }
 
         template<typename... Args>
         static void Info(const char* file, const char* func, int line, const char* msg, Args... args)
         {
-            log("[Info]||", info, file, line, func, msg, args...);
+            log("\x1B[32m[Info]||", info, file, line, func, msg, args...);
         }
 
         template<typename... Args>
         static void Warning(const char* file, const char* func, int line, const char* msg, Args... args)
         {
-            log("[Warning]||", warning, file, line, func, msg, args...);
+            log("\x1B[93m[Warning]||", warning, file, line, func, msg, args...);
         }
 
         template<typename... Args>
         static void Error(const char* file, const char* func, int line, const char* msg, Args... args)
         {
-            log("[Error]||", error, file, line, func, msg, args...);
+            log("\x1B[35m[Error]||", error, file, line, func, msg, args...);
         }
 
         template<typename... Args>
         static void Critical(const char* file, const char* func, int line, const char* msg, Args... args)
         {
-            log("[Critical]||", critical, file, line, func, msg, args...);
+            log("\x1B[31m[Critical]||", critical, file, line, func, msg, args...);
         }
 };
 

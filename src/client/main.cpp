@@ -1,4 +1,7 @@
 #include "SDL.h"
+#include "config.hpp"
+#include <qthread.h>
+#include <unistd.h>
 #define DOCTEST_CONFIG_IMPLEMENT
 #include "audio_device_config.hpp"
 #include "doctest.h"
@@ -10,8 +13,19 @@
 #include <iostream>
 #include <thread>
 
+#define WRAPPING 1
+
+/* / *****!SECTION
+
+Fix bug when hanging up while handshaking to reset on call boolean in call_gui class
+
+
+******/
+static Config *conf = Config::get_instance();
+
 int main(int argc, char *argv[]) {
 
+  Logger::setPriority(static_cast<logPriority>(conf->get<int>("LOGGER_LEVEL")));
   // This will run tests only when --test is passed to client
   int res = Tester::test(argc, argv);
 
@@ -35,6 +49,8 @@ int main(int argc, char *argv[]) {
   delete program;
 
   SDL_Quit();
+
+  QThread::sleep(WRAPPING);
 
   return res;
 }

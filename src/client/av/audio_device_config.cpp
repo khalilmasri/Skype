@@ -16,6 +16,7 @@ auto AudioDevConfig::get_instance() -> AudioDevConfig * {
       SDL_Init(SDL_INIT_AUDIO);
     }
 
+    LOG_INFO("Init audio config!");
     m_instance = new AudioDevConfig();
   }
 
