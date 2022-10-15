@@ -38,8 +38,7 @@ auto StreamIO::respond(Request &t_req) const -> bool {
   /* send header first */
   if (t_req.m_valid) {
     res = send_data(t_req, addr_in, header);
-    t_req.m_valid =
-        is_valid(static_cast<int>(res), "UDPTextIO could not send header.");
+    t_req.m_valid = is_valid(static_cast<int>(res), "StreamIO could not send header.");
   }
 
   LOG_DEBUG("Sent header! %d", header.size());
@@ -47,8 +46,9 @@ auto StreamIO::respond(Request &t_req) const -> bool {
   /* send data header was sent succesfully */
   if (t_req.m_valid) {
     res = send_data(t_req, addr_in, data);
-    t_req.m_valid =
-        is_valid(static_cast<int>(res), "UDPTextIO could not send data.");
+
+    perror("Error::: ");
+    t_req.m_valid = is_valid(static_cast<int>(res), "StreamIO could not send data.");
   }
 
   return t_req.m_valid;
@@ -71,8 +71,8 @@ auto StreamIO::receive(Request &t_req) const -> bool {
   ssize_t res = receive_data(t_req, &addr_in, header);
 
   if (res == 0) { // nothing to receive
-    LOG_DEBUG("StreamIO had nothing to receive. Producing an Data::Empty "
-              "AVData object.")
+    LOG_DEBUG("StreamIO had nothing to receive. Producing an Data::Empty " "AVData object.")
+
     t_req.set_data(new AVData());
     return t_req.m_valid;
   }
@@ -114,6 +114,18 @@ auto StreamIO::receive(Request &t_req) const -> bool {
 
 auto StreamIO::send_data(Request &t_req, sockaddr_in t_addrin,
                          Data::DataVector &t_data) -> ssize_t {
+
+ // TODO: Divide by 10
+ //     number of iterations of loop
+ //     9003 % 10 = 3 remainder
+ //     9003 - 3  = 9000
+ //     9000 / 10 = 900
+ //
+ //  [[type]] | [size][data][size][data][data] -> keep this 11 packages for video
+
+    LOG_DEBUG("Data size being sent: %d", t_data.size());
+    LOG_DEBUG("Type of data: %s", Data::type_to_string(t_req.data()->get_type()).c_str());
+ // LOG_DEBUG("first char: %c", t_data.data()[0]);
 
   return sendto(t_req.m_socket, t_data.data(), t_data.size(), 0,
                 reinterpret_cast<struct sockaddr *>(&t_addrin),
