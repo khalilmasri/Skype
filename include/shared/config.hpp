@@ -70,8 +70,7 @@ class Config {
    #if __APPLE__ || __MACH__ || __linux__
 
    /* path to .conf /home/$USER/.skype.conf for OSX & Linux */                                  
-   const fs::path      m_PATH { getenv("HOME") + std::string(CONFIG_FILE) };
-
+   const fs::path      m_PATH {getenv("HOME") + std::string(CONFIG_FILE) };
    #else
 
    /* Other systems not supported. use defaults. */                                  
@@ -95,6 +94,5 @@ class Config {
     bool               key_exists(const std::string &t_key) const;
 
 };
-
 
 #endif
