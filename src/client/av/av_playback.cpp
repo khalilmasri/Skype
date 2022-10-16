@@ -127,7 +127,7 @@ void AVPlayback::load_audio(const Data *t_audio_data) {
   }
 }
 
-auto AVPlayback::valid_data_type(const Data *t_data, Data::type t_type)
+auto AVPlayback::valid_data_type(const Data *t_data, Data::Type t_type)
     -> bool {
 
   if (t_data->get_type() != t_type) {
