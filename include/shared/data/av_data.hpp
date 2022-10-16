@@ -8,18 +8,18 @@
 class AVData : public Data {
 
 public:
+  explicit AVData(Data::DataVector &&t_data, Data::Type t_type);
   explicit AVData();
-  explicit AVData(Data::DataVector &&t_data, Data::type t_type);
   ~AVData() override;
 
-  [[nodiscard]] auto get_type() const -> Data::type override;
+  [[nodiscard]] auto get_type() const -> Data::Type override;
   [[nodiscard]] auto get_data() const -> Data::DataVector override;
   [[nodiscard]] auto empty() const -> bool override;
   [[nodiscard]] auto size() const -> std::size_t override;
 
 private:
   Data::DataVector m_data;
-  const Data::type m_type;
+  const Data::Type m_type;
 };
 
 #endif
