@@ -80,7 +80,7 @@ void AVPlayback::read_package(P2PPtr &t_p2pconn) {
     /* receive package from network and validate if it is the correct data type */
     t_p2pconn->receive_package(req);
     const Data *data = req.data();
-
+    LOG_DEBUG("av data_size = %d", data->size());
    /* if empty try again  */
     if (req.data_type() == Data::Empty) {
       continue;
@@ -90,7 +90,7 @@ void AVPlayback::read_package(P2PPtr &t_p2pconn) {
     if (!valid_data_type(data, Data::Video)) {
       break;
     }
-
+    LOG_DEBUG("data_size: %d", data->get_data().size());
     frames.push_back(data->get_data());
     read_size++;
   };

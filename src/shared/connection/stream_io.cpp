@@ -56,7 +56,8 @@ auto StreamIO::receive(Request &t_req) const -> bool {
 
   sockaddr_in addr_in;
   PacketInfoTuple pkt_info = receive_header(t_req, &addr_in);
-
+  auto [type, number_pkts, size_packets, rem_size] = pkt_info;
+  LOG_DEBUG("type: %c, number: %d, size: %d, rem: %d", type, number_pkts, size_packets, rem_size);
   Data::Type data_type = Data::char_to_type(std::get<0>(pkt_info)); // grab type here
 
   if(data_type == Data::Empty){
@@ -66,11 +67,11 @@ auto StreamIO::receive(Request &t_req) const -> bool {
 
   Data::DataVector data = receive_data(t_req, &addr_in, pkt_info);
   t_req.m_address       = Connection::address_tostring(addr_in) + ":" + Connection::port_tostring(addr_in);
-
+  
   if (t_req.m_valid) { 
     t_req.set_data(new AVData(std::move(data), data_type));
   } 
-
+  
   return t_req.m_valid;
 };
 
@@ -130,9 +131,7 @@ void StreamIO::send_data(Request &t_req, sockaddr_in t_addrin, Data::DataVector 
 auto StreamIO::receive_header(Request &t_req, sockaddr_in *t_addrin) -> PacketInfoTuple{
 
   socklen_t addr_len = sizeof((*t_addrin));
-  Data::DataVector header;
-
-  header.reserve(m_HEADER_SIZE);
+  Data::DataVector header(m_HEADER_SIZE, 0);
 
    int result = recvfrom(t_req.m_socket, header.data(), m_HEADER_SIZE, 0, reinterpret_cast<struct sockaddr *>(t_addrin), &addr_len);
 
@@ -140,6 +139,10 @@ auto StreamIO::receive_header(Request &t_req, sockaddr_in *t_addrin) -> PacketIn
       LOG_ERR("StreamIO could not read header.");
       t_req.m_valid = false;
       return {0,0,0,0};
+   }
+
+   while(result != m_HEADER_SIZE){
+      result = recvfrom(t_req.m_socket, header.data(), m_HEADER_SIZE, 0, reinterpret_cast<struct sockaddr *>(t_addrin), &addr_len);
    }
 
    return read_header(header);
@@ -153,8 +156,7 @@ auto StreamIO::receive_data(Request &t_req, sockaddr_in *t_addrin, PacketInfoTup
   socklen_t addr_len = sizeof((*t_addrin));
   auto [data_type, nb_packets, packet_size, rem_size] = t_pkt_info;
 
-  Data::DataVector data;
-  data.reserve((nb_packets * packet_size) + rem_size);
+  Data::DataVector data((nb_packets * packet_size) + rem_size, 0);
 
   uint8_t *data_pointer = data.data();
 
@@ -181,7 +183,7 @@ auto StreamIO::receive_data(Request &t_req, sockaddr_in *t_addrin, PacketInfoTup
       LOG_ERR("Could not receive remainder type '%c'of size '%d'",data_type, rem_size);
       t_req.m_valid = false;
     }
-
+    
   return data;
 }
 
@@ -207,7 +209,7 @@ auto StreamIO::read_header(Data::DataVector &t_header) -> PacketInfoTuple {
 
   /* Grab data_type */
   std::size_t header_pos = 0;
-  uint8_t data_type      = static_cast<Data::Type>( t_header.at(header_pos)); 
+  uint8_t data_type      = static_cast<Data::Type>( t_header[header_pos]); 
   header_pos++;
 
 
@@ -219,7 +221,7 @@ auto StreamIO::read_header(Data::DataVector &t_header) -> PacketInfoTuple {
     header_pos += sizeof(std::size_t);
   }
 
-  return {data_type, size_headers.at(0), size_headers.at(1), size_headers.at(2)};
+  return {data_type, size_headers[0], size_headers[1], size_headers[2]};
 }
 
 /* */
@@ -272,8 +274,9 @@ void StreamIO::push_to_header(Data::DataVector &t_header, std::size_t m_header_v
 auto StreamIO::read_header_item(Data::DataVector &t_header, std::size_t t_pos) -> std::size_t{
 
   std::array<uint8_t, sizeof(std::size_t)> size_in_bytes;
+
   for (std::size_t i = 0; i < size_in_bytes.size(); i++) {
-    size_in_bytes[i] = t_header.at(t_pos + i);
+    size_in_bytes[i] = t_header[t_pos + i];
   }
 
   uint8_t *data_in_bytes = size_in_bytes.data();
