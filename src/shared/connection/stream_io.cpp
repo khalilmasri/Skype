@@ -27,19 +27,17 @@ auto StreamIO::respond(Request &t_req) const -> bool {
 
   Data::DataVector data    = t_req.data()->get_data();
   PacketInfoTuple pkt_info = make_packet_info(t_req, data);
-  Data::DataVector header  = make_header(pkt_info);
+  Data::DataVector header  = make_header(pkt_info); // based on tuy-ple
   sockaddr_in addr_in      = Connection::to_sockaddr_in(port, ip);
 
   if (header.size() != m_HEADER_SIZE) {
-    LOG_ERR("Header size is incorrect. Was: %d , should be: %d", header.size(),
-            m_HEADER_SIZE);
+    LOG_ERR("Header size is incorrect. Was: %d , should be: %d", header.size(), m_HEADER_SIZE);
     t_req.m_valid = false;
   }
 
-
   /* send header first */
   if (t_req.m_valid) {
-    send_data(t_req, addr_in, header, pkt_info);
+    send_header(t_req, addr_in, header);
   }
 
   LOG_DEBUG("Sent header! %d", header.size());
@@ -97,8 +95,9 @@ void StreamIO::send_header(Request &t_req, sockaddr_in t_addrin, Data::DataVecto
 
 void StreamIO::send_data(Request &t_req, sockaddr_in t_addrin, Data::DataVector &t_data, PacketInfoTuple &t_pkt_info) {
   
+  // tuple extract
   auto [data_type, nb_packets, packet_size, rem_packet_size] = t_pkt_info;
-  uint8_t *data = t_data.data();
+  uint8_t *data = t_data.data(); // vector
 
   /* send first packets */
   for (std::size_t packet_index = 0; packet_index < nb_packets; packet_index++) {
@@ -113,8 +112,12 @@ void StreamIO::send_data(Request &t_req, sockaddr_in t_addrin, Data::DataVector 
     }
   }
 
+  if(rem_packet_size == 0){
+      return;
+  }
+
   /* send remainder packet */
- int result = sendto(t_req.m_socket,data, rem_packet_size, 0, reinterpret_cast<struct sockaddr *>(&t_addrin), sizeof(t_addrin));
+ int result = sendto(t_req.m_socket, data, rem_packet_size, 0, reinterpret_cast<struct sockaddr *>(&t_addrin), sizeof(t_addrin));
 
   if(result < 0){
       LOG_ERR("Could not send remainder packet type '%c' of size '%d'", data_type, packet_size);
@@ -131,8 +134,7 @@ auto StreamIO::receive_header(Request &t_req, sockaddr_in *t_addrin) -> PacketIn
 
   header.reserve(m_HEADER_SIZE);
 
-   int result = recvfrom(t_req.m_socket, header.data(), m_HEADER_SIZE, 0,
-                  reinterpret_cast<struct sockaddr *>(t_addrin), &addr_len);
+   int result = recvfrom(t_req.m_socket, header.data(), m_HEADER_SIZE, 0, reinterpret_cast<struct sockaddr *>(t_addrin), &addr_len);
 
    if(result < 0){
       LOG_ERR("StreamIO could not read header.");
@@ -153,11 +155,13 @@ auto StreamIO::receive_data(Request &t_req, sockaddr_in *t_addrin, PacketInfoTup
 
   Data::DataVector data;
   data.reserve((nb_packets * packet_size) + rem_size);
+
   uint8_t *data_pointer = data.data();
 
 
   for (std::size_t packet_index = 0; packet_index < nb_packets; packet_index++) {
-      int result    = recvfrom(t_req.m_socket, data_pointer, packet_size, 0, reinterpret_cast<struct sockaddr *>(t_addrin), &addr_len);
+      int result = recvfrom(t_req.m_socket, data_pointer, packet_size, 0, reinterpret_cast<struct sockaddr *>(t_addrin), &addr_len);
+
       data_pointer += packet_size;
 
       if(result < 0){
@@ -235,8 +239,8 @@ auto StreamIO::make_packet_info(Request &t_req, Data::DataVector &t_data) -> Pac
   std::size_t grow_by = 0;
    std::size_t max_total_data = m_MIN_NB_PACKETS * m_MAX_PACKET_SIZE;
 
-  if (t_data.size() < m_SINGLE_PACKAGE_THRESHOLD) {
    /* return just a single package with no remainder */
+  if (t_data.size() < m_SINGLE_PACKAGE_THRESHOLD) {
     return {data_type, 1, t_data.size(), 0}; 
   };
 
@@ -306,7 +310,7 @@ TEST_CASE("Stream IO") {
   }
 
   SUBCASE("read headers(normal size)") {
-   Data::DataVector header = io.make_header(pkt_info);
+  Data::DataVector header = io.make_header(pkt_info);
   auto pkt_info_out = io.read_header(header);
 
   CHECK(std::get<0>(pkt_info_out) == std::get<0>(pkt_info));
@@ -345,7 +349,6 @@ TEST_CASE("Stream IO") {
   CHECK(std::get<3>(pkt_info_out) == std::get<3>(pkt_info));
   }
 
-
   size = 198477;
   Data::DataVector dvec3(size);
   req.set_data(new AVData(std::move(dvec3), Data::Empty));
@@ -366,5 +369,42 @@ TEST_CASE("Stream IO") {
   }
 
 
+  size = 900;
+  Data::DataVector dvec4(size);
+  req.set_data(new AVData(std::move(dvec4), Data::Audio));
+  pkt_info= StreamIO::make_packet_info(req, dvec4);
 
+  SUBCASE("Make Header (single)") {
+    auto nb_packets = std::get<1>(pkt_info);
+    auto packet_size = std::get<2>(pkt_info);
+    auto rem_size = std::get<3>(pkt_info);
+
+    std::size_t total_size = packet_size * nb_packets + rem_size;
+
+    CHECK(std::get<0>(pkt_info) == 'a'); // type
+    CHECK(nb_packets == 1); 
+    CHECK(packet_size == 900); 
+    CHECK(rem_size == 0); 
+    CHECK(total_size == size); 
+  }
+
+
+ size = 4000;
+  Data::DataVector dvec5(size);
+  req.set_data(new AVData(std::move(dvec5), Data::Audio));
+  pkt_info= StreamIO::make_packet_info(req, dvec5);
+
+  SUBCASE("Make Header (single)") {
+    auto nb_packets = std::get<1>(pkt_info);
+    auto packet_size = std::get<2>(pkt_info);
+    auto rem_size = std::get<3>(pkt_info);
+
+    std::size_t total_size = packet_size * nb_packets + rem_size;
+
+    CHECK(std::get<0>(pkt_info) == 'a'); // type
+    CHECK(nb_packets == 10); 
+    CHECK(packet_size == 400); 
+    CHECK(rem_size == 0); 
+    CHECK(total_size == size); 
+  }
 }
