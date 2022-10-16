@@ -4,9 +4,10 @@
 #include <netinet/in.h>
 
 class StreamIO: public IOStrategy {
-  using PacketInfoTuple = std::tuple<uint8_t, std::size_t, std::size_t, std::size_t>;
 
   public:
+  using PacketInfoTuple = std::tuple<uint8_t, std::size_t, std::size_t, std::size_t>;
+
   auto receive(Request &t_req) const -> bool override;
   auto respond(Request &t_req) const -> bool override;
 
@@ -21,7 +22,7 @@ class StreamIO: public IOStrategy {
   static auto make_header(const PacketInfoTuple &t_pkt_info) -> Data::DataVector;
   static auto read_header(Data::DataVector &t_header) -> PacketInfoTuple;
 
-  static auto get_packet_info(Request &t_req, Data::DataVector &t_data) -> PacketInfoTuple;
+  static auto make_packet_info(Request &t_req, Data::DataVector &t_data) -> PacketInfoTuple;
   static void push_to_header(Data::DataVector &t_header, std::size_t m_header_value);
   static auto read_header_item(Data::DataVector &t_header, std::size_t t_pos) -> std::size_t;
 
@@ -29,16 +30,20 @@ class StreamIO: public IOStrategy {
 
   /***
    * PACKET Structure
-                         HEADER(25 bytes)                      DATA
+                         HEADER(25 bytes)                      DATA = ~9Kb max
        1 byte     8 bytes     8 bytes        8 bytes
     [[data_type][nb_packet][packet_size][rem_packet_size]]|| [data][data][data] .....
 
     ***/
 
-  inline static const std::size_t m_NB_SIZE_HEADERS = 3;
-  inline static const std::size_t m_HEADER_SIZE    = sizeof(uint8_t) + (m_NB_SIZE_HEADERS * sizeof(std::size_t)) ;
-  inline static const std::size_t m_MAX_NB_PACKETS  = 10;
+  inline static const std::size_t m_NB_SIZE_HEADERS          = 3;
+  inline static const std::size_t m_MIN_NB_PACKETS           = 10;
+  inline static const std::size_t m_MAX_PACKET_SIZE          = 9000;
   inline static const std::size_t m_SINGLE_PACKAGE_THRESHOLD = 1000;
+
+  inline static const std::size_t m_HEADER_SIZE  = sizeof(uint8_t) + (m_NB_SIZE_HEADERS * sizeof(std::size_t)) ;
+
+  /* If this limit is breached m_MAX_NB_PACKETS must grow */
 
 
 };

@@ -16,7 +16,7 @@ class TextData : public Data {
 
     ~TextData() override;
 
-     [[nodiscard]] auto  get_type() const -> Data::type override;
+     [[nodiscard]] auto  get_type() const -> Data::Type override;
      [[nodiscard]] auto  get_data() const -> DataVector override;
      [[nodiscard]] auto  empty() const -> bool override;
      [[nodiscard]] auto  size() const -> std::size_t override;
@@ -26,7 +26,7 @@ class TextData : public Data {
 
   private:
    std::vector<uint8_t>   m_data;
-   const Data::type       m_type = Data::Text;
+   const Data::Type       m_type = Data::Text;
 
    void                   load_text(std::string &t_text);
 

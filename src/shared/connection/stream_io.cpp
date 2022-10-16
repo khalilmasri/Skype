@@ -26,7 +26,7 @@ auto StreamIO::respond(Request &t_req) const -> bool {
   auto [ip, port] = StringUtils::split_first(t_req.m_address, ":");
 
   Data::DataVector data    = t_req.data()->get_data();
-  PacketInfoTuple pkt_info = get_packet_info(t_req, data);
+  PacketInfoTuple pkt_info = make_packet_info(t_req, data);
   Data::DataVector header  = make_header(pkt_info);
   sockaddr_in addr_in      = Connection::to_sockaddr_in(port, ip);
 
@@ -220,24 +220,33 @@ auto StreamIO::read_header(Data::DataVector &t_header) -> PacketInfoTuple {
 
 /* */
 
-auto StreamIO::get_packet_info(Request &t_req, Data::DataVector &t_data) -> PacketInfoTuple {
+auto StreamIO::make_packet_info(Request &t_req, Data::DataVector &t_data) -> PacketInfoTuple {
 
   /*
-   * NOTE: t_data.size() = 83116
-     83116 % 10         = 6 (remainder packets size)
-     floor(83116) / 10  = 8311 (packets size)
-     floor(83116 / 8311) = 10 (number of packets)
-     return tuple with {10, 8311, 6} -> there is always a remainder so we don't count as nb_packets
+   * NOTE: Example -> t_data.size()             = 83116
+           83116 % 10                           = 6 (remainder packets size)
+           floor(83116) / 10[m_MAX_NB_PACKETS]) = 8311 (packets size)
+           floor(83116 / 8311)                  = 10 (number of packets)
+           return tuple with {10, 8311, 6}     -> there is always  1 remainder
+                                                  so we don't count as nb_packets for it.
   */
 
   uint8_t data_type = Data::type_to_char(t_req.data()->get_type());
+  std::size_t grow_by = 0;
+   std::size_t max_total_data = m_MIN_NB_PACKETS * m_MAX_PACKET_SIZE;
 
   if (t_data.size() < m_SINGLE_PACKAGE_THRESHOLD) {
-    return {data_type, 1, t_data.size(), 0}; // return just a single package with no remainder
+   /* return just a single package with no remainder */
+    return {data_type, 1, t_data.size(), 0}; 
   };
 
-  std::size_t rem_packet_size = t_data.size() % m_MAX_NB_PACKETS;
-  std::size_t packet_size     = std::floor(t_data.size() / m_MAX_NB_PACKETS); // floor if decimal point
+  /* grow the nb_packets dynamically when t_data.size() is too big for ~9K packets (m_MAX_PACKET_SIZE) */
+  if(t_data.size() > max_total_data){
+    grow_by = (t_data.size() - max_total_data) / m_MAX_PACKET_SIZE + 1;
+  }
+
+  std::size_t rem_packet_size = t_data.size() % (m_MIN_NB_PACKETS + grow_by);
+  std::size_t packet_size     = std::floor(t_data.size() / (m_MIN_NB_PACKETS + grow_by)); 
   std::size_t nb_packets      = std::floor(t_data.size() / packet_size);
 
   return {data_type, nb_packets, packet_size, rem_packet_size};
@@ -271,17 +280,91 @@ auto StreamIO::read_header_item(Data::DataVector &t_header, std::size_t t_pos) -
 /* TESTS */
 
 TEST_CASE("Stream IO") {
-
   auto io = StreamIO();
 
-  Data::DataVector dvector(10);
+  std::size_t size =  84238;
+  Data::DataVector dvector(size);
   AVData *data = new AVData(std::move(dvector), Data::Audio);
 
   auto req = Request(true);
   req.set_data(data);
 
-  Data::DataVector r = io.make_header(req);
+  auto pkt_info= StreamIO::make_packet_info(req, dvector);
 
-  std::cout << "result size : " << r.size() << "\n";
-  std::cout << "result 1 item : " << r.at(0) << "\n";
+  SUBCASE("Make Header (normal size)") {
+    auto nb_packets = std::get<1>(pkt_info);
+    auto packet_size = std::get<2>(pkt_info);
+    auto rem_size = std::get<3>(pkt_info);
+
+    std::size_t total_size = packet_size * nb_packets + rem_size;
+
+    CHECK(std::get<0>(pkt_info) == 'a'); // type
+    CHECK(nb_packets == 10); 
+    CHECK(packet_size == 8423); 
+    CHECK(rem_size == 8); 
+    CHECK(total_size == size); 
+  }
+
+  SUBCASE("read headers(normal size)") {
+   Data::DataVector header = io.make_header(pkt_info);
+  auto pkt_info_out = io.read_header(header);
+
+  CHECK(std::get<0>(pkt_info_out) == std::get<0>(pkt_info));
+  CHECK(std::get<1>(pkt_info_out) == std::get<1>(pkt_info));
+  CHECK(std::get<2>(pkt_info_out) == std::get<2>(pkt_info));
+  CHECK(std::get<3>(pkt_info_out) == std::get<3>(pkt_info));
+  }
+
+  size = 98477;
+  Data::DataVector dvec2(size);
+  req.set_data(new AVData(std::move(dvec2), Data::Video));
+  pkt_info= StreamIO::make_packet_info(req, dvec2);
+
+  SUBCASE("Make Header (force to grow)") {
+    auto nb_packets = std::get<1>(pkt_info);
+    auto packet_size = std::get<2>(pkt_info);
+    auto rem_size = std::get<3>(pkt_info);
+
+    std::size_t total_size = packet_size * nb_packets + rem_size;
+
+    CHECK(std::get<0>(pkt_info) == 'v'); // type
+    CHECK(nb_packets == 11); 
+    CHECK(packet_size == 8952); 
+    CHECK(rem_size == 5); 
+    CHECK(total_size == size); 
+  }
+
+
+  SUBCASE("read headers(force to grow)") {
+   Data::DataVector header = io.make_header(pkt_info);
+  auto pkt_info_out = io.read_header(header);
+
+  CHECK(std::get<0>(pkt_info_out) == std::get<0>(pkt_info));
+  CHECK(std::get<1>(pkt_info_out) == std::get<1>(pkt_info));
+  CHECK(std::get<2>(pkt_info_out) == std::get<2>(pkt_info));
+  CHECK(std::get<3>(pkt_info_out) == std::get<3>(pkt_info));
+  }
+
+
+  size = 198477;
+  Data::DataVector dvec3(size);
+  req.set_data(new AVData(std::move(dvec3), Data::Empty));
+  pkt_info= StreamIO::make_packet_info(req, dvec3);
+
+  SUBCASE("Make Header (huge size)") {
+    auto nb_packets = std::get<1>(pkt_info);
+    auto packet_size = std::get<2>(pkt_info);
+    auto rem_size = std::get<3>(pkt_info);
+
+    std::size_t total_size = packet_size * nb_packets + rem_size;
+
+    CHECK(std::get<0>(pkt_info) == 'e'); // type
+    CHECK(nb_packets == 23); 
+    CHECK(packet_size == 8629); 
+    CHECK(rem_size == 10); 
+    CHECK(total_size == size); 
+  }
+
+
+
 }

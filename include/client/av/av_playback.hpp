@@ -53,7 +53,7 @@ auto since(std::chrono::time_point<clock_t, duration_t> const& start) {
 
 /* */
 
-  auto valid_data_type(const Data *t_data, Data::type t_type) -> bool;
+  auto valid_data_type(const Data *t_data, Data::Type t_type) -> bool;
   auto valid_read_size(int t_read_size, int t_correct_size) -> bool;
 
 };
