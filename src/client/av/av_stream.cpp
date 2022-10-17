@@ -26,12 +26,8 @@ void AVStream::stream(DataCallback &t_callback) {
     // take a frame and wait 1 frame worth of time
     Webcam::WebcamFrames encoded_video = m_webcam.capture();
 
-    LOG_DEBUG("Encoded video size: %d", encoded_video.size());
-
     // convert first audio buffer from the audio queue.
     Data::DataVector encoded_audio = m_converter.encode(m_input_queue);
-
-    LOG_DEBUG("Encoded audio size: %d", encoded_audio.size());
 
     // check if conversion and frame capture were successful
     validate();

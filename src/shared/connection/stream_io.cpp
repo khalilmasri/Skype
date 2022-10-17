@@ -17,6 +17,7 @@ auto StreamIO::respond(Request &t_req) const -> bool {
 
   LOG_DEBUG("Sending data to %s", t_req.m_address.c_str());
 
+
   if (t_req.data()->get_type() == Data::Text) {
     LOG_ERR("Attempted to send Data::Text in StreamIO. Only Data::Audio and "
             "Data::Video allowed.")
@@ -40,12 +41,12 @@ auto StreamIO::respond(Request &t_req) const -> bool {
     send_header(t_req, addr_in, header);
   }
 
-  LOG_DEBUG("Sent header! %d", header.size());
-
   /* send data header was sent succesfully */
   if (t_req.m_valid) {
     send_data(t_req, addr_in, data, pkt_info);
   }
+
+  log_packet_info(pkt_info, "sent");
 
   return t_req.m_valid;
 };
@@ -56,8 +57,6 @@ auto StreamIO::receive(Request &t_req) const -> bool {
 
   sockaddr_in addr_in;
   PacketInfoTuple pkt_info = receive_header(t_req, &addr_in);
-  auto [type, number_pkts, size_packets, rem_size] = pkt_info;
-  LOG_DEBUG("type: %c, number: %d, size: %d, rem: %d", type, number_pkts, size_packets, rem_size);
   Data::Type data_type = Data::char_to_type(std::get<0>(pkt_info)); // grab type here
 
   if(data_type == Data::Empty){
@@ -71,6 +70,8 @@ auto StreamIO::receive(Request &t_req) const -> bool {
   if (t_req.m_valid) { 
     t_req.set_data(new AVData(std::move(data), data_type));
   } 
+
+  log_packet_info(pkt_info, "received");
   
   return t_req.m_valid;
 };
@@ -282,6 +283,14 @@ auto StreamIO::read_header_item(Data::DataVector &t_header, std::size_t t_pos) -
   uint8_t *data_in_bytes = size_in_bytes.data();
   std::size_t *data      = reinterpret_cast<std::size_t *>(data_in_bytes);
   return *data;
+}
+
+void StreamIO::log_packet_info(PacketInfoTuple &t_pkt_info, const char *t_call){
+   auto [type, nb_packets, size_packet, rem_size] = t_pkt_info;
+
+   Data::Type data_type = Data::char_to_type(type);
+   LOG_DEBUG("Package %s.Type: '%s' | NB Packets: '%d '| Packet Size: 'size_packets' | Remainder Size: '%d' ",
+       t_call, Data::type_to_string(data_type).c_str(), nb_packets, size_packet, rem_size);
 }
 
 /* TESTS */
