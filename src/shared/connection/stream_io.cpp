@@ -289,7 +289,7 @@ void StreamIO::log_packet_info(PacketInfoTuple &t_pkt_info, const char *t_call){
    auto [type, nb_packets, size_packet, rem_size] = t_pkt_info;
 
    Data::Type data_type = Data::char_to_type(type);
-   LOG_DEBUG("Package %s.Type: '%s' | NB Packets: '%d '| Packet Size: 'size_packets' | Remainder Size: '%d' ",
+   LOG_DEBUG("Package %s. Type: '%s', NB Packets: '%d ', Packet Size: '%d';, Remainder Size: '%d' ",
        t_call, Data::type_to_string(data_type).c_str(), nb_packets, size_packet, rem_size);
 }
 
