@@ -27,7 +27,7 @@ elif [ "$1" == "--run" ]; then
     if [ "$#" -eq 1 ]; then echo "You must provide an binary name to run."
     elif [ "$2" == "test_client" ] ; then ./build.sh --clean-bin; cd build; cmake ../; make "$2" -j$('nproc'); ./bin/"$2" "$3"; cd ..
     elif [ "$2" == "p2p_test" ] ; then ./build.sh --clean-bin; cd build; cmake ../; make "$2" -j$('nproc'); ./bin/"$2" "$3" "$4"; cd ..
-    else ./build.sh --clean-bin; ./build.sh --"$2"; cd build; cmake ../; make "$2" -j$('nproc') ; ./bin/"$2" cd .. 
+    else ./build.sh --clean-bin; ./build.sh --"$2"; cd build; cmake ../; make "$2" -j$('nproc') ; ./bin/"$2" ; cd .. 
 fi
 
 elif [ "$1" == "--test" ]; then

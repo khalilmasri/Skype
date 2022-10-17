@@ -30,7 +30,7 @@ int main(int argc, char *argv[]) {
   Logger::debug_enable(conf->get<int>("DEBUG_ENABLE"));
   // This will run tests only when --test is passed to client
 
-  LOG_INFO("Starting my_skype...");
+  LOG_INFO("Starting my_skype!")
   int res = Tester::test(argc, argv);
 
   //don't launch guy when testing.
