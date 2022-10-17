@@ -9,3 +9,5 @@ CMakeLists.txt.user*
 .cache
 .gdb_history
 .clang-tidy
+.idea
+cmake-build-debug
