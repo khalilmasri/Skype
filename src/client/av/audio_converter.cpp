@@ -31,8 +31,8 @@ AudioConverter::AudioConverter() {
     m_valid = true;
     m_encoder_codec = avcodec_find_encoder(audio_settings->codec_id_alt());
     m_decoder_codec = avcodec_find_decoder(audio_settings->codec_id_alt());
-    is_valid_pointer(m_encoder_codec, "Could find encoder codec.");
-    is_valid_pointer(m_decoder_codec, "Could find decoder codec");
+    is_valid_pointer(m_encoder_codec, "Could not find encoder codec.");
+    is_valid_pointer(m_decoder_codec, "Could not find decoder codec");
   }
 
   create_encoder_context();

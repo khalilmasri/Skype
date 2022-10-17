@@ -17,17 +17,12 @@ enum logPriority{
     critical    = 0
 };
 
-#define DEBUG_ENABLED 1
+#define ENABLED 1
+#define DISABLED 0
 
 #define LOG_TRACE(...)        Logger::Trace(__FILE__,__FUNCTION__, __LINE__, __VA_ARGS__);
 #define LOG_INFO(...)         Logger::Info(__FILE__, __FUNCTION__, __LINE__, __VA_ARGS__);
-
-#if DEBUG_ENABLED
-    #define LOG_DEBUG(...)    Logger::Debug(__FILE__, __FUNCTION__, __LINE__, __VA_ARGS__);
-#else
-    #define LOG_DEBUG(...)
-#endif
-
+#define LOG_DEBUG(...)        Logger::Debug(__FILE__, __FUNCTION__, __LINE__, __VA_ARGS__);
 #define LOG_WARN(...)         Logger::warning(__FILE__, __FUNCTION__, __LINE__, __VA_ARGS__);
 #define LOG_ERR(...)          Logger::Error(__FILE__, __FUNCTION__, __LINE__,  __VA_ARGS__);
 #define LOG_CRIT(...)         Logger::Critical(__FILE__, __FUNCTION__, __LINE__, __VA_ARGS__);
@@ -40,6 +35,7 @@ class Logger
     private:
         std::mutex log_mutex;
         logPriority priority = trace;
+        int debugging = DISABLED;
 
         template<typename... Args>
         static void log(const char* msg_prio_str, logPriority msg_prio, const char* file,  int line, const char* func, const char* msg, Args... args)
@@ -69,9 +65,29 @@ class Logger
 
     public:
         
-        static void setPriority(logPriority new_priority)
+        static void set_priority(int new_priority)
         {
-            getInstance().priority = new_priority;
+            if ( new_priority <= trace && new_priority >= critical )
+            {
+                std::string priorities[6] = {"Critical", "Error", "Warning", "Info", "Debug", "Trace"};
+
+                LOG_INFO("Setting log level to %s", priorities[new_priority].c_str());
+
+                getInstance().priority = static_cast<logPriority>(new_priority);
+            }
+        }
+
+        static void debug_enable(int enable)
+        {
+            int value = DISABLED;
+            
+            value = enable;
+
+            std::string values[2] = {"Disabl", "Enabl"};
+
+            LOG_INFO("%sing debugging", values[enable].c_str());
+        
+            getInstance().debugging = value;
         }
 
         template<typename... Args>
@@ -83,7 +99,10 @@ class Logger
         template<typename... Args>
         static void Debug(const char* file, const char* func, int line, const char* msg, Args... args)
         {
-            log("\x1B[33m[Debug]||", debug, file, line, func, msg, args...);
+            if ( ENABLED == getInstance().debugging )
+            {
+                log("\x1B[33m[Debug]||", debug, file, line, func, msg, args...);
+            }
         }
 
         template<typename... Args>

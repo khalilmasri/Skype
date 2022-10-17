@@ -25,7 +25,8 @@ static Config *conf = Config::get_instance();
 
 int main(int argc, char *argv[]) {
 
-  Logger::setPriority(static_cast<logPriority>(conf->get<int>("LOGGER_LEVEL")));
+  Logger::set_priority(conf->get<int>("LOGGER_LEVEL"));
+  Logger::debug_enable(conf->get<int>("DEBUG_ENABLE"));
   // This will run tests only when --test is passed to client
   int res = Tester::test(argc, argv);
 
@@ -34,7 +35,7 @@ int main(int argc, char *argv[]) {
     return res;
   }
 
-  AudioDevice::start_sdl(); // SDL init
+  // AudioDevice::start_sdl(); // SDL init
 
   QApplication a(argc, argv);
   QFile stylesheetFile("../misc/stylesheet/stylesheet.qss");

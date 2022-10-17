@@ -7,6 +7,7 @@
 #include "lock_free_audio_queue.hpp"
 #include "peer_to_peer.hpp"
 #include "webcam.hpp"
+#include <cstddef>
 #include <memory>
 #include <chrono>
 

@@ -60,7 +60,8 @@ class Config {
       {"DB_ADDRESS", "localhost"},                      
       {"DB_NAME", "skype"},                             
       {"DB_PORT", "5432"},
-      {"LOGGER_LEVEL", "trace"}
+      {"LOGGER_LEVEL", "trace"},
+      {"DEBUG_ENABLE", "0"}
     };
 
     /* */                                  
