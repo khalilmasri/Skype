@@ -77,7 +77,7 @@ auto P2P::type_to_string() const -> std::string {
 
 /* Sending Data to peer */
 
-auto P2P::send_package(Request &t_req) -> Request {
+void P2P::send_package(Request &t_req) {
 
   if (m_status == Connected) {
     m_conn.respond(t_req);
@@ -85,26 +85,21 @@ auto P2P::send_package(Request &t_req) -> Request {
   } else {
     t_req.m_valid = false;
     LOG_DEBUG("Cannot send package. P2P Not connected.");
-
   }
 
-  return t_req;
 }
 
 /* Receiving data from peer */
 
-auto P2P::receive_package(Request &t_req) -> Request {
+void P2P::receive_package(Request &t_req) {
 
   if (m_status == Connected) {
     m_conn.receive(t_req);
-
   } else {
     t_req.m_valid = false;
     LOG_DEBUG("Cannot receive package. P2P Not connected.");
 
   }
-
-  return t_req;
 }
 
 /* */

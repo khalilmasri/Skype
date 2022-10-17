@@ -47,6 +47,7 @@ auto UDPConn::receive(Request &t_req) -> bool {
 
   if (t_req.m_valid) {
     t_req.m_valid = m_io->receive(t_req);
+    std::cout << "called receive\n";
   }
 
   return t_req.m_valid;
