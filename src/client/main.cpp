@@ -1,5 +1,6 @@
 #include "SDL.h"
 #include "config.hpp"
+#include "logger.hpp"
 #include <qthread.h>
 #include <unistd.h>
 #define DOCTEST_CONFIG_IMPLEMENT
@@ -28,15 +29,17 @@ int main(int argc, char *argv[]) {
   Logger::set_priority(conf->get<int>("LOGGER_LEVEL"));
   Logger::debug_enable(conf->get<int>("DEBUG_ENABLE"));
   // This will run tests only when --test is passed to client
+
+  LOG_INFO("Starting my_skype...");
   int res = Tester::test(argc, argv);
 
-  // don't launch guy when testing.
+  //don't launch guy when testing.
   if (res > 0 || Tester::did_test(argc, argv)) {
     return res;
   }
 
-  // AudioDevice::start_sdl(); // SDL init
-
+  AudioDevice::start_sdl(); // SDL init
+  
   QApplication a(argc, argv);
   QFile stylesheetFile("../misc/stylesheet/stylesheet.qss");
   stylesheetFile.open(QFile::ReadOnly);
