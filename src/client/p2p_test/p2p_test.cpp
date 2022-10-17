@@ -92,7 +92,7 @@ void test_stream(char *user) {
     }
 
     if(u == "shakira"){
-      playback.stop();
+     // playback.stop();
     }
   };
 
