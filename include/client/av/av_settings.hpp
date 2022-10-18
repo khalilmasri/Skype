@@ -61,7 +61,7 @@ private:
   int m_channels = 1;
   int m_bitrate = 128000;
   int m_samplerate = 44100;
-  SDL_AudioFormat m_device_format = s_float32Bits;
+  SDL_AudioFormat m_device_format = s_Int16Bits;
   AVSampleFormat m_converter_format;            // will be set according to m_device_format
   AVSampleFormat m_converter_format_planar;     // will be set according to m_device_format
   int m_bit_multiplier;                         //  Will be set according to m_device_format

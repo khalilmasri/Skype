@@ -147,7 +147,7 @@ void test_audio() {
   auto input_queue = std::make_unique<LockFreeAudioQueue>();
   auto output_queue = std::make_unique<LockFreeAudioQueue>();
 
-  AudioDevice input_device(output_queue, AudioDevice::Input);
+  AudioDevice input_device(input_queue, AudioDevice::Input);
   AudioDevice output_device(output_queue, AudioDevice::Output);
 
   auto converter = AudioConverter();
@@ -158,7 +158,7 @@ void test_audio() {
   AudioDevice::wait(200); // record for 200 frames!
   input_device.close();
 
-  std::cout << "Converting....\n";
+  std::cout << "Converting audio...\n";
 
   while (!input_queue->empty()) {
 
@@ -171,10 +171,10 @@ void test_audio() {
     converter.decode(output_queue, encoded_audio);
   }
 
-  std::cout
-      << "done with input! Now playing the ouput of the recorded audio.\n";
+  std::cout << "done with input! Now playing the ouput of the recorded audio.\n";
 
   output_device.open();
+
   AudioDevice::wait(200);
   output_device.close();
 

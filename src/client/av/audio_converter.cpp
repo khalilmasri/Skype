@@ -436,6 +436,8 @@ void AudioConverter::copy_to_frame(const uint8_t *t_audio_buffer, std::size_t t_
   is_valid(result, "Could not make frame writable.");
   uint8_t *buffer = m_frame->data[0];
 
+  LOG_DEBUG("line size: %d", m_frame->linesize[0]);
+
   if (m_valid) {
     for (std::size_t i = 0; i < t_frame_size_bytes; i++) {
       buffer[i] = t_audio_buffer[t_offset + i]; // mono channel only.
