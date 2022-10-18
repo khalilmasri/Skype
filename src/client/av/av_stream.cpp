@@ -10,7 +10,7 @@ void AVStream::start() {
   if (m_status == Stopped) {
     m_input.open();        // audio
     m_webcam.start();
-    AudioDevice::wait(25); // frames
+    AudioDevice::wait(50); // frames
     m_status = Started;
 
   } else {

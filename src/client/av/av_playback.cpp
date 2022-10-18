@@ -10,10 +10,6 @@ void AVPlayback::start(P2PPtr &t_p2pconn) {
 
     while (m_status == Started) {
 
-     if(!m_audio_queue->empty()){
-       std::cout << "audio queue not empty..." << std::endl;
-     }
-
       // show frame than pop from the queue
       cv::Mat frame = m_video_queue.front();
       Webcam::show(frame);
@@ -137,8 +133,7 @@ void AVPlayback::load_audio(const Data *t_audio_data) {
   }
 }
 
-auto AVPlayback::valid_data_type(const Data *t_data, Data::Type t_type)
-    -> bool {
+auto AVPlayback::valid_data_type(const Data *t_data, Data::Type t_type) -> bool {
 
   if (t_data->get_type() != t_type) {
     std::string data_type = Data::type_to_string(t_data->get_type());
