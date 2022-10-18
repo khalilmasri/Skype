@@ -85,7 +85,7 @@ void test_stream(char *user) {
 
   // this callback is just to stop the stream on another thread.
   auto stop = [&u, &stream, &playback]() { 
-    std::this_thread::sleep_for(4s); // do it for 10 secs then quit.
+    std::this_thread::sleep_for(20s); // do it for 10 secs then quit.
 
     if(u == "john"){
       stream.stop();
@@ -108,7 +108,7 @@ void test_stream(char *user) {
 
   // shakira receives
   if(u == "shakira"){
-    playback.buffer(p2p_ptr, 1);
+    playback.buffer(p2p_ptr, 10);
     playback.start(p2p_ptr);
   }
 

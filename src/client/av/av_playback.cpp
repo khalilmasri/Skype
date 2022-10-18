@@ -10,6 +10,10 @@ void AVPlayback::start(P2PPtr &t_p2pconn) {
 
     while (m_status == Started) {
 
+     if(!m_audio_queue->empty()){
+       std::cout << "audio queue not empty..." << std::endl;
+     }
+
       // show frame than pop from the queue
       cv::Mat frame = m_video_queue.front();
       Webcam::show(frame);
@@ -43,6 +47,7 @@ void AVPlayback::stop() {
 }
 
 void AVPlayback::buffer(P2PPtr &t_p2p_conn, std::size_t nb_packages) {
+  LOG_INFO("Buffering '%d' packets of Audio/Video data...", nb_packages);
   for (std::size_t count = 0; count < nb_packages; count++) {
     read_package(t_p2p_conn);
   }
@@ -123,7 +128,7 @@ void AVPlayback::load_audio(const Data *t_audio_data) {
 
   if (valid_data_type(t_audio_data, Data::Audio)) {
 
-    Data::DataVector audio = t_audio_data->get_data();
+    std::vector<uint8_t> audio = t_audio_data->get_data();
     bool result = m_audio_converter.decode(m_audio_queue, audio);
 
     if (!result) {
