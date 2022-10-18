@@ -66,7 +66,7 @@ for more information on how to install Postgres locally as well as examples of q
        200 OK
        201 <data>
        202 Invalid token. Please login
-       203 Awating
+       203 Awaiting
        300 Not OK
        301 User not found
        302 User already exist
