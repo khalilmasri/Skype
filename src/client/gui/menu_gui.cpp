@@ -31,7 +31,7 @@ MenuGui::~MenuGui()
 void MenuGui::refresh_devices()
 {
     m_ui->input_drop->addItem(m_input_name);
-    m_ui->output_drop->addItem(m_input_name);
+    m_ui->output_drop->addItem(m_output_name);
     m_ui->webcam_drop->addItem(m_webcam_name);
 
     LOG_DEBUG("Input %s\nOutput %s\nWebcam %s\n", m_input_name.toStdString().c_str(), m_output_name.toStdString().c_str(), m_webcam_name.toStdString().c_str());
