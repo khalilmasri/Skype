@@ -77,10 +77,10 @@ void AVPlayback::read_package(P2PPtr &t_p2pconn) {
   /* we should read exactly the number of frames captured by the other client */
   while (read_size < capture_size) {
 
-    /* receive package from network and validate if it is the correct data type */
+    /* receive video packet from network */
     t_p2pconn->receive_package(req);
     const Data *data = req.data();
-    LOG_DEBUG("av data_size = %d", data->size());
+
    /* if empty try again  */
     if (req.data_type() == Data::Empty) {
       continue;
@@ -88,31 +88,36 @@ void AVPlayback::read_package(P2PPtr &t_p2pconn) {
 
     /* There is an error. Wrong data type. */
     if (!valid_data_type(data, Data::Video)) {
+      m_status = Invalid;
       break;
     }
-    LOG_DEBUG("data_size: %d", data->get_data().size());
+
     frames.push_back(data->get_data());
     read_size++;
   };
 
   LOG_DEBUG("read %d video frames from socket.", read_size);
 
-  /* convert and push  franes to video queue buffer */
   if (m_status != Invalid) {
-    m_webcam.convert(frames, m_video_queue);
-  }
 
+  /* convert video and push frames to video queue buffer */
+    m_webcam.convert(frames, m_video_queue);
+
+  /* read audio package */
+   t_p2pconn->receive_package(req);
   
   /* If package is empty,read again until we get data */
-  if (req.data_type() == Data::Empty) {
-    while(req.data_type() == Data::Empty) {
+  while(req.data_type() == Data::Empty) {
       t_p2pconn->receive_package(req);
-    }
   }
 
   const Data *audio_data = req.data();
   load_audio(audio_data);
+  }
+
 }
+
+/* */
 
 void AVPlayback::load_audio(const Data *t_audio_data) {
 
