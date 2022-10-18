@@ -18,6 +18,8 @@ public:
     explicit MenuGui(QWidget *parent = nullptr);
     ~MenuGui();
 
+    void refresh_devices();
+
 private:
     Ui::MenuGui *m_ui;
 

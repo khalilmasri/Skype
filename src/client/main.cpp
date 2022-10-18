@@ -1,6 +1,7 @@
 #include "SDL.h"
 #include "config.hpp"
 #include "logger.hpp"
+#include "menu_gui.hpp"
 #include <qthread.h>
 #include <unistd.h>
 #define DOCTEST_CONFIG_IMPLEMENT
@@ -46,11 +47,13 @@ int main(int argc, char *argv[]) {
   QString styleSheet = QLatin1String(stylesheetFile.readAll());
   a.setStyleSheet(styleSheet);
 
-  Program *program = new Program();
-
+  // Program *program = new Program();
+  MenuGui *menu = new MenuGui();
+  menu->show();
+  
   res = a.exec();
 
-  delete program;
+  // delete program;
 
   SDL_Quit();
 
