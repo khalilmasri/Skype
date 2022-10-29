@@ -26,7 +26,7 @@ public:
   [[nodiscard]] auto valid() const -> bool;
 
   auto encode(AudioQueue &t_queue) -> std::vector<uint8_t>;
-  auto decode(AudioQueue &t_queue, std::vector<uint8_t> t_encoded_data) -> bool;
+  auto decode(AudioQueue &t_queue, std::vector<uint8_t> &t_encoded_data) -> bool;
 
   ~AudioConverter();
 
@@ -45,20 +45,29 @@ private:
   AudioPackage            m_decoded_data;
   bool                    m_valid            = true;
   bool                    m_awaiting         = false;
+  int                     m_decoder_byte_count = 0;
+
+  // to track if we are decoding the first frame of a AudioConverter::encode call
+  bool                    m_first_frame      = true;
 
 
   void encode_package(std::shared_ptr<AudioPackage> &t_package, std::vector<uint8_t> &t_data);
   void encode_frames(std::vector<uint8_t> &t_data, bool t_flush = false);
 
-  void decode_frames(AudioQueue &m_queue);
+  void decode_frames(AudioQueue &t_queue);
 
   void create_encoder_context();
   void create_decoder_context();
 
+  void print_sample_values(uint8_t *t_audio_buffer, int beg, int end);
+  void print_sample_values_in_bytes(uint8_t *t_audio_buffer, int beg, int end);
+
   void set_channel_layout();
   void setup_frame();
-  void copy_to_frame(const uint8_t *t_audio_buffer, std::size_t t_frame_size_bytes, std::size_t t_offset);
+  void copy_to_frame(const std::shared_ptr<AudioPackage> &t_audio_buffer, std::size_t t_frame_size_bytes, std::size_t t_offset);
   void write_zeros_to_frame(std::size_t t_frame_size_bytes, std::size_t t_offset);
+
+  void clean_buffer_tail(Data::DataVector &t_data);
 
   auto validate_sample_format() -> bool;
   auto validate_sample_rate() -> bool;
