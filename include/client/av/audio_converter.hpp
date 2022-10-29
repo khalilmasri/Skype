@@ -25,8 +25,8 @@ public:
   [[nodiscard]] auto frame_size_samples() const -> std::size_t ;
   [[nodiscard]] auto valid() const -> bool;
 
-  auto encode(AudioQueue &t_queue) -> std::vector<uint8_t>;
-  auto decode(AudioQueue &t_queue, std::vector<uint8_t> &t_encoded_data) -> bool;
+  auto encode(AudioQueue &t_queue) -> Data::DataVector;
+  auto decode(std::vector<uint8_t> &t_encoded_data) -> Data::DataVector;
 
   ~AudioConverter();
 
@@ -54,7 +54,7 @@ private:
   void encode_package(std::shared_ptr<AudioPackage> &t_package, std::vector<uint8_t> &t_data);
   void encode_frames(std::vector<uint8_t> &t_data, bool t_flush = false);
 
-  void decode_frames(AudioQueue &t_queue);
+  void decode_frames(Data::DataVector &decoded_data);
 
   void create_encoder_context();
   void create_decoder_context();

@@ -4,6 +4,7 @@
 AVPlayback::AVPlayback() : m_audio_output(m_audio_queue, AudioDevice::Output) {}
 
 void AVPlayback::start(P2PPtr &t_p2pconn) {
+
   if (m_status == Stopped) {
     m_audio_output.open(); // Audio
     m_status = Started;
@@ -125,9 +126,12 @@ void AVPlayback::load_audio(const Data *t_audio_data) {
   if (valid_data_type(t_audio_data, Data::Audio)) {
 
     std::vector<uint8_t> audio = t_audio_data->get_data();
-    bool result = m_audio_converter.decode(m_audio_queue, audio);
+    Data::DataVector decoded_audio = m_audio_converter.decode(audio);
+    AudioPackage audio_pkt(std::move(decoded_audio));
+    m_audio_queue->push(std::move(audio_pkt));
 
-    if (!result) {
+
+    if (!m_audio_converter.valid()) {
       LOG_ERR("Error converting audio to output.");
     }
   }

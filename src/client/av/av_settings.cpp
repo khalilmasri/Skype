@@ -59,7 +59,7 @@ AudioSettings::AudioSettings() {
   //  m_buffer_size = (m_samplerate / video_settings->framerate()) * m_bit_multiplier; // 7056
   
    /* based on ffmpeg frame size */
-    m_buffer_size = 1152 * m_bit_multiplier; // 6208
+    m_buffer_size = 1152 * m_bit_multiplier; // 4608
     // 
 };
 

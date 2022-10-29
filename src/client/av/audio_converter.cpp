@@ -159,7 +159,7 @@ auto AudioConverter::encode(AudioQueue &t_queue) -> std::vector<uint8_t> {
 
 /* */
 
-auto AudioConverter::decode(AudioQueue &t_queue, std::vector<uint8_t> &t_encoded_data) -> bool {
+auto AudioConverter::decode(std::vector<uint8_t> &t_encoded_data) -> Data::DataVector {
 
   auto *audio_settings          = AudioSettings::get_instance();
   uint8_t *encoded_data         = t_encoded_data.data();
@@ -173,7 +173,7 @@ auto AudioConverter::decode(AudioQueue &t_queue, std::vector<uint8_t> &t_encoded
   while (encoded_data_size > 0) {
 
     if (!m_valid) {
-      return m_valid;
+      return decoded_data;
     }
 
     if (m_decode_frame == nullptr) {
@@ -187,7 +187,7 @@ auto AudioConverter::decode(AudioQueue &t_queue, std::vector<uint8_t> &t_encoded
         AV_NOPTS_VALUE, AV_NOPTS_VALUE, 0);
 
     if (!is_valid(result, "Decoder could not parse input.")) {
-      return m_valid;
+       return decoded_data;
     }
 
     // manipulate pointer to new position
@@ -196,14 +196,14 @@ auto AudioConverter::decode(AudioQueue &t_queue, std::vector<uint8_t> &t_encoded
 
     if (static_cast<bool>(m_decode_packet->size)) {
       // will push to the queue when m_decoded_data is full
-      decode_frames(t_queue); 
+      decode_frames(decoded_data); 
     }
   }
 
   if (m_awaiting) { // flush decoder
     m_decode_packet->data = nullptr;
     m_decode_packet->size = 0;
-    decode_frames(t_queue);
+    decode_frames(decoded_data);
     m_awaiting = false;
    // create a new context for the next conversion
     create_decoder_context(); 
@@ -211,7 +211,7 @@ auto AudioConverter::decode(AudioQueue &t_queue, std::vector<uint8_t> &t_encoded
 
   // done with conversion sets first frame to true for next conversion
   m_first_frame = true; 
-  return m_valid;
+  return decoded_data;
 }
 
 /* Private */
@@ -308,10 +308,11 @@ void AudioConverter::encode_frames(std::vector<uint8_t> &t_data, bool t_flush) {
   }
 }
 
-void AudioConverter::decode_frames(AudioQueue &t_queue) {
+void AudioConverter::decode_frames(Data::DataVector &t_decoded_data) {
 
+  auto *audio_settings = AudioSettings::get_instance();
   std::size_t data_size = 0;
-  int result = avcodec_send_packet(m_decoder_context, m_decode_packet);
+  int result            = avcodec_send_packet(m_decoder_context, m_decode_packet);
 
   is_valid(result, "Could not send packet to decode.");
 
@@ -350,7 +351,8 @@ void AudioConverter::decode_frames(AudioQueue &t_queue) {
      * use the pushed var to track that
      */
 
-    bool pushed = false;
+    bool is_buffer_filled   = false;
+    std::size_t buffer_size = static_cast<std::size_t>(audio_settings->buffer_size());
 
     for (; frame_index < m_decode_frame->nb_samples * data_size; frame_index++) {
 
@@ -359,16 +361,13 @@ void AudioConverter::decode_frames(AudioQueue &t_queue) {
         auto *data   = static_cast<uint8_t *>(m_decode_frame->data[ch]);
         uint8_t byte = data[frame_index];
     
-        if (m_decoded_data.m_index == m_decoded_data.m_len) {
-
-           t_queue->push(std::move(m_decoded_data));
-           m_decoded_data = AudioPackage();
-           pushed         = true;
+        if (t_decoded_data.size() == buffer_size) {
+           is_buffer_filled = true;
         }
 
         // once the buffer size is pushed to the queue we can ignore the remaining data.
-        if(!pushed){
-        m_decoded_data.push_back(byte);
+        if(!is_buffer_filled){
+          t_decoded_data.push_back(byte);
         }
       }
     }

@@ -18,6 +18,7 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
+#include "audio_bank.hpp"
 
 #include <stdio.h>
 
@@ -241,6 +242,7 @@ void test_audio() {
   AudioDevice output_device(output_queue, AudioDevice::Output);
 
   auto converter = AudioConverter();
+  auto audio_bank = AudioBank();
 
   Data::DataVector to_file;
 
@@ -260,14 +262,11 @@ void test_audio() {
     }
 
       std::vector<uint8_t> encoded_audio = converter.encode(input_queue);
-      converter.decode(output_queue, encoded_audio);
- //     break;
-  }
 
- //   std::FILE *mp3_file;
- //   mp3_file = fopen( "skype_test.mp3" , "w");
- //   fwrite(to_file.data(), 1, to_file.size(), mp3_file);
- //   fclose(mp3_file);
+      Data::DataVector decoded_data = converter.decode(encoded_audio);
+      AudioPackage audio_pkt(std::move(decoded_data));
+      output_queue->push(std::move(audio_pkt));
+  }
 
   std::cout << "done with input! Now playing the ouput of the recorded audio.\n";
   output_device.open();
