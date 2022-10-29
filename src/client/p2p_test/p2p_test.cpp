@@ -151,8 +151,7 @@ void test_stream(char *user) {
 auto callback(std::unique_ptr<P2P> &p2p) -> AVStream::DataCallback {
 
   
-  return [&p2p](Webcam::WebcamFrames &&t_video,
-                                       Data::DataVector &&t_audio) {
+  return [&p2p](Webcam::WebcamFrames &&t_video, Data::DataVector &&t_audio) {
 
    audio_req = p2p->make_request();
    video_req = p2p->make_request();
@@ -164,6 +163,8 @@ auto callback(std::unique_ptr<P2P> &p2p) -> AVStream::DataCallback {
       p2p->send_package(video_req);
     }
 
+    std::this_thread::sleep_for(50ms); // do it for 10 secs then quit.
+                                     //
     //  send audio
     audio_req.set_data(new AVData(std::move(t_audio), Data::Audio));
     p2p->send_package(audio_req);
@@ -262,7 +263,6 @@ void test_audio() {
     }
 
       std::vector<uint8_t> encoded_audio = converter.encode(input_queue);
-
       Data::DataVector decoded_data = converter.decode(encoded_audio);
       AudioPackage audio_pkt(std::move(decoded_data));
       output_queue->push(std::move(audio_pkt));

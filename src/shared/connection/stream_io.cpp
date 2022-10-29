@@ -234,7 +234,7 @@ auto StreamIO::make_packet_info(Request &t_req, Data::DataVector &t_data) -> Pac
            83116 % 10                           = 6 (remainder packets size)
            floor(83116) / 10[m_MAX_NB_PACKETS]) = 8311 (packets size)
            floor(83116 / 8311)                  = 10 (number of packets)
-           return tuple with {10, 8311, 6}     -> there is always  1 remainder
+           return tuple with  {'v', 10, 8311, 6}     -> there is always  1 remainder
                                                   so we don't count as nb_packets for it.
   */
 
