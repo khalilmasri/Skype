@@ -85,6 +85,7 @@ void AVPlayback::read_package(P2PPtr &t_p2pconn) {
 
    /* if empty try again  */
     if (req.data_type() == Data::Empty) {
+      LOG_TRACE("Empty data. Trying again....")
       continue;
     }
 

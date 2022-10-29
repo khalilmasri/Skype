@@ -29,7 +29,6 @@ void AVStream::stream(DataCallback &t_callback) {
     // convert first audio buffer from the audio queue.
     std::vector<uint8_t> encoded_audio = m_converter.encode(m_input_queue);
 
-
     // check if conversion and frame capture were successful
     validate();
 
