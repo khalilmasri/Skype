@@ -10,7 +10,7 @@ void AVStream::start() {
   if (m_status == Stopped) {
     m_input.open();        // audio
     m_webcam.start();
-    AudioDevice::wait(25); // frames
+    AudioDevice::wait(50); // frames
     m_status = Started;
 
   } else {
@@ -27,7 +27,7 @@ void AVStream::stream(DataCallback &t_callback) {
     Webcam::WebcamFrames encoded_video = m_webcam.capture();
 
     // convert first audio buffer from the audio queue.
-    Data::DataVector encoded_audio = m_converter.encode(m_input_queue);
+    std::vector<uint8_t> encoded_audio = m_converter.encode(m_input_queue);
 
     // check if conversion and frame capture were successful
     validate();

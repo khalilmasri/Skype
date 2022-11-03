@@ -8,6 +8,9 @@ AudioPackage::AudioPackage(){
   m_data.reserve(m_len); 
 }
 
+AudioPackage::AudioPackage(std::vector<uint8_t> &&t_data): m_data(std::move(t_data)), m_len(m_data.size()){
+}
+
 AudioPackage::AudioPackage(uint8_t *t_stream, int t_len) : m_len(t_len) {
 
   m_data.reserve(m_len);

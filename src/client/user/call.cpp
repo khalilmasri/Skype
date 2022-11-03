@@ -198,9 +198,8 @@ auto Call::data_callback() -> AVStream::DataCallback {
   Request video_req = m_p2pconn->make_request();
 
 
-  return [this, &audio_req, &video_req](Webcam::WebcamFrames &&t_video,
-                                        Data::DataVector &&t_audio) {
-    // send video first
+  return [this, &audio_req, &video_req](Webcam::WebcamFrames &&t_video, Data::DataVector &&t_audio) {
+
     for (Data::DataVector &frame_data : t_video) {
       video_req.set_data(new AVData(std::move(frame_data), Data::Video));
       m_p2pconn->send_package(video_req);

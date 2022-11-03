@@ -55,8 +55,12 @@ AudioSettings::AudioSettings() {
 
   }
 
-  /* 44100hz / 25fps * 2 (@ 16bits) = 3528 */
-  m_buffer_size = (m_samplerate / video_settings->framerate()) * m_bit_multiplier;
+   /* 44100hz / 25fps * 4 (@ 32bits) = 7056 */
+  //  m_buffer_size = (m_samplerate / video_settings->framerate()) * m_bit_multiplier; // 7056
+  
+   /* based on ffmpeg frame size */
+    m_buffer_size = 1152 * m_bit_multiplier; // 4608
+    // 
 };
 
 auto AudioSettings::bitrate() const -> int { return m_bitrate; }

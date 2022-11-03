@@ -25,7 +25,7 @@ void CallControllers::connect(std::string &t_arg, Request &t_req) {
   if (valid) {
     ControllerUtils::set_request_reply(Reply::r_200, t_req);
 
-    // user is always awating to connect
+    // user is always awaiting to connect
   } else {
     ControllerUtils::set_request_reply(Reply::r_306, t_req);
   }

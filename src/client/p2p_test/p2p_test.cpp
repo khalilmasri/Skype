@@ -18,6 +18,32 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
+#include "audio_bank.hpp"
+
+#include <stdio.h>
+
+typedef struct wav_header {
+    // RIFF Header
+    char riff_header[4]; // Contains "RIFF"
+    int wav_size; // Size of the wav portion of the file, which follows the first 8 bytes. File size - 8
+    char wave_header[4]; // Contains "WAVE"
+    
+    // Format Header
+    char fmt_header[4]; // Contains "fmt " (includes trailing space)
+    int fmt_chunk_size; // Should be 16 for PCM
+    short audio_format; // Should be 1 for PCM. 3 for IEEE Float
+    short num_channels;
+    int sample_rate;
+    int byte_rate; // Number of bytes per second. sample_rate * num_channels * Bytes Per Sample
+    short sample_alignment; // num_channels * Bytes Per Sample
+    short bit_depth; // Number of bits per sample
+    
+    // Data
+    char data_header[4]; // Contains "data"
+    int data_bytes; // Number of bytes in data. Number of samples * num_channels * sample byte size
+    // uint8_t bytes[]; // Remainder of wave file is bytes
+} wav_header_t;
+
 
 static Config *config = Config::get_instance();
 
@@ -25,6 +51,7 @@ static Config *config = Config::get_instance();
 void test_stream(char *user);
 void test_audio();
 void test_video();
+void write_wav();
 P2P test_conn(char *t_user, char *t_pw);
 auto callback(std::unique_ptr<P2P> &p2p) -> AVStream::DataCallback;
 
@@ -52,6 +79,12 @@ auto main(int argc, char **argv) -> int {
     test_audio();
     return 0;
   }
+
+ if (std::string(argv[1]) == "wav") {
+    write_wav();
+    return 0;
+  }
+
 
   if (std::string(argv[1]) == "camera") {
     test_video();
@@ -85,14 +118,14 @@ void test_stream(char *user) {
 
   // this callback is just to stop the stream on another thread.
   auto stop = [&u, &stream, &playback]() { 
-    std::this_thread::sleep_for(2s); // do it for 10 secs then quit.
+    std::this_thread::sleep_for(20s); // do it for 10 secs then quit.
 
     if(u == "john"){
       stream.stop();
     }
 
     if(u == "shakira"){
-     // playback.stop();
+      playback.stop();
     }
   };
 
@@ -108,7 +141,7 @@ void test_stream(char *user) {
 
   // shakira receives
   if(u == "shakira"){
-    playback.buffer(p2p_ptr, 1);
+    playback.buffer(p2p_ptr, 10);
     playback.start(p2p_ptr);
   }
 
@@ -118,8 +151,7 @@ void test_stream(char *user) {
 auto callback(std::unique_ptr<P2P> &p2p) -> AVStream::DataCallback {
 
   
-  return [&p2p](Webcam::WebcamFrames &&t_video,
-                                       Data::DataVector &&t_audio) {
+  return [&p2p](Webcam::WebcamFrames &&t_video, Data::DataVector &&t_audio) {
 
    audio_req = p2p->make_request();
    video_req = p2p->make_request();
@@ -131,10 +163,70 @@ auto callback(std::unique_ptr<P2P> &p2p) -> AVStream::DataCallback {
       p2p->send_package(video_req);
     }
 
+    std::this_thread::sleep_for(50ms); // do it for 10 secs then quit.
+                                     //
     //  send audio
     audio_req.set_data(new AVData(std::move(t_audio), Data::Audio));
     p2p->send_package(audio_req);
   };
+}
+
+
+void write_wav(){
+
+  wav_header_t header;
+  header.riff_header[0] = 'R';
+  header.riff_header[1] = 'I';
+  header.riff_header[2] = 'F';
+  header.riff_header[3] = 'F';
+  header.wave_header[0] = 'W';
+  header.wave_header[1] = 'A';
+  header.wave_header[2] = 'V';
+  header.wave_header[3] = 'E';
+  header.fmt_header[0] = 'f';
+  header.fmt_header[1] = 'm';
+  header.fmt_header[2] = 't';
+  header.fmt_header[3] = ' ';
+  header.fmt_chunk_size = 16;
+  header.audio_format = 1;
+  header.num_channels = 1;
+  header.sample_rate = 44100;
+  header.byte_rate = header.sample_rate * header.num_channels * 2; // 2 is byte per sample - 16 bits
+  header.sample_alignment = header.num_channels * 2; // 2 is byte per sample
+  header.bit_depth = 16;
+  header.data_header[0] = 'd';
+  header.data_header[1] = 'a';
+  header.data_header[2] = 't';
+  header.data_header[3] = 'a';
+
+  SDL_Init(SDL_INIT_AUDIO);
+  auto input_queue = std::make_unique<LockFreeAudioQueue>();
+  AudioDevice input_device(input_queue, AudioDevice::Input);
+
+  input_device.open();
+  AudioDevice::wait(100); // record for 200 frames!
+  input_device.close();
+
+   std::vector<uint8_t> raw_audio;
+
+  while (!input_queue->empty()) {
+
+    auto ptr = input_queue->pop();
+    Data::DataVector data =  ptr->m_data;
+    for(auto &d : data){
+      raw_audio.push_back(d);
+    }
+  }
+
+   header.data_bytes = raw_audio.size();
+   header.wav_size =   36 + header.data_bytes;
+
+   std::FILE *wave_file;
+   wave_file = fopen( "skype.wav" , "a");
+   fwrite(&header, sizeof(header), 1, wave_file);
+   printf("size: %d\n", header.wav_size);
+   fwrite(raw_audio.data(), 1, raw_audio.size(), wave_file);
+   fclose(wave_file);
 }
 
 /* Tests Audio
@@ -147,18 +239,21 @@ void test_audio() {
   auto input_queue = std::make_unique<LockFreeAudioQueue>();
   auto output_queue = std::make_unique<LockFreeAudioQueue>();
 
-  AudioDevice input_device(output_queue, AudioDevice::Input);
+  AudioDevice input_device(input_queue, AudioDevice::Input);
   AudioDevice output_device(output_queue, AudioDevice::Output);
 
   auto converter = AudioConverter();
+  auto audio_bank = AudioBank();
+
+  Data::DataVector to_file;
 
   std::cout << "Recording. Say something.\n";
 
   input_device.open();
-  AudioDevice::wait(200); // record for 200 frames!
+  AudioDevice::wait(100); // record for 200 frames!
   input_device.close();
 
-  std::cout << "Converting....\n";
+  std::cout << "Converting audio...\n";
 
   while (!input_queue->empty()) {
 
@@ -167,15 +262,16 @@ void test_audio() {
       break;
     }
 
-    std::vector<uint8_t> encoded_audio = converter.encode(input_queue);
-    converter.decode(output_queue, encoded_audio);
+      std::vector<uint8_t> encoded_audio = converter.encode(input_queue);
+      Data::DataVector decoded_data = converter.decode(encoded_audio);
+      AudioPackage audio_pkt(std::move(decoded_data));
+      output_queue->push(std::move(audio_pkt));
   }
 
-  std::cout
-      << "done with input! Now playing the ouput of the recorded audio.\n";
-
+  std::cout << "done with input! Now playing the ouput of the recorded audio.\n";
   output_device.open();
-  AudioDevice::wait(200);
+  AudioDevice::wait(100);
+  std::cout << "Done playing back.\n";
   output_device.close();
 
   SDL_Quit();

@@ -4,6 +4,7 @@
 AVPlayback::AVPlayback() : m_audio_output(m_audio_queue, AudioDevice::Output) {}
 
 void AVPlayback::start(P2PPtr &t_p2pconn) {
+
   if (m_status == Stopped) {
     m_audio_output.open(); // Audio
     m_status = Started;
@@ -43,6 +44,7 @@ void AVPlayback::stop() {
 }
 
 void AVPlayback::buffer(P2PPtr &t_p2p_conn, std::size_t nb_packages) {
+  LOG_INFO("Buffering '%d' packets of Audio/Video data...", nb_packages);
   for (std::size_t count = 0; count < nb_packages; count++) {
     read_package(t_p2p_conn);
   }
@@ -77,58 +79,66 @@ void AVPlayback::read_package(P2PPtr &t_p2pconn) {
   /* we should read exactly the number of frames captured by the other client */
   while (read_size < capture_size) {
 
-    /* receive package from network and validate if it is the correct data type */
+    /* receive video packet from network */
     t_p2pconn->receive_package(req);
     const Data *data = req.data();
-    LOG_DEBUG("av data_size = %d", data->size());
+
    /* if empty try again  */
     if (req.data_type() == Data::Empty) {
+      LOG_TRACE("Empty data. Trying again....")
       continue;
     }
 
     /* There is an error. Wrong data type. */
     if (!valid_data_type(data, Data::Video)) {
+      m_status = Invalid;
       break;
     }
-    LOG_DEBUG("data_size: %d", data->get_data().size());
+
     frames.push_back(data->get_data());
     read_size++;
   };
 
   LOG_DEBUG("read %d video frames from socket.", read_size);
 
-  /* convert and push  franes to video queue buffer */
   if (m_status != Invalid) {
-    m_webcam.convert(frames, m_video_queue);
-  }
 
+  /* convert video and push frames to video queue buffer */
+    m_webcam.convert(frames, m_video_queue);
+
+  /* read audio package */
+   t_p2pconn->receive_package(req);
   
   /* If package is empty,read again until we get data */
-  if (req.data_type() == Data::Empty) {
-    while(req.data_type() == Data::Empty) {
+  while(req.data_type() == Data::Empty) {
       t_p2pconn->receive_package(req);
-    }
   }
 
   const Data *audio_data = req.data();
   load_audio(audio_data);
+  }
+
 }
+
+/* */
 
 void AVPlayback::load_audio(const Data *t_audio_data) {
 
   if (valid_data_type(t_audio_data, Data::Audio)) {
 
-    Data::DataVector audio = t_audio_data->get_data();
-    bool result = m_audio_converter.decode(m_audio_queue, audio);
+    std::vector<uint8_t> audio = t_audio_data->get_data();
+    Data::DataVector decoded_audio = m_audio_converter.decode(audio);
+    AudioPackage audio_pkt(std::move(decoded_audio));
+    m_audio_queue->push(std::move(audio_pkt));
 
-    if (!result) {
+
+    if (!m_audio_converter.valid()) {
       LOG_ERR("Error converting audio to output.");
     }
   }
 }
 
-auto AVPlayback::valid_data_type(const Data *t_data, Data::Type t_type)
-    -> bool {
+auto AVPlayback::valid_data_type(const Data *t_data, Data::Type t_type) -> bool {
 
   if (t_data->get_type() != t_type) {
     std::string data_type = Data::type_to_string(t_data->get_type());
