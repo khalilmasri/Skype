@@ -105,7 +105,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
                       ${AVUTIL_LIBRARY}
                       ${SDL2_LIBRARIES}
                       ${OpenCV_LIBS}
-                       -lz -lswresample -lva-drm -lva-x11 -lva -lvdpau -lX11 -llzma
+                    #   -lz -lswresample -lva-drm -lva-x11 -lva -lvdpau -lX11 -llzma
                     )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
