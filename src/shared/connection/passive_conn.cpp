@@ -56,7 +56,7 @@ Request PassiveConn::accept_connection() {
 
   if (req.m_valid) {
     m_poll.add_socket(req.m_socket); // add new connections to poll.
-    m_addresses.emplace(req.m_socket, Connection::address_tostring(address)); // store copy of IP address.
+    m_addresses[req.m_socket] = Connection::address_tostring(address); // store copy of IP address.
     req.m_address = Connection::address_tostring(address);
   }
 
