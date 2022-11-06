@@ -48,8 +48,14 @@ void AVStream::stream(StreamCallback &t_callback) {
 
 void AVStream::stop() {
   if (m_status == Started) {
-    m_input.close();
-    m_webcam.stop();
+    if (m_stream_type == Audio) {
+      m_input.close();
+    }
+
+    if (m_stream_type == Video) {
+      m_webcam.stop();
+    }
+
     m_status = Stopped;
   } else {
     LOG_ERR("Cannot STOP AVStream because its status is: %s",
