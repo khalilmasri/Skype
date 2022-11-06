@@ -54,6 +54,9 @@ public:
     static void call_mute                   (Job &t_job);
     static void call_webcam                 (Job &t_job);
     static void call_awaiting               (Job &t_job);
+    static void call_audio_stream           (Job &t_job);
+
+
 
     // Client commands
     static void client_exit                 (Job &t_job);

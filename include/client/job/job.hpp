@@ -43,6 +43,7 @@ struct Job {
         HANGUP,
         WEBCAM,
         MUTE,
+        AUDIO_STREAM,
         
         DISCARD,
         EXIT,

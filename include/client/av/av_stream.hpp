@@ -26,7 +26,7 @@ public:
 
   void start();
   void stop();
-  void stream(StreamCallback &t_callback);
+  void stream(StreamCallback &&t_callback);
   void set_stream_type(StreamType t_type);
 
 private:
@@ -37,6 +37,7 @@ private:
   AudioConverter     m_converter;
   Webcam             m_webcam;
   StreamType         m_stream_type;
+  StreamCallback     m_callback;
 
   void validate();
 };

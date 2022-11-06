@@ -14,7 +14,7 @@ void AVStream::start() {
 
     if (m_stream_type == Audio) {
       m_input.open();
-      AudioDevice::wait(50); // frames
+      AudioDevice::wait(1); // frames
       m_status = Started;
     }
 
@@ -29,17 +29,20 @@ void AVStream::start() {
   }
 }
 
-void AVStream::stream(StreamCallback &t_callback) {
+void AVStream::stream(StreamCallback &&t_callback) {
 
   if (m_stream_type != Audio) {
     LOG_ERR("Attempted to stream audio from a non-audio stream.");
     return;
   }
 
-  std::thread stream_thread([this, &t_callback]() {
+  m_callback = std::move(t_callback);
+
+  std::thread stream_thread([this]() {
+
     while (m_status == Started) {
       std::vector<uint8_t> encoded_audio = m_converter.encode(m_input_queue);
-      t_callback(std::move(encoded_audio));
+      m_callback(std::move(encoded_audio));
     }
   });
 

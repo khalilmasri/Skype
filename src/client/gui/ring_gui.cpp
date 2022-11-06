@@ -22,7 +22,6 @@ RingGui::~RingGui()
 {
     delete m_ui;
 }
-
 void RingGui::set_details(QString &t_user, int t_id)
 {
     this->setWindowTitle("Incoming call from " + t_user);
@@ -40,6 +39,7 @@ void RingGui::on_answer_clicked()
     LOG_INFO("Accepted call");
 
     emit start_call(m_caller_id);
+  
     this->hide();
 }
 
