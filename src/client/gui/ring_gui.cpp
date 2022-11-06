@@ -40,6 +40,10 @@ void RingGui::on_answer_clicked()
     LOG_INFO("Accepted call");
 
     emit start_call(m_caller_id);
+  
+    Job job = {Job::AUDIO_STREAM};
+    JobBus::create(job);
+
     this->hide();
 }
 

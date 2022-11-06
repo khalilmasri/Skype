@@ -57,6 +57,9 @@ void Call::connect(Job &t_job) {
 
   LOG_INFO("Call accepted");
   m_audio_p2p->handshake_peer();
+
+  av_stream();
+  av_playback();
 }
 
 /* */
@@ -79,6 +82,9 @@ void Call::accept(Job &t_job) {
 
   LOG_INFO("Call accepted");
   m_audio_p2p->handshake_peer();
+
+  av_stream();
+  av_playback();
 }
 
 /* */

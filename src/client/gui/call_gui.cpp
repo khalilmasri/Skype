@@ -37,7 +37,13 @@ void CallGui::call_accept(QString &t_username)
 {
   this->setWindowTitle("Call with " + t_username);
   m_ui->webcam->setChecked(true);
+
+  /* NOTE: NEW */
+ // Job job = {Job::AUDIO_STREAM};
+ // JobBus::create(job);
+
   this->show();
+
 }
 
 void CallGui::call_init(int t_contact_id, QString &t_username)
@@ -50,7 +56,6 @@ void CallGui::call_init(int t_contact_id, QString &t_username)
   job.m_intValue = t_contact_id;
   job.m_valid = false;
   JobBus::create(job);
-  
 }
 
 
