@@ -31,16 +31,12 @@ public:
   void read_package(P2PPtr &t_p2p_conn);
 
 private:
-  AudioQueuePtr m_audio_queue = std::make_unique<LockFreeAudioQueue>();
+  AudioQueuePtr  m_audio_queue = std::make_unique<LockFreeAudioQueue>();
   AudioConverter m_audio_converter;
-  AudioDevice m_audio_output;
-  Status m_status = Stopped;
- // Webcam m_webcam;
- // Webcam::CVMatQueue m_video_queue;
+  AudioDevice    m_audio_output;
+  Status         m_status = Stopped;
 
   void load_audio(const Data *t_audio_data);
-
-/* */
   auto valid_data_type(const Data *t_data, Data::Type t_type) -> bool;
 
 };
