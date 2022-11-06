@@ -58,8 +58,8 @@ void Call::connect(Job &t_job) {
   LOG_INFO("Call accepted");
   m_audio_p2p->handshake_peer();
 
-  // av_stream();
-  // av_playback();
+    av_stream();
+    av_playback();
 }
 
 /* */
@@ -83,7 +83,7 @@ void Call::accept(Job &t_job) {
   LOG_INFO("Call accepted");
   m_audio_p2p->handshake_peer();
 
- // av_stream();
+  av_stream();
   av_playback();
 }
 
@@ -154,8 +154,12 @@ void Call::av_stream() {
   /* create the callback for DataStream */
   AVStream::StreamCallback callback  = stream_callback();
 
+  if(callback == nullptr){
+    std::cout << "callback is nullptr\n";
+  }
+
   m_stream.start();
-  m_stream.stream(callback);
+  m_stream.stream(std::move(callback));
 };
 
 /* */

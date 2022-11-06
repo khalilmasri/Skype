@@ -77,6 +77,7 @@ void test_stream(char *user) {
 
   char password[] = "1234";
   std::string u(user);
+
   P2P p2p = test_conn(user, password);
   auto p2p_ptr = std::make_unique<P2P>(p2p);
 
@@ -103,7 +104,7 @@ void test_stream(char *user) {
   if(u == "john") {
     auto cb = callback(p2p_ptr);
     stream.start();
-    stream.stream(cb);
+    stream.stream(std::move(cb));
   }
 
   // shakira receives
