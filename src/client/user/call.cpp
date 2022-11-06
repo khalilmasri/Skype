@@ -117,10 +117,10 @@ void Call::awaiting(Job &t_job) {
     m_callers.append(t_job.m_intValue);
     t_job.m_valid = true;
   }
-
 }
 
 /* */
+
 
 void Call::hangup() {
   m_hangup = true;
@@ -146,7 +146,7 @@ void Call::remove_caller(int t_caller) {
 void Call::av_stream() {
 
   /* create the callback for DataStream */
-  AVStream::DataCallback callback  = data_callback();
+  AVStream::StreamCallback callback  = stream_callback();
 
   m_stream.start();
   m_stream.stream(callback);
@@ -163,7 +163,7 @@ void Call::av_playback(){
    */
 
   m_playback.buffer(m_p2pconn, 5);
-  m_playback.start(m_p2pconn);
+  m_playback.start();
 }
 
 
@@ -189,23 +189,15 @@ void Call::webcam() {
   }
 }
 
-auto Call::data_callback() -> AVStream::DataCallback {
+auto Call::stream_callback() -> AVStream::StreamCallback {
 
   /*  make_request will created a request with peer information based on
    *  UDP connection established by m_call(P2P) */
 
   Request audio_req = m_p2pconn->make_request();
-  Request video_req = m_p2pconn->make_request();
 
+  return [this, &audio_req](Data::DataVector &&t_audio) {
 
-  return [this, &audio_req, &video_req](Webcam::WebcamFrames &&t_video, Data::DataVector &&t_audio) {
-
-    for (Data::DataVector &frame_data : t_video) {
-      video_req.set_data(new AVData(std::move(frame_data), Data::Video));
-      m_p2pconn->send_package(video_req);
-    }
-
-    //  send audio
     audio_req.set_data(new AVData(std::move(t_audio), Data::Audio));
     m_p2pconn->send_package(audio_req);
   };

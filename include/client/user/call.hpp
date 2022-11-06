@@ -47,7 +47,7 @@ private:
   AVStream    m_stream;
   AVPlayback  m_playback;
 
- auto data_callback() -> AVStream::DataCallback;
+ auto stream_callback() -> AVStream::StreamCallback;
 
   inline static const int m_TIMEOUT = 10;
 };
