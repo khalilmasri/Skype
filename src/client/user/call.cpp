@@ -9,30 +9,30 @@
 #include <unistd.h>
 
 void Call::connect(Job &t_job) {
-  m_p2pconn = std::make_unique<P2P>(t_job.m_argument);
+  m_audio_p2p = std::make_unique<P2P>(t_job.m_argument);
 
   std::string peer_id = std::to_string(t_job.m_intValue);
-  m_p2pconn->connect_peer(peer_id);
+  m_audio_p2p->connect_peer(peer_id);
 
   LOG_ERR("did not call connect correctly. Exiting...");
-  if (m_p2pconn->status() != P2P::Awaiting) {
+  if (m_audio_p2p->status() != P2P::Awaiting) {
     return;
   }
 
   int count = 0;
 
-  while (m_p2pconn->status() != P2P::Accepted) {
+  while (m_audio_p2p->status() != P2P::Accepted) {
 
     LOG_INFO("Pinging...");
 
-    m_p2pconn->ping_peer();
+    m_audio_p2p->ping_peer();
     sleep(1); // check every 1 second
 
-    if (m_p2pconn->status() == P2P::Awaiting) {
+    if (m_audio_p2p->status() == P2P::Awaiting) {
       LOG_DEBUG("Still Awaiting...");
     }
 
-    if (m_p2pconn->status() == P2P::Error) {
+    if (m_audio_p2p->status() == P2P::Error) {
       LOG_ERR("ping returned an error. exiting....");
       remove_caller(t_job.m_intValue);
       return;
@@ -40,7 +40,7 @@ void Call::connect(Job &t_job) {
 
     if (m_hangup) {
       LOG_DEBUG("Hanging up the call!");
-      m_p2pconn->hangup_peer();
+      m_audio_p2p->hangup_peer();
       m_hangup = false;     
       return;
     }
@@ -48,7 +48,7 @@ void Call::connect(Job &t_job) {
     if (count > m_TIMEOUT) {
       LOG_INFO("Breaking after %d seconds", count);
       JobBus::create({Job::HANGUP}); // TODO(@khalil): is this correct?
-      m_p2pconn->hangup_peer();
+      m_audio_p2p->hangup_peer();
       return;
     }
 
@@ -56,7 +56,7 @@ void Call::connect(Job &t_job) {
   }
 
   LOG_INFO("Call accepted");
-  m_p2pconn->handshake_peer();
+  m_audio_p2p->handshake_peer();
 }
 
 /* */
@@ -64,13 +64,13 @@ void Call::connect(Job &t_job) {
 void Call::accept(Job &t_job) {
 
   //  P2P call(t_job.m_argument);
-  m_p2pconn = std::make_unique<P2P>(t_job.m_argument);
+  m_audio_p2p = std::make_unique<P2P>(t_job.m_argument);
 
   std::string user_id = std::to_string(t_job.m_intValue);
-  m_p2pconn->accept_peer(user_id);
+  m_audio_p2p->accept_peer(user_id);
   LOG_INFO("Accepting call from %d", t_job.m_intValue);
 
-  if (m_p2pconn->status() == P2P::Accepted) {
+  if (m_audio_p2p->status() == P2P::Accepted) {
     LOG_INFO("Accepted was sucessful");
   } else {
     LOG_ERR("Accept failed.");
@@ -78,16 +78,16 @@ void Call::accept(Job &t_job) {
   }
 
   LOG_INFO("Call accepted");
-  m_p2pconn->handshake_peer();
+  m_audio_p2p->handshake_peer();
 }
 
 /* */
 
 void Call::reject(Job &t_job) {
 
- if (nullptr != m_p2pconn) {
+ if (nullptr != m_audio_p2p) {
     std::string user_id = std::to_string(t_job.m_intValue);
-    m_p2pconn->reject_peer(user_id);
+    m_audio_p2p->reject_peer(user_id);
 
   } else {
     LOG_ERR("There are no existing calls to reject.");
@@ -117,10 +117,10 @@ void Call::awaiting(Job &t_job) {
     m_callers.append(t_job.m_intValue);
     t_job.m_valid = true;
   }
-
 }
 
 /* */
+
 
 void Call::hangup() {
   m_hangup = true;
@@ -146,7 +146,7 @@ void Call::remove_caller(int t_caller) {
 void Call::av_stream() {
 
   /* create the callback for DataStream */
-  AVStream::DataCallback callback  = data_callback();
+  AVStream::StreamCallback callback  = stream_callback();
 
   m_stream.start();
   m_stream.stream(callback);
@@ -162,8 +162,8 @@ void Call::av_playback(){
    *       frames of audio and video.
    */
 
-  m_playback.buffer(m_p2pconn, 5);
-  m_playback.start(m_p2pconn);
+  m_playback.buffer(m_audio_p2p, 5);
+  m_playback.start(m_audio_p2p);
 }
 
 
@@ -189,24 +189,16 @@ void Call::webcam() {
   }
 }
 
-auto Call::data_callback() -> AVStream::DataCallback {
+auto Call::stream_callback() -> AVStream::StreamCallback {
 
   /*  make_request will created a request with peer information based on
    *  UDP connection established by m_call(P2P) */
 
-  Request audio_req = m_p2pconn->make_request();
-  Request video_req = m_p2pconn->make_request();
+  Request audio_req = m_audio_p2p->make_request();
 
+  return [this, &audio_req](Data::DataVector &&t_audio) {
 
-  return [this, &audio_req, &video_req](Webcam::WebcamFrames &&t_video, Data::DataVector &&t_audio) {
-
-    for (Data::DataVector &frame_data : t_video) {
-      video_req.set_data(new AVData(std::move(frame_data), Data::Video));
-      m_p2pconn->send_package(video_req);
-    }
-
-    //  send audio
     audio_req.set_data(new AVData(std::move(t_audio), Data::Audio));
-    m_p2pconn->send_package(audio_req);
+    m_audio_p2p->send_package(audio_req);
   };
 }

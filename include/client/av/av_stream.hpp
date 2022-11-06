@@ -8,6 +8,7 @@
 #include "lock_free_audio_queue.hpp"
 #include "webcam.hpp"
 #include "av_data.hpp"
+#include <thread>
 
 #include <functional>
 
@@ -17,13 +18,16 @@ class AVStream {
   enum Status {Started, Stopped, Invalid};
 
 public:
-  AVStream();
-  using DataCallback =  std::function<void(Webcam::WebcamFrames&&, Data::DataVector&&)>;
+  enum StreamType {Audio, Video};
+
+  AVStream(StreamType t_type = Audio);
+  using StreamCallback =  std::function<void(Data::DataVector&&)>;
  // ~AVStream();
 
   void start();
   void stop();
-  void stream(DataCallback &t_callback);
+  void stream(StreamCallback &t_callback);
+  void set_stream_type(StreamType t_type);
 
 private:
   AudioQueuePtr       m_input_queue = std::make_unique<LockFreeAudioQueue>(); 
@@ -32,6 +36,7 @@ private:
 
   AudioConverter     m_converter;
   Webcam             m_webcam;
+  StreamType         m_stream_type;
 
   void validate();
 };

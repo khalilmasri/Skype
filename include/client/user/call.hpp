@@ -7,7 +7,7 @@
 #include "job.hpp"
 #include "peer_to_peer.hpp"
 #include "av_stream.hpp"
-#include "av_playback.hpp"
+#include "audio_playback.hpp"
 
 #include <cstdint>
 #include <memory>
@@ -40,14 +40,14 @@ private:
 
   using P2PPtr = std::unique_ptr<P2P>;
 
-  bool        m_hangup   = false;
-  bool        m_webcam   = false;
-  bool        m_mute     = false;
-  P2PPtr      m_p2pconn = nullptr;
-  AVStream    m_stream;
-  AVPlayback  m_playback;
+  bool           m_hangup   = false;
+  bool           m_webcam   = false;
+  bool           m_mute     = false;
+  P2PPtr         m_audio_p2p = nullptr;
+  AVStream       m_stream; // stream will initialize as Audio but can be initialized as Video.
+  AudioPlayback  m_playback;
 
- auto data_callback() -> AVStream::DataCallback;
+ auto stream_callback() -> AVStream::StreamCallback;
 
   inline static const int m_TIMEOUT = 10;
 };
