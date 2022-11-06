@@ -17,6 +17,7 @@ struct AudioPackage {
   int m_index = 0;
 
   AudioPackage();
+  AudioPackage(std::vector<uint8_t> &&t_data);
   AudioPackage(uint8_t *t_stream, int t_len);
 
   void push_back(uint8_t t_value);

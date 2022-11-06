@@ -1,5 +1,6 @@
 #include "job_bus.hpp"
 #include "client.hpp"
+#include "logger.hpp"
 #include "thread_safe_queue.hpp"
 
 #include <ctime>
@@ -80,6 +81,7 @@ void JobBus::handle() {
             
             m_JobBus_map[job.m_command](job);
             
+            LOG_TRACE("Handling job => %d", job.m_command);
             if ( Job::AWAITING == job.m_command && true == job.m_valid )
             {
                 m_resQ.push(job);
@@ -96,6 +98,7 @@ void JobBus::handle() {
         QThread::usleep(100);  
     }
    
+   m_JobBus_map[Job::EXIT](job); // ONE LAST JOB
 }
 
 bool JobBus::get_response(Job &t_job){

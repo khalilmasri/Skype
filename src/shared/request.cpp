@@ -20,6 +20,6 @@ void Request::set_data(Data *t_data) {
 void Request::set_token(std::string &token) { m_token = token;}
 void Request::set_token(std::string &&token) { m_token = token;}
 
-auto Request::data_type() -> Data::type { return m_data->get_type(); }
+auto Request::data_type() -> Data::Type { return m_data->get_type(); }
 auto Request::data_empty() const -> bool { return m_data == nullptr; }
 auto Request::data() const -> const Data * { return m_data; }

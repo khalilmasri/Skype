@@ -14,7 +14,9 @@ auto VideoSettings::width() const -> int { return m_width; }
 auto VideoSettings::framerate() const -> int { return m_framerate; }
 auto VideoSettings::height() const -> int { return m_height; }
 auto VideoSettings::capture_size_frames() const -> int { return m_capture_size; }
+auto VideoSettings::converter_type() const -> std::string { return m_converter_type; }
 void VideoSettings::delete_instance() { delete m_instance; };
+auto VideoSettings::camera() -> int { return m_camera; };
 
 auto VideoSettings::get_instance() -> VideoSettings * {
 
@@ -24,6 +26,11 @@ auto VideoSettings::get_instance() -> VideoSettings * {
 
   return m_instance;
 };
+
+void VideoSettings::set_camera(int t_camera)
+{
+  m_camera = t_camera;
+}
 
 AudioSettings::AudioSettings() {
 
@@ -48,8 +55,12 @@ AudioSettings::AudioSettings() {
 
   }
 
-  /* 44100hz / 25fps * 2 (@ 16bits) = 3528 */
-  m_buffer_size = (m_samplerate / video_settings->framerate()) * m_bit_multiplier;
+   /* 44100hz / 25fps * 4 (@ 32bits) = 7056 */
+  //  m_buffer_size = (m_samplerate / video_settings->framerate()) * m_bit_multiplier; // 7056
+  
+   /* based on ffmpeg frame size */
+    m_buffer_size = 1152 * m_bit_multiplier; // 4608
+    // 
 };
 
 auto AudioSettings::bitrate() const -> int { return m_bitrate; }

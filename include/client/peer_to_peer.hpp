@@ -29,8 +29,8 @@ class P2P {
   [[nodiscard]] auto make_request() const -> Request;
 
   /* UDP connection to exchange data */
-  auto          send_package(Request &t_req) -> Request;
-  auto          receive_package(Request &t_req) -> Request;
+  void          send_package(Request &t_req);
+  void          receive_package(Request &t_req);
 
   /* Reset the P2P connection */
   void          reset();

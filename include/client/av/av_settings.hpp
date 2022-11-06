@@ -6,6 +6,7 @@ extern "C" { // required by linker
 }
 
 #include <SDL2/SDL_audio.h>
+#include <string>
 
 /* audio */
 
@@ -13,6 +14,7 @@ class AudioSettings {
 
   enum CodecID {
     mp3 = AV_CODEC_ID_MP3,
+    mp3_alt = AV_CODEC_ID_MP3ADU,
     mp2 = AV_CODEC_ID_MP2,
     vorbis = AV_CODEC_ID_VORBIS,
     opus = AV_CODEC_ID_OPUS,
@@ -55,7 +57,7 @@ private:
   static AudioSettings *m_instance;
 
   CodecID m_codec_id = mp3;
-  CodecID m_codec_id_alt = mp2;                  // alternative in case first option is not avail.
+  CodecID m_codec_id_alt = mp3_alt;                  // alternative in case first option is not avail.
   int m_channels = 1;
   int m_bitrate = 128000;
   int m_samplerate = 44100;
@@ -86,15 +88,20 @@ public:
   [[nodiscard]] auto height() const -> int;
   [[nodiscard]] auto framerate() const -> int;
   [[nodiscard]] auto capture_size_frames() const -> int;
+  [[nodiscard]] auto converter_type() const -> std::string;
+  [[nodiscard]] auto camera() -> int;
+  void set_camera(int t_camera);
 
 private:
   static VideoSettings *m_instance;
 
+  std::string m_converter_type = ".jpeg";
   int m_bitrate = 40000;
   int m_height = 480;
   int m_width = 640;
   int m_framerate = 25;
   int m_capture_size = 1; // video frames @ 25 fps
+  int m_camera = 0;
 
   VideoSettings();
 };

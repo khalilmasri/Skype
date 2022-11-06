@@ -21,7 +21,7 @@ struct Request {
   void               set_data(Data *t_data) ;
   void               set_token(std::string &t_token);
   void               set_token(std::string &&t_token);
-  auto               data_type() -> Data::type;
+  auto               data_type() -> Data::Type;
   [[nodiscard]] auto data_empty() const -> bool;
   // data returns const to prevent being modified anywhere else.
   [[nodiscard]] auto data() const -> const Data*; 

@@ -2,19 +2,27 @@
 #define WEBCAM_HPP
 
 #include <opencv2/opencv.hpp>
+#include <queue>
 #include "av_settings.hpp"
 #include "data.hpp"
+
 
 class Webcam
 {
 public:
   using WebcamFrames = std::vector<std::vector<uchar>>;
+  using CVMatQueue = std::queue<cv::Mat>;
 
   Webcam();
   ~Webcam();
   [[nodiscard]] auto capture() -> WebcamFrames;
-  [[nodiscard]] auto capture_frame() -> Data::DataVector;
   [[nodiscard]] auto valid() const -> bool;
+  void               convert(WebcamFrames &t_frames, CVMatQueue &t_output);
+  void               stop();
+
+  static void show(cv::Mat &t_frame);
+  void start();
+
   static void wait();
 
 private:
@@ -23,7 +31,9 @@ private:
   cv::VideoCapture   m_capture;
   bool               m_valid = true;
 
- // static VideoSettings *m_VIDEO_SETTINGS;
+  auto capture_frame() -> Data::DataVector;
+
+  VideoSettings *m_VIDEO_SETTINGS;
 };
 
 #endif // WEBCAM_HPP

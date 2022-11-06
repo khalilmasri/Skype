@@ -19,7 +19,7 @@ UDPConn::UDPConn(int t_port, IOStrategy *t_io)
                                                     
 // unbound sockets does not need a port number so we don't need one. Kernel will assign updon sendfrom(4)
  UDPConn::UDPConn(IOStrategy *t_io)
-    : Connection(0, SOCK_DGRAM), m_io(t_io) {} 
+    : Connection(7000, SOCK_DGRAM), m_io(t_io) {} 
 
 auto UDPConn::bind_socket(const std::string &t_address) -> bool {
 
@@ -29,10 +29,12 @@ auto UDPConn::bind_socket(const std::string &t_address) -> bool {
 
   auto address = get_address();
 
+
   int result = bind(get_socket(), reinterpret_cast<struct sockaddr *>(&address),
                  sizeof(address));
 
-  return is_valid(result, "Could not bind socket in UDP connection.");
+
+  return is_valid(result, "Warning: Did not bind UDP socket. If you are a client ignore this warning.");
 }
 
 void UDPConn::set_strategy(IOStrategy *t_io){

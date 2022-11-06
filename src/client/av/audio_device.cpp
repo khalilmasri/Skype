@@ -27,23 +27,25 @@ AudioDevice::AudioDevice(std::unique_ptr<LockFreeAudioQueue> &t_queue, Type t_ty
   // config->select_output(1);
   // config->select_input(1);
 
-  config->select_output(1); // this is to work on pedros computer! check yours.
+  // config->select_output(1); // this is to work on pedros computer! check yours.
 
   // HERE: You can also print your list of ins and outs like so:
   //  auto outputs = config->config->list_output_name();
   //  for(auto &output: outputs) { std::cout << output << "\n"; }
 
+  config->select_output(1); // <----- THIS !
   
   std::string interface_name = t_type == Input ? config->get_input().c_str()
                                                : config->get_output().c_str();
 
   const char *in_or_out = t_type == Input ? "Input" : "Output";
 
+
   SDL_Log("Selecting Audio Device %s : %s\n", in_or_out,
           interface_name.c_str());
 
   m_dev = SDL_OpenAudioDevice(interface_name.c_str(), static_cast<int>(t_type), &want, &have,
-                              SDL_AUDIO_ALLOW_FORMAT_CHANGE);
+      0);
 
   if (m_dev == 0) {
     m_status = Invalid;
@@ -77,6 +79,13 @@ void AudioDevice::wait(int t_frames) {
   auto *config_video = VideoSettings::get_instance();
   SDL_Delay(1000 / config_video->framerate() * t_frames);
 };
+
+void AudioDevice::start_sdl(){
+  Uint32 subsystem_init = 0;
+  if (SDL_WasInit(subsystem_init & SDL_INIT_AUDIO) <= 0) {
+    SDL_Init(SDL_INIT_AUDIO);
+  }
+}
 
 void AudioDevice::log_on_mismatch_audiospec(SDL_AudioSpec t_want, SDL_AudioSpec t_have) {
 

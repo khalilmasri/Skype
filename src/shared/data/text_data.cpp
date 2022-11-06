@@ -18,7 +18,7 @@ TextData::TextData(char *t_text) : TextData(std::string(t_text)) {}
 
 TextData::~TextData() = default;
 
-auto TextData::get_type() const -> Data::type { return m_type; }
+auto TextData::get_type() const -> Data::Type { return m_type; }
 auto TextData::empty() const -> bool { return m_data.empty(); }
 auto TextData::size() const -> std::size_t { return m_data.size(); }
 auto TextData::get_data() const -> DataVector { return m_data; }

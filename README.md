@@ -62,7 +62,7 @@ The code in `src/shared` and `include/shared` is shared between the client and s
 
 This application depends on the following packages
 
-1. [iamgui](https://github.com/ocornut/imgui)
+1. [qt6](https://github.com/qt/qtbase)
 2. [sdl2](https://github.com/libsdl-org/SDL)
 3. [libpqxx](https://github.com/jtv/libpqxx) (Postgres client)
 3. [ffmpeg](https://github.com/FFmpeg/FFmpeg)

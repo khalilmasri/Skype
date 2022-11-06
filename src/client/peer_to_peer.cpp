@@ -77,7 +77,7 @@ auto P2P::type_to_string() const -> std::string {
 
 /* Sending Data to peer */
 
-auto P2P::send_package(Request &t_req) -> Request {
+void P2P::send_package(Request &t_req) {
 
   if (m_status == Connected) {
     m_conn.respond(t_req);
@@ -85,35 +85,30 @@ auto P2P::send_package(Request &t_req) -> Request {
   } else {
     t_req.m_valid = false;
     LOG_DEBUG("Cannot send package. P2P Not connected.");
-
   }
 
-  return t_req;
 }
 
 /* Receiving data from peer */
 
-auto P2P::receive_package(Request &t_req) -> Request {
+void P2P::receive_package(Request &t_req) {
 
   if (m_status == Connected) {
     m_conn.receive(t_req);
-
   } else {
     t_req.m_valid = false;
     LOG_DEBUG("Cannot receive package. P2P Not connected.");
 
   }
-
-  return t_req;
 }
 
 /* */
 
 void P2P::reset() {
-  m_last_reply = Reply::None;
+  m_last_reply   = Reply::None;
   m_peer_address = {};
-  m_status = Idle;
-  m_type = None;
+  m_status       = Idle;
+  m_type         = None;
 }
 
 /* */
@@ -124,7 +119,7 @@ void P2P::handshake_peer() {
     return;
   }
 
-  Request req(m_peer_address, true); // m_valid = true
+  Request req(m_peer_address + ":" + std::to_string(m_conn.get_port()), true); // m_valid = true
 
   /* if m_network_type = WEB handshake will hole punch */
   if (m_type == Acceptor) {
@@ -148,7 +143,6 @@ void P2P::connect_peer(std::string &t_peer_id) {
 
   /* add client local addr as arg to CONNECT */
   std::string argument = t_peer_id + " " + m_local_ip.get_first();
-
   std::string response = send_server(ServerCommand::Connect, argument);
 
   m_type = Initiator;
@@ -177,10 +171,10 @@ void P2P::accept_peer(std::string &t_peer_id) {
   std::string response = send_server(ServerCommand::Accept, argument);
 
   if (m_last_reply == Reply::r_201) {
-    m_status = Accepted;
+    m_status                     = Accepted;
     auto [address, address_type] = StringUtils::split_first(response);
-    m_peer_address = std::move(address);
-    m_network_type = address_type == m_LOCAL ? Local : Web;
+    m_peer_address               = std::move(address);
+    m_network_type               = address_type == m_LOCAL ? Local : Web;
 
   } else {
     m_status = Error;
@@ -192,8 +186,7 @@ void P2P::accept_peer(std::string &t_peer_id) {
 
 void P2P::reject_peer(std::string &t_peer_id) {
 
-  m_type = Acceptor;
-
+  m_type               = Acceptor;
   std::string response = send_server(ServerCommand::Reject, t_peer_id);
 
   if (m_last_reply == Reply::r_200) {
@@ -219,10 +212,11 @@ void P2P::ping_peer() {
   std::string response = send_server(ServerCommand::Ping);
 
   if (m_last_reply == Reply::r_201) {
-    m_status = Accepted;
+
+    m_status                     = Accepted;
     auto [address, address_type] = StringUtils::split_first(response);
-    m_peer_address = std::move(address);
-    m_network_type = address_type == "LOCAL" ? Local : Web;
+    m_peer_address               = std::move(address);
+    m_network_type               = address_type == "LOCAL" ? Local : Web;
 
   } else if (m_last_reply == Reply::r_203) {
     m_status = Awaiting;
@@ -230,7 +224,8 @@ void P2P::ping_peer() {
 
   } else {
     m_status = Error;
-    LOG_ERR("%s", response.c_str());
+    LOG_ERR("The response was '%s' and should have been 201 or 203", response.c_str());
+
   }
 }
 
@@ -314,9 +309,9 @@ void P2P::handshake_acceptor(Request &t_req, PeerNetwork t_peer_network) {
 
     m_status = Connected;
     t_req.set_data(new TextData(ok_msg));
+    m_conn.respond(t_req);
 
   } else {
-    m_conn.respond(t_req);
     LOG_ERR("P2P handshake message '%s' should be '200 OK'. Handshake failed.",
             response.c_str());
 
@@ -339,19 +334,19 @@ void P2P::handshake_initiator(Request &t_req, PeerNetwork t_peer_network) {
   LOG_DEBUG("Intiator: Sending 200 OK to confirm.");
   m_conn.respond(t_req);
 
-  LOG_DEBUG("Intiator: Handhake sent. now waiting for 0K response...")
+  LOG_DEBUG("Intiator: Handshake sent. now waiting for OK response...")
   m_conn.receive(t_req);
 
   std::string response = TextData::to_string(t_req.data());
 
-  if (response == ok_msg) {
+  if (ok_msg == response) {
     LOG_INFO("P2P handshake with '%s' was sucessful. ",
              t_req.m_address.c_str());
     m_status = Connected;
   } else {
-    LOG_ERR("Initiator: P2P handshake message '%s' should be '200 OK'. "
+    LOG_ERR("Initiator: P2P handshake message '%s' should be '%s'. "
             "Handshake failed.",
-            response.c_str());
+            response.c_str(), ok_msg.c_str());
     m_status = Error;
   }
 }
