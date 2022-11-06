@@ -14,7 +14,7 @@ void AVStream::start() {
 
     if (m_stream_type == Audio) {
       m_input.open();
-      AudioDevice::wait(50); // frames
+      AudioDevice::wait(1); // frames
       m_status = Started;
     }
 

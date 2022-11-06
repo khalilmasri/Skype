@@ -172,7 +172,7 @@ void Call::av_playback(){
    *       frames of audio and video.
    */
 
-  m_playback.buffer(m_audio_p2p, 5);
+  m_playback.buffer(m_audio_p2p, 1);
   m_playback.start(m_audio_p2p);
 }
 
