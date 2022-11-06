@@ -4,7 +4,7 @@
 #include "audio_converter.hpp"
 #include "audio_device.hpp"
 #include "audio_device_config.hpp"
-#include "av_playback.hpp"
+#include "audio_playback.hpp"
 #include "av_stream.hpp"
 #include "config.hpp"
 #include "doctest.h"
@@ -108,7 +108,7 @@ void test_stream(char *user) {
 
   // shakira receives
   if(u == "shakira"){
-    playback.buffer(p2p_ptr, 10);
+    playback.buffer(p2p_ptr, 10); // buffer 10 frames before playing back
     playback.start(p2p_ptr);
   }
 

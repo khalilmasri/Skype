@@ -1,5 +1,5 @@
-#ifndef AV_PLAYBACK_H
-#define AV_PLAYBACK_H
+#ifndef AUDIO_PLAYBACK_H
+#define AUDIO_PLAYBACK_H
 
 #include "audio_converter.hpp"
 #include "audio_device.hpp"
