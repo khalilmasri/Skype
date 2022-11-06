@@ -39,8 +39,8 @@ void CallGui::call_accept(QString &t_username)
   m_ui->webcam->setChecked(true);
 
   /* NOTE: NEW */
- // Job job = {Job::AUDIO_STREAM};
- // JobBus::create(job);
+  // Job job = {Job::AUDIO_STREAM};
+  // JobBus::create(job);
 
   this->show();
 

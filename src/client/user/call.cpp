@@ -58,8 +58,8 @@ void Call::connect(Job &t_job) {
   LOG_INFO("Call accepted");
   m_audio_p2p->handshake_peer();
 
-  av_stream();
-  av_playback();
+  // av_stream();
+  // av_playback();
 }
 
 /* */
@@ -83,7 +83,7 @@ void Call::accept(Job &t_job) {
   LOG_INFO("Call accepted");
   m_audio_p2p->handshake_peer();
 
-  av_stream();
+ // av_stream();
   av_playback();
 }
 
@@ -200,9 +200,9 @@ auto Call::stream_callback() -> AVStream::StreamCallback {
   /*  make_request will created a request with peer information based on
    *  UDP connection established by m_call(P2P) */
 
-  Request audio_req = m_audio_p2p->make_request();
+  return [this](Data::DataVector &&t_audio) {
 
-  return [this, &audio_req](Data::DataVector &&t_audio) {
+    Request audio_req = m_audio_p2p->make_request();
 
     audio_req.set_data(new AVData(std::move(t_audio), Data::Audio));
     m_audio_p2p->send_package(audio_req);

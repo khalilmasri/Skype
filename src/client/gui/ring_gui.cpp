@@ -22,7 +22,6 @@ RingGui::~RingGui()
 {
     delete m_ui;
 }
-
 void RingGui::set_details(QString &t_user, int t_id)
 {
     this->setWindowTitle("Incoming call from " + t_user);
@@ -41,9 +40,6 @@ void RingGui::on_answer_clicked()
 
     emit start_call(m_caller_id);
   
-    Job job = {Job::AUDIO_STREAM};
-    JobBus::create(job);
-
     this->hide();
 }
 
