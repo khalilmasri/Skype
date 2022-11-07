@@ -25,15 +25,16 @@ AudioDevice::AudioDevice(std::unique_ptr<LockFreeAudioQueue> &t_queue, Type t_ty
   // HERE: The program will print the input and output being used. 
   // if not the correct one please select with the following functions
   // config->select_output(1);
-  // config->select_input(1);
+  //config->select_input(0);
 
   // config->select_output(1); // this is to work on pedros computer! check yours.
 
   // HERE: You can also print your list of ins and outs like so:
-  //  auto outputs = config->config->list_output_name();
-  //  for(auto &output: outputs) { std::cout << output << "\n"; }
+//  auto outputs = config->list_output_name();
+//  for(auto &output: outputs) { std::cout << output << "\n"; }
 
-  config->select_output(1); // <----- THIS !
+  config->select_input(1); // <----- THIS !
+  config->select_output(3); // <----- THIS !
   
   std::string interface_name = t_type == Input ? config->get_input().c_str()
                                                : config->get_output().c_str();

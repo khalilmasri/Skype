@@ -13,6 +13,8 @@
 
 using namespace std::chrono_literals;
 
+#define MAX_EMPTY_PACKAGES 10
+
 class AudioPlayback {
 
   using AudioQueuePtr = std::unique_ptr<LockFreeAudioQueue>;
@@ -35,6 +37,7 @@ private:
   AudioConverter m_audio_converter;
   AudioDevice    m_audio_output;
   Status         m_status = Stopped;
+  bool           m_should_hangup = false;
 
   void load_audio(const Data *t_audio_data);
   auto valid_data_type(const Data *t_data, Data::Type t_type) -> bool;

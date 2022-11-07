@@ -13,6 +13,10 @@ void AudioPlayback::start(P2PPtr &t_p2pconn) {
     std::thread playback_thread([this, &t_p2pconn]() {
       while (m_status == Started) {
         read_package(t_p2pconn);
+        if (true == m_should_hangup)
+        {
+          stop();
+        }
       }
     });
 
@@ -54,8 +58,14 @@ void AudioPlayback::read_package(P2PPtr &t_p2pconn) {
 
   t_p2pconn->receive_package(req);
 
+  uint32_t empty_packages_counter = 0;
   while (req.data_type() == Data::Empty) {
     t_p2pconn->receive_package(req);
+    if (MAX_EMPTY_PACKAGES == empty_packages_counter)
+    {
+      m_should_hangup = true;
+    }
+    empty_packages_counter++;
     LOG_TRACE("Received an empty audio packaged. Trying again....");
   }
 
