@@ -129,13 +129,9 @@ void Call::awaiting(Job &t_job) {
 
 
 void Call::hangup() {
+
   m_hangup = true;
-  
-  LOG_DEBUG("Hanging up and closing the connection!");
   remove_caller(m_current);
-  
-  m_stream.stop();
-  m_playback.stop();
 
   m_current = -1;
 }
@@ -147,7 +143,6 @@ void Call::remove_caller(int t_caller) {
     m_callers.removeOne(t_caller);
   }catch(...){
     // TODO(@khalil): Log error?
-    LOG_ERR("Couldn't remove caller!!!");
   };
 }
 
@@ -163,7 +158,7 @@ void Call::av_stream() {
   }
 
   m_stream.start();
-  m_stream.stream(std::move(callback));
+  m_stream.stream(m_audio_p2p);
 };
 
 /* */
@@ -177,8 +172,21 @@ void Call::av_playback(){
    */
 
   m_playback.buffer(m_audio_p2p, 1);
-  m_playback.start(m_audio_p2p);
+  m_playback.start(m_audio_p2p, m_stream);
 }
+
+
+/* */
+
+//void Call::mute() {
+//  if (!m_mute) {
+//    LOG_INFO("Mute ON");
+//    m_mute = true;
+//  } else {
+//    LOG_INFO("Mute OFF");
+//    m_mute = false;
+//  }
+//}
 
 void Call::webcam() {
   if (!m_webcam) {

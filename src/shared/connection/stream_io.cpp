@@ -64,6 +64,12 @@ auto StreamIO::receive(Request &t_req) const -> bool {
   return t_req.m_valid;
   }
 
+  /* peer sent an empty data stream with a done message. */
+  if(data_type == Data::Done){
+    t_req.set_data(new AVData(Data::Done));
+    return t_req.m_valid;
+  }
+
   Data::DataVector data = receive_data(t_req, &addr_in, pkt_info);
   t_req.m_address       = Connection::address_tostring(addr_in) + ":" + Connection::port_tostring(addr_in);
   
@@ -154,7 +160,7 @@ auto StreamIO::receive_header(Request &t_req, sockaddr_in *t_addrin) -> PacketIn
 
 auto StreamIO::receive_data(Request &t_req, sockaddr_in *t_addrin, PacketInfoTuple &t_pkt_info) -> Data::DataVector {
 
-  socklen_t addr_len = sizeof((*t_addrin));
+  socklen_t addr_len                                  = sizeof((*t_addrin));
   auto [data_type, nb_packets, packet_size, rem_size] = t_pkt_info;
 
   Data::DataVector data((nb_packets * packet_size) + rem_size, 0);

@@ -10,6 +10,7 @@ class AVData : public Data {
 public:
   explicit AVData(Data::DataVector &&t_data, Data::Type t_type);
   explicit AVData();
+  explicit AVData(Data::Type t_type);
   ~AVData() override;
 
   [[nodiscard]] auto get_type() const -> Data::Type override;

@@ -4,20 +4,25 @@
 AudioPlayback::AudioPlayback()
     : m_audio_output(m_audio_queue, AudioDevice::Output) {}
 
-void AudioPlayback::start(P2PPtr &t_p2pconn) {
+void AudioPlayback::start(P2PPtr &t_p2pconn, AVStream &t_stream) {
 
   if (m_status == Stopped) {
     m_audio_output.open(); // Audio
-    m_status = Started;
+                           
+    m_done_received = false;
+    m_status        = Started;
 
-    std::thread playback_thread([this, &t_p2pconn]() {
+    std::thread playback_thread([this, &t_p2pconn, &t_stream]() {
+
       while (m_status == Started) {
         read_package(t_p2pconn);
-        if (true == m_should_hangup)
-        {
-          stop();
-        }
-      }
+       }
+
+       // when a done msg is received we need to stop the AVStream object from sending data to peer
+       if(m_done_received){
+         t_stream.stop();
+       }
+
     });
 
     playback_thread.detach();
@@ -58,15 +63,15 @@ void AudioPlayback::read_package(P2PPtr &t_p2pconn) {
 
   t_p2pconn->receive_package(req);
 
-  uint32_t empty_packages_counter = 0;
   while (req.data_type() == Data::Empty) {
     t_p2pconn->receive_package(req);
-    if (MAX_EMPTY_PACKAGES == empty_packages_counter)
-    {
-      m_should_hangup = true;
-    }
-    empty_packages_counter++;
     LOG_TRACE("Received an empty audio packaged. Trying again....");
+  }
+
+  if(req.data_type() == Data::Done){
+    stop();
+    m_done_received = true;
+    return;
   }
 
   const Data *audio_data = req.data();

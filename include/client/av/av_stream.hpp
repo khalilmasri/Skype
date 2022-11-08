@@ -9,13 +9,14 @@
 #include "webcam.hpp"
 #include "av_data.hpp"
 #include <thread>
+#include "peer_to_peer.hpp"
 
 #include <functional>
 
 class AVStream {
   using AudioQueuePtr = std::unique_ptr<LockFreeAudioQueue>;
-
   enum Status {Started, Stopped, Invalid};
+  using P2PPtr = std::unique_ptr<P2P>;
 
 public:
   enum StreamType {Audio, Video};
@@ -26,7 +27,7 @@ public:
 
   void start();
   void stop();
-  void stream(StreamCallback &&t_callback);
+  void stream(P2PPtr &p2p_conn);
   void set_stream_type(StreamType t_type);
 
 private:
@@ -37,9 +38,10 @@ private:
   AudioConverter     m_converter;
   Webcam             m_webcam;
   StreamType         m_stream_type;
-  StreamCallback     m_callback;
 
   void validate();
+  void send_audio(P2PPtr &t_p2p_conn);
+  void send_done(P2PPtr &t_p2p_conn);
 };
 
 #endif
