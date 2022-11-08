@@ -92,19 +92,6 @@ void CallGui::on_webcam_clicked()
     JobBus::create({Job::WEBCAM});
 }
 
-
-void CallGui::on_microphone_clicked()
-{
-    JobBus::create({Job::MUTE});
-}
-
-void CallGui::on_menu_clicked()
-{
-  MenuGui *menu = new MenuGui(this);
-  menu->show();
-  LOG_INFO("Opened settings menu");
-}
-
 void CallGui::on_hangup_clicked()
 {
     JobBus::create({Job::HANGUP});

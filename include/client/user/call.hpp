@@ -31,7 +31,6 @@ public:
   /* */
 
   void webcam();
-  void mute();
   void hangup();
 
 private:
@@ -42,7 +41,6 @@ private:
 
   bool           m_hangup   = false;
   bool           m_webcam   = false;
-  bool           m_mute     = false;
   P2PPtr         m_audio_p2p = nullptr;
   AVStream       m_stream; // stream will initialize as Audio but can be initialized as Video.
   AudioPlayback  m_playback;

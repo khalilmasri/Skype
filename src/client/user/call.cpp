@@ -180,19 +180,6 @@ void Call::av_playback(){
   m_playback.start(m_audio_p2p);
 }
 
-
-/* */
-
-void Call::mute() {
-  if (!m_mute) {
-    LOG_INFO("Mute ON");
-    m_mute = true;
-  } else {
-    LOG_INFO("Mute OFF");
-    m_mute = false;
-  }
-}
-
 void Call::webcam() {
   if (!m_webcam) {
     LOG_INFO("Turning webcam");

@@ -267,12 +267,6 @@ void Client::call_webcam(Job &t_job)
    t_job.m_command = Job::DISCARD;
 }
 
-void Client::call_mute(Job &t_job)
-{
-   m_call.mute();
-   t_job.m_command = Job::DISCARD;
-}
-
 void Client::call_awaiting(Job &t_job)
 {
    LOG_INFO("Awaiting call in client");

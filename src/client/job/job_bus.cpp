@@ -42,7 +42,6 @@ JobBus::JobsMap JobBus::m_JobBus_map {
     {Job::REJECT,           Client::call_reject},
     {Job::HANGUP,           Client::call_hangup},
     {Job::WEBCAM,           Client::call_webcam},
-    {Job::MUTE,             Client::call_mute},
     {Job::AWAITING,         Client::call_awaiting},
     {Job::AUDIO_STREAM,     Client::call_audio_stream},
     {Job::EXIT,             Client::client_exit},
