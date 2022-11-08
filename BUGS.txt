@@ -1,0 +1,14 @@
+[PRIORITY] cannot have > 2 concurrent users logged into the server
+
+[1] Shouldnt be able to call offline contacts 
+(this will prevent many other current bugs having to be dealt with)
+
+[2] Caller needs to be able to hangup after requesting a call before connection even happens, 
+because currently it just keeps pinging and pinging until the timeout happens,
+then it calls hangup twice and crashes.
+
+[3] If you are a new user with no contacts you cannot initialise the program fully
+(currently: if i changed code so you can get into the central gui now and can add contacts 
+but clicking on them will not bring up their chat window. but if add someone and then log out and rerun 
+the program it then works, because it can initialise everything properly. i couldnt figure out how to
+initialise the chats in that scenario)

@@ -4,7 +4,7 @@
 // passing not data creates an empty Data.
 AVData::AVData() : m_type(Data::Empty){};
 
-AVData::AVData(Data::Type t_type) : m_type(t_type){};
+AVData::AVData(Data::Type t_type) :  m_type(t_type){};
 
 AVData::AVData(Data::DataVector &&t_data, Data::Type t_type) : m_data(std::move(t_data)), m_type(t_type) {
 }
