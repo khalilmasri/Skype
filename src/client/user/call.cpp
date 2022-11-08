@@ -25,6 +25,7 @@ void Call::connect(Job &t_job) {
 
     LOG_INFO("Pinging...");
 
+
     m_audio_p2p->ping_peer();
     sleep(1); // check every 1 second
 

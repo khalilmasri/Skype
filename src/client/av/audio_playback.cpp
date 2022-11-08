@@ -43,6 +43,7 @@ void AudioPlayback::stop() {
 
     m_audio_output.close();
     m_status = Stopped;
+    LOG_INFO("Closing AudioPlayback...");
 
   } else {
     LOG_ERR("Could not STOP audio player because its status is: %s",

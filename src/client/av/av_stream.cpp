@@ -68,6 +68,8 @@ void AVStream::stop() {
 
     m_status = Stopped;
 
+    LOG_INFO("Closing AVStream...");
+
   } else {
     LOG_ERR("Cannot STOP AVStream because its status is: %s",
             m_status == Invalid ? "'Invalid'." : "'Stopped'.")
