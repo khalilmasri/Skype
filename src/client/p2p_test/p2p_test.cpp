@@ -104,13 +104,13 @@ void test_stream(char *user) {
   if(u == "john") {
     auto cb = callback(p2p_ptr);
     stream.start();
-    stream.stream(std::move(cb));
+    stream.stream(p2p_ptr);
   }
 
   // shakira receives
   if(u == "shakira"){
     playback.buffer(p2p_ptr, 10); // buffer 10 frames before playing back
-    playback.start(p2p_ptr);
+    playback.start(p2p_ptr, stream);
   }
 
   thread.join();

@@ -15,7 +15,7 @@
 
 auto StreamIO::respond(Request &t_req) const -> bool {
 
-  LOG_DEBUG("Sending data to %s", t_req.m_address.c_str());
+  LOG_TRACE("Sending data to %s", t_req.m_address.c_str());
 
 
   if (t_req.data()->get_type() == Data::Text) {

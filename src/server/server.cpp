@@ -40,6 +40,8 @@ void Server::accept_connection() {
   Request req = m_conn.accept_connection();
 
   if (req.m_valid) {
+
+    LOG_TRACE("Accepted new connection. Socket fd: %d, address: %s", req.m_socket, req.m_address.c_str());
     std::string reply = Reply::get_message(Reply::r_200);
     req.set_data(new TextData(reply));
     m_conn.respond(req);

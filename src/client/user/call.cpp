@@ -133,6 +133,10 @@ void Call::hangup() {
   m_hangup = true;
   remove_caller(m_current);
 
+
+  m_stream.stop();
+  m_playback.stop();
+
   m_current = -1;
 }
 
