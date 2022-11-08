@@ -211,10 +211,11 @@ void Client::chat_get_all(Job &t_job){
 
    t_job.m_chats = m_chat.get_all(m_server_conn, m_server_req);
 
-   if (false == t_job.m_chats.empty())
-   {
+   // if (false == t_job.m_chats.empty())
+   // {
+      LOG_DEBUG("THIS BLOCKS ON EMPTY CONTACTS/CHATS FOR NEW USER")
       t_job.m_valid = true;
-   }
+   // }
    LOG_DEBUG("Getting all chats is done!");
 }
 

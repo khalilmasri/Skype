@@ -189,7 +189,7 @@ void Contacts::update_contacts(std::string t_response) {
         pair_contact_details(user); 
     }
 
-    if (old_contacts.size() != m_online_contacts.size())
+    if (old_contacts.size() != m_online_contacts.size() || m_online_contacts.empty())
     {
         LOG_DEBUG("Updating map");
         JobBus::create({Job::DISP_CONTACTS}); 

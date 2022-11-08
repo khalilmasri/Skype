@@ -26,10 +26,11 @@ void CentralGui::job_set_user(Job &t_job)
 void CentralGui::job_disp_contact(Job &t_job)
 {
     LOG_INFO("Displaying contacts");
-    if ( false == t_job.m_valid)
-    {
-        return;
-    }
+    LOG_INFO("This blocks when no Contacts")
+    // if ( false == t_job.m_valid)
+    // {
+    //     return;
+    // }
 
     auto model = new QStandardItemModel(this);
     m_ui->contact_list->setModel(model);
@@ -126,14 +127,19 @@ void CentralGui::job_remove_user(Job &t_job)
 void CentralGui::job_load_chat(Job &t_job)
 {
 
-     if ( false == t_job.m_valid)
-    {
-        return;
-    }
+    // if ( false == t_job.m_valid)
+    // {
+    //     return;
+    // } 
 
-    if ( true == t_job.m_chats.empty() || true == m_contact_list.empty())
+    // if ( true == t_job.m_chats.empty() || true == m_contact_list.empty())
+    if (true == m_contact_list.empty())
     {
+        // new logic here necessary?
+        LOG_INFO("Chats and Contacts currently empty for user")
+        emit ready_signal();
         return;
+        // neew logic here necessary?
     }
 
     LOG_INFO("Loading Chat first time...");
