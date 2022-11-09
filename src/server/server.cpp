@@ -76,7 +76,6 @@ void Server::udp_worker() {
     Request req;
     req.m_valid = true;
     m_udp.receive(req);
-   // req.set_data(new TextData("hello there!"));
     m_router.route(req);
     m_udp.respond(req);
   }

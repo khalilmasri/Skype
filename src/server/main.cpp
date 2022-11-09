@@ -1,10 +1,7 @@
-#include "logger.hpp"
-#include <iostream>
 #define DOCTEST_CONFIG_IMPLEMENT
 #include "server.hpp"
 #include "tester.hpp"
 #include "config.hpp"
-#include "thread_safe_queue.hpp"
 
 int main(int ac, char *av[]) {
 

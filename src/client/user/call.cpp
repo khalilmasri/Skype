@@ -9,90 +9,88 @@
 #include <unistd.h>
 
 void Call::connect(Job &t_job) {
-  m_audio_p2p = std::make_unique<P2P>(t_job.m_argument);
 
-  std::string peer_id = std::to_string(t_job.m_intValue);
-  m_audio_p2p->connect_peer(peer_id);
+// This is temporary and just to illustrate we need to know from UI if there is video or not
+  bool has_video = true;
+  m_audio_p2p    = std::make_unique<P2P>(t_job.m_argument);
+  bool valid     = udp_connect( m_audio_p2p, t_job); // omitting the t_wait_time argument so it's 1s by default
 
-  LOG_ERR("did not call connect correctly. Exiting...");
-  if (m_audio_p2p->status() != P2P::Awaiting) {
-    return;
+  // audio connection valid to stream
+  if (valid) {
+    audio_stream();
+    audio_playback();
   }
 
-  int count = 0;
-
-  while (m_audio_p2p->status() != P2P::Accepted) {
-
-    LOG_INFO("Pinging...");
-
-
-    m_audio_p2p->ping_peer();
-    sleep(1); // check every 1 second
-
-    if (m_audio_p2p->status() == P2P::Awaiting) {
-      LOG_DEBUG("Still Awaiting...");
-    }
-
-    if (m_audio_p2p->status() == P2P::Error) {
-      LOG_ERR("ping returned an error. exiting....");
-      remove_caller(t_job.m_intValue);
-      return;
-    }
-
-    if (m_hangup) {
-      LOG_DEBUG("Hanging up the call!");
-      m_audio_p2p->hangup_peer();
-      m_hangup = false;     
-      return;
-    }
-
-    if (count > m_TIMEOUT) {
-      LOG_INFO("Breaking after %d seconds", count);
-      JobBus::create({Job::HANGUP}); // TODO(@khalil): is this correct?
-      m_audio_p2p->hangup_peer();
-      return;
-    }
-
-    count++;
+  /* TODO(@Chris) we need to know from the UI if we have a video or not at this
+   * point */
+  /* initializing an peer to peer connection for the video  */
+  if (has_video && valid) {
+    m_video_p2p = std::make_unique<P2P>(t_job.m_argument);
+    /* wait time between is much shorter; just 100 milliseconds as peer will most likely
+     * be  already trying to accept the connection */
+    valid = udp_connect(m_video_p2p, t_job, 100);
   }
 
-  LOG_INFO("Call accepted");
-  m_audio_p2p->handshake_peer();
-
-    av_stream();
-    av_playback();
+  if (has_video && valid) {
+    /* This is success connection. This is where we will call the video to
+     * stream and playback. */
+    LOG_DEBUG("second peer to peer connection was established succesfully");
+  }
 }
 
 /* */
 
 void Call::accept(Job &t_job) {
+  // This is temporary and just to illustrate we need to know from UI if there is video or not
+  bool has_video = true;
+  m_audio_p2p    = std::make_unique<P2P>(t_job.m_argument);
+  bool valid     = udp_accept(m_audio_p2p, t_job);
 
-  //  P2P call(t_job.m_argument);
-  m_audio_p2p = std::make_unique<P2P>(t_job.m_argument);
 
-  std::string user_id = std::to_string(t_job.m_intValue);
-  m_audio_p2p->accept_peer(user_id);
-  LOG_INFO("Accepting call from %d", t_job.m_intValue);
-
-  if (m_audio_p2p->status() == P2P::Accepted) {
-    LOG_INFO("Accepted was sucessful");
-  } else {
-    LOG_ERR("Accept failed.");
-    return;
+  // audio connection valid to stream
+  if (valid) {
+    audio_stream();
+    audio_playback();
   }
 
-  LOG_INFO("Call accepted");
-  m_audio_p2p->handshake_peer();
+  /* TODO(@Chris) we need to know from the UI if we have a video or not at this
+   * point */
+  /* initializing an peer to peer connection for the video  */
+  if (has_video && valid) {
+    m_video_p2p = std::make_unique<P2P>(t_job.m_argument);
+    valid = udp_accept(m_video_p2p, t_job);
 
-  av_stream();
-  av_playback();
+    int count = 0;
+
+    /* if the accept fails we reset the p2p connection and try again until count == m_TIMEOUT */
+    while (!valid) {
+      m_video_p2p.reset();
+      valid = udp_accept(m_video_p2p, t_job);
+
+      /* will break after a certain number of trials */
+      if (count >= m_TIMEOUT) {
+        LOG_ERR("Accepting on video peer to peer connection has timed out.")
+        break;
+      }
+
+      /* wait a bit of nothing to accept */
+      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      count++;
+    }
+  }
+
+  if (has_video && valid) {
+    /* This is success connection. This is where we will call the video to
+       stream and playback. */
+    LOG_DEBUG("second peer to peer connection was established succesfully");
+  }
 }
 
 /* */
 
 void Call::reject(Job &t_job) {
 
- if (nullptr != m_audio_p2p) {
+  if (nullptr != m_audio_p2p) {
     std::string user_id = std::to_string(t_job.m_intValue);
     m_audio_p2p->reject_peer(user_id);
 
@@ -104,8 +102,8 @@ void Call::reject(Job &t_job) {
 /* */
 
 void Call::awaiting(Job &t_job) {
-  
-  if ( false == t_job.m_boolValue ) {
+
+  if (false == t_job.m_boolValue) {
 
     LOG_INFO("Awaiting call ended");
     remove_caller(t_job.m_intValue);
@@ -113,14 +111,14 @@ void Call::awaiting(Job &t_job) {
     return;
   }
 
-  t_job.m_valid = false; 
+  t_job.m_valid = false;
 
   auto it = std::find(m_callers.begin(), m_callers.end(), t_job.m_intValue);
-  
+
   LOG_INFO("Getting the call");
-  
-  if ( m_callers.end() == it ) {
-    LOG_INFO("Getting the call was success");
+
+  if (m_callers.end() == it) {
+    LOG_INFO("Finding the call was success");
     m_callers.append(t_job.m_intValue);
     t_job.m_valid = true;
   }
@@ -128,14 +126,12 @@ void Call::awaiting(Job &t_job) {
 
 /* */
 
-
 void Call::hangup() {
 
   m_hangup = true;
   remove_caller(m_current);
 
-
-  m_stream.stop();
+  m_audio_stream.stop();
   m_playback.stop();
 
   m_current = -1;
@@ -144,31 +140,24 @@ void Call::hangup() {
 /* */
 
 void Call::remove_caller(int t_caller) {
-  try{
+  try {
     m_callers.removeOne(t_caller);
-  }catch(...){
-    // TODO(@khalil): Log error?
+  } catch (...) {
+    LOG_ERR("Could not remove called.")
   };
 }
 
 /* */
 
-void Call::av_stream() {
+void Call::audio_stream() {
 
-  /* create the callback for DataStream */
-  AVStream::StreamCallback callback  = stream_callback();
-
-  if(callback == nullptr){
-    std::cout << "callback is nullptr\n";
-  }
-
-  m_stream.start();
-  m_stream.stream(m_audio_p2p);
+  m_audio_stream.start();
+  m_audio_stream.stream(m_audio_p2p);
 };
 
 /* */
 
-void Call::av_playback(){
+void Call::audio_playback() {
 
   /* NOTE: AVPlayback::buffer(conn, n);
    *       buffers 'n' number of data packages of AVdata before playback.
@@ -177,21 +166,84 @@ void Call::av_playback(){
    */
 
   m_playback.buffer(m_audio_p2p, 1);
-  m_playback.start(m_audio_p2p, m_stream);
+  m_playback.start(m_audio_p2p, m_audio_stream);
 }
-
 
 /* */
 
-//void Call::mute() {
-//  if (!m_mute) {
-//    LOG_INFO("Mute ON");
-//    m_mute = true;
-//  } else {
-//    LOG_INFO("Mute OFF");
-//    m_mute = false;
-//  }
-//}
+auto Call::udp_connect(P2PPtr &t_p2p_conn, Job &t_job, int t_wait_time)
+    -> bool {
+
+  std::string peer_id = std::to_string(t_job.m_intValue);
+  t_p2p_conn->connect_peer(peer_id);
+
+  if (m_audio_p2p->status() != P2P::Awaiting) {
+    LOG_ERR("did not call connect correctly. Exiting...");
+    return false;
+  }
+
+  int count = 0;
+
+  while (m_audio_p2p->status() != P2P::Accepted) {
+
+    LOG_INFO("Pinging...");
+
+    t_p2p_conn->ping_peer();
+
+    // default wait time is 1 second.
+    // When hole punching a second udp connection we can go much quicker.
+    std::this_thread::sleep_for(std::chrono::milliseconds(t_wait_time));
+
+    if (t_p2p_conn->status() == P2P::Awaiting) {
+      LOG_DEBUG("Awaiting peer...");
+    }
+
+    if (t_p2p_conn->status() == P2P::Error) {
+      LOG_ERR("Ping has returned an error. exiting....");
+      remove_caller(t_job.m_intValue);
+      return false;
+    }
+
+    if (m_hangup) {
+      LOG_DEBUG("Hanging up the call requested by initiator.");
+      t_p2p_conn->hangup_peer();
+      m_hangup = false;
+      return m_hangup;
+    }
+
+    if (count > m_TIMEOUT) {
+      LOG_INFO("Breaking after %d seconds", count);
+      JobBus::create({Job::HANGUP}); // TODO(@khalil): is this correct?
+      t_p2p_conn->hangup_peer();
+      return false;
+    }
+
+    count++;
+  }
+
+  LOG_INFO("Call accepted");
+  t_p2p_conn->handshake_peer();
+
+  return true;
+}
+
+auto Call::udp_accept(P2PPtr &t_p2p_conn, Job &t_job) -> bool {
+
+  std::string user_id = std::to_string(t_job.m_intValue);
+
+  t_p2p_conn->accept_peer(user_id);
+  LOG_INFO("Attempting to accept call from %d", t_job.m_intValue);
+
+  if (t_p2p_conn->status() == P2P::Accepted) {
+    LOG_INFO("Accepted was sucessful");
+  } else {
+    LOG_ERR("Accept failed.");
+    return false;
+  }
+
+  t_p2p_conn->handshake_peer();
+  return true;
+}
 
 void Call::webcam() {
   if (!m_webcam) {
@@ -201,18 +253,4 @@ void Call::webcam() {
     LOG_INFO("Closing webcam");
     m_webcam = false;
   }
-}
-
-auto Call::stream_callback() -> AVStream::StreamCallback {
-
-  /*  make_request will created a request with peer information based on
-   *  UDP connection established by m_call(P2P) */
-
-  return [this](Data::DataVector &&t_audio) {
-
-    Request audio_req = m_audio_p2p->make_request();
-
-    audio_req.set_data(new AVData(std::move(t_audio), Data::Audio));
-    m_audio_p2p->send_package(audio_req);
-  };
 }

@@ -25,29 +25,36 @@ public:
   void awaiting(Job &t_job);
   void remove_caller(int t_caller);
 
-  /* Audio video IO */
-  void av_stream();
-  void av_playback();
-  /* */
-
   void webcam();
   void hangup();
 
 private:
-  QVector<int> m_callers;
-  int          m_current;
-
   using P2PPtr = std::unique_ptr<P2P>;
 
+  QVector<int>   m_callers;
+  int            m_current;
   bool           m_hangup   = false;
   bool           m_webcam   = false;
+    
+  /* Peer to peer connections. One per data stream */
   P2PPtr         m_audio_p2p = nullptr;
-  AVStream       m_stream; // stream will initialize as Audio but can be initialized as Video.
+  P2PPtr         m_video_p2p = nullptr;
+
+  /* stream classes */
+  AVStream       m_audio_stream; 
+  AVStream       m_video_stream;
   AudioPlayback  m_playback;
 
- auto stream_callback() -> AVStream::StreamCallback;
 
-  inline static const int m_TIMEOUT = 10;
+  // wait time in milliseconds
+  auto udp_connect(P2PPtr &t_p2p_conn, Job &t_job, int t_wait_time = 1000) -> bool;
+  auto udp_accept(P2PPtr &t_p2p_conn, Job &t_job) -> bool;
+
+  /* Audio */
+  void audio_stream();
+  void audio_playback();
+
+  static const int m_TIMEOUT = 10;
 };
 
 #endif // CALL_H
