@@ -12,3 +12,10 @@ then it calls hangup twice and crashes.
 but clicking on them will not bring up their chat window. but if add someone and then log out and rerun 
 the program it then works, because it can initialise everything properly. i couldnt figure out how to
 initialise the chats in that scenario)
+
+[4] when a one peer hangs up it sends a message to the other peer which also shuts down the his 
+connection (and audio stream). That is working But the UI doesn’t know that so the call floating 
+window stays even when after the connection is closed.
+
+[5] The UI need to send a message over Job to Call so Call knows when to start a video connection or not. 
+Or, we can just not give the user the option not to have a video conn!
