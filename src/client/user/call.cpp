@@ -13,8 +13,6 @@ void Call::connect(Job &t_job) {
 // This is temporary and just to illustrate we need to know from UI if there is video or not
   bool has_video = true;
   m_audio_p2p    = std::make_unique<P2P>(t_job.m_argument);
-  m_audio_p2p.reset();
-
   bool valid     = udp_connect( m_audio_p2p, t_job); // omitting the t_wait_time argument so it's 1s by default
 
   // audio connection valid to stream

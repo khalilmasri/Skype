@@ -7,9 +7,10 @@
 class LocalIP {
 
 public:
-  LocalIP();
-
   enum Status { Valid, Invalid };
+
+  explicit LocalIP();
+
   std::string get_first() const;
   std::string get_at(std::size_t t_pos) const;
 

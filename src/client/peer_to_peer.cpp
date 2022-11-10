@@ -15,7 +15,7 @@ const std::string P2P::m_LOCAL = "LOCAL";
 
 P2P::P2P(std::string &t_token)
     : m_token(t_token), m_conn(new UDPTextIO()), m_status(Idle), m_type(None),
-      m_last_reply(Reply::None), m_network_type(Unselected) {
+      m_last_reply(Reply::None), m_local_ip(), m_network_type(Unselected) {
 
   bind_sockets();
 }
@@ -23,7 +23,7 @@ P2P::P2P(std::string &t_token)
 /* Same constructor but moves the token string */
 P2P::P2P(std::string &&t_token)
     : m_token(std::move(t_token)), m_conn(new UDPTextIO()), m_status(Idle),
-      m_type(None), m_last_reply(Reply::None), m_network_type(Unselected) {
+      m_type(None), m_last_reply(Reply::None), m_local_ip(), m_network_type(Unselected) {
 
   bind_sockets();
 }
@@ -142,6 +142,7 @@ void P2P::handshake_peer() {
 void P2P::connect_peer(std::string &t_peer_id) {
 
   /* add client local addr as arg to CONNECT */
+
   std::string argument = t_peer_id + " " + m_local_ip.get_first();
   std::string response = send_server(ServerCommand::Connect, argument);
 

@@ -51,9 +51,6 @@ void CallControllers::accept(std::string &t_arg, Request &t_req) {
       std::string response = await_user.address() + " " + await_user.address_type();
       ControllerUtils::set_request_reply(Reply::r_201, std::move(response), t_req);
 
-      // remove from cache when a peer-2-peer connection has been accepted.
-      m_awaiting_users.destroy(await_user.id());
-
     } catch (...) {
       LOG_ERR("AwaitingUser id %s does not exist.", t_arg.c_str());
       ControllerUtils::set_request_reply(Reply::r_307, t_req);
@@ -133,6 +130,9 @@ void CallControllers::ping(std::string &_, Request &t_req) {
        /* Append LOCAL or WEB to the response so client knows address type */
       std::string response = await_user.peer_address() + " " + await_user.address_type();
       ControllerUtils::set_request_reply(Reply::r_201, std::move(response), t_req);
+
+      // remove from catch when ping returns success.
+      m_awaiting_users.destroy(await_user.id());
 
    }
 
