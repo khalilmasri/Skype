@@ -10,6 +10,7 @@
 static Config *config = Config::get_instance();
 const std::string P2P::m_DELIM = " ";
 const std::string P2P::m_LOCAL = "LOCAL";
+const std::size_t P2P::m_MAX_PING_TRIALS = 5;
 
 /* Constructors */
 
@@ -210,20 +211,30 @@ void P2P::ping_peer() {
     return;
   }
 
+  if(m_status == Accepted){
+    LOG_TRACE("This connection has already been accepted. Ignoring ping...");
+    return;
+  }
+
   std::string response = send_server(ServerCommand::Ping);
 
   if (m_last_reply == Reply::r_201) {
 
     m_status                     = Accepted;
+    
     auto [address, address_type] = StringUtils::split_first(response);
+    LOG_INFO("successful ping from address `%s` type `%s`.", address.c_str(), address_type.c_str());
+
     m_peer_address               = std::move(address);
     m_network_type               = address_type == "LOCAL" ? Local : Web;
+    return;
 
   } else if (m_last_reply == Reply::r_203) {
+    // if cannot find the ping try a couple more times or ignore.
     m_status = Awaiting;
     LOG_INFO("%s", response.c_str());
 
-  } else {
+    } else {
     m_status = Error;
     LOG_ERR("The response was '%s' and should have been 201 or 203", response.c_str());
 

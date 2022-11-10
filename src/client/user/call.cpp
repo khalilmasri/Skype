@@ -28,7 +28,7 @@ void Call::connect(Job &t_job) {
     m_video_p2p = std::make_unique<P2P>(t_job.m_argument);
     /* wait time between is much shorter; just 100 milliseconds as peer will most likely
      * be  already trying to accept the connection */
-    valid = udp_connect(m_video_p2p, t_job, 50);
+    valid = udp_connect(m_video_p2p, t_job, 300);
   }
 
   if (has_video && valid) {
@@ -187,7 +187,7 @@ auto Call::udp_connect(P2PPtr &t_p2p_conn, Job &t_job, int t_wait_time)
 
   int count = 0;
 
-  while (m_audio_p2p->status() != P2P::Accepted) {
+  while (t_p2p_conn->status() != P2P::Accepted) {
 
     LOG_INFO("Pinging...");
 
