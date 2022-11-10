@@ -131,7 +131,7 @@ void CallControllers::ping(std::string &_, Request &t_req) {
        /* Append LOCAL or WEB to the response so client knows address type */
       std::string response = await_user.peer_address() + " " + await_user.address_type();
       ControllerUtils::set_request_reply(Reply::r_201, std::move(response), t_req);
-      LOG_INFO("Ping success for user id: '%d' at address '%s', type: '%s'.", await_user.id(), await_user.address().c_str(), await_user.address_type().c_str());
+      LOG_INFO("Ping success for user id: '%d' at address '%s', type: '%s'.", await_user.peer_id(), await_user.peer_address().c_str(), await_user.address_type().c_str());
 
       // remove from catch when ping returns success.
      bool res = m_awaiting_users.destroy(await_user.id());

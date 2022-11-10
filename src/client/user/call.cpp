@@ -68,7 +68,7 @@ void Call::accept(Job &t_job) {
       valid = udp_accept(m_video_p2p, t_job);
 
       /* will break after a certain number of trials */
-      if (count >= m_TIMEOUT) {
+      if (count >= m_TIMEOUT + 50) {
         LOG_ERR("Accepting on video peer to peer connection has timed out.")
         break;
       }

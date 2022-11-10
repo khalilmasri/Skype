@@ -174,13 +174,13 @@ void AwaitingUsers::timeout_loop() {
       for (auto &[user_id, timeout_status] : m_timeouts) {
 
         if (timeout_status == Detached) {
-          LOG_INFO("Timeout worker destroyed awaiting user %d because it because detached.", user_id);
+          LOG_INFO("The Timeout worker has destroyed the awaiting_user '%d' because it became detached.", user_id);
           destroy(user_id);
           m_timeouts.erase(m_timeouts.begin() + index);
 
         } else {
           std::string status = timeout_status == Pinged ? "Pinged" : "Created";
-          LOG_INFO("Timeout worker set awaiting user id %s from %d to Detached.", status.c_str(), user_id);
+          LOG_INFO("Timeout worker set awaiting_user id '%d' from '%s' to 'Detached'.", user_id, status.c_str());
           update_timeout_status(user_id, Detached);
 
         }
