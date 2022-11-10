@@ -42,7 +42,6 @@ struct Job {
         REJECT, 
         HANGUP,
         WEBCAM,
-        AUDIO_STREAM,
         
         DISCARD,
         EXIT,

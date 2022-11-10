@@ -43,7 +43,6 @@ JobBus::JobsMap JobBus::m_JobBus_map {
     {Job::HANGUP,           Client::call_hangup},
     {Job::WEBCAM,           Client::call_webcam},
     {Job::AWAITING,         Client::call_awaiting},
-    {Job::AUDIO_STREAM,     Client::call_audio_stream},
     {Job::EXIT,             Client::client_exit},
 };
 
