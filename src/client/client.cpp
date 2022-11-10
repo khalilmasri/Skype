@@ -275,8 +275,8 @@ void Client::call_awaiting(Job &t_job)
 
 bool Client::valid_response(Reply::Code t_code, std::string& t_res) {
    
-   std::string code = Reply::get_message(t_code);
-    auto found = t_res.find(code);
+  std::string code = Reply::get_message(t_code);
+  auto found = t_res.find(code);
 
-    return found != std::string::npos;
+  return found != std::string::npos;
 }
