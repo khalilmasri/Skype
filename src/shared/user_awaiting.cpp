@@ -134,7 +134,14 @@ auto AwaitingUsers::destroy(int t_awaiting_user_id) noexcept -> bool {
     return false;
   }
 
+  try {
   m_awaiting_users.erase(t_awaiting_user_id);
+  } catch(...){
+    LOG_ERR("Could not delete AwaitingUser id '%d' because it does not exist.",
+            t_awaiting_user_id);
+
+   return false;
+  }
   return true;
 }
 
