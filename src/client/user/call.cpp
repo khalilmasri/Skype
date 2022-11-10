@@ -64,7 +64,7 @@ void Call::accept(Job &t_job) {
 
     /* if the accept fails we reset the p2p connection and try again until count == m_TIMEOUT */
     while (!valid) {
-      m_video_p2p.reset();
+      m_video_p2p->reset();
       valid = udp_accept(m_video_p2p, t_job);
 
       /* will break after a certain number of trials */
@@ -177,7 +177,7 @@ auto Call::udp_connect(P2PPtr &t_p2p_conn, Job &t_job, int t_wait_time)
   std::string peer_id = std::to_string(t_job.m_intValue);
   t_p2p_conn->connect_peer(peer_id);
 
-  if (m_audio_p2p->status() != P2P::Awaiting) {
+  if (t_p2p_conn->status() != P2P::Awaiting) {
     LOG_ERR("did not call connect correctly. Exiting...");
     return false;
   }
@@ -236,7 +236,9 @@ auto Call::udp_accept(P2PPtr &t_p2p_conn, Job &t_job) -> bool {
 
   if (t_p2p_conn->status() == P2P::Accepted) {
     LOG_INFO("Accepted was sucessful");
+
   } else {
+
     LOG_ERR("Accept failed.");
     return false;
   }
