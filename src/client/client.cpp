@@ -49,7 +49,7 @@ Client::Client(){
 
   return;
 
-fail:
+fail: // TODO(@Khalil) no exits!
    exit(1);
 }
 
