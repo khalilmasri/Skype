@@ -2,6 +2,7 @@
 #include "controller_utils.hpp"
 #include "string_utils.hpp"
 #include "supress_unused_params_warnings.hpp"
+#include <exception>
 
 Postgres CallControllers::m_pg = Postgres();
 AwaitingUsers CallControllers::m_awaiting_users = AwaitingUsers();
@@ -142,9 +143,9 @@ void CallControllers::ping(std::string &_, Request &t_req) {
 
    }
 
-  } catch(...) {
+  } catch(std::exception &err) {
+    LOG_ERR("There's been an exeception: '%s'.", err.what());
     ControllerUtils::set_request_reply(Reply::r_307, t_req);
-
   }
 }
 
