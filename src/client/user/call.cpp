@@ -28,7 +28,7 @@ void Call::connect(Job &t_job) {
     m_video_p2p = std::make_unique<P2P>(t_job.m_argument);
     /* wait time between is much shorter; just 100 milliseconds as peer will most likely
      * be  already trying to accept the connection */
-    valid = udp_connect(m_video_p2p, t_job, 100);
+    valid = udp_connect(m_video_p2p, t_job, 50);
   }
 
   if (has_video && valid) {
@@ -134,6 +134,9 @@ void Call::hangup() {
   m_audio_stream.stop();
   m_playback.stop();
 
+  m_audio_p2p = nullptr;
+  m_video_p2p = nullptr;
+
   m_current = -1;
 }
 
@@ -211,7 +214,7 @@ auto Call::udp_connect(P2PPtr &t_p2p_conn, Job &t_job, int t_wait_time)
       return m_hangup;
     }
 
-    if (count > m_TIMEOUT) {
+    if (count > m_TIMEOUT + 5) {
       LOG_INFO("Breaking after %d seconds", count);
       JobBus::create({Job::HANGUP}); // TODO(@khalil): is this correct?
       t_p2p_conn->hangup_peer();
@@ -235,7 +238,7 @@ auto Call::udp_accept(P2PPtr &t_p2p_conn, Job &t_job) -> bool {
   LOG_INFO("Attempting to accept call from %d", t_job.m_intValue);
 
   if (t_p2p_conn->status() == P2P::Accepted) {
-    LOG_INFO("Accepted was sucessful");
+    LOG_INFO("Accept was sucessfull.");
 
   } else {
 
