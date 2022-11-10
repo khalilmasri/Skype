@@ -273,12 +273,6 @@ void Client::call_awaiting(Job &t_job)
    m_call.awaiting(t_job);
 }
 
-void Client::call_audio_stream(Job &t_job){
-  UNUSED_PARAMS(t_job);
-  m_call.av_stream();
-  m_call.av_playback();
-}
-
 bool Client::valid_response(Reply::Code t_code, std::string& t_res) {
    
    std::string code = Reply::get_message(t_code);
