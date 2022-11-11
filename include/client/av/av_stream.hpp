@@ -40,7 +40,9 @@ private:
   StreamType         m_stream_type;
 
   void validate();
-  void send_audio(P2PPtr &t_p2p_conn);
+  void stream_audio(P2PPtr &t_p2p_conn); /* spawns a thread streaming audio */
+  void stream_video(P2PPtr &t_p2p_conn); /* spawns a thread streaming video */
+  void send_audio(P2PPtr &t_p2p_conn); 
   void send_done(P2PPtr &t_p2p_conn);
 };
 

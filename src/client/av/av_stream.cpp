@@ -14,7 +14,7 @@ void AVStream::start() {
 
     if (m_stream_type == Audio) {
       m_input.open();
-      AudioDevice::wait(1); // frames
+      AudioDevice::wait(1); //  frames
       m_status = Started;
     }
 
@@ -29,31 +29,19 @@ void AVStream::start() {
   }
 }
 
+/* */
+
 void AVStream::stream(P2PPtr &t_p2p_conn) {
 
-  if (m_stream_type != Audio) {
-    LOG_ERR("Attempted to stream audio from a non-audio stream.");
-    return;
+  switch (m_stream_type) {
+  case Audio:
+    stream_audio(t_p2p_conn);
+  case Video:
+    stream_video(t_p2p_conn);
   }
-
-  std::thread stream_thread([this, &t_p2p_conn]() {
-
-    while (m_status == Started) {
-      send_audio(t_p2p_conn);
-    }
-
-    // empty out the queue before stopping...
-    while(!m_input_queue->empty()){ 
-      send_audio(t_p2p_conn);
-    }
-
-    send_done(t_p2p_conn); // sends a Data::Done package to peer
-
-  });
-
-  stream_thread.detach();
 }
 
+/* */
 
 void AVStream::stop() {
 
@@ -68,34 +56,75 @@ void AVStream::stop() {
 
     m_status = Stopped;
 
-    LOG_INFO("Closing AVStream...");
+    LOG_INFO("Closing %s AVStream...",
+             m_stream_type == Audio ? "Audio" : "Video");
 
   } else {
-    LOG_ERR("Cannot STOP AVStream because its status is: %s",
+
+    LOG_ERR("Cannot STOP %s AVStream because its status is: %s",
+            m_stream_type == Audio ? "Audio" : "Video",
             m_status == Invalid ? "'Invalid'." : "'Stopped'.")
   }
 }
 
-void AVStream::send_audio(P2PPtr &t_p2p_conn){
+/* */
 
-     std::vector<uint8_t> encoded_audio = m_converter.encode(m_input_queue);
-     Request audio_req                 = t_p2p_conn->make_request();
+void AVStream::stream_audio(P2PPtr &t_p2p_conn) {
+  std::thread stream_thread([this, &t_p2p_conn]() {
+    while (m_status == Started) {
+      send_audio(t_p2p_conn);
+    }
 
-      audio_req.set_data(new AVData(std::move(encoded_audio), Data::Audio));
-      t_p2p_conn->send_package(audio_req);
+    // empty out the queue before stopping...
+    while (!m_input_queue->empty()) {
+      send_audio(t_p2p_conn);
+    }
+
+    send_done(t_p2p_conn); // sends a Data::Done package to peer
+  });
+
+  stream_thread.detach();
 }
 
+/* */
 
-/* this will send a Data::Done package to the peer letting it done the call is done */
-void AVStream::send_done(P2PPtr &t_p2p_conn){
+void AVStream::stream_video(P2PPtr &t_p2p_conn) {
 
-      Request done_req = t_p2p_conn->make_request();
+  std::thread stream_thread([this, &t_p2p_conn]() {
+    Request req = t_p2p_conn->make_request();
 
-      done_req.set_data(new AVData(Data::Done));
-      t_p2p_conn->send_package(done_req);
+    while (m_status == Started) {
+      Webcam::WebcamFrame frame = m_webcam.capture_one();
+
+      req.set_data(new AVData(std::move(frame), Data::Video));
+      t_p2p_conn->send_package(req);
+    }
+
+    send_done(t_p2p_conn);
+  });
+
+  stream_thread.detach();
 }
 
+/* */
+void AVStream::send_audio(P2PPtr &t_p2p_conn) {
 
+  std::vector<uint8_t> encoded_audio = m_converter.encode(m_input_queue);
+  Request audio_req = t_p2p_conn->make_request();
+
+  audio_req.set_data(new AVData(std::move(encoded_audio), Data::Audio));
+  t_p2p_conn->send_package(audio_req);
+}
+
+/* this will send a Data::Done package to the peer letting it done the call is
+ * done */
+void AVStream::send_done(P2PPtr &t_p2p_conn) {
+
+  Request done_req = t_p2p_conn->make_request();
+
+  done_req.set_data(new AVData(Data::Done));
+  t_p2p_conn->send_package(done_req);
+}
 
 // TEST_CASE("AVStreaming") {
 //

@@ -11,11 +11,13 @@ class Webcam
 {
 public:
   using WebcamFrames = std::vector<std::vector<uchar>>;
+  using WebcamFrame  = std::vector<uchar>;
   using CVMatQueue = std::queue<cv::Mat>;
 
   Webcam();
   ~Webcam();
-  [[nodiscard]] auto capture() -> WebcamFrames;
+  [[nodiscard]] auto capture_many(std::size_t t_nb_frames) -> WebcamFrames;
+  [[nodiscard]] auto capture_one() -> WebcamFrame;
   [[nodiscard]] auto valid() const -> bool;
   void               convert(WebcamFrames &t_frames, CVMatQueue &t_output);
   void               stop();
