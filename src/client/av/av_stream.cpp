@@ -33,11 +33,11 @@ void AVStream::start() {
 void AVStream::stream(P2PPtr &t_p2p_conn) {
 
   if (m_stream_type == Audio) {
-    LOG_DEBUG("Audio stream start.")
+    LOG_TRACE("Audio stream start.")
     stream_audio(t_p2p_conn);
 
   } else if( m_stream_type == Video){
-    LOG_DEBUG("Video stream start.")
+    LOG_TRACE("Video stream start.")
     stream_video(t_p2p_conn);
 
   }
