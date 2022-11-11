@@ -13,13 +13,13 @@ void AVStream::start() {
   if (m_status == Stopped) {
 
     if (m_stream_type == Audio) {
-      m_input.open();
-      AudioDevice::wait(1); //  frames
+      m_input.open(); // open audio mic input
+      AudioDevice::wait(1); //  wait a frame to fill the audio queue.
       m_status = Started;
     }
 
     if (m_stream_type == Video) {
-      m_webcam.start();
+      m_webcam.init(); // init webcam
       m_status = Started;
     }
 
@@ -51,7 +51,7 @@ void AVStream::stop() {
     }
 
     if (m_stream_type == Video) {
-      m_webcam.stop();
+      m_webcam.release();
     }
 
     m_status = Stopped;
@@ -100,13 +100,14 @@ void AVStream::stream_video(P2PPtr &t_p2p_conn) {
       t_p2p_conn->send_package(req);
     }
 
-    send_done(t_p2p_conn);
+    send_done(t_p2p_conn); // sends a Data::Done package to peer
   });
 
   stream_thread.detach();
 }
 
 /* */
+
 void AVStream::send_audio(P2PPtr &t_p2p_conn) {
 
   std::vector<uint8_t> encoded_audio = m_converter.encode(m_input_queue);
@@ -116,8 +117,8 @@ void AVStream::send_audio(P2PPtr &t_p2p_conn) {
   t_p2p_conn->send_package(audio_req);
 }
 
-/* this will send a Data::Done package to the peer letting it done the call is
- * done */
+/* this will send a Data::Done package to the peer letting it done the call is done */
+
 void AVStream::send_done(P2PPtr &t_p2p_conn) {
 
   Request done_req = t_p2p_conn->make_request();
@@ -125,30 +126,3 @@ void AVStream::send_done(P2PPtr &t_p2p_conn) {
   done_req.set_data(new AVData(Data::Done));
   t_p2p_conn->send_package(done_req);
 }
-
-// TEST_CASE("AVStreaming") {
-//
-//   auto stream = AVStream();
-//   auto stop = [&stream]() {
-//     std::this_thread::sleep_for(2s); // do it for 10 secs then quit.
-//     stream.stop();
-//   };
-//
-//
-//   AVStream::DataCallback cb = [](Webcam::WebcamFrames &&t_video,
-//                                  Data::DataVector &&t_audio) {
-//     std::cout << "frames: " << t_video.size() << std::endl;
-//     std::cout << "audio bites: " << t_audio.size() << std::endl;
-//   };
-//
-//   SUBCASE("Testing case") {
-//
-//     stream.start();
-//     std::thread t(stop);
-//
-//     stream.stream(cb);
-//
-//     t.join();
-//     // CHECK(2 == 1);
-//   }
-// }

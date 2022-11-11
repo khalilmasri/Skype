@@ -7,17 +7,18 @@
 #include <opencv2/videoio.hpp>
 #include <string>
 #include <vector>
+
 Webcam::Webcam() {}
 
 Webcam::~Webcam() {
 
   if (m_capture.isOpened()) {
     LOG_INFO("Camera was not closed. Releasing in destructor.")
-    stop();
+    release();
   }
 }
 
-void Webcam::start() {
+void Webcam::init() {
 
   m_VIDEO_SETTINGS = VideoSettings::get_instance();
   m_camera         = m_VIDEO_SETTINGS->camera();
@@ -36,7 +37,7 @@ void Webcam::start() {
   m_frame = cv::Mat::zeros(m_VIDEO_SETTINGS->height(), m_VIDEO_SETTINGS->width(), CV_8UC3);
 }
 
-void Webcam::stop() {
+void Webcam::release() {
   LOG_INFO("Releasing webcam resources.")
   m_capture.release();
   cv::destroyAllWindows();
@@ -111,18 +112,27 @@ auto Webcam::valid() const -> bool { return m_valid; }
 
 /* */
 
-void Webcam::convert(WebcamFrames &t_frames, CVMatQueue &t_output) {
+void Webcam::decode_many(WebcamFrames &t_frames, CVMatQueue &t_output) {
+
   for (auto &frame : t_frames) {
+      decode_one(frame, t_output);
+  }
+}
+
+/* */
+
+void Webcam::decode_one(WebcamFrame &t_frame, CVMatQueue &t_output) {
+
     try {
-      cv::Mat mat_frame = cv::imdecode(frame, cv::IMREAD_COLOR);
+      cv::Mat mat_frame = cv::imdecode(t_frame, cv::IMREAD_COLOR);
       t_output.push(mat_frame);
 
     } catch (...) {
-      LOG_ERR("Error to decode frames.")
+      LOG_ERR("Error to decoding frame. Setting Webcam state to invalid.")
       m_valid = false;
     }
-  }
 }
+
 
 /* Statics */
 

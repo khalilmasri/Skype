@@ -15,12 +15,6 @@ void Call::connect(Job &t_job) {
   m_audio_p2p    = std::make_unique<P2P>(t_job.m_argument);
   bool valid     = udp_connect( m_audio_p2p, t_job); // omitting the t_wait_time argument so it's 1s by default
 
-  // audio connection valid to stream
-  if (valid) {
-    audio_stream();
-    audio_playback();
-  }
-
   /* TODO(@Chris) we need to know from the UI if we have a video or not at this
    * point */
   /* initializing an peer to peer connection for the video  */
@@ -32,10 +26,18 @@ void Call::connect(Job &t_job) {
   }
 
   if (has_video && valid) {
-    /* This is success connection. This is where we will call the video to
-     * stream and playback. */
-    LOG_DEBUG("second peer to peer connection was established succesfully");
+
+    LOG_DEBUG("Starting Video.");
   }
+
+  // audio connection valid to stream
+  if (valid) {
+    audio_stream();
+    audio_playback();
+
+    LOG_DEBUG("Starting Audio.");
+  }
+
 }
 
 /* */

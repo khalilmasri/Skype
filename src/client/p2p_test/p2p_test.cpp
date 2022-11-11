@@ -182,7 +182,7 @@ void test_video() {
   int index = 0;
 
   while (index < 30) {
-    auto res = webcam.capture();
+    auto res = webcam.capture_one();
 
     if (!webcam.valid()) {
       break;

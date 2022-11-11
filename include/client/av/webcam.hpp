@@ -2,7 +2,7 @@
 #define WEBCAM_HPP
 
 #include <opencv2/opencv.hpp>
-#include <queue>
+#include "thread_safe_queue.hpp"
 #include "av_settings.hpp"
 #include "data.hpp"
 
@@ -12,18 +12,21 @@ class Webcam
 public:
   using WebcamFrames = std::vector<std::vector<uchar>>;
   using WebcamFrame  = std::vector<uchar>;
-  using CVMatQueue = std::queue<cv::Mat>;
+  using WebcamMat    = cv::Mat;
+  using CVMatQueue   = ThreadSafeQueue<cv::Mat>;
 
   Webcam();
   ~Webcam();
   [[nodiscard]] auto capture_many(std::size_t t_nb_frames) -> WebcamFrames;
   [[nodiscard]] auto capture_one() -> WebcamFrame;
   [[nodiscard]] auto valid() const -> bool;
-  void               convert(WebcamFrames &t_frames, CVMatQueue &t_output);
-  void               stop();
+  void               decode_one(WebcamFrame &t_frame, CVMatQueue &t_output);
+  void               decode_many(WebcamFrames &t_frames, CVMatQueue &t_output);
+  void               release();
 
   static void show(cv::Mat &t_frame);
-  void start();
+
+  void init();
 
   static void wait();
 
