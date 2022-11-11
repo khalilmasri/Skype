@@ -89,7 +89,7 @@ auto Webcam::capture_one() -> WebcamFrame {
     WebcamFrame buffer;
 
  if (!m_valid) {
-    LOG_ERR("Could not capture. Webcam in an invalid state.")
+    // LOG_ERR("Could not capture. Webcam in an invalid state.")
       return buffer;
   }
 
@@ -97,6 +97,7 @@ auto Webcam::capture_one() -> WebcamFrame {
 
     if (m_frame.empty()) {
       LOG_ERR("Could not capture frame.");
+      m_valid = false;
       return buffer;
     }
 
