@@ -8,6 +8,11 @@
 #include <string>
 #include <unistd.h>
 
+Call::Call(){
+  m_audio_stream.set_stream_type(AVStream::Audio);
+  m_video_stream.set_stream_type(AVStream::Video);
+}
+
 void Call::connect(Job &t_job) {
 
 // This is temporary and just to illustrate we need to know from UI if there is video or not
@@ -133,7 +138,7 @@ void Call::hangup() {
   remove_caller(m_current);
 
   m_audio_stream.stop();
-  m_playback.stop();
+  m_audio_playback.stop();
 
   m_audio_p2p = nullptr;
   m_video_p2p = nullptr;
@@ -168,8 +173,8 @@ void Call::audio_playback() {
    *       frames of audio and video.
    */
 
-  m_playback.buffer(m_audio_p2p, 1);
-  m_playback.start(m_audio_p2p, m_audio_stream);
+  m_audio_playback.buffer(m_audio_p2p, 1);
+  m_audio_playback.start(m_audio_p2p, m_audio_stream);
 }
 
 /* */
@@ -250,12 +255,3 @@ auto Call::udp_accept(P2PPtr &t_p2p_conn, Job &t_job) -> bool {
   return true;
 }
 
-void Call::webcam() {
-  if (!m_webcam) {
-    LOG_INFO("Turning webcam");
-    m_webcam = true;
-  } else {
-    LOG_INFO("Closing webcam");
-    m_webcam = false;
-  }
-}

@@ -263,7 +263,7 @@ void Client::call_hangup(Job &t_job)
 
 void Client::call_webcam(Job &t_job)
 {
-   m_call.webcam();
+ //  m_call.webcam(); // TODO(@khalil) what is this for?
    t_job.m_command = Job::DISCARD;
 }
 

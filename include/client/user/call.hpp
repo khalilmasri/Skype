@@ -16,6 +16,7 @@
 class Call{
 
 public:
+   Call();
   ~Call()= default;
   
   void create(Job &t_job);
@@ -34,16 +35,17 @@ private:
   QVector<int>   m_callers;
   int            m_current;
   bool           m_hangup   = false;
-  bool           m_webcam   = false;
     
   /* Peer to peer connections. One per data stream */
   P2PPtr         m_audio_p2p = nullptr;
   P2PPtr         m_video_p2p = nullptr;
 
-  /* stream classes */
+  /* stream objects */
   AVStream       m_audio_stream; 
   AVStream       m_video_stream;
-  AudioPlayback  m_playback;
+
+  /* playback objects */
+  AudioPlayback  m_audio_playback;
 
 
   // wait time in milliseconds
