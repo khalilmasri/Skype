@@ -63,6 +63,7 @@ void VideoPlayback::spawn_video_playback_thread() {
       bool valid = m_queue.pop_try(mat);
 
       if (valid) {
+       LOG_TRACE("showing incoming video frame.")
         Webcam::show(mat);
       }
 
