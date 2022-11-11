@@ -8,7 +8,10 @@
 #include <string>
 #include <unistd.h>
 
-Call::Call(){
+Call::Call() : m_audio_stream(m_webcam),
+               m_video_stream(m_webcam),
+               m_video_playback(m_webcam){
+
   m_audio_stream.set_stream_type(AVStream::Audio);
   m_video_stream.set_stream_type(AVStream::Video);
 }
@@ -81,6 +84,7 @@ void Call::accept(Job &t_job) {
 
 if (has_video && valid) {
     LOG_DEBUG("Starting Call::accept Video.");
+    m_webcam.init();
     video_stream();
     video_playback();
   }

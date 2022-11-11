@@ -20,6 +20,10 @@ Webcam::~Webcam() {
 
 void Webcam::init() {
 
+  if(m_status == Ready){
+    LOG_ERR("Webcam is has already been initialized. Ignoring Webcam::init call.")
+  }
+
   m_VIDEO_SETTINGS = VideoSettings::get_instance();
   m_camera         = m_VIDEO_SETTINGS->camera();
 
@@ -35,16 +39,28 @@ void Webcam::init() {
   m_capture.set(cv::CAP_PROP_FRAME_WIDTH, m_VIDEO_SETTINGS->width());
   m_capture.set(cv::CAP_PROP_FRAME_HEIGHT, m_VIDEO_SETTINGS->height());
   m_frame = cv::Mat::zeros(m_VIDEO_SETTINGS->height(), m_VIDEO_SETTINGS->width(), CV_8UC3);
+  m_status = Ready;
+
 }
 
 void Webcam::release() {
+
+  if(m_status == Uninitialized){
+    LOG_ERR("Cannot release Webcam because status = 'Uninitialized'.");
+  }
+
   LOG_INFO("Releasing webcam resources.")
   m_capture.release();
   cv::destroyAllWindows();
+  m_status = Uninitialized;
 }
 
 auto Webcam::capture_many(std::size_t t_nb_frames) -> Webcam::WebcamFrames {
 
+  if(m_status == Uninitialized){
+    LOG_ERR("Webcam has not been initialized. Cannot capture.")
+      return {};
+  }
 
   if (!m_valid) {
     LOG_ERR("Could not capture. Webcam in an invalid state.")
@@ -89,7 +105,12 @@ auto Webcam::capture_one() -> WebcamFrame {
     WebcamFrame buffer;
 
  if (!m_valid) {
-    // LOG_ERR("Could not capture. Webcam in an invalid state.")
+      LOG_ERR("Could not capture. Webcam in an invalid state.")
+      return buffer;
+  }
+
+  if(m_status == Uninitialized){
+    LOG_ERR("Webcam has not been initialized. Cannot capture.")
       return buffer;
   }
 
@@ -110,6 +131,7 @@ auto Webcam::capture_one() -> WebcamFrame {
 /* */
 
 auto Webcam::valid() const -> bool { return m_valid; }
+auto Webcam::status() const -> Status { return m_status; }
 
 /* */
 

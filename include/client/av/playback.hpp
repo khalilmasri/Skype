@@ -18,13 +18,11 @@ public:
   using P2PPtr = std::unique_ptr<P2P>;
 
   enum Status { Started, Stopped, Invalid };
-  enum Type {Audio, Video};
 
   /* common members */
 
   bool m_done_received = false;
   Status m_status = Stopped;
-  Type   m_type;
 
   /* virtual implementation */
 

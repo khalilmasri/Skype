@@ -4,8 +4,8 @@
 #include <chrono>
 #include <thread>
 
-AVStream::AVStream(StreamType t_type)
-    : m_input(m_input_queue, AudioDevice::Input), m_stream_type(t_type) {}
+AVStream::AVStream(Webcam &t_webcam, StreamType t_type)
+    : m_input(m_input_queue, AudioDevice::Input),  m_webcam(t_webcam), m_stream_type(t_type) {}
 
 void AVStream::set_stream_type(StreamType t_type) { m_stream_type = t_type; }
 
@@ -19,7 +19,6 @@ void AVStream::start() {
     }
 
     if (m_stream_type == Video) {
-      m_webcam.init(); // init webcam
       m_status = Started;
     }
 
@@ -53,7 +52,7 @@ void AVStream::stop() {
       m_input.close();
     }
 
-    if (m_stream_type == Video) {
+    if (m_stream_type == Video && m_webcam.status() == Webcam::Ready) {
       m_webcam.release();
     }
 

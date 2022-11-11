@@ -3,7 +3,6 @@
 
 AudioPlayback::AudioPlayback()
     : m_audio_output(m_audio_queue, AudioDevice::Output) {
-  m_type = Audio;
 }
 
 void AudioPlayback::start(P2PPtr &t_p2pconn, AVStream &t_stream) {

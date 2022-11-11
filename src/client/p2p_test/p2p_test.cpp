@@ -81,7 +81,8 @@ void test_stream(char *user) {
   P2P p2p = test_conn(user, password);
   auto p2p_ptr = std::make_unique<P2P>(p2p);
 
-  auto stream = AVStream();
+  auto webcam = Webcam();
+  auto stream = AVStream(webcam);
   auto playback = AudioPlayback();
 
   // this callback is just to stop the stream on another thread.

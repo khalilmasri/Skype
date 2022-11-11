@@ -36,6 +36,8 @@ private:
   QVector<int>   m_callers;
   int            m_current;
   bool           m_hangup   = false;
+
+  Webcam         m_webcam;
     
   /* Peer to peer connections. One per data stream */
   P2PPtr         m_audio_p2p = nullptr;

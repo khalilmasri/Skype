@@ -7,7 +7,7 @@ class  VideoPlayback : public Playback {
 
   public:
 
-  VideoPlayback();
+  VideoPlayback(Webcam &t_webcam);
 
   void start(P2PPtr &t_p2p_conn, AVStream &t_stream) override;
   void stop() override;
@@ -15,7 +15,7 @@ class  VideoPlayback : public Playback {
   void show();
 
   private:
-    Webcam             m_webcam;
+    Webcam             &m_webcam; // webcam will live in the parent call class.
     Webcam::CVMatQueue m_queue;
 
   void spawn_video_playback_thread();

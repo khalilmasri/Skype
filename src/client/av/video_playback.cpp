@@ -1,9 +1,6 @@
 #include "video_playback.hpp"
 
-VideoPlayback::VideoPlayback() {
-  m_type = Video;
-  m_webcam.init();
-}
+VideoPlayback::VideoPlayback(Webcam &t_video_playback) : m_webcam(t_video_playback) {}
 
 void VideoPlayback::start(P2PPtr &t_p2p_conn, AVStream &t_stream) {
 
@@ -25,11 +22,15 @@ void VideoPlayback::stop() {
 
     // wait for the queue to be empty before stopping.
     while (!m_queue.empty()) {
-      Webcam::wait();
+      Webcam::wait(); // wait until queue is empty
     }
 
     m_status = Stopped;
     LOG_INFO("Closing Video Playback...");
+
+    if(m_webcam.status() == Webcam::Ready){
+      m_webcam.release();
+    }
 
   } else {
     LOG_ERR("Could not STOP Audio Playback because its status is: %s",

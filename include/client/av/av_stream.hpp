@@ -19,9 +19,9 @@ class AVStream {
   using P2PPtr = std::unique_ptr<P2P>;
 
 public:
-  enum StreamType {Audio = 10, Video = 20};
+  enum StreamType {Audio, Video};
 
-  AVStream(StreamType t_type = Audio);
+  AVStream(Webcam &t_webcam, StreamType t_type = Audio);
   using StreamCallback =  std::function<void(Data::DataVector&&)>;
  // ~AVStream();
 
@@ -31,12 +31,12 @@ public:
   void set_stream_type(StreamType t_type);
 
 private:
-  AudioQueuePtr       m_input_queue = std::make_unique<LockFreeAudioQueue>(); 
-  AudioDevice         m_input;
-  Status              m_status = Stopped;
+  AudioQueuePtr      m_input_queue = std::make_unique<LockFreeAudioQueue>(); 
+  AudioDevice        m_input;
+  Status             m_status = Stopped;
 
   AudioConverter     m_converter;
-  Webcam             m_webcam;
+  Webcam             &m_webcam; // webcam lives in the parent call class;
   StreamType         m_stream_type;
 
   void validate();
