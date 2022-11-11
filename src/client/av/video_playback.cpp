@@ -29,6 +29,7 @@ void VideoPlayback::stop() {
     LOG_INFO("Closing Video Playback...");
 
     if(m_webcam.status() == Webcam::Ready){
+      LOG_INFO("VideoPlayback releasing webcam...");
       m_webcam.release();
     }
 

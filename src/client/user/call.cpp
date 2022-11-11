@@ -140,6 +140,7 @@ void Call::awaiting(Job &t_job) {
 
 void Call::hangup() {
 
+  LOG_INFO("Hanging up call.");
   m_hangup = true;
   remove_caller(m_current);
 

@@ -37,6 +37,9 @@ public:
   void read_package(P2PPtr &t_p2pconn);
   void spawn_network_read_thread(P2PPtr &t_p2p_conn, AVStream &t_stream);
   auto valid_data_type(const Data *t_data, Data::Type t_type) -> bool;
+
+  inline static const std::size_t m_MAX_TRIES = 1000;
+  inline static const std::size_t m_WARNING_TRIES = 300;
 };
 
 #endif

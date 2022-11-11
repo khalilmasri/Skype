@@ -148,7 +148,6 @@ void Webcam::decode_one(WebcamFrame &t_frame, CVMatQueue &t_output) {
     try {
       cv::Mat mat_frame = cv::imdecode(t_frame, cv::IMREAD_COLOR);
       t_output.push(mat_frame);
-
     } catch (...) {
       LOG_ERR("Error to decoding frame. Setting Webcam state to invalid.")
       m_valid = false;

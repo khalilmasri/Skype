@@ -10,6 +10,8 @@ void Playback::buffer(P2PPtr &t_p2p_conn, std::size_t nb_packages) {
 /* */
 
 void Playback::read_package(P2PPtr &t_p2pconn) {
+  std::size_t tries = 0;
+
   Request req = t_p2pconn->make_request();
 
   t_p2pconn->receive_package(req);
@@ -17,6 +19,17 @@ void Playback::read_package(P2PPtr &t_p2pconn) {
   while (req.data_type() == Data::Empty) {
     t_p2pconn->receive_package(req);
     LOG_TRACE("Received an empty Data Package. Trying again....");
+
+    if (tries > m_WARNING_TRIES) {
+      LOG_INFO("Playback has received '%lu' empty packages. ", tries);
+    }
+
+    if (tries > m_MAX_TRIES) {
+      LOG_ERR("Playback has received '%lu' emptypackges. giving up...");
+      return;
+    }
+
+    tries++;
   }
 
   if (req.data_type() == Data::Done) {
@@ -38,7 +51,8 @@ void Playback::spawn_network_read_thread(P2PPtr &t_p2p_conn, AVStream &t_stream)
       read_package(t_p2p_conn);
     }
 
-    // when a done msg is received we need to stop the AVStream object from sending data to peer
+    // when a done msg is received we need to stop the AVStream object from
+    // sending data to peer
     if (m_done_received) {
       t_stream.stop();
     }

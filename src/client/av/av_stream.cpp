@@ -51,6 +51,7 @@ void AVStream::stop() {
     }
 
     if (m_stream_type == Video && m_webcam.status() == Webcam::Ready) {
+      LOG_INFO("AVStream releasing webcam...");
       m_webcam.release();
     }
 
