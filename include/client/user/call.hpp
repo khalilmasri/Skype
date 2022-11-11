@@ -42,7 +42,7 @@ private:
 
   /* stream objects */
   AVStream       m_audio_stream; 
-  AVStream       m_video_stream;
+ // AVStream       m_video_stream;
 
   /* playback objects */
   AudioPlayback  m_audio_playback;

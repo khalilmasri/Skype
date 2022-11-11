@@ -33,14 +33,14 @@ void AVStream::start() {
 
 void AVStream::stream(P2PPtr &t_p2p_conn) {
 
-  switch (m_stream_type) {
-  case Audio:
-    std::cout << "streaming audio\n";
-    stream_audio(t_p2p_conn);
-  case Video:
+  std::cout << "stream type: " << m_stream_type << "\n";
 
-    std::cout << "streaming video\n";
+  if (m_stream_type == Audio) {
+    stream_audio(t_p2p_conn);
+
+  } else if( m_stream_type == Video){
     stream_video(t_p2p_conn);
+
   }
 }
 

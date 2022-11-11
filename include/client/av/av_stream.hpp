@@ -19,7 +19,7 @@ class AVStream {
   using P2PPtr = std::unique_ptr<P2P>;
 
 public:
-  enum StreamType {Audio, Video};
+  enum StreamType {Audio = 10, Video = 20};
 
   AVStream(StreamType t_type = Audio);
   using StreamCallback =  std::function<void(Data::DataVector&&)>;

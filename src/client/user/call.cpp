@@ -10,7 +10,7 @@
 
 Call::Call(){
   m_audio_stream.set_stream_type(AVStream::Audio);
-  m_video_stream.set_stream_type(AVStream::Video);
+ // m_video_stream.set_stream_type(AVStream::Video);
 }
 
 void Call::connect(Job &t_job) {
@@ -31,14 +31,14 @@ void Call::connect(Job &t_job) {
   }
 
   if (has_video && valid) {
-    LOG_DEBUG("Starting Video.");
+    LOG_DEBUG("Starting connect Video.");
   }
 
   // audio connection valid to stream
   if (valid) {
+    LOG_DEBUG("Starting connect Audio.");
     audio_stream();
     audio_playback();
-    LOG_DEBUG("Starting Audio.");
   }
 
 }
@@ -80,12 +80,13 @@ void Call::accept(Job &t_job) {
 
   if (has_video && valid) {
     /* This is success connection. This is where we will call the video to stream and playback. */
-    LOG_DEBUG("Starting Video.");
+    LOG_DEBUG("Starting accept Video.");
   }
 
   // audio connection valid to stream
   if (valid) {
-    LOG_DEBUG("Starting Video.");
+
+    LOG_DEBUG("Starting accept Audio.");
     audio_stream();
     audio_playback();
   }
@@ -160,13 +161,19 @@ void Call::remove_caller(int t_caller) {
 
 void Call::audio_stream() {
 
+  std::cout << "audio_stream was called once.\n";
+
+  m_audio_stream.set_stream_type(AVStream::Audio);
   m_audio_stream.start();
   m_audio_stream.stream(m_audio_p2p);
+  
 };
 
 /* */
 
 void Call::audio_playback() {
+
+  std::cout << "audio_playback was called once.\n";
 
   /* NOTE: AVPlayback::buffer(conn, n);
    *       buffers 'n' number of data packages of AVdata before playback.
