@@ -26,7 +26,6 @@ void Call::connect(Job &t_job) {
   }
 
   if (has_video && valid) {
-
     LOG_DEBUG("Starting Video.");
   }
 
@@ -34,7 +33,6 @@ void Call::connect(Job &t_job) {
   if (valid) {
     audio_stream();
     audio_playback();
-
     LOG_DEBUG("Starting Audio.");
   }
 
@@ -48,12 +46,6 @@ void Call::accept(Job &t_job) {
   m_audio_p2p    = std::make_unique<P2P>(t_job.m_argument);
   bool valid     = udp_accept(m_audio_p2p, t_job);
 
-
-  // audio connection valid to stream
-  if (valid) {
-    audio_stream();
-    audio_playback();
-  }
 
   /* TODO(@Chris) we need to know from the UI if we have a video or not at this
    * point */
@@ -82,10 +74,17 @@ void Call::accept(Job &t_job) {
   }
 
   if (has_video && valid) {
-    /* This is success connection. This is where we will call the video to
-       stream and playback. */
-    LOG_DEBUG("second peer to peer connection was established succesfully");
+    /* This is success connection. This is where we will call the video to stream and playback. */
+    LOG_DEBUG("Starting Video.");
   }
+
+  // audio connection valid to stream
+  if (valid) {
+    LOG_DEBUG("Starting Video.");
+    audio_stream();
+    audio_playback();
+  }
+
 }
 
 /* */
