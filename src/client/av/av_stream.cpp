@@ -32,8 +32,6 @@ void AVStream::start() {
 
 void AVStream::stream(P2PPtr &t_p2p_conn) {
 
-  std::cout << "stream type: " << m_stream_type << "\n";
-
   if (m_stream_type == Audio) {
     stream_audio(t_p2p_conn);
 

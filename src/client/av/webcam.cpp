@@ -101,7 +101,6 @@ auto Webcam::capture_many(std::size_t t_nb_frames) -> Webcam::WebcamFrames {
 
 auto Webcam::capture_one() -> WebcamFrame {
 
-
     WebcamFrame buffer;
 
  if (!m_valid) {
@@ -110,7 +109,7 @@ auto Webcam::capture_one() -> WebcamFrame {
   }
 
   if(m_status == Uninitialized){
-    LOG_ERR("Webcam has not been initialized. Cannot capture.")
+ //   LOG_ERR("Webcam has not been initialized. Cannot capture.")
       return buffer;
   }
 
