@@ -8,6 +8,7 @@
 #include "peer_to_peer.hpp"
 #include "av_stream.hpp"
 #include "audio_playback.hpp"
+#include "video_playback.hpp"
 
 #include <cstdint>
 #include <memory>
@@ -42,13 +43,13 @@ private:
 
   /* stream objects */
   AVStream       m_audio_stream; 
- // AVStream       m_video_stream;
+  AVStream       m_video_stream;
 
   /* playback objects */
   AudioPlayback  m_audio_playback;
-
-
-  // wait time in milliseconds
+  VideoPlayback  m_video_playback;
+  
+  /* Establish peer to peer connection */
   auto udp_connect(P2PPtr &t_p2p_conn, Job &t_job, int t_wait_time = 1000) -> bool;
   auto udp_accept(P2PPtr &t_p2p_conn, Job &t_job) -> bool;
 
@@ -56,7 +57,14 @@ private:
   void audio_stream();
   void audio_playback();
 
-  static const int m_TIMEOUT = 10;
+  /* Video */
+  void video_stream();
+  void video_playback();
+
+  /* Constants */
+  inline static const int m_TIMEOUT = 10;
+  inline static const int m_NB_BUFFER_PACKETS = 1;
+
 };
 
 #endif // CALL_H
