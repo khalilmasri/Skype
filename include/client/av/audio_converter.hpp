@@ -25,6 +25,8 @@ public:
   [[nodiscard]] auto frame_size_samples() const -> std::size_t ;
   [[nodiscard]] auto valid() const -> bool;
 
+  void make_valid(const char *t_from);
+
   auto encode(AudioQueue &t_queue) -> Data::DataVector;
   auto decode(std::vector<uint8_t> &t_encoded_data) -> Data::DataVector;
 

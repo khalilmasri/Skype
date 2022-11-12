@@ -13,6 +13,7 @@ public:
 
   [[nodiscard]] virtual auto get_type() const -> Type = 0;
   [[nodiscard]] virtual auto get_data() const -> DataVector = 0;
+  [[nodiscard]] virtual auto get_data_ref () const -> const DataVector& = 0;
   [[nodiscard]] virtual auto empty() const -> bool = 0;
   [[nodiscard]] virtual auto size() const -> std::size_t = 0;
 

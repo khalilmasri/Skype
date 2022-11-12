@@ -51,6 +51,8 @@ void AudioPlayback::load(const Data *t_audio_data) {
 
     if (!m_audio_converter.valid()) {
       LOG_ERR("Error converting audio to output.");
+      // set the encoder to valid again to try next audio packet.
+      m_audio_converter.make_valid("AudioPlayback::load");
     }
   }
 }

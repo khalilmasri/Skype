@@ -15,6 +15,7 @@ public:
 
   [[nodiscard]] auto get_type() const -> Data::Type override;
   [[nodiscard]] auto get_data() const -> Data::DataVector override;
+  [[nodiscard]] auto get_data_ref() const -> const DataVector& override;
   [[nodiscard]] auto empty() const -> bool override;
   [[nodiscard]] auto size() const -> std::size_t override;
 

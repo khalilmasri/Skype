@@ -7,6 +7,7 @@
 #include <opencv2/videoio.hpp>
 #include <string>
 #include <vector>
+#include <exception>
 
 Webcam::Webcam() {}
 
@@ -58,12 +59,15 @@ void Webcam::release() {
 auto Webcam::capture_many(std::size_t t_nb_frames) -> Webcam::WebcamFrames {
 
   if(m_status == Uninitialized){
-    LOG_ERR("Webcam has not been initialized. Cannot capture.")
-      return {};
+    log_error("Could not capture many. Webcam is Uninitialized. Returning empty WebcamFrames.");
+    count_logs();
+    return {};
   }
 
   if (!m_valid) {
-    LOG_ERR("Could not capture. Webcam in an invalid state.")
+    log_error("Could not capture many. Webcam in an invalid state. Returning empty WebcamFrames.");
+    count_logs();
+    return {};
   }
 
   std::size_t index = 0;
@@ -75,20 +79,20 @@ auto Webcam::capture_many(std::size_t t_nb_frames) -> Webcam::WebcamFrames {
     m_capture.read(m_frame);
 
     if (m_frame.empty()) {
-      LOG_ERR("Could not capture frame.");
+      log_error("Could not capture frame. m_frame returned empty from m_capture.read.");
+      count_logs();
       break;
     }
 
     std::vector<uchar> buffer;
 
-    Data::DataVector data = capture_frame();
+    Data::DataVector data = encode_frame();
 
     if (m_valid) {
       frames_captured.push_back(std::move(data));
     }
 
     index++;
-    // cv::imshow("Camera", m_frame);
     Webcam::wait();
 
   }
@@ -104,24 +108,28 @@ auto Webcam::capture_one() -> WebcamFrame {
     WebcamFrame buffer;
 
  if (!m_valid) {
-      LOG_ERR("Could not capture. Webcam in an invalid state.")
+      log_error("Could not capture. Webcam in an invalid state.");
+      count_logs();
       return buffer;
   }
 
   if(m_status == Uninitialized){
- //   LOG_ERR("Webcam has not been initialized. Cannot capture.")
+      log_error("Webcam has not been initialized. Cannot capture.");
+      count_logs();
+      m_valid = false;
       return buffer;
   }
 
   m_capture.read(m_frame);
 
     if (m_frame.empty()) {
-      LOG_ERR("Could not capture frame.");
+      log_error("Could not capture frame. m_frame returned empty from m_capture.read.");
+      count_logs();
       m_valid = false;
       return buffer;
     }
 
-   Data::DataVector data = capture_frame();
+   Data::DataVector data = encode_frame();
 
    return data;
 };
@@ -134,6 +142,13 @@ auto Webcam::status() const -> Status { return m_status; }
 
 /* */
 
+void Webcam::make_valid(const char *t_from){
+  LOG_INFO("'%s' is setting Webcam state from 'Invalid' to 'Valid'.", t_from);
+  m_valid = true;
+}
+
+/* */
+
 void Webcam::decode_many(WebcamFrames &t_frames, CVMatQueue &t_output) {
 
   for (auto &frame : t_frames) {
@@ -143,23 +158,63 @@ void Webcam::decode_many(WebcamFrames &t_frames, CVMatQueue &t_output) {
 
 /* */
 
-void Webcam::decode_one(WebcamFrame &t_frame, CVMatQueue &t_output) {
+void Webcam::decode_one(const WebcamFrame &t_frame, CVMatQueue &t_output) {
+
+  if(t_frame.empty()){
+    log_error("Provided jpeg frame buffer was empty.");
+    count_logs();
+    m_valid = false;
+    return;
+  }
 
     try {
       cv::Mat mat_frame = cv::imdecode(t_frame, cv::IMREAD_COLOR);
 
       if (mat_frame.data == nullptr){
-       LOG_ERR("Error to decoding frame. Ignoring video package.")
+         log_error("Error to decoding frame. Ignoring video package.");
+         count_logs();
+         m_valid = false;
+       
       } else {
         t_output.push(mat_frame);
       }
 
-    } catch (...) {
-      LOG_ERR("Error to decoding frame. Setting Webcam state to invalid.")
-      m_valid = false;
+    } catch (std::exception &err) {
+       std::string msg = err.what();
+       log_error("cv::imdecode threw on decoding: '" + msg + "'");
+       count_logs();
+       m_valid = false;
     }
 }
 
+
+/* */
+
+void Webcam::count_logs(){
+
+  if(m_log_count > m_MAX_LOG_COUNT){
+    m_suppress_log = true;
+  }
+
+  m_log_count++;
+}
+
+
+/* */
+
+void Webcam::log_error(const char *t_msg){
+  if(!m_suppress_log){
+    LOG_ERR("%s", t_msg);
+  }
+}
+
+/* */
+
+void Webcam::log_error(std::string &&t_msg){
+  if(!m_suppress_log){
+    LOG_ERR("%s", t_msg.c_str());
+  }
+}
 
 /* Statics */
 
@@ -175,7 +230,7 @@ void Webcam::wait() { // STATIC
 
 /* Private */
 
-auto Webcam::capture_frame() -> Data::DataVector {
+auto Webcam::encode_frame() -> Data::DataVector {
 
   std::vector<uchar> buffer;
 
@@ -183,19 +238,25 @@ auto Webcam::capture_frame() -> Data::DataVector {
     m_capture.read(m_frame);
 
     if (m_frame.empty()) {
-      LOG_ERR("Could not capture frame.");
-      return buffer;
+        log_error("Cannot encode an empty frame. Returning an empty jpeg buffer...");
+        count_logs();
+        m_valid = false;
+        return buffer;
     }
 
     try {
       bool result = cv::imencode(m_VIDEO_SETTINGS->converter_type(), m_frame, buffer);
+
       if (!result) {
-        LOG_ERR("Error to encode frames during capture.")
+        log_error("Error while encoding frames during capture. Returning empty jpeg buffer.");
+        count_logs();
         m_valid = false;
       }
 
     } catch (std::exception &t_msg) {
-      LOG_ERR("OpenCV threw on convertion:\n %s. ", t_msg.what());
+      std::string msg = t_msg.what();
+      log_error("cv::imencode threw on encoding: '" + msg + "'");
+      count_logs();
       m_valid = false;
     }
   }

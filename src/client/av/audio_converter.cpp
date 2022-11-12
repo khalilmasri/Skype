@@ -119,6 +119,12 @@ auto AudioConverter::valid() const -> bool { return m_valid; }
 
 /* */
 
+void AudioConverter::make_valid(const char *t_from) {
+  LOG_INFO("'%s' is setting the converter from 'Invalid' to 'Valid'", t_from);
+  m_valid = true; 
+}
+
+/* */
 auto AudioConverter::encode(AudioQueue &t_queue) -> std::vector<uint8_t> {
 
   const VideoSettings *video_settings = VideoSettings::get_instance();

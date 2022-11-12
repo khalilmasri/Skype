@@ -18,8 +18,6 @@ private:
   AudioQueuePtr  m_audio_queue = std::make_unique<LockFreeAudioQueue>();
   AudioConverter m_audio_converter;
   AudioDevice    m_audio_output;
-
-
 };
 
 #endif

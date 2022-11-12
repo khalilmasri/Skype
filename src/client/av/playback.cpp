@@ -1,4 +1,5 @@
 #include "playback.hpp"
+#include <thread>
 
 void Playback::buffer(P2PPtr &t_p2p_conn, std::size_t nb_packages) {
   LOG_INFO("Buffering '%d' packets of Audio data...", nb_packages);
@@ -21,11 +22,12 @@ void Playback::read_package(P2PPtr &t_p2pconn) {
     LOG_TRACE("Received an empty Data Package. Trying again....");
 
     if (tries > m_WARNING_TRIES) {
-      LOG_INFO("Playback has received '%lu' empty packages. ", tries);
+      LOG_INFO("Playback has received '%lu' empty packages. Waiting for 50ms. ", tries);
+      std::this_thread::sleep_for(std::chrono::milliseconds(50));
     }
 
     if (tries > m_MAX_TRIES) {
-      LOG_ERR("Playback has received '%lu' emptypackges. giving up...");
+      LOG_ERR("Playback has received '%lu' empty packges. giving up...");
       return;
     }
 
@@ -46,7 +48,7 @@ void Playback::read_package(P2PPtr &t_p2pconn) {
 
 void Playback::spawn_network_read_thread(P2PPtr &t_p2p_conn, AVStream &t_stream) {
 
-  std::thread playback_thread([this, &t_p2p_conn, &t_stream]() {
+  std::thread network_read_thread([this, &t_p2p_conn, &t_stream]() {
     while (m_status == Started) {
       read_package(t_p2p_conn);
     }
@@ -58,7 +60,7 @@ void Playback::spawn_network_read_thread(P2PPtr &t_p2p_conn, AVStream &t_stream)
     }
   });
 
-  playback_thread.detach();
+  network_read_thread.detach();
 }
 
 /* */

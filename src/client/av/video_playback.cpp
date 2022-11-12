@@ -43,7 +43,9 @@ void VideoPlayback::load(const Data *t_video_data) {
 
   if (valid_data_type(t_video_data, Data::Video)) {
 
-    Webcam::WebcamFrame frame = t_video_data->get_data();
+    const Webcam::WebcamFrame &frame = t_video_data->get_data_ref();
+
+    LOG_TRACE("loading video package size '%lu' from network.", frame.size());
     m_webcam.decode_one(frame, m_queue); // converts and pushes to video queue.
   }
 }
@@ -63,11 +65,13 @@ void VideoPlayback::spawn_video_playback_thread() {
       bool valid = m_queue.pop_try(mat);
 
       if (valid) {
-       LOG_TRACE("showing incoming video frame.")
+        LOG_TRACE("showing incoming video frame.")
         Webcam::show(mat);
       }
 
       Webcam::wait();
     }
   });
+
+  video_playback_thread.detach();
 }
