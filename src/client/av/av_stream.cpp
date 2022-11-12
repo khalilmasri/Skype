@@ -7,7 +7,10 @@
 AVStream::AVStream(Webcam &t_webcam, StreamType t_type)
     : m_input(m_input_queue, AudioDevice::Input),  m_webcam(t_webcam), m_stream_type(t_type) {}
 
-void AVStream::set_stream_type(StreamType t_type) { m_stream_type = t_type; }
+void AVStream::set_stream_type(StreamType t_type) {
+  LOG_INFO("Setting stream type to : '%s'", t_type == Audio ? "Audio" : "Video");
+  m_stream_type = t_type;
+}
 
 void AVStream::start() {
   if (m_status == Stopped) {
@@ -101,6 +104,7 @@ void AVStream::stream_video(P2PPtr &t_p2p_conn) {
 
       req.set_data(new AVData(std::move(frame), Data::Video));
       t_p2p_conn->send_package(req);
+      Webcam::wait(); // wait one frame
     }
 
     send_done(t_p2p_conn); // sends a Data::Done package to peer

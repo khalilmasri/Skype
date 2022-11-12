@@ -2,7 +2,7 @@
 #include <thread>
 
 void Playback::buffer(P2PPtr &t_p2p_conn, std::size_t nb_packages) {
-  LOG_INFO("Buffering '%d' packets of Audio data...", nb_packages);
+  LOG_INFO("Buffering '%d' packets of Audio/Video data...", nb_packages);
   for (std::size_t count = 0; count < nb_packages; count++) {
     read_package(t_p2p_conn);
   }

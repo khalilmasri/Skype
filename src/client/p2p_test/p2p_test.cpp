@@ -180,10 +180,16 @@ void test_audio() {
 
 void test_video() {
   auto webcam = Webcam();
+  webcam.init();
   int index = 0;
 
-  while (index < 30) {
-    auto res = webcam.capture_one();
+  Webcam::WebcamFrames frames;
+  Webcam::CVMatQueue queue;
+
+  while (index < 100) {
+    Webcam::WebcamFrame frame = webcam.capture_one();
+    webcam.decode_one(frame, queue);
+    Webcam::wait();
 
     if (!webcam.valid()) {
       break;
@@ -191,6 +197,20 @@ void test_video() {
 
     index++;
   }
+
+  while(!queue.empty()){
+    cv::Mat mat;
+    bool valid = queue.pop_try(mat);
+
+    if(valid){
+      Webcam::show(mat);
+    } else {
+      std::cout << "could not pop cv::Mat from queue.\n";
+    }
+
+    Webcam::wait();
+  }
+
 
   free_configs();
 }
