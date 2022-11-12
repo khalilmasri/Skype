@@ -20,6 +20,9 @@ class  VideoPlayback : public Playback {
 
   void spawn_video_playback_thread();
 
+  inline static const std::size_t m_MID_PLAYBACK_THROTTLE = 30;
+  inline static const std::size_t m_MAX_PLAYBACK_THROTTLE = 100;
+
 };
 
 #endif

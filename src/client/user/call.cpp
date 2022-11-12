@@ -36,7 +36,7 @@ void Call::connect(Job &t_job) {
   if (has_video && valid) {
     LOG_DEBUG("Starting Call::connect Video.");
      m_webcam.init();
-     video_stream();
+ //    video_stream();
      video_playback();
   }
 

@@ -41,6 +41,7 @@ void Playback::read_package(P2PPtr &t_p2pconn) {
   }
 
   const Data *data = req.data();
+  LOG_TRACE("data->size() is %lu", data->size());
   load(data); // will load either audio or video depending on inheritance
 }
 
