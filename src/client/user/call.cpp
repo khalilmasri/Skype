@@ -35,9 +35,9 @@ void Call::connect(Job &t_job) {
 
   if (has_video && valid) {
     LOG_DEBUG("Starting Call::connect Video.");
-   // m_webcam.init();
-   // video_stream();
-   // video_playback();
+     m_webcam.init();
+     video_stream();
+     video_playback();
   }
 
   if (valid) {
@@ -85,9 +85,9 @@ void Call::accept(Job &t_job) {
 
 if (has_video && valid) {
     LOG_DEBUG("Starting Call::accept Video.");
- //   m_webcam.init();
-  //  video_stream();
-  //  video_playback();
+      m_webcam.init();
+      video_stream();
+      video_playback();
   }
 
   if (valid) {

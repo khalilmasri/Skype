@@ -90,6 +90,10 @@ auto Webcam::capture_many(std::size_t t_nb_frames) -> Webcam::WebcamFrames {
 
     if (m_valid) {
       frames_captured.push_back(std::move(data));
+    } else {
+
+      LOG_DEBUG("Setting m_valid to true after encode attempt.")
+      m_valid =  true;
     }
 
     index++;
@@ -116,20 +120,23 @@ auto Webcam::capture_one() -> WebcamFrame {
   if(m_status == Uninitialized){
       log_error("Webcam has not been initialized. Cannot capture.");
       count_logs();
-      m_valid = false;
       return buffer;
   }
 
-  m_capture.read(m_frame);
+   m_capture.read(m_frame);
 
     if (m_frame.empty()) {
       log_error("Could not capture frame. m_frame returned empty from m_capture.read.");
       count_logs();
-      m_valid = false;
       return buffer;
     }
 
    Data::DataVector data = encode_frame();
+
+   if(!m_valid){
+     LOG_DEBUG("Setting valid to true after encode attempt.");
+     m_valid = true;
+   }
 
    return data;
 };
@@ -163,7 +170,6 @@ void Webcam::decode_one(const WebcamFrame &t_frame, CVMatQueue &t_output) {
   if(t_frame.empty()){
     log_error("Provided jpeg frame buffer was empty.");
     count_logs();
-    m_valid = false;
     return;
   }
 
@@ -173,7 +179,6 @@ void Webcam::decode_one(const WebcamFrame &t_frame, CVMatQueue &t_output) {
       if (mat_frame.data == nullptr){
          log_error("Error to decoding frame. Ignoring video package.");
          count_logs();
-         m_valid = false;
        
       } else {
         t_output.push(mat_frame);
@@ -183,7 +188,6 @@ void Webcam::decode_one(const WebcamFrame &t_frame, CVMatQueue &t_output) {
        std::string msg = err.what();
        log_error("cv::imdecode threw on decoding: '" + msg + "'");
        count_logs();
-       m_valid = false;
     }
 }
 
