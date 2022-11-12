@@ -44,7 +44,12 @@ void AudioPlayback::load(const Data *t_audio_data) {
 
   if (valid_data_type(t_audio_data, Data::Audio)) {
 
-    std::vector<uint8_t> audio = t_audio_data->get_data();
+    /* for reasons of how ffmpeg works we cannot enforce the constness
+     * of t_audio_data->get_data_ref() so we need to make a copy with t_audio_data->get_data();
+     * before encoding.
+     * */
+
+    Data::DataVector audio = t_audio_data->get_data();
     Data::DataVector decoded_audio = m_audio_converter.decode(audio);
     AudioPackage audio_pkt(std::move(decoded_audio));
     m_audio_queue->push(std::move(audio_pkt));

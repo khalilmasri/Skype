@@ -165,7 +165,7 @@ auto AudioConverter::encode(AudioQueue &t_queue) -> std::vector<uint8_t> {
 
 /* */
 
-auto AudioConverter::decode(std::vector<uint8_t> &t_encoded_data) -> Data::DataVector {
+auto AudioConverter::decode(Data::DataVector &t_encoded_data) -> Data::DataVector {
 
   auto *audio_settings          = AudioSettings::get_instance();
   uint8_t *encoded_data         = t_encoded_data.data();
