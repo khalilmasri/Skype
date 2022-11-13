@@ -229,10 +229,15 @@ void Client::chat_deliver(Job &t_job)
 
 // Call redirection
 void Client::call_connect(Job &t_job)
-{
-   t_job.m_argument = m_user.get_token();
+{ 
+   QThread *call_connect = QThread::create([&]()
+   {
+      t_job.m_argument = m_user.get_token();
+      m_call.connect(t_job); 
+   });
 
-   m_call.connect(t_job); 
+   call_connect->start();
+
  //  t_job.m_command = Job::DISCARD; -> @khalil this is being set inside call.cpp
 }
 

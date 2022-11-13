@@ -137,3 +137,5 @@ void AVStream::send_done(P2PPtr &t_p2p_conn) {
   done_req.set_data(new AVData(Data::Done));
   t_p2p_conn->send_package(done_req);
 }
+
+AVStream::StreamType AVStream::stream_type () const { return m_stream_type; };

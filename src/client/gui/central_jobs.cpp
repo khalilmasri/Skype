@@ -27,10 +27,6 @@ void CentralGui::job_set_user(Job &t_job)
 void CentralGui::job_disp_contact(Job &t_job)
 {
     LOG_INFO("Displaying contacts");
-    // if ( false == t_job.m_valid)
-    // {
-    //     return;
-    // }
 
     auto model = new QStandardItemModel(this);
     m_ui->contact_list->setModel(model);
@@ -39,7 +35,7 @@ void CentralGui::job_disp_contact(Job &t_job)
     {
         m_contact_list[contact.ID] = contact;
         
-        if ( true == contact.online)
+        if (contact.online)
         {
             model->appendRow(new QStandardItem(QIcon("../misc/icons/online.png"), contact.username));
         }     
@@ -47,20 +43,20 @@ void CentralGui::job_disp_contact(Job &t_job)
 
     for ( auto &contact : t_job.m_contact_list)
     {        
-        if ( false == contact.online)
+        if (!contact.online)
         {
             model->appendRow(new QStandardItem(QIcon("../misc/icons/offline.png"), contact.username));
-        }     
+        }   
     }
 
-    if ( true == first_display)
+    if (first_display)
     {
         LOG_INFO("Sending Chat job to bus");
         JobBus::create({Job::CHAT});
         first_display = false;
     }
    
-    if (m_current_selected.isValid() == true)
+    if (m_current_selected.isValid())
     {
         m_ui->contact_list->selectionModel()->select(m_current_selected, QItemSelectionModel::Select);
     }
@@ -133,17 +129,11 @@ void CentralGui::job_load_chat(Job &t_job)
     // } 
 
     // if ( true == t_job.m_chats.empty() || true == m_contact_list.empty())
-    if (true == m_contact_list.empty())
+    if (true != t_job.m_chats.empty())
     {
-        // new logic here necessary?
-        LOG_INFO("Chats and Contacts currently empty for user")
-        emit ready_signal();
-        return;
-        // neew logic here necessary?
+        load_chat(t_job.m_chats, false);
     }
 
-    LOG_INFO("Loading Chat first time...");
-    load_chat(t_job.m_chats, false);
     LOG_INFO("Loaded Chat first time");
     emit ready_signal();
 }

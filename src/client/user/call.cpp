@@ -20,6 +20,10 @@ void Call::connect(Job &t_job) {
 
 // This is temporary and just to illustrate we need to know from UI if there is video or not
   bool has_video = true;
+
+  m_audio_p2p = nullptr;
+  m_video_p2p = nullptr;
+
   m_audio_p2p    = std::make_unique<P2P>(t_job.m_argument);
   bool valid     = udp_connect( m_audio_p2p, t_job); // omitting the t_wait_time argument so it's 1s by default
 
@@ -58,6 +62,9 @@ void Call::connect(Job &t_job) {
 void Call::accept(Job &t_job) {
   // This is temporary and just to illustrate we need to know from UI if there is video or not
   bool has_video = true;
+
+  m_audio_p2p = nullptr;
+  m_video_p2p = nullptr;
 
   m_audio_p2p    = std::make_unique<P2P>(t_job.m_argument);
   bool valid     = udp_accept(m_audio_p2p, t_job);
@@ -154,9 +161,6 @@ void Call::hangup() {
   m_video_playback.stop();
   m_video_stream.stop();
 
-  m_audio_p2p = nullptr;
-  m_video_p2p = nullptr;
-
   m_current = -1;
 }
 
@@ -226,7 +230,7 @@ auto Call::udp_connect(P2PPtr &t_p2p_conn, Job &t_job, int t_wait_time)
 
   while (t_p2p_conn->status() != P2P::Accepted) {
 
-    LOG_INFO("Pinging...");
+    LOG_INFO("Pinging   ...");
 
     t_p2p_conn->ping_peer();
 
@@ -243,7 +247,7 @@ auto Call::udp_connect(P2PPtr &t_p2p_conn, Job &t_job, int t_wait_time)
       remove_caller(t_job.m_intValue);
       return false;
     }
-
+    std::cout << "Here\n";
     if (m_hangup) {
       LOG_DEBUG("Hanging up the call requested by initiator.");
       t_p2p_conn->hangup_peer();

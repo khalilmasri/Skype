@@ -1,4 +1,7 @@
 #include "playback.hpp"
+#include "job_bus.hpp"
+#include "job.hpp"
+
 #include <thread>
 
 void Playback::buffer(P2PPtr &t_p2p_conn, std::size_t nb_packages) {
@@ -58,6 +61,10 @@ void Playback::spawn_network_read_thread(P2PPtr &t_p2p_conn, AVStream &t_stream)
     // sending data to peer
     if (m_done_received) {
       t_stream.stop();
+      if(t_stream.stream_type() == AVStream::Audio)
+      {
+        JobBus::create({Job::HANGUP});
+      }
     }
   });
 

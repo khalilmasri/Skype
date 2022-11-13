@@ -29,6 +29,7 @@ public:
   void stop();
   void stream(P2PPtr &p2p_conn);
   void set_stream_type(StreamType t_type);
+  StreamType stream_type() const;
 
 private:
   AudioQueuePtr      m_input_queue = std::make_unique<LockFreeAudioQueue>(); 
