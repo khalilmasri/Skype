@@ -230,13 +230,9 @@ void Client::chat_deliver(Job &t_job)
 // Call redirection
 void Client::call_connect(Job &t_job)
 { 
-   QThread *call_connect = QThread::create([&]()
-   {
-      t_job.m_argument = m_user.get_token();
-      m_call.connect(t_job); 
-   });
-
-   call_connect->start();
+   t_job.m_argument = m_user.get_token();
+   
+   m_call.connect(t_job); 
 
  //  t_job.m_command = Job::DISCARD; -> @khalil this is being set inside call.cpp
 }
@@ -263,6 +259,7 @@ void Client::call_hangup(Job &t_job)
 {
     static_cast<void>(t_job);
     m_call.hangup();
+    LOG_INFO("Client will be notified for hangup");
 }
 
 void Client::call_webcam(Job &t_job)
@@ -273,7 +270,13 @@ void Client::call_webcam(Job &t_job)
 
 void Client::call_awaiting(Job &t_job)
 {
-   LOG_INFO("Awaiting call in client");
+   if( t_job.m_valid == true )
+   {
+       LOG_INFO("Awaiting call in client");
+   }else 
+   {
+      LOG_INFO("Awaiting call in has closed");
+   }
    m_call.awaiting(t_job);
 }
 

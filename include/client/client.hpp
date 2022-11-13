@@ -58,12 +58,13 @@ public:
 
     // Client commands
     static void client_exit                 (Job &t_job);
-
+    
+    inline static Accounts      m_user;
+    
 private:
     static Request              m_server_req;
     static ActiveConn           m_server_conn;
     
-    inline static Accounts      m_user;
     inline static Contacts      m_contacts;
     inline static Chat          m_chat;
     inline static Call          m_call;

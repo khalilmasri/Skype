@@ -60,7 +60,6 @@ void Playback::spawn_network_read_thread(P2PPtr &t_p2p_conn, AVStream &t_stream)
     // when a done msg is received we need to stop the AVStream object from
     // sending data to peer
     if (m_done_received) {
-      t_stream.stop();
       if(t_stream.stream_type() == AVStream::Audio)
       {
         JobBus::create({Job::HANGUP});

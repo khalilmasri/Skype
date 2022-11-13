@@ -19,42 +19,47 @@ Call::Call() : m_audio_stream(m_webcam),
 void Call::connect(Job &t_job) {
 
 // This is temporary and just to illustrate we need to know from UI if there is video or not
-  bool has_video = true;
+  m_token = t_job.m_argument;
+  std::thread call_thread([&t_job, this](){
+    bool has_video = true;
 
-  m_audio_p2p = nullptr;
-  m_video_p2p = nullptr;
+    m_audio_p2p = nullptr;
+    m_video_p2p = nullptr;
 
-  m_audio_p2p    = std::make_unique<P2P>(t_job.m_argument);
-  bool valid     = udp_connect( m_audio_p2p, t_job); // omitting the t_wait_time argument so it's 1s by default
+    m_audio_p2p    = std::make_unique<P2P>(m_token);
+    bool valid     = udp_connect( m_audio_p2p, t_job); // omitting the t_wait_time argument so it's 1s by default
 
-  /* TODO(@Chris) we need to know from the UI if we have a video or not at this
-   * point */
-  /* initializing an peer to peer connection for the video  */
-  if (has_video && valid) {
-    m_video_p2p = std::make_unique<P2P>(t_job.m_argument);
-    /* wait time between is much shorter; just 100 milliseconds as peer will most likely
-     * be  already trying to accept the connection */
-    valid = udp_connect(m_video_p2p, t_job, 300);
-  }
+    /* TODO(@Chris) we need to know from the UI if we have a video or not at this
+    * point */
+    /* initializing an peer to peer connection for the video  */
+    if (has_video && valid) {
+      m_video_p2p = std::make_unique<P2P>(m_token);
+      /* wait time between is much shorter; just 100 milliseconds as peer will most likely
+      * be  already trying to accept the connection */
+      valid = udp_connect(m_video_p2p, t_job, 300);
+    }
 
-  if (has_video && valid) {
-    LOG_DEBUG("Starting Call::connect Video.");
-     m_webcam.init();
-     // video_stream();
-     video_playback();
+    if (has_video && valid) {
+      LOG_DEBUG("Starting Call::connect Video.");
+      m_webcam.init();
+      // video_stream();
+      video_playback();
 
-     // send job back to the UI to display frames
-     t_job.m_command = Job::VIDEO_STREAM;
-     // set jobs with a shared pointer to access the video data from UI
-     t_job.m_video_stream = m_video_playback.get_stream();
-  }
+      // send job back to the UI to display frames
+      t_job.m_command = Job::VIDEO_STREAM;
+      // set jobs with a shared pointer to access the video data from UI
+      t_job.m_video_stream = m_video_playback.get_stream();
+    }
 
-  if (valid) {
-    LOG_DEBUG("Starting Call::connect Audio.");
-    audio_stream();
-    audio_playback();
-  }
+    if (valid) {
+      LOG_DEBUG("Starting Call::connect Audio.");
+      audio_stream();
+      audio_playback();
+    }
 
+  });
+  
+  call_thread.detach();
 }
 
 /* */
@@ -100,7 +105,7 @@ if (has_video && valid) {
     LOG_DEBUG("Starting Call::accept Video.");
       m_webcam.init();
       video_stream();
-     // video_playback();
+      //video_playback();
   }
 
   if (valid) {
@@ -158,7 +163,7 @@ void Call::hangup() {
 
   m_audio_stream.stop();
   m_audio_playback.stop();
-  m_video_playback.stop();
+  //m_video_playback.stop();
   m_video_stream.stop();
 
   m_current = -1;
@@ -247,7 +252,7 @@ auto Call::udp_connect(P2PPtr &t_p2p_conn, Job &t_job, int t_wait_time)
       remove_caller(t_job.m_intValue);
       return false;
     }
-    std::cout << "Here\n";
+
     if (m_hangup) {
       LOG_DEBUG("Hanging up the call requested by initiator.");
       t_p2p_conn->hangup_peer();

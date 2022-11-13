@@ -36,6 +36,7 @@ private:
   QVector<int>   m_callers;
   int            m_current;
   bool           m_hangup   = false;
+  std::string    m_token;
 
   Webcam         m_webcam;
     
