@@ -94,7 +94,7 @@ void CallGui::video_stream(VideoPlayback::VideoQueuePtr t_stream_queue)
       if (valid)
       {
         cv::cvtColor(frame, frame, cv::COLOR_BGR2RGBA);
-        QImage frame_draw(static_cast<const unsigned char*>(frame.data), frame.cols, frame.rows, QImage::Format_RGB888);
+        QImage frame_draw(static_cast<const unsigned char*>(frame.data), frame.cols * 3, frame.rows * 3, QImage::Format_RGB888);
         m_ui->camera->setPixmap(QPixmap::fromImage(frame_draw));
         m_ui->camera->resize(m_ui->camera->pixmap().size());
         qDebug() << m_ui->camera->pixmap().size();

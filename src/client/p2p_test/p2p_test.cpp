@@ -81,21 +81,25 @@ void test_stream(char *user) {
 
   // P2P p2p = test_conn(user, password);
   // auto p2p_ptr = std::make_unique<P2P>(p2p);
+  std::cout << "Here\n";
 
   P2P p2p_video = test_conn(user, password);
   auto p2p_video_ptr = std::make_unique<P2P>(p2p_video);
+  std::cout << "Here0\n";
 
   auto webcam = Webcam();
   // auto stream = AVStream(webcam);
   // auto playback = AudioPlayback();
   auto videoPlayback = VideoPlayback(webcam);
   auto videostream = AVStream(webcam, AVStream::Video);
-
+  
+  std::cout << "Here1\n";
 
   // this callback is just to stop the stream on another thread.
   auto stop = [&u ,/* &stream, &playback,*/ &videoPlayback, &videostream]() { 
-    std::this_thread::sleep_for(20s); // do it for 10 secs then quit.
+    std::this_thread::sleep_for(3s); // do it for 10 secs then quit.
 
+  std::cout << "Here2\n";
     if(u == "john"){
       // stream.stop();
       videostream.stop();
@@ -106,14 +110,17 @@ void test_stream(char *user) {
       videoPlayback.stop();
     }
   };
+  std::cout << "Here3\n";
 
   std::thread thread (stop);
 
+  std::cout << "Here4\n";
    
  // john streams out
   if(u == "john") {
     // stream.start();
     // stream.stream(p2p_ptr);
+  std::cout << "Here5\n";
     videostream.start();
     videostream.stream(p2p_video_ptr);
   }
@@ -122,12 +129,15 @@ void test_stream(char *user) {
   if(u == "shakira"){
     // playback.buffer(p2p_ptr, 10); // buffer 10 frames before playing back
     // playback.start(p2p_ptr, stream);
+  std::cout << "Here6\n";
     videoPlayback.buffer(p2p_video_ptr, 10);
     videoPlayback.start(p2p_video_ptr, videostream);
   }
 
+  std::cout << "Here7\n";
   thread.join();
 
+  std::cout << "Here8\n";
   if (u == "shakira")
   {
     std::cout << "Playingback video\n";
@@ -136,6 +146,7 @@ void test_stream(char *user) {
     cv::Mat frame;
     while(!queue->empty())
     {
+      std::cout << "Showing\n";
       bool valid = queue->pop_try(frame);
       if (valid )
       {
@@ -144,8 +155,6 @@ void test_stream(char *user) {
       }
     }
   }
-
-
 
   std::cout << "Out of queue" << std::endl;
 }
