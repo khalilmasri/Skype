@@ -41,9 +41,9 @@ void Call::connect(Job &t_job) {
 
     if (has_video && valid) {
       LOG_DEBUG("Starting Call::connect Video.");
-      m_webcam.init();
+      //m_webcam.init();
       // video_stream();
-      video_playback();
+     // video_playback();
 
       // send job back to the UI to display frames
       t_job.m_command = Job::VIDEO_STREAM;
@@ -104,7 +104,7 @@ void Call::accept(Job &t_job) {
 if (has_video && valid) {
     LOG_DEBUG("Starting Call::accept Video.");
       m_webcam.init();
-      video_stream();
+      //video_stream();
       //video_playback();
   }
 
@@ -164,7 +164,7 @@ void Call::hangup() {
   m_audio_stream.stop();
   m_audio_playback.stop();
   //m_video_playback.stop();
-  m_video_stream.stop();
+  //m_video_stream.stop();
 
   m_current = -1;
 }
