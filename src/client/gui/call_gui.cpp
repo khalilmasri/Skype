@@ -6,6 +6,7 @@
 #include "logger.hpp"
 #include "peer_to_peer.hpp"
 #include "menu_gui.hpp"
+#include "video_playback.hpp"
 
 #include <iostream>
 
@@ -17,6 +18,7 @@
 #include <QMediaCaptureSession>
 #include <QVideoWidget>
 #include <QVideoSink>
+#include <QPixmap>
 
 
 CallGui::CallGui(QWidget *parent) :
@@ -65,6 +67,47 @@ void CallGui::video_init(int t_contact_id, QString &t_username)
   JobBus::create({Job::WEBCAM});
 }
 
+void CallGui::video_stream(VideoPlayback::VideoQueuePtr t_stream_queue)
+{
+  
+   QThread *video_stream = QThread::create([t_stream_queue, this](){
+    cv::Mat frame;
+    size_t trials = 0;
+    while(!m_stop_stream)
+    {
+      if(trials > VideoPlayback::m_MID_PLAYBACK_THROTTLE){
+       LOG_TRACE("Throttling video playback to 50ms");
+         std::this_thread::sleep_for(std::chrono::milliseconds(50));
+      }
+
+      if(trials > VideoPlayback::m_MAX_PLAYBACK_THROTTLE){
+       LOG_TRACE("Throttling video playback to 100ms");
+         std::this_thread::sleep_for(std::chrono::milliseconds(100));
+     }
+
+      if (t_stream_queue->empty()) {
+        trials++;
+        continue;
+      }
+
+      bool valid = t_stream_queue->pop_try(frame);
+      if (valid)
+      {
+        cv::cvtColor(frame, frame, cv::COLOR_BGR2RGBA);
+        QImage frame_draw(static_cast<const unsigned char*>(frame.data), frame.cols, frame.rows, QImage::Format_RGB888);
+        m_ui->camera->setPixmap(QPixmap::fromImage(frame_draw));
+        m_ui->camera->resize(m_ui->camera->pixmap().size());
+        qDebug() << m_ui->camera->pixmap().size();
+        trials = 0;
+        Webcam::wait();
+      }
+    }
+   });
+  
+  video_stream->start();
+
+}
+
 // ***** PRIVATE ***** //
 
 void CallGui::reject()
@@ -89,7 +132,7 @@ void CallGui::on_webcam_clicked()
 void CallGui::on_hangup_clicked()
 {
     JobBus::create({Job::HANGUP});
+    m_stop_stream = true;
     this->hide();
 }
-
 

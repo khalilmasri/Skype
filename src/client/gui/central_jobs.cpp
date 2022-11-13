@@ -3,6 +3,7 @@
 #include "logger.hpp"
 #include "ui/ui_central.h"
 #include "ring_gui.hpp"
+#include "supress_unused_params_warnings.hpp"
 
 #include <QStandardItemModel>
 #include <QMessageBox>
@@ -195,11 +196,13 @@ void CentralGui::job_send_msg(Job &t_job)
 
 void CentralGui::job_hangup(Job &t_job)
 {
-    static_cast<void>(t_job); // NOTE(@khalil) What is this static cast to nothing?
+    UNUSED_PARAMS(t_job);
     LOG_INFO("Hangup call");
     m_on_call = false;
-
-    delete m_call;
+    if (m_call)
+    {
+      delete m_call;
+    }
 }
 
 void CentralGui::job_awaiting(Job &t_job)
@@ -231,16 +234,7 @@ void CentralGui::job_video_stream(Job &t_job){
      return;
    }
 
-  auto queue = t_job.m_video_stream;
+   m_call->video_stream(t_job.m_video_stream);
 
-  // ---> coming jpeg.
-
-   Webcam::WebcamMat mat; // ---> open cv::Mat (not QT);
-   bool valid = queue->pop_try(mat);
-
-   if(valid){
-     // do something with the Mat.
-     Webcam::wait(); // wait to show next frame if needed
-   }
 
 }

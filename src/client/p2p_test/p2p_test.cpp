@@ -15,6 +15,7 @@
 #include "text_data.hpp"
 #include "text_io.hpp"
 #include "webcam.hpp"
+#include "video_playback.hpp"
 #include <iostream>
 #include <thread>
 #include <chrono>
@@ -81,20 +82,28 @@ void test_stream(char *user) {
   P2P p2p = test_conn(user, password);
   auto p2p_ptr = std::make_unique<P2P>(p2p);
 
+  P2P p2p_video = test_conn(user, password);
+  auto p2p_video_ptr = std::make_unique<P2P>(p2p_video);
+
   auto webcam = Webcam();
   auto stream = AVStream(webcam);
   auto playback = AudioPlayback();
+  auto videoPlayback = VideoPlayback(webcam);
+  auto videostream = AVStream(webcam, AVStream::Video);
+
 
   // this callback is just to stop the stream on another thread.
-  auto stop = [&u, &stream, &playback]() { 
+  auto stop = [&u, &stream, &playback, &videoPlayback, &videostream]() { 
     std::this_thread::sleep_for(20s); // do it for 10 secs then quit.
 
     if(u == "john"){
       stream.stop();
+      videostream.stop();
     }
 
     if(u == "shakira"){
       playback.stop();
+      videoPlayback.stop();
     }
   };
 
@@ -103,18 +112,36 @@ void test_stream(char *user) {
    
  // john streams out
   if(u == "john") {
-    auto cb = callback(p2p_ptr);
     stream.start();
     stream.stream(p2p_ptr);
+    videostream.start();
+    videostream.stream(p2p_video_ptr);
   }
 
   // shakira receives
   if(u == "shakira"){
     playback.buffer(p2p_ptr, 10); // buffer 10 frames before playing back
     playback.start(p2p_ptr, stream);
+    videoPlayback.buffer(p2p_video_ptr, 10);
+    videoPlayback.start(p2p_video_ptr, videostream);
   }
 
   thread.join();
+
+  auto queue = videoPlayback.get_stream();
+
+  cv::Mat frame;
+  while(!queue->empty())
+  {
+    bool valid = queue->pop_try(frame);
+    if (valid )
+    {
+      Webcam::show(frame);
+      Webcam::wait();
+    }
+  }
+
+  std::out << "Out of queue" << std::endl;
 }
 
 auto callback(std::unique_ptr<P2P> &p2p) -> AVStream::StreamCallback {

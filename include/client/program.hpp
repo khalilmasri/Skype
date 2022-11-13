@@ -28,7 +28,7 @@ private: // Variables
     Client      m_client;
     JobBus      *m_bus;
     WelcomeGui  *m_welcome;
-    CentralGui     *m_chat;
+    CentralGui     *m_central;
     //QThread     *m_bus_loop;
     JobDispatch m_table;
 

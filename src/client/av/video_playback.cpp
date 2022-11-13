@@ -1,5 +1,7 @@
 #include "video_playback.hpp"
 
+#include <fstream>
+
 VideoPlayback::VideoPlayback(Webcam &t_video_playback)
                : m_webcam(t_video_playback),
                m_queue(std::make_shared<Webcam::CVMatQueue>()){ }
@@ -44,6 +46,10 @@ void VideoPlayback::stop() {
 void VideoPlayback::load(const Data *t_video_data) {
 
   if (valid_data_type(t_video_data, Data::Video)) {
+    auto f = t_video_data->get_data();
+    std::ofstream file("/tmp/shit.jpeg", std::ios::out);
+    file << f.data();
+    file.close();
     const Webcam::WebcamFrame &frame = t_video_data->get_data_ref();
     // NOT DECODE AS cv::Mat and decode as a QT format or just push the jpeg.
     m_webcam.decode_one(frame, m_queue); // converts and pushes to video queue.
@@ -53,42 +59,42 @@ void VideoPlayback::load(const Data *t_video_data) {
 
 auto VideoPlayback::get_stream() -> VideoQueuePtr { return m_queue; }
 
-void VideoPlayback::spawn_video_playback_thread() {
+// void VideoPlayback::spawn_video_playback_thread() {
 
-  std::thread video_playback_thread([this]() {
+//   std::thread video_playback_thread([this]() {
 
-      std::size_t trials = 0;
+//       std::size_t trials = 0;
 
-    while (m_status == Started) {
+//     while (m_status == Started) {
 
-      if(trials > m_MID_PLAYBACK_THROTTLE){
-       LOG_TRACE("Throttling video playback to 50ms");
-         std::this_thread::sleep_for(std::chrono::milliseconds(50));
-      }
+//       if(trials > m_MID_PLAYBACK_THROTTLE){
+//        LOG_TRACE("Throttling video playback to 50ms");
+//          std::this_thread::sleep_for(std::chrono::milliseconds(50));
+//       }
 
-      if(trials > m_MAX_PLAYBACK_THROTTLE){
-       LOG_TRACE("Throttling video playback to 100ms");
-         std::this_thread::sleep_for(std::chrono::milliseconds(100));
-     }
+//       if(trials > m_MAX_PLAYBACK_THROTTLE){
+//        LOG_TRACE("Throttling video playback to 100ms");
+//          std::this_thread::sleep_for(std::chrono::milliseconds(100));
+//      }
 
-      if (m_queue->empty()) {
-        trials++;
-        continue;
-      }
+//       if (m_queue->empty()) {
+//         trials++;
+//         continue;
+//       }
 
-      Webcam::WebcamMat mat;
+//       Webcam::WebcamMat mat;
 
-      bool valid = m_queue->pop_try(mat);
+//       bool valid = m_queue->pop_try(mat);
 
-      if (valid) {
-        LOG_INFO("showing incoming video frame.");
-        trials = 0;
-         //    Webcam::show(mat); // NOTE: CANNOT SHOW IF NOT THE MAIN THREAD>
-      } 
+//       if (valid) {
+//         LOG_INFO("showing incoming video frame.");
+//         trials = 0;
+//          //    Webcam::show(mat); // NOTE: CANNOT SHOW IF NOT THE MAIN THREAD>
+//       } 
 
-      Webcam::wait();
-    }
-  });
+//       Webcam::wait();
+//     }
+//   });
 
-  video_playback_thread.detach();
-}
+//   video_playback_thread.detach();
+// }
