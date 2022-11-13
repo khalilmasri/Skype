@@ -1,6 +1,8 @@
 #include "video_playback.hpp"
 
-VideoPlayback::VideoPlayback(Webcam &t_video_playback) : m_webcam(t_video_playback) {}
+VideoPlayback::VideoPlayback(Webcam &t_video_playback)
+               : m_webcam(t_video_playback),
+               m_queue(std::make_shared<Webcam::CVMatQueue>()){ }
 
 void VideoPlayback::start(P2PPtr &t_p2p_conn, AVStream &t_stream) {
 
@@ -8,7 +10,7 @@ void VideoPlayback::start(P2PPtr &t_p2p_conn, AVStream &t_stream) {
     m_done_received = false;
     m_status = Started;
     spawn_network_read_thread(t_p2p_conn, t_stream);
-    spawn_video_playback_thread();
+  //  spawn_video_playback_thread(); //not running this from this thread. Instead from from main 
 
   } else {
     LOG_ERR("Could not START audio player because its status is: %s",
@@ -21,7 +23,7 @@ void VideoPlayback::stop() {
   if (m_status == Started) {
 
     // wait for the queue to be empty before stopping.
-    while (!m_queue.empty()) {
+    while (!m_queue->empty()) {
       Webcam::wait(); // wait until queue is empty
     }
 
@@ -43,9 +45,13 @@ void VideoPlayback::load(const Data *t_video_data) {
 
   if (valid_data_type(t_video_data, Data::Video)) {
     const Webcam::WebcamFrame &frame = t_video_data->get_data_ref();
+    // NOT DECODE AS cv::Mat and decode as a QT format or just push the jpeg.
     m_webcam.decode_one(frame, m_queue); // converts and pushes to video queue.
   }
+
 }
+
+auto VideoPlayback::get_stream() -> VideoQueuePtr { return m_queue; }
 
 void VideoPlayback::spawn_video_playback_thread() {
 
@@ -65,20 +71,19 @@ void VideoPlayback::spawn_video_playback_thread() {
          std::this_thread::sleep_for(std::chrono::milliseconds(100));
      }
 
-      if (m_queue.empty()) {
-     //   LOG_ERR("Webcam queue is empty. Trying again...");
+      if (m_queue->empty()) {
         trials++;
         continue;
       }
 
       Webcam::WebcamMat mat;
 
-      bool valid = m_queue.pop_try(mat);
+      bool valid = m_queue->pop_try(mat);
 
       if (valid) {
         LOG_INFO("showing incoming video frame.");
         trials = 0;
-    //    Webcam::show(mat); // NOTE: CANNOT SHOW IF NOT THE MAIN THREAD>
+         //    Webcam::show(mat); // NOTE: CANNOT SHOW IF NOT THE MAIN THREAD>
       } 
 
       Webcam::wait();

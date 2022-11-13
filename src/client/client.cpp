@@ -233,8 +233,7 @@ void Client::call_connect(Job &t_job)
    t_job.m_argument = m_user.get_token();
 
    m_call.connect(t_job); 
-
-   t_job.m_command = Job::DISCARD;
+ //  t_job.m_command = Job::DISCARD; -> @khalil this is being set inside call.cpp
 }
 
 void Client::call_accept(Job &t_job)

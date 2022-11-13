@@ -26,7 +26,6 @@ void CentralGui::job_set_user(Job &t_job)
 void CentralGui::job_disp_contact(Job &t_job)
 {
     LOG_INFO("Displaying contacts");
-    LOG_INFO("This blocks when no Contacts")
     // if ( false == t_job.m_valid)
     // {
     //     return;
@@ -196,7 +195,7 @@ void CentralGui::job_send_msg(Job &t_job)
 
 void CentralGui::job_hangup(Job &t_job)
 {
-    static_cast<void>(t_job);
+    static_cast<void>(t_job); // NOTE(@khalil) What is this static cast to nothing?
     LOG_INFO("Hangup call");
     m_on_call = false;
 
@@ -222,4 +221,26 @@ void CentralGui::job_awaiting(Job &t_job)
   ring->set_details(username, t_job.m_intValue );
   callers_table.insert(t_job.m_intValue, ring);
   ring->show(); 
+}
+
+
+void CentralGui::job_video_stream(Job &t_job){
+
+   if(t_job.m_video_stream == nullptr){
+     LOG_ERR("Cannot find video stream in Job::VIDEO_STREAM. Quiting showing video...");
+     return;
+   }
+
+  auto queue = t_job.m_video_stream;
+
+  // ---> coming jpeg.
+
+   Webcam::WebcamMat mat; // ---> open cv::Mat (not QT);
+   bool valid = queue->pop_try(mat);
+
+   if(valid){
+     // do something with the Mat.
+     Webcam::wait(); // wait to show next frame if needed
+   }
+
 }

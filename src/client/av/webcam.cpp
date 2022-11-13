@@ -156,7 +156,7 @@ void Webcam::make_valid(const char *t_from){
 
 /* */
 
-void Webcam::decode_many(WebcamFrames &t_frames, CVMatQueue &t_output) {
+void Webcam::decode_many(WebcamFrames &t_frames, std::shared_ptr<CVMatQueue> t_output) {
 
   for (auto &frame : t_frames) {
       decode_one(frame, t_output);
@@ -165,7 +165,7 @@ void Webcam::decode_many(WebcamFrames &t_frames, CVMatQueue &t_output) {
 
 /* */
 
-void Webcam::decode_one(const WebcamFrame &t_frame, CVMatQueue &t_output) {
+void Webcam::decode_one(const WebcamFrame &t_frame, std::shared_ptr<CVMatQueue> t_output) {
 
   if(t_frame.empty()){
     log_error("Provided jpeg frame buffer was empty.");
@@ -181,7 +181,7 @@ void Webcam::decode_one(const WebcamFrame &t_frame, CVMatQueue &t_output) {
          count_logs();
        
       } else {
-        t_output.push(mat_frame);
+        t_output->push(mat_frame);
       }
 
     } catch (std::exception &err) {

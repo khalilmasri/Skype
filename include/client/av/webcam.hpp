@@ -24,8 +24,8 @@ public:
   [[nodiscard]] auto capture_one() -> WebcamFrame;
   [[nodiscard]] auto valid() const -> bool;
   [[nodiscard]] auto status() const -> Status;
-  void               decode_one(const WebcamFrame &t_frame, CVMatQueue &t_output);
-  void               decode_many(WebcamFrames &t_frames, CVMatQueue &t_output);
+  void               decode_one(const WebcamFrame &t_frame, std::shared_ptr<CVMatQueue> t_output);
+  void               decode_many(WebcamFrames &t_frames, std::shared_ptr<CVMatQueue> t_output);
   void               release();
   void               init();
   void               make_valid(const char *t_from);

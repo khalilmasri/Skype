@@ -21,13 +21,11 @@
 
 CallGui::CallGui(QWidget *parent) :
   QDialog(parent),
-  m_ui(new Ui::CallGui)
-{
+  m_ui(new Ui::CallGui) {
   m_ui->setupUi(this);
 }
 
-CallGui::~CallGui()
-{
+CallGui::~CallGui() {
   delete m_ui;
 }
 
@@ -37,10 +35,6 @@ void CallGui::call_accept(QString &t_username)
 {
   this->setWindowTitle("Call with " + t_username);
   m_ui->webcam->setChecked(true);
-
-  /* NOTE: NEW */
-  // Job job = {Job::AUDIO_STREAM};
-  // JobBus::create(job);
 
   this->show();
 

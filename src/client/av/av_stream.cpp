@@ -73,6 +73,10 @@ void AVStream::stop() {
   }
 }
 
+// - 1 capture -> convert -> stream (send to socket)
+//   2 read the socket / convert - > (pushing to the audio_queue) ;
+//   3 - audio_callback  -> high priority thread.
+
 /* */
 
 void AVStream::stream_audio(P2PPtr &t_p2p_conn) {

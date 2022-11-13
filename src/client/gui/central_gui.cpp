@@ -79,7 +79,7 @@ void CentralGui::reject()
 }
            
 
-// ***** PRIVATE ***** //
+// ***** PRIVATE ***** // 
 
 void CentralGui::send_msg()
 {

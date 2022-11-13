@@ -36,8 +36,13 @@ void Call::connect(Job &t_job) {
   if (has_video && valid) {
     LOG_DEBUG("Starting Call::connect Video.");
      m_webcam.init();
- //    video_stream();
+     // video_stream();
      video_playback();
+
+     // send job back to the UI to display frames
+     t_job.m_command = Job::VIDEO_STREAM;
+     // set jobs with a shared pointer to access the video data from UI
+     t_job.m_video_stream = m_video_playback.get_stream();
   }
 
   if (valid) {
@@ -53,6 +58,7 @@ void Call::connect(Job &t_job) {
 void Call::accept(Job &t_job) {
   // This is temporary and just to illustrate we need to know from UI if there is video or not
   bool has_video = true;
+
   m_audio_p2p    = std::make_unique<P2P>(t_job.m_argument);
   bool valid     = udp_accept(m_audio_p2p, t_job);
 
@@ -87,7 +93,7 @@ if (has_video && valid) {
     LOG_DEBUG("Starting Call::accept Video.");
       m_webcam.init();
       video_stream();
-      video_playback();
+     // video_playback();
   }
 
   if (valid) {
@@ -116,7 +122,6 @@ void Call::reject(Job &t_job) {
 void Call::awaiting(Job &t_job) {
 
   if (false == t_job.m_boolValue) {
-
     LOG_INFO("Awaiting call ended");
     remove_caller(t_job.m_intValue);
     t_job.m_valid = true;

@@ -7,16 +7,19 @@ class  VideoPlayback : public Playback {
 
   public:
 
+  using VideoQueuePtr = std::shared_ptr<Webcam::CVMatQueue>;
+
   VideoPlayback(Webcam &t_webcam);
 
   void start(P2PPtr &t_p2p_conn, AVStream &t_stream) override;
   void stop() override;
   void load(const Data *t_audio_data) override;
-  void show();
+  
+  auto get_stream() -> VideoQueuePtr;
 
   private:
     Webcam             &m_webcam; // webcam will live in the parent call class.
-    Webcam::CVMatQueue m_queue;
+    VideoQueuePtr      m_queue;
 
   void spawn_video_playback_thread();
 

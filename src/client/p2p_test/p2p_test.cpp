@@ -184,7 +184,7 @@ void test_video() {
   int index = 0;
 
   Webcam::WebcamFrames frames;
-  Webcam::CVMatQueue queue;
+  auto queue = std::make_shared<Webcam::CVMatQueue>();
 
   while (index < 100) {
     Webcam::WebcamFrame frame = webcam.capture_one();
@@ -198,9 +198,9 @@ void test_video() {
     index++;
   }
 
-  while(!queue.empty()){
+  while(!queue->empty()){
     cv::Mat mat;
-    bool valid = queue.pop_try(mat);
+    bool valid = queue->pop_try(mat);
 
     if(valid){
       Webcam::show(mat);
