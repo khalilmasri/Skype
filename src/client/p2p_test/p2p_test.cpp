@@ -128,18 +128,24 @@ void test_stream(char *user) {
 
   thread.join();
 
-  auto queue = videoPlayback.get_stream();
-
-  cv::Mat frame;
-  while(!queue->empty())
+  if (u == "shakira")
   {
-    bool valid = queue->pop_try(frame);
-    if (valid )
+    std::cout << "Playingback video\n";
+    auto queue = videoPlayback.get_stream();
+
+    cv::Mat frame;
+    while(!queue->empty())
     {
-      Webcam::show(frame);
-      Webcam::wait();
+      bool valid = queue->pop_try(frame);
+      if (valid )
+      {
+        Webcam::show(frame);
+        Webcam::wait();
+      }
     }
   }
+
+
 
   std::cout << "Out of queue" << std::endl;
 }
