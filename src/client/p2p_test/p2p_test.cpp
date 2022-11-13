@@ -79,30 +79,30 @@ void test_stream(char *user) {
   char password[] = "1234";
   std::string u(user);
 
-  P2P p2p = test_conn(user, password);
-  auto p2p_ptr = std::make_unique<P2P>(p2p);
+  // P2P p2p = test_conn(user, password);
+  // auto p2p_ptr = std::make_unique<P2P>(p2p);
 
   P2P p2p_video = test_conn(user, password);
   auto p2p_video_ptr = std::make_unique<P2P>(p2p_video);
 
   auto webcam = Webcam();
-  auto stream = AVStream(webcam);
-  auto playback = AudioPlayback();
+  // auto stream = AVStream(webcam);
+  // auto playback = AudioPlayback();
   auto videoPlayback = VideoPlayback(webcam);
   auto videostream = AVStream(webcam, AVStream::Video);
 
 
   // this callback is just to stop the stream on another thread.
-  auto stop = [&u, &stream, &playback, &videoPlayback, &videostream]() { 
+  auto stop = [&u ,/* &stream, &playback,*/ &videoPlayback, &videostream]() { 
     std::this_thread::sleep_for(20s); // do it for 10 secs then quit.
 
     if(u == "john"){
-      stream.stop();
+      // stream.stop();
       videostream.stop();
     }
 
     if(u == "shakira"){
-      playback.stop();
+      // playback.stop();
       videoPlayback.stop();
     }
   };
@@ -112,16 +112,16 @@ void test_stream(char *user) {
    
  // john streams out
   if(u == "john") {
-    stream.start();
-    stream.stream(p2p_ptr);
+    // stream.start();
+    // stream.stream(p2p_ptr);
     videostream.start();
     videostream.stream(p2p_video_ptr);
   }
 
   // shakira receives
   if(u == "shakira"){
-    playback.buffer(p2p_ptr, 10); // buffer 10 frames before playing back
-    playback.start(p2p_ptr, stream);
+    // playback.buffer(p2p_ptr, 10); // buffer 10 frames before playing back
+    // playback.start(p2p_ptr, stream);
     videoPlayback.buffer(p2p_video_ptr, 10);
     videoPlayback.start(p2p_video_ptr, videostream);
   }
@@ -141,7 +141,7 @@ void test_stream(char *user) {
     }
   }
 
-  std::out << "Out of queue" << std::endl;
+  std::cout << "Out of queue" << std::endl;
 }
 
 auto callback(std::unique_ptr<P2P> &p2p) -> AVStream::StreamCallback {
