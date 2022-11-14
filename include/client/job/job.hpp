@@ -47,6 +47,8 @@ struct Job {
         WEBCAM,
         DISCARD,
         VIDEO_STREAM, // this returns a video queue stream back to the GUI
+        AUDIO_FAILED,
+        VIDEO_FAILED,
         EXIT,
         NONE,
     };

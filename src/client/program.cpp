@@ -61,6 +61,8 @@ void Program::create_job_dispatcher()
         {Job::HANGUP,           [this](Job &t_job){m_central->job_hangup(t_job);}},
         {Job::AWAITING,         [this](Job &t_job){m_central->job_awaiting(t_job);}},
         {Job::VIDEO_STREAM,     [this](Job &t_job){m_central->job_video_stream(t_job);}},
+        {Job::VIDEO_FAILED,     [this](Job &t_job){m_central->job_video_failed(t_job);}},
+        {Job::AUDIO_FAILED,     [this](Job &t_job){m_central->job_audio_failed(t_job);}},
     };
 }
 

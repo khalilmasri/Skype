@@ -8,9 +8,9 @@
 #include <string>
 #include <unistd.h>
 
-Call::Call() : m_audio_stream(m_webcam),
-               m_video_stream(m_webcam),
-               m_video_playback(m_webcam){
+Call::Call()
+    : m_audio_stream(m_webcam), m_video_stream(m_webcam),
+      m_video_playback(m_webcam) {
 
   m_audio_stream.set_stream_type(AVStream::Audio);
   m_video_stream.set_stream_type(AVStream::Video);
@@ -18,80 +18,95 @@ Call::Call() : m_audio_stream(m_webcam),
 
 void Call::connect(Job &t_job) {
 
-// This is temporary and just to illustrate we need to know from UI if there is video or not
   m_token = t_job.m_argument;
-  std::thread call_thread([&t_job, this](){
-    bool has_video = true;
+
+  std::thread call_thread([&t_job, this]() {
+    /* has_video is a temp. please pass in in t_job whether to have video or not */
+    bool has_video = true, valid_audio = false, valid_video = false;
 
     m_audio_p2p = nullptr;
     m_video_p2p = nullptr;
 
-    m_audio_p2p    = std::make_unique<P2P>(m_token);
-    bool valid     = udp_connect( m_audio_p2p, t_job); // omitting the t_wait_time argument so it's 1s by default
+    /* connect audio */
+    m_audio_p2p = std::make_unique<P2P>(m_token);
+    valid_audio = udp_connect( m_audio_p2p, t_job);
 
-    /* TODO(@Chris) we need to know from the UI if we have a video or not at this
-    * point */
-    /* initializing an peer to peer connection for the video  */
-    if (has_video && valid) {
-      m_video_p2p = std::make_unique<P2P>(m_token);
-      /* wait time between is much shorter; just 100 milliseconds as peer will most likely
-      * be  already trying to accept the connection */
-      valid = udp_connect(m_video_p2p, t_job, 300);
+    /* if audio fails everything fails */
+    if (!valid_audio) {
+      m_audio_p2p     = nullptr;
+      t_job.m_command = Job::AUDIO_FAILED;
+      LOG_ERR("Audio P2P::connect failed. Connection failed.");
+
+      return;
     }
 
-    if (has_video && valid) {
-      LOG_DEBUG("Starting Call::connect Video.");
-      //m_webcam.init();
-      // video_stream();
-     // video_playback();
+    /* connect video */
+    if (has_video) {
+      m_video_p2p = std::make_unique<P2P>(m_token);
+      valid_video = udp_connect(m_video_p2p, t_job, 300);
+    }
 
-      // send job back to the UI to display frames
-      t_job.m_command = Job::VIDEO_STREAM;
-      // set jobs with a shared pointer to access the video data from UI
+    /* start audio */
+    LOG_DEBUG("Starting Call::connect Audio.");
+    audio_stream();
+    audio_playback();
+    /* **  */
+
+    if (has_video && !valid_video) {
+      t_job.m_command = Job::VIDEO_FAILED;
+      m_video_p2p     = nullptr;
+      LOG_ERR("Video P2p::connect failed. Only audio connection is available.");
+
+      return;
+    }
+
+    if (has_video) {
+      LOG_DEBUG("Starting Call::connect Video.");
+      m_webcam.init();
+      video_stream();
+      // video_playback();
+
+      /* returns to UI that a video stream has started */
+      t_job.m_command      = Job::VIDEO_STREAM;
       t_job.m_video_stream = m_video_playback.get_stream();
     }
-
-    if (valid) {
-      LOG_DEBUG("Starting Call::connect Audio.");
-      audio_stream();
-      audio_playback();
-    }
-
   });
-  
+
   call_thread.detach();
 }
 
 /* */
 
 void Call::accept(Job &t_job) {
-  // This is temporary and just to illustrate we need to know from UI if there is video or not
-  bool has_video = true;
 
-  m_audio_p2p = nullptr;
-  m_video_p2p = nullptr;
+  bool has_video = true, valid_audio = false, valid_video = false;
+  m_audio_p2p    = nullptr;
+  m_video_p2p    = nullptr;
 
-  m_audio_p2p    = std::make_unique<P2P>(t_job.m_argument);
-  bool valid     = udp_accept(m_audio_p2p, t_job);
+  m_audio_p2p = std::make_unique<P2P>(t_job.m_argument);
+  valid_audio = udp_accept(m_audio_p2p, t_job);
 
+  if (!valid_audio) {
+    m_audio_p2p      = nullptr;
+    t_job.m_command = Job::AUDIO_FAILED;
+    LOG_ERR("Audio P2P::accept failed. Connection failed.");
 
-  /* TODO(@Chris) we need to know from the UI if we have a video or not at this
-   * point */
-  /* initializing an peer to peer connection for the video  */
-  if (has_video && valid) {
+    return;
+  }
+
+  if (has_video) {
     m_video_p2p = std::make_unique<P2P>(t_job.m_argument);
-    valid = udp_accept(m_video_p2p, t_job);
+    valid_video = udp_accept(m_video_p2p, t_job);
 
     int count = 0;
 
-    /* if the accept fails we reset the p2p connection and try again until count == m_TIMEOUT */
-    while (!valid) {
+    while (!valid_video) {
       m_video_p2p->reset();
-      valid = udp_accept(m_video_p2p, t_job);
+      valid_video = udp_accept(m_video_p2p, t_job);
 
       /* will break after a certain number of trials */
       if (count >= m_TIMEOUT + 50) {
-        LOG_ERR("Accepting on video peer to peer connection has timed out.")
+        LOG_ERR("Accepting on Video peer to peer connection has timed out.");
         break;
       }
 
@@ -101,19 +116,27 @@ void Call::accept(Job &t_job) {
     }
   }
 
-if (has_video && valid) {
+  /* start audio... */
+  audio_stream();
+  audio_playback();
+  LOG_DEBUG("Starting Call::accept Audio.");
+
+  /* ** */
+
+  if (has_video && !valid_video) {
+    t_job.m_command = Job::VIDEO_FAILED;
+    m_video_p2p = nullptr;
+    LOG_ERR("Video P2p::accept failed. Only audio connection is available.");
+
+    return;
+  }
+
+  if (has_video) {
     LOG_DEBUG("Starting Call::accept Video.");
-      m_webcam.init();
-      //video_stream();
-      //video_playback();
+    m_webcam.init();
+    // video_stream();
+    video_playback();
   }
-
-  if (valid) {
-    LOG_DEBUG("Starting Call::accept Audio.");
-    audio_stream();
-    audio_playback();
-  }
-
 }
 
 /* */
@@ -163,8 +186,8 @@ void Call::hangup() {
 
   m_audio_stream.stop();
   m_audio_playback.stop();
-  //m_video_playback.stop();
-  //m_video_stream.stop();
+  // m_video_playback.stop();
+  // m_video_stream.stop();
 
   m_current = -1;
 }
@@ -185,7 +208,6 @@ void Call::audio_stream() {
   m_audio_stream.set_stream_type(AVStream::Audio);
   m_audio_stream.start();
   m_audio_stream.stream(m_audio_p2p);
-  
 };
 
 /* */
@@ -203,20 +225,18 @@ void Call::audio_playback() {
 
 /* */
 
-void Call::video_stream(){
+void Call::video_stream() {
   m_video_stream.set_stream_type(AVStream::Video);
   m_video_stream.start();
   m_video_stream.stream(m_video_p2p);
 }
 
-
 /* */
 
-void Call::video_playback(){
+void Call::video_playback() {
   m_video_playback.buffer(m_video_p2p, m_NB_BUFFER_PACKETS);
   m_video_playback.start(m_video_p2p, m_video_stream);
 }
-
 
 /* */
 
@@ -295,4 +315,3 @@ auto Call::udp_accept(P2PPtr &t_p2p_conn, Job &t_job) -> bool {
   t_p2p_conn->handshake_peer();
   return true;
 }
-

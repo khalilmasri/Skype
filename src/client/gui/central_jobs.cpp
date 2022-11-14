@@ -226,5 +226,14 @@ void CentralGui::job_video_stream(Job &t_job){
 
    m_call->video_stream(t_job.m_video_stream);
 
+}
 
+void CentralGui::job_video_failed(Job &t_job){
+   UNUSED_PARAMS(t_job);
+  //TODO: @khalil A video p2p connection failed at this point. Need to handle in m_call.
+}
+
+void CentralGui::job_audio_failed(Job &t_job){
+   UNUSED_PARAMS(t_job);
+  //TODO: @khalil An audio p2p connection failed at this point. Need to handle in m_call.
 }
