@@ -67,8 +67,8 @@ void Call::connect(Job &t_job) {
       // video_playback();
 
       /* returns to UI that a video stream has started */
-      t_job.m_command      = Job::VIDEO_STREAM;
-      t_job.m_video_stream = m_video_playback.get_stream();
+     //  t_job.m_command      = Job::VIDEO_STREAM;
+     //  t_job.m_video_stream = m_video_playback.get_stream();
     }
   });
 
@@ -135,7 +135,9 @@ void Call::accept(Job &t_job) {
     LOG_DEBUG("Starting Call::accept Video.");
     m_webcam.init();
     // video_stream();
-    video_playback();
+      video_playback();
+      t_job.m_command      = Job::VIDEO_STREAM;
+      t_job.m_video_stream = m_video_playback.get_stream();
   }
 }
 
