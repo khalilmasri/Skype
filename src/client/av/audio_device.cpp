@@ -34,7 +34,7 @@ AudioDevice::AudioDevice(std::unique_ptr<LockFreeAudioQueue> &t_queue, Type t_ty
 //  for(auto &output: outputs) { std::cout << output << "\n"; }
 
   config->select_input(0); // <----- THIS !
- //config->select_output(3); // <----- THIS !
+  config->select_output(1); // <----- THIS !
   
   std::string interface_name = t_type == Input ? config->get_input().c_str()
                                                : config->get_output().c_str();
