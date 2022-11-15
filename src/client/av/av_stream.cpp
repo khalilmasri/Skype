@@ -50,6 +50,8 @@ void AVStream::stream(P2PPtr &t_p2p_conn) {
 
 void AVStream::stop() {
 
+  m_status = Stopped;
+
   if (m_status == Started) {
     if (m_stream_type == Audio) {
       m_input.close();
@@ -59,8 +61,6 @@ void AVStream::stop() {
       LOG_INFO("AVStream releasing webcam...");
       m_webcam.release();
     }
-
-    m_status = Stopped;
 
     LOG_INFO("Closing %s AVStream...",
              m_stream_type == Audio ? "Audio" : "Video");
@@ -72,10 +72,6 @@ void AVStream::stop() {
             m_status == Invalid ? "'Invalid'." : "'Stopped'.")
   }
 }
-
-// - 1 capture -> convert -> stream (send to socket)
-//   2 read the socket / convert - > (pushing to the audio_queue) ;
-//   3 - audio_callback  -> high priority thread.
 
 /* */
 
