@@ -1,7 +1,6 @@
 #include "job_bus.hpp"
 #include "client.hpp"
 #include "logger.hpp"
-#include "thread_safe_queue.hpp"
 
 #include <ctime>
 #include <iostream>

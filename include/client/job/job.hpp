@@ -3,7 +3,7 @@
 
 #include "chat.hpp"
 #include "contacts.hpp"
-#include "video_playback.hpp"
+#include "webcam.hpp"
 #include "thread_safe_queue.hpp"
 
 #include <QString>
@@ -52,19 +52,20 @@ struct Job {
         EXIT,
         NONE,
     };
+    using VideoQueuePtr = std::shared_ptr<Webcam::CVMatQueue>;
+    using ContactListMap = QHash<int, struct Details>;
 
-
-    Type m_command;
-    std::string m_argument = "";
-
-    bool m_valid = false;
-    bool m_boolValue = false;
-    std::string m_string = "";
-    int m_intValue = -1;
-    QHash<int, struct Details> m_contact_list = {};
-    QVector<Chat> m_chats = {};
-    QString m_qstring = "";
-    VideoPlayback::VideoQueuePtr m_video_stream = nullptr; // this is an unique ptr
+    Type           m_command;
+    std::string    m_argument     = "";
+    bool           m_valid        = false;
+    bool           m_boolValue    = false;
+    std::string    m_string       = "";
+    int            m_intValue     = -1;
+    QString        m_qstring      = "";
+    ContactListMap m_contact_list = {};
+    QVector<Chat>  m_chats        = {};
+    VideoQueuePtr  m_video_stream = nullptr; 
+    
 };
 
 

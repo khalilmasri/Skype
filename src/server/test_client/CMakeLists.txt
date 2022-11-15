@@ -26,6 +26,7 @@ set(INCLUDE_DIRS    ../../../include/server
                     ../../../include/shared/connection 
                     ../../../include/shared/test
                     ../../../include/shared/data 
+                    ../../../include/shared/job 
                     ../../../include/shared/utils 
                 ) 
 

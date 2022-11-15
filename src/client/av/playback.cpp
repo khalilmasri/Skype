@@ -1,8 +1,4 @@
 #include "playback.hpp"
-#include "job_bus.hpp"
-#include "job.hpp"
-
-#include <thread>
 
 void Playback::buffer(P2PPtr &t_p2p_conn, std::size_t nb_packages) {
   LOG_INFO("Buffering '%d' packets of Audio/Video data...", nb_packages);
@@ -50,21 +46,18 @@ void Playback::read_package(P2PPtr &t_p2pconn) {
 
 /* */
 
-void Playback::spawn_network_read_thread(P2PPtr &t_p2p_conn, AVStream &t_stream) {
+void Playback::spawn_network_read_thread(P2PPtr &t_p2p_conn, std::function<void()> t_hangup_callback) {
 
-  std::thread network_read_thread([this, &t_p2p_conn, &t_stream]() {
+  std::thread network_read_thread([this, &t_p2p_conn, t_hangup_callback]() {
     while (m_status == Started) {
       read_package(t_p2p_conn);
     }
 
-    // when a done msg is received we need to stop the AVStream object from
-    // sending data to peer
+    // when a done msg is received we need to stop the AVStream object from sending data to peer
     if (m_done_received) {
-      if(t_stream.stream_type() == AVStream::Audio)
-      {
-        JobBus::create({Job::HANGUP});
+         // this hangups call.
+         t_hangup_callback();
       }
-    }
   });
 
   network_read_thread.detach();

@@ -6,12 +6,13 @@ VideoPlayback::VideoPlayback(Webcam &t_video_playback)
                : m_webcam(t_video_playback),
                m_queue(std::make_shared<Webcam::CVMatQueue>()){ }
 
-void VideoPlayback::start(P2PPtr &t_p2p_conn, AVStream &t_stream) {
+void VideoPlayback::start(P2PPtr &t_p2p_conn, std::function<void()> t_hangup_callback) {
 
   if (m_status == Stopped) {
     m_done_received = false;
-    m_status = Started;
-    spawn_network_read_thread(t_p2p_conn, t_stream);
+    m_status        = Started;
+
+    spawn_network_read_thread(t_p2p_conn, t_hangup_callback);
   //  spawn_video_playback_thread(); //not running this from this thread. Instead from from main 
 
   } else {

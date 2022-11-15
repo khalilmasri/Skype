@@ -11,7 +11,7 @@ class  VideoPlayback : public Playback {
 
   VideoPlayback(Webcam &t_webcam);
 
-  void start(P2PPtr &t_p2p_conn, AVStream &t_stream) override;
+  void start(P2PPtr &t_p2p_conn, std::function<void()> t_hangup_callback) override;
   void stop() override;
   void load(const Data *t_audio_data) override;
   

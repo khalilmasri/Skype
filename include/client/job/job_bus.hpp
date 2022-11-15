@@ -1,8 +1,9 @@
 #ifndef JOB_BUS_H
 #define JOB_BUS_H
 
-#include "client.hpp"
+//#include "client.hpp"
 #include "thread_safe_queue.hpp"
+#include "job.hpp"
 
 #include <unordered_map>
 #include <functional>

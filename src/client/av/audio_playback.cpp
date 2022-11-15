@@ -5,14 +5,14 @@ AudioPlayback::AudioPlayback()
     : m_audio_output(m_audio_queue, AudioDevice::Output) {
 }
 
-void AudioPlayback::start(P2PPtr &t_p2pconn, AVStream &t_stream) {
+void AudioPlayback::start(P2PPtr &t_p2pconn, std::function<void()> t_hangup_callback) {
 
   if (m_status == Stopped) {
     m_audio_output.open(); // open audio output queue
 
     m_done_received = false;
     m_status = Started;
-    spawn_network_read_thread(t_p2pconn, t_stream);
+    spawn_network_read_thread(t_p2pconn, t_hangup_callback);
 
   } else {
     LOG_ERR("Could not START audio player because its status is: %s",

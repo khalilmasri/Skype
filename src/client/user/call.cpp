@@ -24,8 +24,8 @@ void Call::connect(Job &t_job) {
     /* has_video is a temp. please pass in in t_job whether to have video or not */
     bool has_video = true, valid_audio = false, valid_video = false;
 
-    m_audio_p2p = nullptr;
-    m_video_p2p = nullptr;
+    m_audio_p2p    = nullptr;
+    m_video_p2p    = nullptr;
 
     /* connect audio */
     m_audio_p2p = std::make_unique<P2P>(m_token);
@@ -50,7 +50,7 @@ void Call::connect(Job &t_job) {
     LOG_DEBUG("Starting Call::connect Audio.");
     audio_stream();
     audio_playback();
-    /* **  */
+    /* ** */
 
     if (has_video && !valid_video) {
       t_job.m_command = Job::VIDEO_FAILED;
@@ -136,7 +136,7 @@ void Call::accept(Job &t_job) {
      m_webcam.init();
      video_stream();
     //  video_playback();
-   //   t_job.m_command      = Job::VIDEO_STREAM;
+    //   t_job.m_command      = Job::VIDEO_STREAM;
     //  t_job.m_video_stream = m_video_playback.get_stream();
   }
 }
@@ -215,14 +215,9 @@ void Call::audio_stream() {
 /* */
 
 void Call::audio_playback() {
-
-  /* NOTE: AVPlayback::buffer(conn, n);
-   *       buffers 'n' number of data packages of AVdata before playback.
-   *       frames of audio and video.
-   */
-
+  auto cb = hangup_callback(AVStream::Audio);
   m_audio_playback.buffer(m_audio_p2p, m_NB_BUFFER_PACKETS);
-  m_audio_playback.start(m_audio_p2p, m_audio_stream);
+  m_audio_playback.start(m_audio_p2p, cb);
 }
 
 /* */
@@ -236,8 +231,9 @@ void Call::video_stream() {
 /* */
 
 void Call::video_playback() {
+  auto cb = hangup_callback(AVStream::Video);
   m_video_playback.buffer(m_video_p2p, m_NB_BUFFER_PACKETS);
-  m_video_playback.start(m_video_p2p, m_video_stream);
+  m_video_playback.start(m_video_p2p, cb);
 }
 
 /* */
@@ -316,4 +312,21 @@ auto Call::udp_accept(P2PPtr &t_p2p_conn, Job &t_job) -> bool {
 
   t_p2p_conn->handshake_peer();
   return true;
+}
+
+
+auto Call::hangup_callback(AVStream::StreamType t_type) -> std::function<void()> {
+  return [this, t_type](){
+
+    if(t_type == AVStream::Audio){
+       m_audio_stream.stop();
+       JobBus::create({Job::HANGUP});
+    }
+
+    if(t_type == AVStream::Video){
+       m_video_stream.stop();
+       JobBus::create({Job::HANGUP});
+    }
+
+  };
 }

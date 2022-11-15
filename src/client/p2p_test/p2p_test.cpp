@@ -30,12 +30,14 @@ P2P test_conn(char *t_user, char *t_pw);
 auto callback(std::unique_ptr<P2P> &p2p) -> AVStream::StreamCallback;
 
 /* helpers */
+
 auto login_as(ActiveConn &conn, const char *user, const char *password)
     -> std::string;
 void logout(ActiveConn &conn, std::string &token);
 void connect_to(P2P &p2p);
 void accept_from(P2P &p2p);
 void free_configs();
+
 
 static Request audio_req;
 static Request video_req;
@@ -71,6 +73,7 @@ auto main(int argc, char **argv) -> int {
 
 /* Tests Stream
  *  ./build/bin/p2p_test audio -
+ *  TEST NOT WORKING!
  * */
 
 void test_stream(char *user) {
@@ -120,24 +123,20 @@ void test_stream(char *user) {
   if(u == "john") {
     // stream.start();
     // stream.stream(p2p_ptr);
-  std::cout << "Here5\n";
-    videostream.start();
-    videostream.stream(p2p_video_ptr);
+ //   videostream.start();
+  //  videostream.stream(p2p_video_ptr);
   }
 
   // shakira receives
   if(u == "shakira"){
     // playback.buffer(p2p_ptr, 10); // buffer 10 frames before playing back
     // playback.start(p2p_ptr, stream);
-  std::cout << "Here6\n";
-    videoPlayback.buffer(p2p_video_ptr, 10);
-    videoPlayback.start(p2p_video_ptr, videostream);
+      
+ //   videoPlayback.buffer(p2p_video_ptr, 10);
+  //  videoPlayback.start(p2p_video_ptr, videostream);
   }
 
-  std::cout << "Here7\n";
   thread.join();
-
-  std::cout << "Here8\n";
   if (u == "shakira")
   {
     std::cout << "Playingback video\n";
@@ -158,6 +157,7 @@ void test_stream(char *user) {
 
   std::cout << "Out of queue" << std::endl;
 }
+
 
 auto callback(std::unique_ptr<P2P> &p2p) -> AVStream::StreamCallback {
 

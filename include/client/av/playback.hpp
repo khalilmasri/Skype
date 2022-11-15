@@ -27,7 +27,7 @@ public:
   /* virtual implementation */
 
   virtual ~Playback() = default;
-  virtual void start(P2PPtr &t_p2p_conn, AVStream &t_stream) = 0;
+  virtual void start(P2PPtr &t_p2p_conn, std::function<void()> t_hangup_callback) = 0;
   virtual void stop() = 0;
   virtual void load(const Data *data) = 0;
 
@@ -35,7 +35,7 @@ public:
 
   void buffer(P2PPtr &t_p2p_conn, std::size_t nb_packages);
   void read_package(P2PPtr &t_p2pconn);
-  void spawn_network_read_thread(P2PPtr &t_p2p_conn, AVStream &t_stream);
+  void spawn_network_read_thread(P2PPtr &t_p2p_conn, std::function<void()> t_hangup_callback);
   auto valid_data_type(const Data *t_data, Data::Type t_type) -> bool;
 
   inline static const std::size_t m_MAX_TRIES = 1000;

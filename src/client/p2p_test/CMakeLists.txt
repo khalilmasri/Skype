@@ -43,6 +43,7 @@ add_executable(${PROJECT_NAME} ${SERVER_SOURCES})
                     ../../../include/shared/utils 
                     ../../../include/client
                     ../../../include/client/av
+                    ../../../include/client/user
                 ) 
 
 # SDL & OpenCV Includes

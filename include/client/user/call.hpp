@@ -13,6 +13,7 @@
 #include <cstdint>
 #include <memory>
 #include <QVector>
+#include <functional>
 
 class Call{
 
@@ -63,6 +64,9 @@ private:
   /* Video */
   void video_stream();
   void video_playback();
+
+  /* callback */
+  auto hangup_callback(AVStream::StreamType t_type) -> std::function<void()>;
 
   /* Constants */
   inline static const int m_TIMEOUT = 10;

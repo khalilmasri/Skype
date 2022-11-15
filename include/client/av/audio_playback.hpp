@@ -2,6 +2,7 @@
 #define AUDIO_PLAYBACK_H
 
 #include "playback.hpp"
+#include <functional>
 
 using namespace std::chrono_literals;
 
@@ -10,7 +11,7 @@ class AudioPlayback : public Playback {
 public:
   AudioPlayback();
 
-  void start(P2PPtr &t_p2p_conn, AVStream &t_stream) override;
+  void start(P2PPtr &t_p2p_conn, std::function<void()> t_hangup_callback) override;
   void stop() override;
   void load(const Data *t_audio_data) override;
 
