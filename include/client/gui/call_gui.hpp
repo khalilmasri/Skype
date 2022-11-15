@@ -35,6 +35,7 @@ private:
 
 private: // Methods
   void reject() override;
+  QImage mat_to_qimage_ref(cv::Mat &mat, QImage::Format format); 
 
 };
 

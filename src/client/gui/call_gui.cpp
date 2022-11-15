@@ -69,7 +69,6 @@ void CallGui::video_init(int t_contact_id, QString &t_username)
 
 void CallGui::video_stream(VideoPlayback::VideoQueuePtr t_stream_queue)
 {
-  
    QThread *video_stream = QThread::create([t_stream_queue, this](){
     cv::Mat frame;
     size_t trials = 0;
@@ -93,8 +92,9 @@ void CallGui::video_stream(VideoPlayback::VideoQueuePtr t_stream_queue)
       bool valid = t_stream_queue->pop_try(frame);
       if (valid)
       {
+        QImage frame_draw = mat_to_qimage_ref(frame, QImage::Format_RGB888);
         cv::cvtColor(frame, frame, cv::COLOR_BGR2RGBA);
-        QImage frame_draw(static_cast<const unsigned char*>(frame.data), frame.cols * 3, frame.rows * 3, QImage::Format_RGB888);
+      //  QImage frame_draw(static_cast<const unsigned char*>(frame.data), frame.cols * 3, frame.rows * 3, QImage::Format_RGB888);
         m_ui->camera->setPixmap(QPixmap::fromImage(frame_draw));
         m_ui->camera->resize(m_ui->camera->pixmap().size());
         qDebug() << m_ui->camera->pixmap().size();
@@ -120,6 +120,10 @@ void CallGui::reject()
         JobBus::create({Job::HANGUP});
         this->hide();
    }
+}
+
+QImage CallGui::mat_to_qimage_ref(cv::Mat &mat, QImage::Format format){ 
+  return QImage(mat.data, mat.cols, mat.rows, mat.step, format);
 }
 
 // ***** SLOTS ***** //
