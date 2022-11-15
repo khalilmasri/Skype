@@ -62,9 +62,9 @@ void Call::connect(Job &t_job) {
 
     if (has_video) {
       LOG_DEBUG("Starting Call::connect Video.");
-        m_webcam.init();
-      //  video_stream();
-        video_playback();
+      m_webcam.init();
+     // video_stream();
+      video_playback();
 
       /* returns to UI that a video stream has started */
        t_job.m_command      = Job::VIDEO_STREAM;

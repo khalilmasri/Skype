@@ -11,7 +11,6 @@ void VideoPlayback::start(P2PPtr &t_p2p_conn, std::function<void()> t_hangup_cal
   if (m_status == Stopped) {
     m_done_received = false;
     m_status        = Started;
-
     spawn_network_read_thread(t_p2p_conn, t_hangup_callback);
   //  spawn_video_playback_thread(); //not running this from this thread. Instead from from main 
 
@@ -47,11 +46,8 @@ void VideoPlayback::stop() {
 void VideoPlayback::load(const Data *t_video_data) {
 
   if (valid_data_type(t_video_data, Data::Video)) {
-    auto f = t_video_data->get_data();
-    std::ofstream file("/tmp/shit.jpeg", std::ios::out);
-    file << f.data();
-    file.close();
     const Webcam::WebcamFrame &frame = t_video_data->get_data_ref();
+    LOG_INFO("Loading frame size %lu", frame.size());
     // NOT DECODE AS cv::Mat and decode as a QT format or just push the jpeg.
     m_webcam.decode_one(frame, m_queue); // converts and pushes to video queue.
   }
