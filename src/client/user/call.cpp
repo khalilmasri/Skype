@@ -316,17 +316,10 @@ auto Call::udp_accept(P2PPtr &t_p2p_conn, Job &t_job) -> bool {
 
 
 auto Call::hangup_callback(AVStream::StreamType t_type) -> std::function<void()> {
-  return [this, t_type](){
+  return [t_type](){
 
     if(t_type == AVStream::Audio){
-       m_audio_stream.stop();
        JobBus::create({Job::HANGUP});
     }
-
-    if(t_type == AVStream::Video){
-       m_video_stream.stop();
-       JobBus::create({Job::HANGUP});
-    }
-
   };
 }
