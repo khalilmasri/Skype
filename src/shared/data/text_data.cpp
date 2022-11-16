@@ -22,6 +22,7 @@ auto TextData::get_type() const -> Data::Type { return m_type; }
 auto TextData::empty() const -> bool { return m_data.empty(); }
 auto TextData::size() const -> std::size_t { return m_data.size(); }
 auto TextData::get_data() const -> DataVector { return m_data; }
+auto TextData::get_data_ref() const -> const Data::DataVector& { return m_data; }
 
 /* */
 

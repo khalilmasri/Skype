@@ -1,8 +1,9 @@
 #ifndef JOB_BUS_H
 #define JOB_BUS_H
 
-#include "client.hpp"
+//#include "client.hpp"
 #include "thread_safe_queue.hpp"
+#include "job.hpp"
 
 #include <unordered_map>
 #include <functional>
@@ -24,9 +25,10 @@ public:
     
     // Job functionality 
     static void handle();
-    static void set_exit();
     static void create(Job &t_job);
+    static void set_exit();
     static void create(Job &&t_job);
+    static void create_response(Job && t_job);
     static bool get_response(Job &t_job);
     static JobBus* get_instance();
     static void repeated_tasks();

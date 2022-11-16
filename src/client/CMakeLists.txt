@@ -7,6 +7,10 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
+if(UNIX AND NOT APPLE)
+  set(LINUX TRUE)
+endif()
+
 # QT6 QT5 specificas
 find_package(QT NAMES Qt6 REQUIRED COMPONENTS Widgets Multimedia MultimediaWidgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Multimedia MultimediaWidgets)
@@ -52,6 +56,13 @@ file(GLOB RESOURCES "../../misc/icons/resource.qrc")
 # Define CMAKE_BINARY_DIR for the destination of the binary 
 set(CMAKE_BINARY_DIR "../../bin")
 
+
+# linux flags
+if(LINUX)
+  set(LINUX_COMPILE FLAGS "-lz -lswresample -lva-drm -lva-x11 -lva -lvdpau -lX11 -llzma  -lmp3lame ")
+else()
+  set(LINUX_COMPILE FLAGS "")
+endif()
 
 # Define the output to CMAKE_BINARY_DIR declared above
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
@@ -105,7 +116,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
                       ${AVUTIL_LIBRARY}
                       ${SDL2_LIBRARIES}
                       ${OpenCV_LIBS}
-                    #   -lz -lswresample -lva-drm -lva-x11 -lva -lvdpau -lX11 -llzma
+                      ${LINUX_COMPILE_FLAGS}
                     )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES

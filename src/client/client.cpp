@@ -49,7 +49,7 @@ Client::Client(){
 
   return;
 
-fail:
+fail: // TODO(@Khalil) no exits!
    exit(1);
 }
 
@@ -58,9 +58,14 @@ Client::~Client(){
 
 void Client::client_exit(Job &t_job)
 {
-   LOG_INFO("Disconnecting from server");
+
+   LOG_INFO("Disconnecting from server.");
    
    std::string command = "EXIT";
+   command.append(" " + m_user.get_token());
+
+   LOG_INFO("command-> %s", command.c_str());
+
    m_server_req.set_data(new TextData(command));
 
    m_server_conn.respond(m_server_req);
@@ -81,7 +86,7 @@ void Client::client_exit(Job &t_job)
 /* Contact direct */
 
 void Client::contact_get_contacts(Job &t_job) {
-   LOG_DEBUG("Getting contacts to display...")
+   LOG_DEBUG("Getting contacts to display...");
    t_job.m_contact_list = m_contacts.display_contacts();
 
    if (false == t_job.m_contact_list.empty()){
@@ -211,10 +216,11 @@ void Client::chat_get_all(Job &t_job){
 
    t_job.m_chats = m_chat.get_all(m_server_conn, m_server_req);
 
-   if (false == t_job.m_chats.empty())
-   {
+   // if (false == t_job.m_chats.empty())
+   // {
+      LOG_DEBUG("THIS BLOCKS ON EMPTY CONTACTS/CHATS FOR NEW USER")
       t_job.m_valid = true;
-   }
+   // }
    LOG_DEBUG("Getting all chats is done!");
 }
 
@@ -228,12 +234,11 @@ void Client::chat_deliver(Job &t_job)
 
 // Call redirection
 void Client::call_connect(Job &t_job)
-{
+{ 
    t_job.m_argument = m_user.get_token();
-
+   
    m_call.connect(t_job); 
-
-   t_job.m_command = Job::DISCARD;
+   t_job.m_command = Job::DISCARD; 
 }
 
 void Client::call_accept(Job &t_job)
@@ -241,8 +246,8 @@ void Client::call_accept(Job &t_job)
    t_job.m_argument = m_user.get_token();
 
    m_call.accept(t_job);
-
    t_job.m_command = Job::DISCARD;
+
 }
 
 void Client::call_reject(Job &t_job)
@@ -258,36 +263,31 @@ void Client::call_hangup(Job &t_job)
 {
     static_cast<void>(t_job);
     m_call.hangup();
+    LOG_INFO("Client will be notified for hangup");
 }
 
 void Client::call_webcam(Job &t_job)
 {
-   m_call.webcam();
-   t_job.m_command = Job::DISCARD;
-}
-
-void Client::call_mute(Job &t_job)
-{
-   m_call.mute();
+ //  m_call.webcam(); // TODO(@khalil) what is this for?
    t_job.m_command = Job::DISCARD;
 }
 
 void Client::call_awaiting(Job &t_job)
 {
-   LOG_INFO("Awaiting call in client");
+   if( t_job.m_valid == true )
+   {
+       LOG_INFO("Awaiting call in client");
+   }else 
+   {
+      LOG_INFO("Awaiting call in has closed");
+   }
    m_call.awaiting(t_job);
-}
-
-void Client::call_audio_stream(Job &t_job){
-  UNUSED_PARAMS(t_job);
-  m_call.av_stream();
-  m_call.av_playback();
 }
 
 bool Client::valid_response(Reply::Code t_code, std::string& t_res) {
    
-   std::string code = Reply::get_message(t_code);
-    auto found = t_res.find(code);
+  std::string code = Reply::get_message(t_code);
+  auto found = t_res.find(code);
 
-    return found != std::string::npos;
+  return found != std::string::npos;
 }

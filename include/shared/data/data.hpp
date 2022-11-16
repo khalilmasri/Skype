@@ -8,11 +8,12 @@
 class Data {
 
 public:
-  enum Type { Audio = 1, Video = 2, Text = 3, Empty = 4 };
+  enum Type { Audio = 1, Video = 2, Text = 3, Empty = 4, Done = 5 };
   using DataVector = std::vector<uint8_t>;
 
   [[nodiscard]] virtual auto get_type() const -> Type = 0;
   [[nodiscard]] virtual auto get_data() const -> DataVector = 0;
+  [[nodiscard]] virtual auto get_data_ref () const -> const DataVector& = 0;
   [[nodiscard]] virtual auto empty() const -> bool = 0;
   [[nodiscard]] virtual auto size() const -> std::size_t = 0;
 
@@ -28,6 +29,8 @@ public:
       return "Text";
     case Empty:
       return "Empty";
+    case Done :
+      return "Done";
     }
   }
 
@@ -41,6 +44,9 @@ public:
       return 't';
     case Empty:
       return 'e';
+    case Done :
+      return 'd';
+
     }
   }
 
@@ -52,6 +58,8 @@ public:
       return Video;
     case 't':
       return Text;
+    case 'd':
+      return Done;
     default:
       return Empty;
     }

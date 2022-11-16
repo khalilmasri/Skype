@@ -1,7 +1,6 @@
 #include "job_bus.hpp"
 #include "client.hpp"
 #include "logger.hpp"
-#include "thread_safe_queue.hpp"
 
 #include <ctime>
 #include <iostream>
@@ -42,9 +41,7 @@ JobBus::JobsMap JobBus::m_JobBus_map {
     {Job::REJECT,           Client::call_reject},
     {Job::HANGUP,           Client::call_hangup},
     {Job::WEBCAM,           Client::call_webcam},
-    {Job::MUTE,             Client::call_mute},
     {Job::AWAITING,         Client::call_awaiting},
-    {Job::AUDIO_STREAM,     Client::call_audio_stream},
     {Job::EXIT,             Client::client_exit},
 };
 
@@ -68,6 +65,11 @@ void JobBus::create(Job &&t_job){
 
 void JobBus::create(Job &t_job){
     m_jobQ.push(t_job);
+}
+
+void JobBus::create_response(Job &&t_job){
+  m_resQ.push(t_job);
+  emit JobBus::get_instance()->job_ready();
 }
 
 void JobBus::handle() {
@@ -108,13 +110,14 @@ bool JobBus::get_response(Job &t_job){
         return false;
     }
 
-    bool res = m_resQ.pop_try(t_job);
+    return m_resQ.pop_try(t_job);
 
-    if (false == res){
-        return false;
-    }
+    // NOTE: @khalil I changed this because the code below seems unecessary
+ //   if (false == res){
+  //      return false;
+  //  }
 
-    return true;
+   // return true;
 } 
        
 

@@ -15,7 +15,7 @@
 
 auto StreamIO::respond(Request &t_req) const -> bool {
 
-  LOG_DEBUG("Sending data to %s", t_req.m_address.c_str());
+  LOG_TRACE("Sending data to %s", t_req.m_address.c_str());
 
 
   if (t_req.data()->get_type() == Data::Text) {
@@ -30,6 +30,8 @@ auto StreamIO::respond(Request &t_req) const -> bool {
   PacketInfoTuple pkt_info = make_packet_info(t_req, data);
   Data::DataVector header  = make_header(pkt_info); // based on tuy-ple
   sockaddr_in addr_in      = Connection::to_sockaddr_in(port, ip);
+
+  LOG_TRACE("Sending data packet size %lu", data.size());
 
   if (header.size() != m_HEADER_SIZE) {
     LOG_ERR("Header size is incorrect. Was: %d , should be: %d", header.size(), m_HEADER_SIZE);
@@ -64,11 +66,19 @@ auto StreamIO::receive(Request &t_req) const -> bool {
   return t_req.m_valid;
   }
 
+  /* peer sent an empty data stream with a done message. */
+  if(data_type == Data::Done){
+    t_req.set_data(new AVData(Data::Done));
+    return t_req.m_valid;
+  }
+
   Data::DataVector data = receive_data(t_req, &addr_in, pkt_info);
   t_req.m_address       = Connection::address_tostring(addr_in) + ":" + Connection::port_tostring(addr_in);
   
   if (t_req.m_valid) { 
+    LOG_TRACE("Received total data: %llu", data.size());
     t_req.set_data(new AVData(std::move(data), data_type));
+
   } 
 
   log_packet_info(pkt_info, "received");
@@ -154,7 +164,7 @@ auto StreamIO::receive_header(Request &t_req, sockaddr_in *t_addrin) -> PacketIn
 
 auto StreamIO::receive_data(Request &t_req, sockaddr_in *t_addrin, PacketInfoTuple &t_pkt_info) -> Data::DataVector {
 
-  socklen_t addr_len = sizeof((*t_addrin));
+  socklen_t addr_len                                  = sizeof((*t_addrin));
   auto [data_type, nb_packets, packet_size, rem_size] = t_pkt_info;
 
   Data::DataVector data((nb_packets * packet_size) + rem_size, 0);

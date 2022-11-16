@@ -81,6 +81,7 @@ class P2P {
   /* Constants */
   const static std::string m_DELIM;
   const static std::string m_LOCAL;
+  const static std::size_t m_MAX_PING_TRIALS;
 };
 
 #endif

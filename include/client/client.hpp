@@ -51,21 +51,20 @@ public:
     static void call_accept                 (Job &t_job);
     static void call_reject                 (Job &t_job);
     static void call_hangup                 (Job &t_job);
-    static void call_mute                   (Job &t_job);
     static void call_webcam                 (Job &t_job);
     static void call_awaiting               (Job &t_job);
-    static void call_audio_stream           (Job &t_job);
 
 
 
     // Client commands
     static void client_exit                 (Job &t_job);
-
+    
+    inline static Accounts      m_user;
+    
 private:
     static Request              m_server_req;
     static ActiveConn           m_server_conn;
     
-    inline static Accounts      m_user;
     inline static Contacts      m_contacts;
     inline static Chat          m_chat;
     inline static Call          m_call;

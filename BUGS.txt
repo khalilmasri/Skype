@@ -1,0 +1,21 @@
+[PRIORITY] cannot have > 2 concurrent users logged into the server
+
+[1] Shouldnt be able to call offline contacts 
+(this will prevent many other current bugs having to be dealt with) ====> FIXED
+
+[2] Caller needs to be able to hangup after requesting a call before connection even happens, 
+because currently it just keeps pinging and pinging until the timeout happens,
+then it calls hangup twice and crashes. ====> FIXED
+
+[3] If you are a new user with no contacts you cannot initialise the program fully
+(currently: if i changed code so you can get into the central gui now and can add contacts 
+but clicking on them will not bring up their chat window. but if add someone and then log out and rerun 
+the program it then works, because it can initialise everything properly. i couldnt figure out how to
+initialise the chats in that scenario) ====> FIXED
+
+[4] when a one peer hangs up it sends a message to the other peer which also shuts down the his 
+connection (and audio stream). That is working But the UI doesn’t know that so the call floating 
+window stays even when after the connection is closed. ====> FIXED
+
+[5] The UI need to send a message over Job to Call so Call knows when to start a video connection or not. 
+Or, we can just not give the user the option not to have a video conn!

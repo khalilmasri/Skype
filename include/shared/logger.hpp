@@ -50,7 +50,7 @@ class Logger
                     #pragma clang diagnostic push // disabling warnings here
                     #pragma clang diagnostic ignored "-Wformat"
                     #pragma clang diagnostic ignored "-Wformat-nonliteral"
-                    std::printf(msg, args...);
+                    printf(msg, args...);
                     #pragma clang diagnostic pop
 
                     std::cout << "\033[0m" << std::endl;

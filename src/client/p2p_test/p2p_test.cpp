@@ -15,6 +15,7 @@
 #include "text_data.hpp"
 #include "text_io.hpp"
 #include "webcam.hpp"
+#include "video_playback.hpp"
 #include <iostream>
 #include <thread>
 #include <chrono>
@@ -29,12 +30,14 @@ P2P test_conn(char *t_user, char *t_pw);
 auto callback(std::unique_ptr<P2P> &p2p) -> AVStream::StreamCallback;
 
 /* helpers */
+
 auto login_as(ActiveConn &conn, const char *user, const char *password)
     -> std::string;
 void logout(ActiveConn &conn, std::string &token);
 void connect_to(P2P &p2p);
 void accept_from(P2P &p2p);
 void free_configs();
+
 
 static Request audio_req;
 static Request video_req;
@@ -70,6 +73,7 @@ auto main(int argc, char **argv) -> int {
 
 /* Tests Stream
  *  ./build/bin/p2p_test audio -
+ *  TEST NOT WORKING!
  * */
 
 void test_stream(char *user) {
@@ -78,43 +82,82 @@ void test_stream(char *user) {
   char password[] = "1234";
   std::string u(user);
 
-  P2P p2p = test_conn(user, password);
-  auto p2p_ptr = std::make_unique<P2P>(p2p);
+  // P2P p2p = test_conn(user, password);
+  // auto p2p_ptr = std::make_unique<P2P>(p2p);
+  std::cout << "Here\n";
 
-  auto stream = AVStream();
-  auto playback = AudioPlayback();
+  P2P p2p_video = test_conn(user, password);
+  auto p2p_video_ptr = std::make_unique<P2P>(p2p_video);
+  std::cout << "Here0\n";
+
+  auto webcam = Webcam();
+  // auto stream = AVStream(webcam);
+  // auto playback = AudioPlayback();
+  auto videoPlayback = VideoPlayback(webcam);
+  auto videostream = AVStream(webcam, AVStream::Video);
+  
+  std::cout << "Here1\n";
 
   // this callback is just to stop the stream on another thread.
-  auto stop = [&u, &stream, &playback]() { 
-    std::this_thread::sleep_for(20s); // do it for 10 secs then quit.
+  auto stop = [&u ,/* &stream, &playback,*/ &videoPlayback, &videostream]() { 
+    std::this_thread::sleep_for(3s); // do it for 10 secs then quit.
 
+  std::cout << "Here2\n";
     if(u == "john"){
-      stream.stop();
+      // stream.stop();
+      videostream.stop();
     }
 
     if(u == "shakira"){
-      playback.stop();
+      // playback.stop();
+      videoPlayback.stop();
     }
   };
+  std::cout << "Here3\n";
 
   std::thread thread (stop);
 
+  std::cout << "Here4\n";
    
  // john streams out
   if(u == "john") {
-    auto cb = callback(p2p_ptr);
-    stream.start();
-    stream.stream(std::move(cb));
+    // stream.start();
+    // stream.stream(p2p_ptr);
+ //   videostream.start();
+  //  videostream.stream(p2p_video_ptr);
   }
 
   // shakira receives
   if(u == "shakira"){
-    playback.buffer(p2p_ptr, 10); // buffer 10 frames before playing back
-    playback.start(p2p_ptr);
+    // playback.buffer(p2p_ptr, 10); // buffer 10 frames before playing back
+    // playback.start(p2p_ptr, stream);
+      
+ //   videoPlayback.buffer(p2p_video_ptr, 10);
+  //  videoPlayback.start(p2p_video_ptr, videostream);
   }
 
   thread.join();
+  if (u == "shakira")
+  {
+    std::cout << "Playingback video\n";
+    auto queue = videoPlayback.get_stream();
+
+    cv::Mat frame;
+    while(!queue->empty())
+    {
+      std::cout << "Showing\n";
+      bool valid = queue->pop_try(frame);
+      if (valid )
+      {
+        Webcam::show(frame);
+        Webcam::wait();
+      }
+    }
+  }
+
+  std::cout << "Out of queue" << std::endl;
 }
+
 
 auto callback(std::unique_ptr<P2P> &p2p) -> AVStream::StreamCallback {
 
@@ -179,10 +222,16 @@ void test_audio() {
 
 void test_video() {
   auto webcam = Webcam();
+  webcam.init();
   int index = 0;
 
-  while (index < 30) {
-    auto res = webcam.capture();
+  Webcam::WebcamFrames frames;
+  auto queue = std::make_shared<Webcam::CVMatQueue>();
+
+  while (index < 100) {
+    Webcam::WebcamFrame frame = webcam.capture_one();
+    webcam.decode_one(frame, queue);
+    Webcam::wait();
 
     if (!webcam.valid()) {
       break;
@@ -190,6 +239,20 @@ void test_video() {
 
     index++;
   }
+
+  while(!queue->empty()){
+    cv::Mat mat;
+    bool valid = queue->pop_try(mat);
+
+    if(valid){
+      Webcam::show(mat);
+    } else {
+      std::cout << "could not pop cv::Mat from queue.\n";
+    }
+
+    Webcam::wait();
+  }
+
 
   free_configs();
 }

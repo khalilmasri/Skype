@@ -46,7 +46,7 @@ void Router::route(Request &t_req) {
 
   auto [command, token, arguments] = parse(t_req);
 
-  // checks if token is properly is correct
+  /* validate token */
   if (!is_loggedin(command, token, t_req)) { 
     return;
   }
@@ -66,7 +66,7 @@ Router::CmdTuple Router::parse(Request &t_req) {
   auto [command, body] = StringUtils::split_first(raw_msg);
   auto cmd = ServerCommand::get(command);
 
-  if (require_login(cmd)) { // will parse token only if is command that require login
+  if (require_login(cmd)) { // will parse token only for command that require user to be logged in
     auto [token, arguments] = StringUtils::split_first(body);
     return std::make_tuple(cmd, token, arguments);
   }

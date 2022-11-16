@@ -21,13 +21,13 @@ Program::Program()
     
     // Creating the GUI
     m_welcome = new WelcomeGui();
-    m_chat = new CentralGui();
+    m_central = new CentralGui();
 
     QObject::connect(m_bus, &JobBus::job_ready, this, &Program::handle_response);
-    QObject::connect(m_chat, &CentralGui::ready_signal, m_welcome, &WelcomeGui::stop_loading);
-    QObject::connect(m_chat, &CentralGui::ready_signal, m_welcome, &JobBus::timer_start);
+    QObject::connect(m_central, &CentralGui::ready_signal, m_welcome, &WelcomeGui::stop_loading);
+    QObject::connect(m_central, &CentralGui::ready_signal, m_welcome, &JobBus::timer_start);
     QObject::connect(m_welcome, &WelcomeGui::stopped_loading, this, &Program::switch_to_chat);
-    QObject::connect(m_chat, &CentralGui::wrapping, m_bus, &JobBus::set_exit);
+    QObject::connect(m_central, &CentralGui::wrapping, m_bus, &JobBus::set_exit);
     
     QThread *bus_loop = QThread::create(&JobBus::handle);
     bus_loop->start();
@@ -39,7 +39,7 @@ Program::Program()
 Program::~Program()
 {
     delete m_welcome;
-    delete m_chat;
+    delete m_central;
 }
 
 // ***** PRIVATE ***** //
@@ -49,17 +49,20 @@ void Program::create_job_dispatcher()
     m_table = {
         {Job::LOGIN,            [this](Job &t_job){job_login(t_job);}},
         {Job::CREATE,           [this](Job &t_job){m_welcome->job_create(t_job);}},
-        {Job::DISP_CONTACTS,    [this](Job &t_job){m_chat->job_disp_contact(t_job);}},
-        {Job::GETUSER,          [this](Job &t_job){m_chat->job_set_user(t_job);}},
-        {Job::ADD,              [this](Job &t_job){m_chat->job_add_user(t_job);}},
-        {Job::REMOVE,           [this](Job &t_job){m_chat->job_remove_user(t_job);}},
-        {Job::SEARCH,           [this](Job &t_job){m_chat->job_search(t_job);}},
-        {Job::GETID,            [this](Job &t_job){m_chat->job_set_id(t_job);}},
-        {Job::CHAT,             [this](Job &t_job){m_chat->job_load_chat(t_job);}},
-        {Job::PENDING,          [this](Job &t_job){m_chat->job_load_pending(t_job);}},
-        {Job::SEND,             [this](Job &t_job){m_chat->job_send_msg(t_job);}},
-        {Job::HANGUP,           [this](Job &t_job){m_chat->job_hangup(t_job);}},
-        {Job::AWAITING,         [this](Job &t_job){m_chat->job_awaiting(t_job);}},
+        {Job::DISP_CONTACTS,    [this](Job &t_job){m_central->job_disp_contact(t_job);}},
+        {Job::GETUSER,          [this](Job &t_job){m_central->job_set_user(t_job);}},
+        {Job::ADD,              [this](Job &t_job){m_central->job_add_user(t_job);}},
+        {Job::REMOVE,           [this](Job &t_job){m_central->job_remove_user(t_job);}},
+        {Job::SEARCH,           [this](Job &t_job){m_central->job_search(t_job);}},
+        {Job::GETID,            [this](Job &t_job){m_central->job_set_id(t_job);}},
+        {Job::CHAT,             [this](Job &t_job){m_central->job_load_chat(t_job);}},
+        {Job::PENDING,          [this](Job &t_job){m_central->job_load_pending(t_job);}},
+        {Job::SEND,             [this](Job &t_job){m_central->job_send_msg(t_job);}},
+        {Job::HANGUP,           [this](Job &t_job){m_central->job_hangup(t_job);}},
+        {Job::AWAITING,         [this](Job &t_job){m_central->job_awaiting(t_job);}},
+        {Job::VIDEO_STREAM,     [this](Job &t_job){m_central->job_video_stream(t_job);}},
+        {Job::VIDEO_FAILED,     [this](Job &t_job){m_central->job_video_failed(t_job);}},
+        {Job::AUDIO_FAILED,     [this](Job &t_job){m_central->job_audio_failed(t_job);}},
     };
 }
 
@@ -89,11 +92,11 @@ void Program::job_login(Job &t_job)
 
     m_welcome->load_screen();
     JobBus::create({Job::GETID}); 
-    m_chat->init();
+    m_central->init();
 }
 
 void Program::switch_to_chat()
 {
     m_welcome->hide();
-    m_chat->show();
+    m_central->show();
 }

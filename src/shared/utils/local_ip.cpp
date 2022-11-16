@@ -11,6 +11,7 @@
 LocalIP::LocalIP() : m_status(Valid) {
 
   struct ifaddrs *ifaddr = get_ifaddrs();
+  m_status = Valid;
 
   find_local_ip(ifaddr);
   freeifaddrs(ifaddr);
@@ -30,6 +31,9 @@ std::string LocalIP::get_first() const {
     LOG_ERR("LocalIP does not contain any IP addresses.");
     return {};
   }
+
+  std::cout << "crashed here?\n";
+
 }
 
 std::string LocalIP::get_at(std::size_t t_pos) const {

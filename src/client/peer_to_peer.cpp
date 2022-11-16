@@ -10,12 +10,13 @@
 static Config *config = Config::get_instance();
 const std::string P2P::m_DELIM = " ";
 const std::string P2P::m_LOCAL = "LOCAL";
+const std::size_t P2P::m_MAX_PING_TRIALS = 5;
 
 /* Constructors */
 
 P2P::P2P(std::string &t_token)
     : m_token(t_token), m_conn(new UDPTextIO()), m_status(Idle), m_type(None),
-      m_last_reply(Reply::None), m_network_type(Unselected) {
+      m_last_reply(Reply::None), m_local_ip(), m_network_type(Unselected) {
 
   bind_sockets();
 }
@@ -23,7 +24,7 @@ P2P::P2P(std::string &t_token)
 /* Same constructor but moves the token string */
 P2P::P2P(std::string &&t_token)
     : m_token(std::move(t_token)), m_conn(new UDPTextIO()), m_status(Idle),
-      m_type(None), m_last_reply(Reply::None), m_network_type(Unselected) {
+      m_type(None), m_last_reply(Reply::None), m_local_ip(), m_network_type(Unselected) {
 
   bind_sockets();
 }
@@ -142,6 +143,7 @@ void P2P::handshake_peer() {
 void P2P::connect_peer(std::string &t_peer_id) {
 
   /* add client local addr as arg to CONNECT */
+
   std::string argument = t_peer_id + " " + m_local_ip.get_first();
   std::string response = send_server(ServerCommand::Connect, argument);
 
@@ -209,20 +211,30 @@ void P2P::ping_peer() {
     return;
   }
 
+  if(m_status == Accepted){
+    LOG_TRACE("This connection has already been accepted. Ignoring ping...");
+    return;
+  }
+
   std::string response = send_server(ServerCommand::Ping);
 
   if (m_last_reply == Reply::r_201) {
 
     m_status                     = Accepted;
+    
     auto [address, address_type] = StringUtils::split_first(response);
+    LOG_INFO("successful ping from address `%s` type `%s`.", address.c_str(), address_type.c_str());
+
     m_peer_address               = std::move(address);
     m_network_type               = address_type == "LOCAL" ? Local : Web;
+    return;
 
   } else if (m_last_reply == Reply::r_203) {
+    // if cannot find the ping try a couple more times or ignore.
     m_status = Awaiting;
     LOG_INFO("%s", response.c_str());
 
-  } else {
+    } else {
     m_status = Error;
     LOG_ERR("The response was '%s' and should have been 201 or 203", response.c_str());
 

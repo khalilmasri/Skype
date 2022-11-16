@@ -3,6 +3,10 @@ project(p2p_test)
 set(CMAKE_CXX_COMPILER_ID "clang")
 set(CMAKE_CXX_COMPILER_VERSION "13.0.1")
 
+if(UNIX AND NOT APPLE)
+  set(LINUX TRUE)
+endif()
+
 # Ffmpeg
 find_path(AVCODEC_INCLUDE_DIR libavcodec/avcodec.h)
 find_library(AVCODEC_LIBRARY avcodec)
@@ -13,6 +17,12 @@ find_library(AVUTIL_LIBRARY avutil)
 find_package(SDL2 REQUIRED)
 find_package(OpenCV REQUIRED)
 
+# linux flags
+if(LINUX)
+  set(LINUX_COMPILE FLAGS "-lz -lswresample -lva-drm -lva-x11 -lva -lvdpau -lX11 -llzma  -lmp3lame ")
+else()
+  set(LINUX_COMPILE FLAGS "")
+endif()
 
 # Include all the source code with cpp extension
 file(GLOB SERVER_SOURCES    "*.cpp"
@@ -43,6 +53,7 @@ add_executable(${PROJECT_NAME} ${SERVER_SOURCES})
                     ../../../include/shared/utils 
                     ../../../include/client
                     ../../../include/client/av
+                    ../../../include/client/user
                 ) 
 
 # SDL & OpenCV Includes
@@ -57,7 +68,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
                       ${AVUTIL_LIBRARY}
                       ${SDL2_LIBRARIES}
                       ${OpenCV_LIBS}
-                    #   -lz -lswresample -lva-drm -lva-x11 -lva -lvdpau -lX11 -llzma
+                      ${LINUX_COMPILE_FLAGS}
   )
 
 

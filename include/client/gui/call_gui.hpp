@@ -2,8 +2,10 @@
 #define CALL_GUI_HPP
 
 #include "peer_to_peer.hpp"
+#include "video_playback.hpp"
 
 #include <QDialog>
+#include <QImage>
 
 namespace Ui {
   class CallGui;
@@ -19,20 +21,21 @@ public:
   void call_init(int t_contact_id, QString &t_username);
   void video_init(int t_contact_id, QString &t_username);
   void call_accept(QString &t_username);
+  void video_stream(VideoPlayback::VideoQueuePtr t_stream_queue);
 
   ~CallGui();
 
 private slots:
   void on_webcam_clicked();
-  void on_microphone_clicked();
   void on_hangup_clicked();
-  void on_menu_clicked();
 
 private:
   Ui::CallGui *m_ui;
+  bool m_stop_stream = false;
 
 private: // Methods
   void reject() override;
+  QImage mat_to_qimage_ref(cv::Mat &mat, QImage::Format format); 
 
 };
 

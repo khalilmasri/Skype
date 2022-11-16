@@ -34,9 +34,6 @@ void VideoSettings::set_camera(int t_camera)
 
 AudioSettings::AudioSettings() {
 
-  /* we need to grab the fps from video settings here */
-  VideoSettings *video_settings = VideoSettings::get_instance();
-
   /* We must set the converter format according to the device format */
   if (m_device_format == s_Int16Bits) {
     m_bit_multiplier = 2;

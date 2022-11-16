@@ -3,6 +3,7 @@
 #include "logger.hpp"
 #include "ui/ui_central.h"
 #include "ring_gui.hpp"
+#include "supress_unused_params_warnings.hpp"
 
 #include <QStandardItemModel>
 #include <QMessageBox>
@@ -26,10 +27,6 @@ void CentralGui::job_set_user(Job &t_job)
 void CentralGui::job_disp_contact(Job &t_job)
 {
     LOG_INFO("Displaying contacts");
-    if ( false == t_job.m_valid)
-    {
-        return;
-    }
 
     auto model = new QStandardItemModel(this);
     m_ui->contact_list->setModel(model);
@@ -38,7 +35,7 @@ void CentralGui::job_disp_contact(Job &t_job)
     {
         m_contact_list[contact.ID] = contact;
         
-        if ( true == contact.online)
+        if (contact.online)
         {
             model->appendRow(new QStandardItem(QIcon("../misc/icons/online.png"), contact.username));
         }     
@@ -46,20 +43,20 @@ void CentralGui::job_disp_contact(Job &t_job)
 
     for ( auto &contact : t_job.m_contact_list)
     {        
-        if ( false == contact.online)
+        if (!contact.online)
         {
             model->appendRow(new QStandardItem(QIcon("../misc/icons/offline.png"), contact.username));
-        }     
+        }   
     }
 
-    if ( true == first_display)
+    if (first_display)
     {
         LOG_INFO("Sending Chat job to bus");
         JobBus::create({Job::CHAT});
         first_display = false;
     }
    
-    if (m_current_selected.isValid() == true)
+    if (m_current_selected.isValid())
     {
         m_ui->contact_list->selectionModel()->select(m_current_selected, QItemSelectionModel::Select);
     }
@@ -126,18 +123,17 @@ void CentralGui::job_remove_user(Job &t_job)
 void CentralGui::job_load_chat(Job &t_job)
 {
 
-     if ( false == t_job.m_valid)
+    // if ( false == t_job.m_valid)
+    // {
+    //     return;
+    // } 
+
+    // if ( true == t_job.m_chats.empty() || true == m_contact_list.empty())
+    if (true != t_job.m_chats.empty())
     {
-        return;
+        load_chat(t_job.m_chats, false);
     }
 
-    if ( true == t_job.m_chats.empty() || true == m_contact_list.empty())
-    {
-        return;
-    }
-
-    LOG_INFO("Loading Chat first time...");
-    load_chat(t_job.m_chats, false);
     LOG_INFO("Loaded Chat first time");
     emit ready_signal();
 }
@@ -190,11 +186,13 @@ void CentralGui::job_send_msg(Job &t_job)
 
 void CentralGui::job_hangup(Job &t_job)
 {
-    static_cast<void>(t_job);
+    UNUSED_PARAMS(t_job);
     LOG_INFO("Hangup call");
     m_on_call = false;
-
-    delete m_call;
+    if (m_call)
+    {
+      delete m_call;
+    }
 }
 
 void CentralGui::job_awaiting(Job &t_job)
@@ -216,4 +214,26 @@ void CentralGui::job_awaiting(Job &t_job)
   ring->set_details(username, t_job.m_intValue );
   callers_table.insert(t_job.m_intValue, ring);
   ring->show(); 
+}
+
+
+void CentralGui::job_video_stream(Job &t_job){
+
+   if(t_job.m_video_stream == nullptr){
+     LOG_ERR("Cannot find video stream in Job::VIDEO_STREAM. Quiting showing video...");
+     return;
+   }
+
+   m_call->video_stream(t_job.m_video_stream);
+
+}
+
+void CentralGui::job_video_failed(Job &t_job){
+   UNUSED_PARAMS(t_job);
+  //TODO: @khalil A video p2p connection failed at this point. Need to handle in m_call.
+}
+
+void CentralGui::job_audio_failed(Job &t_job){
+   UNUSED_PARAMS(t_job);
+  //TODO: @khalil An audio p2p connection failed at this point. Need to handle in m_call.
 }

@@ -7,9 +7,10 @@
 class LocalIP {
 
 public:
-  LocalIP();
-
   enum Status { Valid, Invalid };
+
+  explicit LocalIP();
+
   std::string get_first() const;
   std::string get_at(std::size_t t_pos) const;
 
@@ -18,7 +19,7 @@ private:
 
   const std::string m_LOCALHOST = "127.0.0.1";
   std::string       m_reason;
-  Status            m_status;
+  Status            m_status = Valid;
   IPVector          m_ip_addresses;
 
   struct ifaddrs *get_ifaddrs();
