@@ -25,9 +25,10 @@ public:
     
     // Job functionality 
     static void handle();
-    static void set_exit();
     static void create(Job &t_job);
+    static void set_exit();
     static void create(Job &&t_job);
+    static void create_response(Job && t_job);
     static bool get_response(Job &t_job);
     static JobBus* get_instance();
     static void repeated_tasks();

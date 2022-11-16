@@ -33,8 +33,10 @@ void Call::connect(Job &t_job) {
 
     /* if audio fails everything fails */
     if (!valid_audio) {
-      m_audio_p2p     = nullptr;
-      t_job.m_command = Job::AUDIO_FAILED;
+      Job res_job;
+      m_audio_p2p       = nullptr;
+      res_job.m_command = Job::AUDIO_FAILED;
+      JobBus::create_response(std::move(res_job));
       LOG_ERR("Audio P2P::connect failed. Connection failed.");
 
       return;
@@ -53,8 +55,10 @@ void Call::connect(Job &t_job) {
     /* ** */
 
     if (has_video && !valid_video) {
-      t_job.m_command = Job::VIDEO_FAILED;
-      m_video_p2p     = nullptr;
+      Job res_job;
+      res_job.m_command = Job::VIDEO_FAILED;
+      m_video_p2p       = nullptr;
+      JobBus::create_response(std::move(res_job));
       LOG_ERR("Video P2p::connect failed. Only audio connection is available.");
 
       return;
@@ -67,8 +71,10 @@ void Call::connect(Job &t_job) {
       video_playback();
 
       /* returns to UI that a video stream has started */
-       t_job.m_command      = Job::VIDEO_STREAM;
-       t_job.m_video_stream = m_video_playback.get_stream();
+       Job res_job;
+       res_job.m_command      = Job::VIDEO_STREAM;
+       res_job.m_video_stream = m_video_playback.get_stream();
+       JobBus::create_response(std::move(res_job));
     }
   });
 

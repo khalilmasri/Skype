@@ -67,6 +67,11 @@ void JobBus::create(Job &t_job){
     m_jobQ.push(t_job);
 }
 
+void JobBus::create_response(Job &&t_job){
+  m_resQ.push(t_job);
+  emit JobBus::get_instance()->job_ready();
+}
+
 void JobBus::handle() {
    
     Job job;

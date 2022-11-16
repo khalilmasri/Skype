@@ -58,9 +58,14 @@ Client::~Client(){
 
 void Client::client_exit(Job &t_job)
 {
-   LOG_INFO("Disconnecting from server");
+
+   LOG_INFO("Disconnecting from server.");
    
    std::string command = "EXIT";
+   command.append(" " + m_user.get_token());
+
+   LOG_INFO("command-> %s", command.c_str());
+
    m_server_req.set_data(new TextData(command));
 
    m_server_conn.respond(m_server_req);
@@ -81,7 +86,7 @@ void Client::client_exit(Job &t_job)
 /* Contact direct */
 
 void Client::contact_get_contacts(Job &t_job) {
-   LOG_DEBUG("Getting contacts to display...")
+   LOG_DEBUG("Getting contacts to display...");
    t_job.m_contact_list = m_contacts.display_contacts();
 
    if (false == t_job.m_contact_list.empty()){
@@ -233,8 +238,7 @@ void Client::call_connect(Job &t_job)
    t_job.m_argument = m_user.get_token();
    
    m_call.connect(t_job); 
-
- //  t_job.m_command = Job::DISCARD; -> @khalil this is being set inside call.cpp
+   t_job.m_command = Job::DISCARD; 
 }
 
 void Client::call_accept(Job &t_job)
@@ -242,8 +246,8 @@ void Client::call_accept(Job &t_job)
    t_job.m_argument = m_user.get_token();
 
    m_call.accept(t_job);
-
    t_job.m_command = Job::DISCARD;
+
 }
 
 void Client::call_reject(Job &t_job)
