@@ -15,6 +15,8 @@
 #include <QString>
 #include <QStringListModel>
 #include <string>
+#include <QMediaPlayer>
+#include <QAudioOutput>
 
 namespace Ui {
 class CentralGui;
@@ -67,6 +69,8 @@ private: // Variables
     Ui::CentralGui                  *m_ui;
     CallGui                         *m_call;
     QString                         m_user;
+	 QMediaPlayer							*m_ring_sound;
+	 QAudioOutput							*m_audio_output;
     int                             m_user_id;
     QModelIndex                     m_current_selected;
     ContactGui                      m_contact;

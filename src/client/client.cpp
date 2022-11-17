@@ -29,8 +29,13 @@ static Config *config = Config::get_instance();
 Request Client::m_server_req = Request(true);
 ActiveConn Client::m_server_conn = ActiveConn(config->get<int>("TCP_PORT"), new TextIO());
 
-Client::Client(){  
+Client::Client(){}
 
+Client::~Client(){
+}
+
+bool Client::init()
+{
    std::string response;
    LOG_INFO("Connecting to server...");
    
@@ -47,13 +52,10 @@ Client::Client(){
 
    LOG_INFO("%s! Client connected to server succesfully", response.c_str());
 
-  return;
+  return true;
 
-fail: // TODO(@Khalil) no exits!
-   exit(1);
-}
-
-Client::~Client(){
+fail:
+	return false;
 }
 
 void Client::client_exit(Job &t_job)
@@ -268,7 +270,7 @@ void Client::call_hangup(Job &t_job)
 
 void Client::call_webcam(Job &t_job)
 {
- //  m_call.webcam(); // TODO(@khalil) what is this for?
+	// @Pedro video_call?
    t_job.m_command = Job::DISCARD;
 }
 
