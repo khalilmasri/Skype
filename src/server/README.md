@@ -11,15 +11,32 @@ macro in `include/shared/connection/connection_poll.hpp`.
 
 ## Server Setup
 
+### Ubuntu
+
 On a ubutu box ensure you have all postgres dev libraries install
 
         sudo apt-get install libpq-dev postgresql-server-dev-all
+        
+### Mac OSX
 
-It might be necessary to add you postgres version (`psql --verion`) to `libpqxx` CMakeLists.txt in `src/server/vendor/libpqxx/CMakeLists.txt`. 
+        brew install libpq
+        brew install postgresql@14
+
+For any OS might be necessary to add you postgres version (`psql --verion`) to `libpqxx` CMakeLists.txt in `src/server/vendor/libpqxx/CMakeLists.txt`. 
 For postgres v12.11 for example.
 
-           set(PostgreSQL_ADDITIONAL_VERSIONS "12" "12.11") 
+        set(PostgreSQL_ADDITIONAL_VERSIONS "12" "12.11") 
+        
+For Mac OSX it may also require specific locations of postgres in the same `~/server/vendor/libpqxx/CMakeLists.txt` if compilier cannot find it. 
+        
+        e.g brew info postgresql@14
+        
+        find the correct locations from here of the include and lib directories for example on M1 Silicon Mac it was:
+        
+        set(PostgreSQL_INCLUDE_DIR "/opt/homebrew/Cellar/postgresql@14/14.5_3/include/postgresql@14")
+        set(PostgreSQL_LIBRARY "/opt/homebrew/Cellar/postgresql@14/14.5_3/lib/postgresql@14/libpq.dylib")
 
+        
 ## Request
 
 The server uses a `Request` object to pass around information. An `ActiveConn::accept` will create a `Request`
@@ -42,11 +59,11 @@ When a message is detected `ActiveConn::receive` will populate the request with 
 The router is responsible for parsing the command and arguments from the client message and route it to the
 relevant `Controller`.  So a message like so
 
-            LOGIN khalil 1234
+            LOGIN john 1234
 
 will be routed as follows
 
-            Controllers::login("Khalil 1234", Request req);
+            Controllers::login("john 1234", Request req);
 
 The controller in question will add a `Reply` to `Request.data()` depending on the result of the operation.
 
@@ -86,7 +103,7 @@ can acquire a token by sending a `LOGIN` command to the server.
       
 e.g 
 
-    LOGIN John 1234
+    LOGIN john 1234
     201  Df345rdfdsFgdETfdDFG
 
 without arguments
