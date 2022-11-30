@@ -29,6 +29,13 @@ Program::Program()
     QObject::connect(m_welcome, &WelcomeGui::stopped_loading, this, &Program::switch_to_chat);
     QObject::connect(m_central, &CentralGui::wrapping, m_bus, &JobBus::set_exit);
     
+	 bool res = m_client.init();
+	 while(false == res)
+	 {
+		res = m_client.init();
+		usleep(300);
+	 }
+
     QThread *bus_loop = QThread::create(&JobBus::handle);
     bus_loop->start();
 

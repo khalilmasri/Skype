@@ -286,7 +286,7 @@ auto Call::udp_connect(P2PPtr &t_p2p_conn, Job &t_job, int t_wait_time)
 
     if (count > m_TIMEOUT) {
       LOG_INFO("Breaking after %d seconds", count);
-      JobBus::create({Job::HANGUP}); // TODO(@khalil): is this correct?
+      JobBus::create({Job::HANGUP}); 
       t_p2p_conn->hangup_peer();
       return false;
     }

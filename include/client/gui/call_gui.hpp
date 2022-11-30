@@ -3,6 +3,7 @@
 
 #include "peer_to_peer.hpp"
 #include "video_playback.hpp"
+#include "menu_gui.hpp"
 
 #include <QDialog>
 #include <QImage>
@@ -28,10 +29,12 @@ public:
 private slots:
   void on_webcam_clicked();
   void on_hangup_clicked();
+  void on_menu_clicked();
 
 private:
   Ui::CallGui *m_ui;
   bool m_stop_stream = false;
+  MenuGui 	*m_menu;
 
 private: // Methods
   void reject() override;

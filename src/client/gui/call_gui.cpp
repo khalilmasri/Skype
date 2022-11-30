@@ -25,6 +25,7 @@ CallGui::CallGui(QWidget *parent) :
   QDialog(parent),
   m_ui(new Ui::CallGui) {
   m_ui->setupUi(this);
+  m_menu = new MenuGui();
 }
 
 CallGui::~CallGui() {
@@ -93,7 +94,7 @@ void CallGui::video_stream(VideoPlayback::VideoQueuePtr t_stream_queue)
       if (valid)
       {
         QImage frame_draw = mat_to_qimage_ref(frame, QImage::Format_RGB888);
-        cv::cvtColor(frame, frame, cv::COLOR_BGR2RGBA);
+        cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
       //  QImage frame_draw(static_cast<const unsigned char*>(frame.data), frame.cols * 3, frame.rows * 3, QImage::Format_RGB888);
         m_ui->camera->setPixmap(QPixmap::fromImage(frame_draw));
         m_ui->camera->resize(m_ui->camera->pixmap().size());
@@ -140,3 +141,8 @@ void CallGui::on_hangup_clicked()
     this->hide();
 }
 
+void CallGui::on_menu_clicked()
+{
+	m_menu->refresh_devices();
+	m_menu->show();
+}

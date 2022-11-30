@@ -20,6 +20,12 @@ public:
 
     void refresh_devices();
 
+private slots:
+	 void on_output_drop_currentIndexChanged(int index);
+	 void on_input_drop_currentIndexChanged(int index);
+	 void on_accept_clicked();
+	 void on_cancel_clicked();
+
 private:
     Ui::MenuGui *m_ui;
 
@@ -28,6 +34,9 @@ private:
     QString     m_input_name;
     QString     m_output_name;
     QString     m_webcam_name;
+
+	 int 			m_temp_input_index = -1;
+	 int			m_temp_output_index = -1;
 };
 
 #endif // MENU_GUI_HPP

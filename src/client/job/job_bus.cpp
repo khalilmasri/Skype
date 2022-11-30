@@ -111,13 +111,6 @@ bool JobBus::get_response(Job &t_job){
     }
 
     return m_resQ.pop_try(t_job);
-
-    // NOTE: @khalil I changed this because the code below seems unecessary
- //   if (false == res){
-  //      return false;
-  //  }
-
-   // return true;
 } 
        
 

@@ -19,6 +19,9 @@ public:
     Client();
     ~Client();
     
+	 // Client
+	 bool static init();
+
     // Contacts commands
     static void contact_get_contacts        (Job &t_job);
 
