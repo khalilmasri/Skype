@@ -10,59 +10,59 @@
 #include <QAudioDevice>
 
 MenuGui::MenuGui(QWidget *parent) :
-    QDialog(parent),
-    m_ui(new Ui::MenuGui)
+	QDialog(parent),
+	m_ui(new Ui::MenuGui)
 {
-    m_ui->setupUi(this);
-    m_config = AudioDevConfig::get_instance(); 
+	m_ui->setupUi(this);
+	m_config = AudioDevConfig::get_instance(); 
 
-    m_input_name = QString::fromStdString(m_config->get_input());
-    m_output_name = QString::fromStdString(m_config->get_output());
-    m_webcam_name = QMediaDevices::defaultVideoInput().description();
+	m_input_name = QString::fromStdString(m_config->get_input());
+	m_output_name = QString::fromStdString(m_config->get_output());
+	m_webcam_name = QMediaDevices::defaultVideoInput().description();
 
-    refresh_devices();
+	refresh_devices();
 }
 
 MenuGui::~MenuGui()
 {
-    delete m_ui;
+	delete m_ui;
 }
 
 void MenuGui::refresh_devices()
 {
-    m_ui->input_drop->addItem(m_input_name);
-    m_ui->output_drop->addItem(m_output_name);
-    m_ui->webcam_drop->addItem(m_webcam_name);
+	m_ui->input_drop->addItem(m_input_name);
+	m_ui->output_drop->addItem(m_output_name);
+	m_ui->webcam_drop->addItem(m_webcam_name);
 
-    LOG_DEBUG("Input %s\nOutput %s\nWebcam %s\n", m_input_name.toStdString().c_str(), m_output_name.toStdString().c_str(), m_webcam_name.toStdString().c_str());
-	
+	LOG_DEBUG("Input %s\nOutput %s\nWebcam %s\n", m_input_name.toStdString().c_str(), m_output_name.toStdString().c_str(), m_webcam_name.toStdString().c_str());
 
-    for(auto &device : m_config->list_input_name())
-    {
-		LOG_DEBUG("Input -> %s", device.c_str());
-        if ( -1 == m_ui->input_drop->findText(QString::fromStdString(device)))
-        {   
-            m_ui->input_drop->addItem(QString::fromStdString(device));
-        }  
-    }
 
-    for(auto &device : m_config->list_output_name())
-    {
-        LOG_DEBUG("Input -> %s -> %d", device.c_str(), m_ui);
-        if ( -1 == m_ui->output_drop->findText(QString::fromStdString(device)))
-        {   
-            m_ui->output_drop->addItem(QString::fromStdString(device));
-        }  
-    }
+	for(auto &device : m_config->list_input_name())
+	{
+	LOG_DEBUG("Input -> %s", device.c_str());
+		if ( -1 == m_ui->input_drop->findText(QString::fromStdString(device)))
+		{   
+			m_ui->input_drop->addItem(QString::fromStdString(device));
+		}  
+	}
 
-    for(auto &device : QMediaDevices::videoInputs())
-    {
-        qDebug() << device.id() << " " << device.description();
-        if ( -1 == m_ui->webcam_drop->findText(device.description()))
-        {
-            m_ui->webcam_drop->addItem(device.description());
-        }
-    }
+	for(auto &device : m_config->list_output_name())
+	{
+		LOG_DEBUG("Input -> %s -> %d", device.c_str(), m_ui);
+		if ( -1 == m_ui->output_drop->findText(QString::fromStdString(device)))
+		{   
+			m_ui->output_drop->addItem(QString::fromStdString(device));
+		}  
+	}
+
+	for(auto &device : QMediaDevices::videoInputs())
+	{
+		qDebug() << device.id() << " " << device.description();
+		if ( -1 == m_ui->webcam_drop->findText(device.description()))
+		{
+			m_ui->webcam_drop->addItem(device.description());
+		}
+	}
 }
 
 

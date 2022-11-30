@@ -9,36 +9,36 @@
 #include <QImage>
 
 namespace Ui {
-  class CallGui;
+	class CallGui;
 }
 
 class CallGui : public QDialog
 {
-  Q_OBJECT
+	Q_OBJECT
 
-public:
-  explicit CallGui(QWidget *parent = nullptr);
-  
-  void call_init(int t_contact_id, QString &t_username);
-  void video_init(int t_contact_id, QString &t_username);
-  void call_accept(QString &t_username);
-  void video_stream(VideoPlayback::VideoQueuePtr t_stream_queue);
+	public:
+	explicit CallGui(QWidget *parent = nullptr);
 
-  ~CallGui();
+	void call_init(int t_contact_id, QString &t_username);
+	void video_init(int t_contact_id, QString &t_username);
+	void call_accept(QString &t_username);
+	void video_stream(VideoPlayback::VideoQueuePtr t_stream_queue);
 
-private slots:
-  void on_webcam_clicked();
-  void on_hangup_clicked();
-  void on_menu_clicked();
+	~CallGui();
 
-private:
-  Ui::CallGui *m_ui;
-  bool m_stop_stream = false;
-  MenuGui 	*m_menu;
+	private slots:
+	void on_webcam_clicked();
+	void on_hangup_clicked();
+	void on_menu_clicked();
 
-private: // Methods
-  void reject() override;
-  QImage mat_to_qimage_ref(cv::Mat &mat, QImage::Format format); 
+	private:
+	Ui::CallGui *m_ui;
+	bool m_stop_stream = false;
+	MenuGui 	*m_menu;
+
+	private: // Methods
+	void reject() override;
+	QImage mat_to_qimage_ref(cv::Mat &mat, QImage::Format format); 
 
 };
 

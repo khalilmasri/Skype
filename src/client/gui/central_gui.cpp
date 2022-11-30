@@ -57,7 +57,7 @@ CentralGui::~CentralGui()
 	// delete m_ring_sound;
     if (m_call)
     {
-        delete m_call;
+      delete m_call;
     }
 }
 

@@ -12,32 +12,32 @@
 
 class Program : public QObject
 {
-    typedef Job::Type Type;
-    typedef std::function<void (Job &t_job)> SetMethod;
-    typedef std::unordered_map<Type, SetMethod> JobDispatch;
+	typedef Job::Type Type;
+	typedef std::function<void (Job &t_job)> SetMethod;
+	typedef std::unordered_map<Type, SetMethod> JobDispatch;
 
-    Q_OBJECT
+	Q_OBJECT
 public:
-    Program();
-    ~Program();
+	Program();
+	~Program();
 
 private slots:
-    void handle_response();
+	void handle_response();
 
 private: // Variables
-    Client      m_client;
-    JobBus      *m_bus;
-    WelcomeGui  *m_welcome;
-    CentralGui     *m_central;
-    //QThread     *m_bus_loop;
-    JobDispatch m_table;
+	Client      m_client;
+	JobBus      *m_bus;
+	WelcomeGui  *m_welcome;
+	CentralGui     *m_central;
+	//QThread     *m_bus_loop;
+	JobDispatch m_table;
 
 private: // Methods
-    void create_job_dispatcher();
+	void create_job_dispatcher();
 
-    // slots
-    void job_login(Job &t_job);
-    void switch_to_chat();
+	// slots
+	void job_login(Job &t_job);
+	void switch_to_chat();
 };
 
 #endif // PROGRAM_H

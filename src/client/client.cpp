@@ -55,6 +55,8 @@ bool Client::init()
   return true;
 
 fail:
+
+	LOG_INFO("Client couldn't connect!, trying again....");
 	return false;
 }
 

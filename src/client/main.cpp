@@ -28,36 +28,36 @@ static Config *conf = Config::get_instance();
 
 int main(int argc, char *argv[]) {
 
-  Logger::set_priority(conf->get<int>("LOGGER_LEVEL"));
-  Logger::debug_enable(conf->get<int>("DEBUG_ENABLE"));
-  // This will run tests only when --test is passed to client
+	Logger::set_priority(conf->get<int>("LOGGER_LEVEL"));
+	Logger::debug_enable(conf->get<int>("DEBUG_ENABLE"));
+	// This will run tests only when --test is passed to client
 
-  LOG_INFO("Starting my_skype!")
-  int res = Tester::test(argc, argv);
+	LOG_INFO("Starting my_skype!")
+	int res = Tester::test(argc, argv);
 
-  //don't launch guy when testing.
-  if (res > 0 || Tester::did_test(argc, argv)) {
-    return res;
-  }
+	//don't launch guy when testing.
+	if (res > 0 || Tester::did_test(argc, argv)) {
+		return res;
+	}
 
-  AudioDevice::start_sdl(); // SDL init
-  
-  QApplication a(argc, argv);
-  QFile stylesheetFile("../misc/stylesheet/stylesheet.qss");
-  stylesheetFile.open(QFile::ReadOnly);
-  QString styleSheet = QLatin1String(stylesheetFile.readAll());
-  a.setStyleSheet(styleSheet);
+	AudioDevice::start_sdl(); // SDL init
 
-   // Program *program = new Program();
-	CallGui *call = new CallGui();
-	call->show();
-  res = a.exec();
+	QApplication a(argc, argv);
+	QFile stylesheetFile("../misc/stylesheet/stylesheet.qss");
+	stylesheetFile.open(QFile::ReadOnly);
+	QString styleSheet = QLatin1String(stylesheetFile.readAll());
+	a.setStyleSheet(styleSheet);
 
-//   delete program;
+	Program *program = new Program();
+// 	CallGui *call = new CallGui();
+// 	call->show();
+	res = a.exec();
 
-  SDL_Quit();
+	delete program;
 
-  QThread::sleep(WRAPPING);
+	SDL_Quit();
 
-  return res;
+	QThread::sleep(WRAPPING);
+
+	return res;
 }
