@@ -123,12 +123,6 @@ void CentralGui::job_remove_user(Job &t_job)
 void CentralGui::job_load_chat(Job &t_job)
 {
 
-    // if ( false == t_job.m_valid)
-    // {
-    //     return;
-    // } 
-
-    // if ( true == t_job.m_chats.empty() || true == m_contact_list.empty())
     if (true != t_job.m_chats.empty())
     {
         load_chat(t_job.m_chats, false);
@@ -189,10 +183,8 @@ void CentralGui::job_hangup(Job &t_job)
     UNUSED_PARAMS(t_job);
     LOG_INFO("Hangup call");
     m_on_call = false;
-    if (m_call)
-    {
-      delete m_call;
-    }
+    
+    m_call->hide();
 }
 
 void CentralGui::job_awaiting(Job &t_job)
@@ -213,6 +205,11 @@ void CentralGui::job_awaiting(Job &t_job)
   QString username = m_contact_list[t_job.m_intValue].username;
   ring->set_details(username, t_job.m_intValue );
   callers_table.insert(t_job.m_intValue, ring);
+  m_ring_sound = new QMediaPlayer;
+  m_ring_sound->setSource(QUrl::fromLocalFile("../misc/rings/call_incoming.mp3"));
+  m_ring_sound->setAudioOutput(m_audio_output);
+  m_audio_output->setVolume(50);
+  m_ring_sound->play();
   ring->show(); 
 }
 
@@ -224,16 +221,27 @@ void CentralGui::job_video_stream(Job &t_job){
      return;
    }
 
+	m_ring_sound->stop();
    m_call->video_stream(t_job.m_video_stream);
 
 }
 
 void CentralGui::job_video_failed(Job &t_job){
    UNUSED_PARAMS(t_job);
-  //TODO: @khalil A video p2p connection failed at this point. Need to handle in m_call.
+	m_ring_sound->stop();
+   LOG_ERR("Video call failed! Closing call window!");
+
+   QMessageBox::information(nullptr, "Call failed", "Your video call failed, try again later!");
+   m_call->hide();
 }
 
 void CentralGui::job_audio_failed(Job &t_job){
    UNUSED_PARAMS(t_job);
-  //TODO: @khalil An audio p2p connection failed at this point. Need to handle in m_call.
+
+	m_ring_sound->stop();
+   LOG_ERR("Call failed! Closing call window!");
+   QMessageBox::information(nullptr, "Call failed", "Your call failed, try again later!");
+
+
+   m_call->hide();
 }

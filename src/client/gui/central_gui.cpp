@@ -23,6 +23,7 @@
 #include <qicon.h>
 #include <qnamespace.h>
 #include <qstandarditemmodel.h>
+#include <QAudioOutput>
 
 QString TODAY = "";
 QString YESTERDAY = "";
@@ -43,6 +44,8 @@ CentralGui::CentralGui(QWidget *parent) : QDialog(parent),
     m_ui->remove->setAutoDefault(false);
     m_ui->call->setAutoDefault(false);
     m_ui->video->setAutoDefault(false);
+
+	 m_audio_output = new QAudioOutput;
 }
 
 CentralGui::~CentralGui()
@@ -50,6 +53,12 @@ CentralGui::~CentralGui()
     emit wrapping();
     LOG_INFO("Emitted wrapping");
     delete m_ui;
+	// delete m_audio_output;
+	// delete m_ring_sound;
+    if (m_call)
+    {
+        delete m_call;
+    }
 }
 
 // ***** PUBLIC ***** //
@@ -307,5 +316,7 @@ void CentralGui::started_call(int t_caller_id)
     }
 
     m_on_call = true;
+	 m_ring_sound->setSource(QUrl::fromLocalFile("../misc/rings/answer.mp3"));
+	 m_ring_sound->play();
     m_call->call_accept(user);
 }
