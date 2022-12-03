@@ -55,8 +55,7 @@ CentralGui::~CentralGui()
     delete m_ui;
 	// delete m_audio_output;
 	// delete m_ring_sound;
-    if (m_call)
-    {
+    if (m_call) {
       delete m_call;
     }
 }

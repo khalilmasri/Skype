@@ -66,15 +66,15 @@ signals:
 	void ready_signal();
 
 private: // Variables
-	Ui::CentralGui                  *m_ui;
-	CallGui                         *m_call;
+	Ui::CentralGui                  *m_ui = nullptr;
+	CallGui                         *m_call = nullptr;
 	QString                         m_user;
-	QMediaPlayer							*m_ring_sound;
-	QAudioOutput							*m_audio_output;
+	QMediaPlayer							      *m_ring_sound = nullptr;
+	QAudioOutput						      	*m_audio_output = nullptr;
 	int                             m_user_id;
 	QModelIndex                     m_current_selected;
 	ContactGui                      m_contact;
-	Notification                    *m_notification;
+	Notification                    *m_notification = nullptr;
 	QHash<int, struct Details>      m_contact_list;
 	QHash<int, QStringList>         m_contact_chat;
 	bool                            m_on_call = false;
