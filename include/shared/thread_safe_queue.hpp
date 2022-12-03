@@ -9,6 +9,7 @@
 #include <condition_variable>
 #include <mutex>
 #include <thread>
+#include <iostream>
 template <typename T> class ThreadSafeQueue {
 
 public:
@@ -23,7 +24,7 @@ public:
     std::lock_guard<std::mutex> lock_guard(m_mutex);
 
     if (!m_queue.empty()) {
-
+      
       t_job = std::move(*m_queue.front());
       m_queue.pop();
       return true;

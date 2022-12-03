@@ -32,8 +32,6 @@ std::string LocalIP::get_first() const {
     return {};
   }
 
-  std::cout << "crashed here?\n";
-
 }
 
 std::string LocalIP::get_at(std::size_t t_pos) const {

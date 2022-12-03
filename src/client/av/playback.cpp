@@ -14,7 +14,9 @@ void Playback::read_package(P2PPtr &t_p2pconn) {
 
   Request req = t_p2pconn->make_request();
 
+
   t_p2pconn->receive_package(req);
+
 
   while (req.data_type() == Data::Empty) {
     t_p2pconn->receive_package(req);
@@ -26,7 +28,7 @@ void Playback::read_package(P2PPtr &t_p2pconn) {
     }
 
     if (tries > m_MAX_TRIES) {
-      LOG_ERR("Playback has received '%lu' empty packges. giving up...");
+      LOG_ERR("Playback has received '%lu' empty packges. giving up...", tries);
       return;
     }
 

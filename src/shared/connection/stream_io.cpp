@@ -74,12 +74,14 @@ auto StreamIO::receive(Request &t_req) const -> bool {
 
   Data::DataVector data = receive_data(t_req, &addr_in, pkt_info);
   t_req.m_address       = Connection::address_tostring(addr_in) + ":" + Connection::port_tostring(addr_in);
+
+    LOG_CRIT("data size-> %lu", data.size());
   
   if (t_req.m_valid) { 
     LOG_TRACE("Received total data: %llu", data.size());
     t_req.set_data(new AVData(std::move(data), data_type));
-
   } 
+
 
   log_packet_info(pkt_info, "received");
   
@@ -166,8 +168,14 @@ auto StreamIO::receive_data(Request &t_req, sockaddr_in *t_addrin, PacketInfoTup
 
   socklen_t addr_len                                  = sizeof((*t_addrin));
   auto [data_type, nb_packets, packet_size, rem_size] = t_pkt_info;
+  std::size_t alloc_size                              = (nb_packets * packet_size) + rem_size;
 
-  Data::DataVector data((nb_packets * packet_size) + rem_size, 0);
+ if( alloc_size >= 1000000){
+   LOG_ERR("Allocating exceeds the 1000000 bytes. Returning Empty vector.");
+   return {};
+  }
+ 
+  Data::DataVector data(alloc_size, 0);
 
   uint8_t *data_pointer = data.data();
 
@@ -183,7 +191,7 @@ auto StreamIO::receive_data(Request &t_req, sockaddr_in *t_addrin, PacketInfoTup
       }
     }
 
-  /*Remainder: (don't receive if 0) */
+  /* Remainder: (don't receive if 0) */
    if(rem_size == 0){
      return data;
    }
@@ -225,7 +233,7 @@ auto StreamIO::read_header(Data::DataVector &t_header) -> PacketInfoTuple {
 
 
   /* Grab the size headers */
-  std::array<std::size_t, m_NB_SIZE_HEADERS> size_headers;
+  std::array<std::size_t, m_NB_SIZE_HEADERS> size_headers{0}; // init to zero prevent garbage
 
   for(std::size_t i = 0; i < m_NB_SIZE_HEADERS; i++ ){
     size_headers[i] = read_header_item(t_header, header_pos);
