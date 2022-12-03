@@ -415,11 +415,18 @@ auto P2P::make_server_request(std::string &&t_text_data) -> Request {
 
 void P2P::retry(Request &t_req, bool got_res){
 
- while(!got_res){
+ if(got_res) {
+   return;
+ }
+   
+ bool should_retry = !got_res;
+
+ while(should_retry){
     LOG_INFO("%s: Did not receive response peer. Sending punch message again...", type_to_string().c_str())
     hole_punch(t_req);
 
-   got_res = m_conn.respond(t_req);
+   bool res = m_conn.respond(t_req);
+   should_retry = !res;
   }
 
 }
