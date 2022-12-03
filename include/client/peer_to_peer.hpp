@@ -76,6 +76,7 @@ class P2P {
 
   static auto   make_server_request(std::string &&t_text_data) -> Request;
 
+  void          retry(Request &t_req, bool got_res);
   void          hole_punch(Request &t_req);
 
   /* Constants */
