@@ -205,9 +205,7 @@ void P2P::reject_peer(std::string &t_peer_id) {
 void P2P::ping_peer() {
 
   if (m_type != Initiator) {
-    LOG_ERR("A peer cannot PING if he has not initiated with CONNECT. P2P:Type "
-            "was '%s'.",
-            type_to_string().c_str());
+    LOG_ERR("A peer cannot PING if he has not initiated with CONNECT. P2P:Type " "was '%s'.", type_to_string().c_str());
     return;
   }
 
@@ -305,15 +303,14 @@ void P2P::handshake_acceptor(Request &t_req, PeerNetwork t_peer_network) {
     hole_punch(t_req);
   }
 
-  LOG_DEBUG("Acceptor: waiting for handshake confirmation from '%s'. ",
-            t_req.m_address.c_str());
-
-  std::string ok_msg = Reply::get_message(Reply::r_200);
+  LOG_DEBUG("Acceptor: waiting for handshake confirmation from '%s'. ", t_req.m_address.c_str());
 
   m_conn.receive(t_req);
   std::string response = TextData::to_string(t_req.data());
 
   LOG_DEBUG("Acceptor: got response '%s' ", response.c_str());
+
+  std::string ok_msg = Reply::get_message(Reply::r_200);
 
   if (response == ok_msg) {
     LOG_INFO("Acceptor: P2P handshake with '%s' was sucessful. ",

@@ -22,6 +22,9 @@ class UDPConn : public Connection {
   std::string m_peer_address;
   std::string m_peer_port;
 
+  // recvfrom will timeout within 1 second
+  const inline static int m_RECEIVE_TIMEOUT = 1;
+
 };
 
 #endif

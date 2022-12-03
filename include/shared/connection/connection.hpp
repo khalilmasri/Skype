@@ -13,7 +13,7 @@ class Connection {
   explicit Connection(int t_port, int t_protocol = SOCK_STREAM) // defaults TCP
       : m_port(t_port), m_protocol(t_protocol){};
 
-  auto               setup(const std::string &_address) -> bool;
+  auto               setup(const std::string &_address, int timeout = 0) -> bool;
   auto               setup() -> bool;
 
   [[nodiscard]] auto get_socket() const -> int;
@@ -36,7 +36,7 @@ private:
   sockaddr_in        m_address; 
 
   auto               create_socket() -> bool;
-  [[nodiscard]] auto set_options() const -> bool;
+  [[nodiscard]] auto set_options(int timeout) const -> bool;
   auto               set_address(const std::string &_address) -> bool;
   auto               find_address_info() -> bool;
 };
