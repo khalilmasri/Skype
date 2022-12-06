@@ -181,7 +181,11 @@ void Webcam::decode_one(const WebcamFrame &t_frame, std::shared_ptr<CVMatQueue> 
          count_logs();
        
       } else {
+        try {
         t_output->push(mat_frame);
+        } catch(...){
+          std::cout << "CAUGHT IN POP PUSH!!!!";
+        }
       }
 
     } catch (std::exception &err) {
