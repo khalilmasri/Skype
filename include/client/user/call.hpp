@@ -69,8 +69,10 @@ private:
   auto hangup_callback(AVStream::StreamType t_type) -> std::function<void()>;
 
   /* Constants */
-  inline static const int m_TIMEOUT = 10;
-  inline static const int m_NB_BUFFER_PACKETS = 1;
+  inline static const int m_PING_TIMEOUT         = 10;
+  inline static const int m_ACCEPT_TIMEOUT       = 40;
+  inline static const int m_ACCEPT_THROTTLE_TIME = 60;
+  inline static const int m_NB_BUFFER_PACKETS    = 1;
 
 };
 

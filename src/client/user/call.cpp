@@ -21,24 +21,24 @@ void Call::connect(Job &t_job) {
   m_token = t_job.m_argument;
 
   std::thread call_thread([&t_job, this]() {
-    /* has_video is a temp. please pass in in t_job whether to have video or not */
+    /* has_video is a temp. please pass in in t_job whether to have video or not
+     */
     bool has_video = true, valid_audio = false, valid_video = false;
 
-    m_audio_p2p    = nullptr;
-    m_video_p2p    = nullptr;
+    m_audio_p2p = nullptr;
+    m_video_p2p = nullptr;
 
     /* connect audio */
     m_audio_p2p = std::make_unique<P2P>(m_token);
-    valid_audio = udp_connect( m_audio_p2p, t_job);
+    valid_audio = udp_connect(m_audio_p2p, t_job);
 
     /* if audio fails everything fails */
     if (!valid_audio) {
       Job res_job;
-      m_audio_p2p       = nullptr;
+      m_audio_p2p = nullptr;
       res_job.m_command = Job::AUDIO_FAILED;
       JobBus::create_response(std::move(res_job));
       LOG_ERR("Audio P2P::connect failed. Connection failed.");
-
       return;
     }
 
@@ -57,7 +57,7 @@ void Call::connect(Job &t_job) {
     if (has_video && !valid_video) {
       Job res_job;
       res_job.m_command = Job::VIDEO_FAILED;
-      m_video_p2p       = nullptr;
+      m_video_p2p = nullptr;
       JobBus::create_response(std::move(res_job));
       LOG_ERR("Video P2p::connect failed. Only audio connection is available.");
 
@@ -67,14 +67,14 @@ void Call::connect(Job &t_job) {
     if (has_video) {
       LOG_DEBUG("Starting Call::connect Video.");
       m_webcam.init();
-     // video_stream();
+      // video_stream();
       video_playback();
 
       /* returns to UI that a video stream has started */
-       Job res_job;
-       res_job.m_command      = Job::VIDEO_STREAM;
-       res_job.m_video_stream = m_video_playback.get_stream();
-       JobBus::create_response(std::move(res_job));
+      Job res_job;
+      res_job.m_command = Job::VIDEO_STREAM;
+      res_job.m_video_stream = m_video_playback.get_stream();
+      JobBus::create_response(std::move(res_job));
     }
   });
 
@@ -86,14 +86,14 @@ void Call::connect(Job &t_job) {
 void Call::accept(Job &t_job) {
 
   bool has_video = true, valid_audio = false, valid_video = false;
-  m_audio_p2p    = nullptr;
-  m_video_p2p    = nullptr;
+  m_audio_p2p = nullptr;
+  m_video_p2p = nullptr;
 
   m_audio_p2p = std::make_unique<P2P>(t_job.m_argument);
   valid_audio = udp_accept(m_audio_p2p, t_job);
 
   if (!valid_audio) {
-    m_audio_p2p      = nullptr;
+    m_audio_p2p = nullptr;
     t_job.m_command = Job::AUDIO_FAILED;
     LOG_ERR("Audio P2P::accept failed. Connection failed.");
 
@@ -111,13 +111,13 @@ void Call::accept(Job &t_job) {
       valid_video = udp_accept(m_video_p2p, t_job);
 
       /* will break after a certain number of trials */
-      if (count >= m_TIMEOUT + 50) {
+      if (count >= m_ACCEPT_TIMEOUT) {
         LOG_ERR("Accepting on Video peer to peer connection has timed out.");
         break;
       }
 
       /* wait a bit of nothing to accept */
-      std::this_thread::sleep_for(std::chrono::milliseconds(100));
+      std::this_thread::sleep_for(std::chrono::milliseconds(m_ACCEPT_THROTTLE_TIME));
       count++;
     }
   }
@@ -139,8 +139,8 @@ void Call::accept(Job &t_job) {
 
   if (has_video) {
     LOG_DEBUG("Starting Call::accept Video.");
-     m_webcam.init();
-     video_stream();
+    m_webcam.init();
+    video_stream();
     //  video_playback();
     //   t_job.m_command      = Job::VIDEO_STREAM;
     //  t_job.m_video_stream = m_video_playback.get_stream();
@@ -259,7 +259,7 @@ auto Call::udp_connect(P2PPtr &t_p2p_conn, Job &t_job, int t_wait_time)
 
   while (t_p2p_conn->status() != P2P::Accepted) {
 
-    LOG_INFO("Pinging   ...");
+    LOG_INFO("Sending ping");
 
     t_p2p_conn->ping_peer();
 
@@ -284,9 +284,9 @@ auto Call::udp_connect(P2PPtr &t_p2p_conn, Job &t_job, int t_wait_time)
       return m_hangup;
     }
 
-    if (count > m_TIMEOUT) {
-      LOG_INFO("Breaking after %d seconds", count);
-      JobBus::create({Job::HANGUP}); 
+    if (count > m_PING_TIMEOUT) {
+      LOG_INFO("Giving up after after %d trials", count);
+      JobBus::create({Job::HANGUP});
       t_p2p_conn->hangup_peer();
       return false;
     }
@@ -294,10 +294,9 @@ auto Call::udp_connect(P2PPtr &t_p2p_conn, Job &t_job, int t_wait_time)
     count++;
   }
 
-  LOG_INFO("Call accepted");
   t_p2p_conn->handshake_peer();
+  return t_p2p_conn->status() != P2P::Error;
 
-  return true;
 }
 
 auto Call::udp_accept(P2PPtr &t_p2p_conn, Job &t_job) -> bool {
@@ -317,15 +316,15 @@ auto Call::udp_accept(P2PPtr &t_p2p_conn, Job &t_job) -> bool {
   }
 
   t_p2p_conn->handshake_peer();
-  return true;
+  return t_p2p_conn->status() != P2P::Error;
+
 }
 
-
-auto Call::hangup_callback(AVStream::StreamType t_type) -> std::function<void()> {
-  return [t_type](){
-
-    if(t_type == AVStream::Audio){
-       JobBus::create({Job::HANGUP});
+auto Call::hangup_callback(AVStream::StreamType t_type)
+    -> std::function<void()> {
+  return [t_type]() {
+    if (t_type == AVStream::Audio) {
+      JobBus::create({Job::HANGUP});
     }
   };
 }
