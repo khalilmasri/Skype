@@ -19,8 +19,8 @@ class Call{
 
 public:
    Call();
-  ~Call()= default;
-  
+  ~Call() = default;
+
   void create(Job &t_job);
   void connect(Job &t_job);
   void accept(Job &t_job);

@@ -25,6 +25,7 @@
 /* Public */
 
 static Config *config = Config::get_instance();
+Client::CallPtr Client::m_call = std::make_unique<Call>();
 
 Request Client::m_server_req = Request(true);
 ActiveConn Client::m_server_conn = ActiveConn(config->get<int>("TCP_PORT"), new TextIO());
@@ -241,7 +242,7 @@ void Client::call_connect(Job &t_job)
 { 
    t_job.m_argument = m_user.get_token();
    
-   m_call.connect(t_job); 
+   m_call->connect(t_job); 
    t_job.m_command = Job::DISCARD; 
 }
 
@@ -249,7 +250,7 @@ void Client::call_accept(Job &t_job)
 {
    t_job.m_argument = m_user.get_token();
 
-   m_call.accept(t_job);
+   m_call->accept(t_job);
    t_job.m_command = Job::DISCARD;
 
 }
@@ -258,7 +259,7 @@ void Client::call_reject(Job &t_job)
 {
    t_job.m_argument = m_user.get_token();
 
-   m_call.reject(t_job);
+   m_call->reject(t_job);
    t_job.m_command = Job::DISCARD;
 
 }
@@ -266,7 +267,7 @@ void Client::call_reject(Job &t_job)
 void Client::call_hangup(Job &t_job)
 {
     static_cast<void>(t_job);
-    m_call.hangup();
+    m_call->hangup();
     LOG_INFO("Client will be notified for hangup");
 }
 
@@ -279,7 +280,13 @@ void Client::call_awaiting(Job &t_job)
    {
       LOG_INFO("Awaiting call in has closed");
    }
-   m_call.awaiting(t_job);
+   m_call->awaiting(t_job);
+}
+
+/* This method clean up and initializes the call object on failure */
+void Client::call_cleanup(Job &_){
+  UNUSED_PARAMS(_);
+  m_call = std::make_unique<Call>();
 }
 
 bool Client::valid_response(Reply::Code t_code, std::string& t_res) {

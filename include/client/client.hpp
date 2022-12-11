@@ -12,10 +12,15 @@
 
 #include <map>
 #include <vector>
+#include <memory>
 
 class Client {
 
+
 public:
+
+  using CallPtr = std::unique_ptr<Call>;
+
 	Client();
 	~Client();
 	
@@ -55,12 +60,12 @@ public:
 	static void call_reject                 (Job &t_job);
 	static void call_hangup                 (Job &t_job);
 	static void call_awaiting               (Job &t_job);
+	static void call_cleanup                (Job &_);
 
 
 
 	// Client commands
 	static void client_exit                 (Job &t_job);
-	
 	inline static Accounts      m_user;
 	
 private:
@@ -69,7 +74,9 @@ private:
 	
 	inline static Contacts      m_contacts;
 	inline static Chat          m_chat;
-	inline static Call          m_call;
+
+  /* Call object has became a pointer so we can reinitialize it at runtime */
+	static CallPtr              m_call;
 
 	static bool valid_response(Reply::Code t_code, std::string& t_res);
 };
