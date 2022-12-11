@@ -270,12 +270,6 @@ void Client::call_hangup(Job &t_job)
     LOG_INFO("Client will be notified for hangup");
 }
 
-void Client::call_webcam(Job &t_job)
-{
-	// @Pedro video_call?
-   t_job.m_command = Job::DISCARD;
-}
-
 void Client::call_awaiting(Job &t_job)
 {
    if( t_job.m_valid == true )

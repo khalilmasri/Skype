@@ -40,7 +40,6 @@ JobBus::JobsMap JobBus::m_JobBus_map {
     {Job::ACCEPT,           Client::call_accept},
     {Job::REJECT,           Client::call_reject},
     {Job::HANGUP,           Client::call_hangup},
-    {Job::WEBCAM,           Client::call_webcam},
     {Job::AWAITING,         Client::call_awaiting},
     {Job::EXIT,             Client::client_exit},
 };

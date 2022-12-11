@@ -54,7 +54,6 @@ public:
 	static void call_accept                 (Job &t_job);
 	static void call_reject                 (Job &t_job);
 	static void call_hangup                 (Job &t_job);
-	static void call_webcam                 (Job &t_job);
 	static void call_awaiting               (Job &t_job);
 
 
