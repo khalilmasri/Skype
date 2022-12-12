@@ -28,7 +28,6 @@ public:
   void awaiting(Job &t_job);
   void remove_caller(int t_caller);
 
-  void webcam();
   void hangup();
 
 private:
@@ -36,7 +35,8 @@ private:
 
   QVector<int>   m_callers;
   int            m_current;
-  bool           m_hangup   = false;
+  bool           m_hangup  = false;
+  bool           m_connected = false;
   std::string    m_token;
 
   Webcam         m_webcam;

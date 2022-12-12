@@ -49,6 +49,9 @@ struct Job {
         VIDEO_STREAM, // this returns a video queue stream back to the GUI
         AUDIO_FAILED,
         VIDEO_FAILED,
+        CLEANUP,  // cleans up call object oncall failure
+                  
+        // other
         EXIT,
         NONE,
     };
@@ -65,9 +68,7 @@ struct Job {
     ContactListMap m_contact_list = {};
     QVector<Chat>  m_chats        = {};
     VideoQueuePtr  m_video_stream = nullptr; 
-    
 };
-
 
 
 #endif // JOB_H

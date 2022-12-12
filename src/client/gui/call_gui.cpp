@@ -53,18 +53,16 @@ void CallGui::video_init(int t_contact_id, QString &t_username) {
   Job job = {Job::CONNECT};
   job.m_intValue = t_contact_id;
   job.m_valid = false;
-  JobBus::create(job);
 
-  JobBus::create({Job::WEBCAM});
+  JobBus::create(job);
 }
 
 void CallGui::video_stream(VideoPlayback::VideoQueuePtr t_stream_queue) {
     QThread *video_stream = QThread::create([t_stream_queue, this]() {
     cv::Mat frame;
     size_t trials = 0;
-    while (!m_stop_stream) {
 
-      //  frame = cv::Mat(); // initial again?
+    while (!m_stop_stream) {
 
       if (trials > VideoPlayback::m_MID_PLAYBACK_THROTTLE) {
         LOG_TRACE("Throttling video playback to 50ms");
@@ -87,11 +85,8 @@ void CallGui::video_stream(VideoPlayback::VideoQueuePtr t_stream_queue) {
         try {
           QImage frame_draw = mat_to_qimage_ref(frame, QImage::Format_RGB888);
           cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
-          //  QImage frame_draw(static_cast<const unsigned char*>(frame.data),
-          //  frame.cols * 3, frame.rows * 3, QImage::Format_RGB888);
           m_ui->camera->setPixmap(QPixmap::fromImage(frame_draw));
           m_ui->camera->resize(m_ui->camera->pixmap().size());
-          qDebug() << m_ui->camera->pixmap().size();
           trials = 0;
           Webcam::wait();
         } catch (...) {
