@@ -22,7 +22,6 @@
 
 CallGui::CallGui(QWidget *parent) : QDialog(parent), m_ui(new Ui::CallGui) {
   m_ui->setupUi(this);
-  m_menu = new MenuGui();
 }
 
 CallGui::~CallGui() { delete m_ui; }
@@ -31,29 +30,17 @@ CallGui::~CallGui() { delete m_ui; }
 
 void CallGui::call_accept(QString &t_username) {
   this->setWindowTitle("Call with " + t_username);
-  m_ui->webcam->setChecked(true);
 
   this->show();
 }
 
 void CallGui::call_init(int t_contact_id, QString &t_username) {
   this->setWindowTitle("Call with " + t_username);
-  m_ui->webcam->setChecked(true);
   this->show();
 
   Job job = {Job::CONNECT};
   job.m_intValue = t_contact_id;
   job.m_valid = false;
-  JobBus::create(job);
-}
-
-void CallGui::video_init(int t_contact_id, QString &t_username) {
-  this->setWindowTitle("Call with " + t_username);
-  this->show();
-  Job job = {Job::CONNECT};
-  job.m_intValue = t_contact_id;
-  job.m_valid = false;
-
   JobBus::create(job);
 }
 
@@ -118,15 +105,8 @@ QImage CallGui::mat_to_qimage_ref(cv::Mat &mat, QImage::Format format) {
 
 // ***** SLOTS ***** //
 
-void CallGui::on_webcam_clicked() { JobBus::create({Job::WEBCAM}); }
-
 void CallGui::on_hangup_clicked() {
   JobBus::create({Job::HANGUP});
   m_stop_stream = true;
   this->hide();
-}
-
-void CallGui::on_menu_clicked() {
-  m_menu->refresh_devices();
-  m_menu->show();
 }

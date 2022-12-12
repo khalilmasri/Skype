@@ -55,7 +55,7 @@ private slots:
 	void on_search_clicked();
 	void on_remove_clicked();
 	void on_call_clicked();
-	void on_video_clicked();
+	void on_settings_clicked();
 
 public slots:
 	void started_call(int t_caller_id);
@@ -67,18 +67,19 @@ signals:
 	void ready_signal();
 
 private: // Variables
-	Ui::CentralGui                  *m_ui = nullptr;
-	CallGui                         *m_call = nullptr;
-	QString                         m_user;
-	QMediaPlayer							      *m_ring_sound = nullptr;
-	QAudioOutput						      	*m_audio_output = nullptr;
-	int                             m_user_id;
-	QModelIndex                     m_current_selected;
-	ContactGui                      m_contact;
-	Notification                    *m_notification = nullptr;
-	QHash<int, struct Details>      m_contact_list;
-	QHash<int, QStringList>         m_contact_chat;
-	bool                            m_on_call = false;
+	Ui::CentralGui                	*m_ui = nullptr;
+	CallGui                       	*m_call = nullptr;
+	MenuGui 									*m_menu = nullptr;
+	QString                         	m_user;
+	QMediaPlayer							*m_ring_sound = nullptr;
+	QAudioOutput						  	*m_audio_output = nullptr;
+	int                             	m_user_id;
+	QModelIndex                     	m_current_selected;
+	ContactGui                      	m_contact;
+	Notification                    	*m_notification = nullptr;
+	QHash<int, struct Details>      	m_contact_list;
+	QHash<int, QStringList>         	m_contact_chat;
+	bool                            	m_on_call = false;
 
 private: // Methods
 	void reject() override;

@@ -53,7 +53,7 @@ JobBus *JobBus::get_instance() {
   return m_instance;
 }
 
-JobBus::~JobBus() { delete m_instance; }
+JobBus::~JobBus() {}
 
 void JobBus::create(Job &&t_job) {
 

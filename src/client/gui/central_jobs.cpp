@@ -184,12 +184,12 @@ void CentralGui::job_awaiting(Job &t_job) {
   QString username = m_contact_list[t_job.m_intValue].username;
   ring->set_details(username, t_job.m_intValue);
   callers_table.insert(t_job.m_intValue, ring);
-  m_ring_sound = new QMediaPlayer;
-  m_ring_sound->setSource(
-      QUrl::fromLocalFile("../misc/rings/call_incoming.mp3"));
+
+  m_ring_sound->setSource(QUrl::fromLocalFile("../misc/rings/call_incoming.mp3"));
   m_ring_sound->setAudioOutput(m_audio_output);
-  m_audio_output->setVolume(50);
-  // m_ring_sound->play();
+
+  m_ring_sound->play();
+
   ring->show();
 }
 
@@ -201,8 +201,7 @@ void CentralGui::job_video_stream(Job &t_job) {
     return;
   }
 
-  // @khalil ring code is causing segfaults
-  // m_ring_sound->stop();
+  m_ring_sound->stop();
   m_call->video_stream(t_job.m_video_stream);
 }
 
@@ -220,7 +219,7 @@ void CentralGui::job_peer_hangup(Job &_){
 void CentralGui::job_video_failed(Job &t_job) {
   UNUSED_PARAMS(t_job);
   // @khalil ring code is causing segfaults
-  // m_ring_sound->stop();
+  m_ring_sound->stop();
   LOG_ERR("Video call failed! Closing call window!");
 
   QMessageBox::information(nullptr, "Call failed",
@@ -234,7 +233,7 @@ void CentralGui::job_video_failed(Job &t_job) {
   UNUSED_PARAMS(t_job);
 
   // @khalil ring code is causing segfaults
-  // m_ring_sound->stop();
+  m_ring_sound->stop();
   LOG_ERR("Call failed! Closing call window!");
   QMessageBox::information(nullptr, "Call failed",
                            "Your call failed, try again later!");
