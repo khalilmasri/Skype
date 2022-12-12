@@ -24,9 +24,10 @@ void VideoPlayback::stop() {
 
   if (m_status == Started) {
 
-    // wait for the queue to be empty before stopping.
-    while (!m_queue->empty()) {
-      Webcam::wait(); // wait until queue is empty
+    //  flush queue
+    while (!m_queue->empty()) { 
+       cv::Mat mat;
+       m_queue->pop_try(mat);
     }
 
     m_status = Stopped;

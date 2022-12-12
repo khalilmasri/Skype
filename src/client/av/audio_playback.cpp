@@ -23,9 +23,9 @@ void AudioPlayback::stop() {
 
   if (m_status == Started) {
 
-    // wait for the queue to be empty before stopping.
+    // flush audio queue
     while (!m_audio_queue->empty()) {
-      AudioDevice::wait(1); // wait 1 frame
+      m_audio_queue->pop();
     }
 
     m_audio_output.close();

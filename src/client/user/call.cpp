@@ -56,13 +56,13 @@ void Call::connect(Job &t_job) {
       return;
     }
 
+    m_connected = true;
+
     /* start audio */
     LOG_DEBUG("Starting Call::connect Audio.");
     audio_stream();
     audio_playback();
     /* ** */
-
-    m_connected = true;
 
     if (has_video && !valid_video) {
       m_video_p2p = nullptr;
@@ -196,8 +196,9 @@ void Call::awaiting(Job &t_job) {
 
 /* */
 
+void Call::hangup(Job &t_job) {
 
-  void Call::hangup(Job &t_job){
+  LOG_INFO("HANGUP CALLED");
   m_hangup = true;
   remove_caller(m_current);
 
@@ -206,14 +207,18 @@ void Call::awaiting(Job &t_job) {
   m_video_playback.stop();
   m_video_stream.stop();
 
+  LOG_INFO("HANGUP CALLED after");
+
   m_current = -1;
 
   // this will completely re-initialize the Call object in the Client class.
+  LOG_INFO("connected? %s", m_connected ? "true" : "false");
   if (m_connected) {
     JobBus::create({Job::CLEANUP});
   }
 
-  if (t_job.m_argument == "FROM_PEER"){
+  if (t_job.m_argument == "FROM_PEER") {
+    LOG_INFO("HUNGUP FROM PEER CALLED")
   }
 }
 
