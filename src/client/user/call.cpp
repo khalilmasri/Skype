@@ -19,6 +19,7 @@ Call::Call()
 void Call::connect(Job &t_job) {
 
   m_token = t_job.m_argument;
+  m_hangup = false;
 
   std::thread call_thread([&t_job, this]() {
     /* has_video is a temp. please pass in in t_job whether to have video or not
@@ -94,6 +95,8 @@ void Call::connect(Job &t_job) {
 void Call::accept(Job &t_job) {
 
   bool has_video = true, valid_audio = false, valid_video = false;
+
+  m_hangup = false;
   m_audio_p2p = nullptr;
   m_video_p2p = nullptr;
 
