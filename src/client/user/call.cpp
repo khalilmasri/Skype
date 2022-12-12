@@ -62,7 +62,7 @@ void Call::connect(Job &t_job) {
     audio_playback();
     /* ** */
 
-    m_connected = true; 
+    m_connected = true;
 
     if (has_video && !valid_video) {
       m_video_p2p = nullptr;
@@ -72,11 +72,10 @@ void Call::connect(Job &t_job) {
       return;
     }
 
-
     if (has_video) {
       LOG_DEBUG("Starting Call::connect Video.");
       m_webcam.init();
-      // video_stream();
+      video_stream();
       video_playback();
 
       /* returns to UI that a video stream has started */
@@ -109,7 +108,7 @@ void Call::accept(Job &t_job) {
     return;
   }
 
-    m_connected = true; 
+  m_connected = true;
 
   if (has_video) {
     m_video_p2p = std::make_unique<P2P>(t_job.m_argument);
@@ -128,7 +127,8 @@ void Call::accept(Job &t_job) {
       }
 
       /* wait a bit of nothing to accept */
-      std::this_thread::sleep_for( std::chrono::milliseconds(m_ACCEPT_THROTTLE_TIME));
+      std::this_thread::sleep_for(
+          std::chrono::milliseconds(m_ACCEPT_THROTTLE_TIME));
 
       count++;
     }
@@ -153,9 +153,9 @@ void Call::accept(Job &t_job) {
     LOG_DEBUG("Starting Call::accept Video.");
     m_webcam.init();
     video_stream();
-    //  video_playback();
-    //   t_job.m_command      = Job::VIDEO_STREAM;
-    //  t_job.m_video_stream = m_video_playback.get_stream();
+    video_playback();
+    t_job.m_command = Job::VIDEO_STREAM;
+    t_job.m_video_stream = m_video_playback.get_stream();
   }
 }
 
@@ -208,7 +208,7 @@ void Call::hangup() {
   m_current = -1;
 
   // this will completely re-initialize the Call object in the Client class.
-  if(m_connected){
+  if (m_connected) {
     JobBus::create({Job::CLEANUP});
   }
 }
@@ -334,7 +334,7 @@ auto Call::hangup_callback(AVStream::StreamType t_type)
     -> std::function<void()> {
   return [t_type]() {
     if (t_type == AVStream::Audio) {
-    
+
       Job job = {Job::HANGUP};
       job.m_argument = "CLEANUP";
       JobBus::create(std::move(job));
