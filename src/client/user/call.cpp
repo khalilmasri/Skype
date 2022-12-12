@@ -154,8 +154,11 @@ void Call::accept(Job &t_job) {
     m_webcam.init();
     video_stream();
     video_playback();
-    t_job.m_command = Job::VIDEO_STREAM;
-    t_job.m_video_stream = m_video_playback.get_stream();
+
+    Job res_job;
+    res_job.m_command = Job::VIDEO_STREAM;
+    res_job.m_video_stream = m_video_playback.get_stream();
+    JobBus::create_response(std::move(res_job));
   }
 }
 
@@ -198,7 +201,6 @@ void Call::awaiting(Job &t_job) {
 
 void Call::hangup(Job &t_job) {
 
-  LOG_INFO("HANGUP CALLED");
   m_hangup = true;
   remove_caller(m_current);
 
@@ -207,12 +209,9 @@ void Call::hangup(Job &t_job) {
   m_video_playback.stop();
   m_video_stream.stop();
 
-  LOG_INFO("HANGUP CALLED after");
-
   m_current = -1;
 
   // this will completely re-initialize the Call object in the Client class.
-  LOG_INFO("connected? %s", m_connected ? "true" : "false");
   if (m_connected) {
     JobBus::create({Job::CLEANUP});
   }
