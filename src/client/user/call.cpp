@@ -213,7 +213,8 @@ void Call::hangup(Job &t_job) {
 
   // this will completely re-initialize the Call object in the Client class.
   if (m_connected) {
-    JobBus::create({Job::CLEANUP});
+   // JobBus::create({Job::CLEANUP});
+    m_connected = false;
   }
 
   if (t_job.m_argument == "FROM_PEER") {
