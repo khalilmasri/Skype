@@ -213,12 +213,13 @@ void Call::hangup(Job &t_job) {
 
   // this will completely re-initialize the Call object in the Client class.
   if (m_connected) {
+    // @khalil we can clean up the whole Call object but this is creating memory issues
    // JobBus::create({Job::CLEANUP});
     m_connected = false;
   }
 
   if (t_job.m_argument == "FROM_PEER") {
-    LOG_INFO("HUNGUP FROM PEER CALLED")
+    // @khalil in case we need to do something when the peer requested the hangup.
   }
 }
 
