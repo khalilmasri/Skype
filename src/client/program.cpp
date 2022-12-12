@@ -70,6 +70,7 @@ void Program::create_job_dispatcher()
 		{Job::VIDEO_STREAM,     [this](Job &t_job){m_central->job_video_stream(t_job);}},
 		{Job::VIDEO_FAILED,     [this](Job &t_job){m_central->job_video_failed(t_job);}},
 		{Job::AUDIO_FAILED,     [this](Job &t_job){m_central->job_audio_failed(t_job);}},
+		{Job::PEER_HANGUP,     [this](Job &t_job){m_central->job_peer_hangup(t_job);}},
 	};
 }
 

@@ -28,7 +28,7 @@ public:
   void awaiting(Job &t_job);
   void remove_caller(int t_caller);
 
-  void hangup();
+  void hangup(Job &t_job);
 
 private:
   using P2PPtr = std::unique_ptr<P2P>;

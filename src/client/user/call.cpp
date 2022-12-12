@@ -196,7 +196,8 @@ void Call::awaiting(Job &t_job) {
 
 /* */
 
-void Call::hangup() {
+
+  void Call::hangup(Job &t_job){
   m_hangup = true;
   remove_caller(m_current);
 
@@ -210,6 +211,9 @@ void Call::hangup() {
   // this will completely re-initialize the Call object in the Client class.
   if (m_connected) {
     JobBus::create({Job::CLEANUP});
+  }
+
+  if (t_job.m_argument == "FROM_PEER"){
   }
 }
 
@@ -336,7 +340,7 @@ auto Call::hangup_callback(AVStream::StreamType t_type)
     if (t_type == AVStream::Audio) {
 
       Job job = {Job::HANGUP};
-      job.m_argument = "CLEANUP";
+      job.m_argument = "FROM_PEER";
       JobBus::create(std::move(job));
     }
   };

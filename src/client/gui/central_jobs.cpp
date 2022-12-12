@@ -206,6 +206,17 @@ void CentralGui::job_video_stream(Job &t_job) {
   m_call->video_stream(t_job.m_video_stream);
 }
 
+
+void CentralGui::job_peer_hangup(Job &_){
+  UNUSED_PARAMS(_)
+
+  QMessageBox::information(nullptr, "The peer hangup the call.",
+                           "");
+
+ // JobBus::create({Job::HANGUP});
+  m_call->hide();
+}
+
 void CentralGui::job_video_failed(Job &t_job) {
   UNUSED_PARAMS(t_job);
   // @khalil ring code is causing segfaults
@@ -216,7 +227,6 @@ void CentralGui::job_video_failed(Job &t_job) {
                            "Your video call failed, try again later!");
 
   JobBus::create({Job::HANGUP});
-
   m_call->hide();
 }
 

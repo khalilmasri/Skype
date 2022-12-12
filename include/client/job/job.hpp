@@ -50,6 +50,7 @@ struct Job {
         AUDIO_FAILED,
         VIDEO_FAILED,
         CLEANUP,  // cleans up call object oncall failure
+        PEER_HANGUP,  // Response from Call when peer hangsup
                   
         // other
         EXIT,

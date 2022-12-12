@@ -46,6 +46,7 @@ public:
 	void job_awaiting(Job &t_job);
 	void job_video_stream(Job &t_job);
 	void job_video_failed(Job &t_job);
+	void job_peer_hangup(Job &t_job);
 	void job_audio_failed(Job &t_job);
 
 private slots:
