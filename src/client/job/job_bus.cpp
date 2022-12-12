@@ -63,6 +63,7 @@ void JobBus::create(Job &&t_job) {
 void JobBus::create(Job &t_job) { m_jobQ.push(t_job); }
 
 void JobBus::create_response(Job &&t_job) {
+
   m_resQ.push(t_job);
   emit JobBus::get_instance()->job_ready();
 }
@@ -75,14 +76,11 @@ void JobBus::handle() {
     if (false == m_jobQ.empty()) {
 
       m_jobQ.pop_try(job);
-
-      if (job.m_command == Job::CLEANUP) {
-        std::cout << "clean upsss!!" << std::endl;
-      }
-
+      
       m_JobBus_map[job.m_command](job);
 
       LOG_TRACE("Handling job => %d", job.m_command);
+
       if (Job::AWAITING == job.m_command && true == job.m_valid) {
         m_resQ.push(job);
         emit JobBus::get_instance()->job_ready();

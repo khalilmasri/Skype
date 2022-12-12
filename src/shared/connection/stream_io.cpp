@@ -75,8 +75,6 @@ auto StreamIO::receive(Request &t_req) const -> bool {
   Data::DataVector data = receive_data(t_req, &addr_in, pkt_info);
   t_req.m_address       = Connection::address_tostring(addr_in) + ":" + Connection::port_tostring(addr_in);
 
-    LOG_CRIT("data size-> %lu", data.size());
-  
   if (t_req.m_valid) { 
     LOG_TRACE("Received total data: %llu", data.size());
     t_req.set_data(new AVData(std::move(data), data_type));

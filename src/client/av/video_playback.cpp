@@ -47,7 +47,7 @@ void VideoPlayback::load(const Data *t_video_data) {
 
   if (valid_data_type(t_video_data, Data::Video)) {
     const Webcam::WebcamFrame frame = t_video_data->get_data();
-    LOG_INFO("Loading frame size %lu", frame.size());
+    LOG_TRACE("Loading frame size %lu", frame.size());
     // NOT DECODE AS cv::Mat and decode as a QT format or just push the jpeg.
     m_webcam.decode_one(frame, m_queue); // converts and pushes to video queue.
   }
