@@ -77,7 +77,7 @@ void AVStream::stop() {
 
 void AVStream::stream_audio(P2PPtr &t_p2p_conn) {
   std::thread stream_thread([this, &t_p2p_conn]() {
-    while (m_status == Started) {
+    while (m_status == Started && t_p2p_conn != nullptr) {
       send_audio(t_p2p_conn);
     }
 
@@ -86,7 +86,10 @@ void AVStream::stream_audio(P2PPtr &t_p2p_conn) {
       send_audio(t_p2p_conn);
     }
 
+    if(t_p2p_conn != nullptr){
     send_done(t_p2p_conn); // sends a Data::Done package to peer
+    }
+
   });
 
   stream_thread.detach();
@@ -99,7 +102,7 @@ void AVStream::stream_video(P2PPtr &t_p2p_conn) {
   std::thread stream_thread([this, &t_p2p_conn]() {
     Request req = t_p2p_conn->make_request();
 
-    while (m_status == Started) {
+    while (m_status == Started && t_p2p_conn != nullptr) {
       Webcam::WebcamFrame frame = m_webcam.capture_one();
 
       req.set_data(new AVData(std::move(frame), Data::Video));
@@ -107,7 +110,9 @@ void AVStream::stream_video(P2PPtr &t_p2p_conn) {
       Webcam::wait(); // wait one frame
     }
 
+    if(t_p2p_conn != nullptr){
     send_done(t_p2p_conn); // sends a Data::Done package to peer
+    }
   });
 
   stream_thread.detach();
@@ -118,6 +123,12 @@ void AVStream::stream_video(P2PPtr &t_p2p_conn) {
 void AVStream::send_audio(P2PPtr &t_p2p_conn) {
 
   std::vector<uint8_t> encoded_audio = m_converter.encode(m_input_queue);
+
+  // if p2p connection is nil just convert just to empty queue but return
+  if(t_p2p_conn == nullptr){
+    return;
+  }
+
   Request audio_req = t_p2p_conn->make_request();
 
   audio_req.set_data(new AVData(std::move(encoded_audio), Data::Audio));
