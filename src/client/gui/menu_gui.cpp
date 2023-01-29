@@ -1,6 +1,7 @@
 #include "menu_gui.hpp"
 #include "audio_device_config.hpp"
 #include "logger.hpp"
+#include "client.hpp"
 #include "ui/ui_menu.h"
 #include <QMediaDevices>
 #include <QCameraDevice>
@@ -39,7 +40,7 @@ void MenuGui::refresh_devices()
 
 	for(auto &device : m_config->list_input_name())
 	{
-	LOG_DEBUG("Input -> %s", device.c_str());
+	LOG_TRACE("Input -> %s", device.c_str());
 		if ( -1 == m_ui->input_drop->findText(QString::fromStdString(device)))
 		{   
 			m_ui->input_drop->addItem(QString::fromStdString(device));
@@ -48,7 +49,7 @@ void MenuGui::refresh_devices()
 
 	for(auto &device : m_config->list_output_name())
 	{
-		LOG_DEBUG("Input -> %s -> %d", device.c_str(), m_ui);
+		LOG_TRACE("Input -> %s -> %d", device.c_str(), m_ui);
 		if ( -1 == m_ui->output_drop->findText(QString::fromStdString(device)))
 		{   
 			m_ui->output_drop->addItem(QString::fromStdString(device));
@@ -80,19 +81,22 @@ void MenuGui::on_input_drop_currentIndexChanged(int index)
 	m_temp_input_index = index;
 }
 
+
 void MenuGui::on_accept_clicked()
 {	
 	LOG_DEBUG("Input : %d | Output : %d", m_temp_input_index, m_temp_output_index);
 	if (-1 != m_temp_input_index)
 	{
-		LOG_INFO("Changed input device to [%s]", m_ui->input_drop->itemText(m_temp_input_index).toStdString().c_str());
+		LOG_TRACE("Changed input device to [%s]", m_ui->input_drop->itemText(m_temp_input_index).toStdString().c_str());
 		m_config->select_input(m_temp_input_index);
 		m_temp_input_index = -1;
+
+    Client::reinit_call();
 	}
 
 	if (-1 != m_temp_output_index)
 	{
-		LOG_INFO("Changed input device to [%s]", m_ui->output_drop->itemText(m_temp_output_index).toStdString().c_str());
+		LOG_TRACE("Changed input device to [%s]", m_ui->output_drop->itemText(m_temp_output_index).toStdString().c_str());
 		m_config->select_output(m_temp_output_index);
 		m_temp_output_index = -1;
 	}

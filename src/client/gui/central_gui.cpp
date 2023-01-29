@@ -39,25 +39,46 @@ CentralGui::CentralGui(QWidget *parent) : QDialog(parent),
     QObject::connect(this, &CentralGui::on_send_clicked, this, &CentralGui::send_msg);
     QObject::connect(this, &CentralGui::on_message_txt_returnPressed, this, &CentralGui::send_msg);
 
+    m_menu = new MenuGui();
+
+    m_ring_sound = new QMediaPlayer;
+    m_audio_output = new QAudioOutput;
+
+    m_audio_output->setVolume(50);
+
     m_ui->search->setAutoDefault(false);
     m_ui->add->setAutoDefault(false);
     m_ui->remove->setAutoDefault(false);
     m_ui->call->setAutoDefault(false);
-    m_ui->video->setAutoDefault(false);
 
-	 m_audio_output = new QAudioOutput;
 }
 
 CentralGui::~CentralGui()
 {
     emit wrapping();
     LOG_INFO("Emitted wrapping");
-    delete m_ui;
-	// delete m_audio_output;
-	// delete m_ring_sound;
-    if (m_call) {
+    
+    if (m_menu)
+    {
+        delete m_menu;
+    }
+
+    if (m_audio_output)
+    {
+        delete m_audio_output;
+    }
+
+    if (m_ring_sound)
+    {
+	    delete m_ring_sound;
+    }
+
+    if (m_call) 
+    {
       delete m_call;
     }
+
+    delete m_ui;
 }
 
 // ***** PUBLIC ***** //
@@ -207,10 +228,8 @@ void CentralGui::on_contact_list_clicked(const QModelIndex &index)
         if (status == true)
         {
             m_ui->call->show();
-            m_ui->video->show();
         }else{
             m_ui->call->hide();
-            m_ui->video->hide();
         }
     }
 
@@ -272,27 +291,10 @@ void CentralGui::on_call_clicked()
     m_call->call_init(user_id, user);
 }
 
-void CentralGui::on_video_clicked()
+void CentralGui::on_settings_clicked()
 {
-    if (true == m_on_call)
-    {
-        QMessageBox::information(nullptr, "Error", "You are already on a call!", QMessageBox::Ok);
-        return;
-    }
-
-    m_call = new CallGui(this);
-    QString user = m_current_selected.data(Qt::DisplayRole).toString();
-    int user_id = search_contact_list(user, "username");
-
-    if (user_id == 0)
-    {
-        QMessageBox::warning(nullptr, "Error", "Something went wrong while calling " + user + "!\n Please try again later!",
-                             QMessageBox::Ok);
-        return;
-    }
-
-    m_on_call = true;
-    m_call->video_init(user_id, user);
+    m_menu->refresh_devices();
+    m_menu->show();
 }
 
 void CentralGui::started_call(int t_caller_id)
@@ -315,7 +317,11 @@ void CentralGui::started_call(int t_caller_id)
     }
 
     m_on_call = true;
-	 m_ring_sound->setSource(QUrl::fromLocalFile("../misc/rings/answer.mp3"));
-	 m_ring_sound->play();
+
+    m_ring_sound->stop();
+    
+    m_ring_sound->setSource(QUrl::fromLocalFile("../misc/rings/answer.mp3"));
+    m_ring_sound->play();
+   
     m_call->call_accept(user);
 }

@@ -71,6 +71,10 @@ Router::CmdTuple Router::parse(Request &t_req) {
     return std::make_tuple(cmd, token, arguments);
   }
 
+  if(cmd == ServerCommand::Exit){
+  return std::make_tuple(cmd, body, ""); // exit has only token
+  }
+
   return std::make_tuple(cmd, "", body);
 }
 

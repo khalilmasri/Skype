@@ -33,8 +33,8 @@ AudioDevice::AudioDevice(std::unique_ptr<LockFreeAudioQueue> &t_queue, Type t_ty
 //  auto outputs = config->list_output_name();
 //  for(auto &output: outputs) { std::cout << output << "\n"; }
 
-  config->select_input(0); // <----- THIS !
-  config->select_output(0); // <----- THIS !
+ // config->select_input(0); // <----- THIS !
+ // config->select_output(0); // <----- THIS !
   
   std::string interface_name = t_type == Input ? config->get_input().c_str()
                                                : config->get_output().c_str();
@@ -42,7 +42,7 @@ AudioDevice::AudioDevice(std::unique_ptr<LockFreeAudioQueue> &t_queue, Type t_ty
   const char *in_or_out = t_type == Input ? "Input" : "Output";
 
 
-  SDL_Log("Selecting Audio Device %s : %s\n", in_or_out,
+  LOG_INFO("Selecting Audio Device %s : %s\n", in_or_out,
           interface_name.c_str());
 
   m_dev = SDL_OpenAudioDevice(interface_name.c_str(), static_cast<int>(t_type), &want, &have,

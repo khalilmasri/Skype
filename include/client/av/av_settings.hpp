@@ -59,7 +59,7 @@ private:
   CodecID m_codec_id = mp3;
   CodecID m_codec_id_alt = mp3_alt;                  // alternative in case first option is not avail.
   int m_channels = 1;
-  int m_bitrate = 128000;
+  int m_bitrate = 64000;
   int m_samplerate = 44100;
   SDL_AudioFormat m_device_format = s_float32Bits;
   AVSampleFormat m_converter_format;            // will be set according to m_device_format
@@ -96,9 +96,9 @@ private:
   static VideoSettings *m_instance;
 
   std::string m_converter_type = ".jpeg";
-  int m_bitrate = 40000;
-  int m_height = 480;
-  int m_width = 640;
+  int m_bitrate = 4000;
+  int m_width = 320;
+  int m_height = 180;
   int m_framerate = 25;
   int m_capture_size = 1; // video frames @ 25 fps
   int m_camera = 0;

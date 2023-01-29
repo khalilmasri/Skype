@@ -31,22 +31,30 @@ Program::Program()
 
 	m_welcome->show();
 
+  int tries = 0;
+
 	bool res = m_client.init();
-	while(false == res)
-	{
+	while(false == res) {
 	res = m_client.init();
 	usleep(300);
+  tries++;
+
+  if (tries >= m_MAX_TRIES){
+    QMessageBox::warning(nullptr, "Error", "Could not connect to server.", QMessageBox::Ok);
+    exit(1);
+   }
 	}
 	
 	QThread *bus_loop = QThread::create(&JobBus::handle);
 	bus_loop->start();
-
 }
 
 Program::~Program()
 {
 	delete m_welcome;
 	delete m_central;
+	delete m_menu;
+	delete m_bus;
 }
 
 // ***** PRIVATE ***** //
@@ -70,6 +78,7 @@ void Program::create_job_dispatcher()
 		{Job::VIDEO_STREAM,     [this](Job &t_job){m_central->job_video_stream(t_job);}},
 		{Job::VIDEO_FAILED,     [this](Job &t_job){m_central->job_video_failed(t_job);}},
 		{Job::AUDIO_FAILED,     [this](Job &t_job){m_central->job_audio_failed(t_job);}},
+		{Job::PEER_HANGUP,     	[this](Job &t_job){m_central->job_peer_hangup(t_job);}},
 	};
 }
 
@@ -105,5 +114,11 @@ void Program::job_login(Job &t_job)
 void Program::switch_to_chat()
 {
 	m_welcome->hide();
+	
+	QMessageBox::information(nullptr, "Input/output settings", "Please configure your audio settings!", QMessageBox::Ok);
+	
+	m_menu = new MenuGui();
+	
 	m_central->show();
+	m_menu->show();
 }

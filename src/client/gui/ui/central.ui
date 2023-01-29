@@ -144,6 +144,58 @@
     <string/>
    </property>
    <layout class="QGridLayout" name="gridLayout">
+    <item row="1" column="0" colspan="2">
+     <widget class="QListView" name="chat_box">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
+      </property>
+      <property name="editTriggers">
+       <set>QAbstractItemView::NoEditTriggers</set>
+      </property>
+      <property name="selectionMode">
+       <enum>QAbstractItemView::NoSelection</enum>
+      </property>
+      <property name="selectionBehavior">
+       <enum>QAbstractItemView::SelectColumns</enum>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="1">
+     <widget class="QPushButton" name="send">
+      <property name="text">
+       <string>Send</string>
+      </property>
+      <property name="icon">
+       <iconset resource="../../../../misc/icons/resource.qrc">
+        <normaloff>:/icons/icons8-email-send-24.png</normaloff>:/icons/icons8-email-send-24.png</iconset>
+      </property>
+      <property name="iconSize">
+       <size>
+        <width>20</width>
+        <height>20</height>
+       </size>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="0">
+     <widget class="QLineEdit" name="message_txt">
+      <property name="text">
+       <string notr="true"/>
+      </property>
+      <property name="maxLength">
+       <number>1024</number>
+      </property>
+      <property name="placeholderText">
+       <string>Type a message...</string>
+      </property>
+     </widget>
+    </item>
     <item row="0" column="0" colspan="2">
      <layout class="QHBoxLayout" name="horizontalLayout_5">
       <item>
@@ -179,7 +231,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="video">
+         <widget class="QPushButton" name="settings">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
             <horstretch>0</horstretch>
@@ -187,11 +239,11 @@
            </sizepolicy>
           </property>
           <property name="text">
-           <string>Video</string>
+           <string>Settings</string>
           </property>
           <property name="icon">
            <iconset resource="../../../../misc/icons/resource.qrc">
-            <normaloff>:/icons/icons8-video-camera-24.png</normaloff>:/icons/icons8-video-camera-24.png</iconset>
+            <normaloff>:/icons/menu.png</normaloff>:/icons/menu.png</iconset>
           </property>
           <property name="iconSize">
            <size>
@@ -205,60 +257,8 @@
       </item>
      </layout>
     </item>
-    <item row="4" column="0">
-     <widget class="QLineEdit" name="message_txt">
-      <property name="text">
-       <string notr="true"/>
-      </property>
-      <property name="maxLength">
-       <number>1024</number>
-      </property>
-      <property name="placeholderText">
-       <string>Type a message...</string>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="1">
-     <widget class="QPushButton" name="send">
-      <property name="text">
-       <string>Send</string>
-      </property>
-      <property name="icon">
-       <iconset resource="../../../../misc/icons/resource.qrc">
-        <normaloff>:/icons/icons8-email-send-24.png</normaloff>:/icons/icons8-email-send-24.png</iconset>
-      </property>
-      <property name="iconSize">
-       <size>
-        <width>20</width>
-        <height>20</height>
-       </size>
-      </property>
-     </widget>
-    </item>
     <item row="2" column="0" colspan="2">
      <layout class="QHBoxLayout" name="horizontalLayout_3"/>
-    </item>
-    <item row="1" column="0" colspan="2">
-     <widget class="QListView" name="chat_box">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="focusPolicy">
-       <enum>Qt::NoFocus</enum>
-      </property>
-      <property name="editTriggers">
-       <set>QAbstractItemView::NoEditTriggers</set>
-      </property>
-      <property name="selectionMode">
-       <enum>QAbstractItemView::NoSelection</enum>
-      </property>
-      <property name="selectionBehavior">
-       <enum>QAbstractItemView::SelectColumns</enum>
-      </property>
-     </widget>
     </item>
    </layout>
   </widget>

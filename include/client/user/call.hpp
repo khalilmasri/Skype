@@ -19,8 +19,8 @@ class Call{
 
 public:
    Call();
-  ~Call()= default;
-  
+  ~Call() = default;
+
   void create(Job &t_job);
   void connect(Job &t_job);
   void accept(Job &t_job);
@@ -28,15 +28,15 @@ public:
   void awaiting(Job &t_job);
   void remove_caller(int t_caller);
 
-  void webcam();
-  void hangup();
+  void hangup(Job &t_job);
 
 private:
   using P2PPtr = std::unique_ptr<P2P>;
 
   QVector<int>   m_callers;
   int            m_current;
-  bool           m_hangup   = false;
+  bool           m_hangup  = false;
+  bool           m_connected = false;
   std::string    m_token;
 
   Webcam         m_webcam;
@@ -47,8 +47,8 @@ private:
 
   /* stream objects */
   AVStream       m_audio_stream; 
-  AVStream       m_video_stream;
 
+  AVStream       m_video_stream;
   /* playback objects */
   AudioPlayback  m_audio_playback;
   VideoPlayback  m_video_playback;
@@ -69,8 +69,10 @@ private:
   auto hangup_callback(AVStream::StreamType t_type) -> std::function<void()>;
 
   /* Constants */
-  inline static const int m_TIMEOUT = 10;
-  inline static const int m_NB_BUFFER_PACKETS = 1;
+  inline static const int m_PING_TIMEOUT         = 10;
+  inline static const int m_ACCEPT_TIMEOUT       = 40;
+  inline static const int m_ACCEPT_THROTTLE_TIME = 60;
+  inline static const int m_NB_BUFFER_PACKETS    = 1;
 
 };
 

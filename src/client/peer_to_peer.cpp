@@ -8,9 +8,6 @@
 #include <thread>
 
 static Config *config = Config::get_instance();
-const std::string P2P::m_DELIM = " ";
-const std::string P2P::m_LOCAL = "LOCAL";
-const std::size_t P2P::m_MAX_PING_TRIALS = 5;
 
 /* Constructors */
 
@@ -24,7 +21,8 @@ P2P::P2P(std::string &t_token)
 /* Same constructor but moves the token string */
 P2P::P2P(std::string &&t_token)
     : m_token(std::move(t_token)), m_conn(new UDPTextIO()), m_status(Idle),
-      m_type(None), m_last_reply(Reply::None), m_local_ip(), m_network_type(Unselected) {
+      m_type(None), m_last_reply(Reply::None), m_local_ip(),
+      m_network_type(Unselected) {
 
   bind_sockets();
 }
@@ -87,7 +85,6 @@ void P2P::send_package(Request &t_req) {
     t_req.m_valid = false;
     LOG_DEBUG("Cannot send package. P2P Not connected.");
   }
-
 }
 
 /* Receiving data from peer */
@@ -99,17 +96,16 @@ void P2P::receive_package(Request &t_req) {
   } else {
     t_req.m_valid = false;
     LOG_DEBUG("Cannot receive package. P2P Not connected.");
-
   }
 }
 
 /* */
 
 void P2P::reset() {
-  m_last_reply   = Reply::None;
+  m_last_reply = Reply::None;
   m_peer_address = {};
-  m_status       = Idle;
-  m_type         = None;
+  m_status = Idle;
+  m_type = None;
 }
 
 /* */
@@ -120,7 +116,8 @@ void P2P::handshake_peer() {
     return;
   }
 
-  Request req(m_peer_address + ":" + std::to_string(m_conn.get_port()), true); // m_valid = true
+  Request req(m_peer_address + ":" + std::to_string(m_conn.get_port()),
+              true); // m_valid = true
 
   /* if m_network_type = WEB handshake will hole punch */
   if (m_type == Acceptor) {
@@ -129,7 +126,6 @@ void P2P::handshake_peer() {
 
   if (m_type == Initiator) {
     handshake_initiator(req, m_network_type);
-
   }
   // when connected swap the IO type to data stream
   if (m_status == Connected) {
@@ -173,10 +169,10 @@ void P2P::accept_peer(std::string &t_peer_id) {
   std::string response = send_server(ServerCommand::Accept, argument);
 
   if (m_last_reply == Reply::r_201) {
-    m_status                     = Accepted;
+    m_status = Accepted;
     auto [address, address_type] = StringUtils::split_first(response);
-    m_peer_address               = std::move(address);
-    m_network_type               = address_type == m_LOCAL ? Local : Web;
+    m_peer_address = std::move(address);
+    m_network_type = address_type == m_LOCAL ? Local : Web;
 
   } else {
     m_status = Error;
@@ -188,7 +184,7 @@ void P2P::accept_peer(std::string &t_peer_id) {
 
 void P2P::reject_peer(std::string &t_peer_id) {
 
-  m_type               = Acceptor;
+  m_type = Acceptor;
   std::string response = send_server(ServerCommand::Reject, t_peer_id);
 
   if (m_last_reply == Reply::r_200) {
@@ -205,11 +201,13 @@ void P2P::reject_peer(std::string &t_peer_id) {
 void P2P::ping_peer() {
 
   if (m_type != Initiator) {
-    LOG_ERR("A peer cannot PING if he has not initiated with CONNECT. P2P:Type " "was '%s'.", type_to_string().c_str());
+    LOG_ERR("A peer cannot PING if he has not initiated with CONNECT. P2P:Type "
+            "was '%s'.",
+            type_to_string().c_str());
     return;
   }
 
-  if(m_status == Accepted){
+  if (m_status == Accepted) {
     LOG_TRACE("This connection has already been accepted. Ignoring ping...");
     return;
   }
@@ -218,13 +216,14 @@ void P2P::ping_peer() {
 
   if (m_last_reply == Reply::r_201) {
 
-    m_status                     = Accepted;
-    
-    auto [address, address_type] = StringUtils::split_first(response);
-    LOG_INFO("successful ping from address `%s` type `%s`.", address.c_str(), address_type.c_str());
+    m_status = Accepted;
 
-    m_peer_address               = std::move(address);
-    m_network_type               = address_type == "LOCAL" ? Local : Web;
+    auto [address, address_type] = StringUtils::split_first(response);
+    LOG_INFO("successful ping from address `%s` type `%s`.", address.c_str(),
+             address_type.c_str());
+
+    m_peer_address = std::move(address);
+    m_network_type = address_type == "LOCAL" ? Local : Web;
     return;
 
   } else if (m_last_reply == Reply::r_203) {
@@ -232,10 +231,10 @@ void P2P::ping_peer() {
     m_status = Awaiting;
     LOG_INFO("%s", response.c_str());
 
-    } else {
+  } else {
     m_status = Error;
-    LOG_ERR("The response was '%s' and should have been 201 or 203", response.c_str());
-
+    LOG_ERR("The response was '%s' and should have been 201 or 203",
+            response.c_str());
   }
 }
 
@@ -303,12 +302,17 @@ void P2P::handshake_acceptor(Request &t_req, PeerNetwork t_peer_network) {
     hole_punch(t_req);
   }
 
-  LOG_DEBUG("Acceptor: waiting for handshake confirmation from '%s'. ", t_req.m_address.c_str());
+  LOG_DEBUG("Acceptor: waiting for handshake confirmation from '%s'. ",
+            t_req.m_address.c_str());
 
   bool got_res = m_conn.receive(t_req);
 
   // acceptor will get trying to connect until it gets a response
   retry(t_req, got_res);
+
+  if (m_status == Error) {
+    return;
+  }
 
   std::string response = TextData::to_string(t_req.data());
 
@@ -346,13 +350,16 @@ void P2P::handshake_initiator(Request &t_req, PeerNetwork t_peer_network) {
 
   LOG_DEBUG("Intiator: Sending 200 OK to confirm.");
   m_conn.respond(t_req);
-  
+
   LOG_DEBUG("Intiator: Handshake sent. now waiting for OK response...")
   bool got_res = m_conn.receive(t_req);
 
   // initiator will get trying to connect until it gets a response
   retry(t_req, got_res);
 
+  if (m_status == Error) {
+    return;
+  }
 
   std::string response = TextData::to_string(t_req.data());
 
@@ -413,24 +420,41 @@ auto P2P::make_server_request(std::string &&t_text_data) -> Request {
 
 /* */
 
-void P2P::retry(Request &t_req, bool got_res){
+void P2P::retry(Request &t_req, bool got_res) {
 
- if(got_res) {
-   return;
- }
-   
- bool should_retry = !got_res;
-
- while(should_retry){
-    LOG_INFO("%s: Did not receive response peer. Sending punch message again...", type_to_string().c_str())
-    hole_punch(t_req);
-
-   bool res = m_conn.respond(t_req);
-   should_retry = !res;
+  if (got_res) {
+    return;
   }
 
-}
+  bool should_retry = !got_res;
+  std::size_t nb_trials = 0;
 
+  while (should_retry && nb_trials < m_MAX_PUNCH_TRIALS) {
+    LOG_DEBUG(
+        "%s: Did not receive response peer. Sending punch message again...",
+        type_to_string().c_str())
+
+    hole_punch(t_req);
+
+    /* receive is non-blocking here. It will timeout after
+     * UDPConn::m_RECEIVE_TIMEOUT  is reached It returns false in case of errors
+     * or if nothing has been received
+     * */
+
+    bool success = m_conn.receive(t_req);
+
+    if (success) {
+      LOG_DEBUG("Hole punch retrials was successful.")
+      return;
+    }
+
+    should_retry = !success;
+    nb_trials++;
+  }
+
+  LOG_DEBUG("Giving up on hole punch after %lu trials.", nb_trials);
+  m_status = Error;
+}
 
 /* */
 

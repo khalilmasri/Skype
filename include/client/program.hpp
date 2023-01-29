@@ -26,9 +26,10 @@ private slots:
 
 private: // Variables
 	Client      m_client;
-	JobBus      *m_bus;
-	WelcomeGui  *m_welcome;
-	CentralGui     *m_central;
+	JobBus      *m_bus = nullptr;
+	WelcomeGui  *m_welcome = nullptr;
+	CentralGui     *m_central = nullptr;
+	MenuGui 			*m_menu = nullptr;
 	//QThread     *m_bus_loop;
 	JobDispatch m_table;
 
@@ -38,6 +39,8 @@ private: // Methods
 	// slots
 	void job_login(Job &t_job);
 	void switch_to_chat();
+
+  static const int m_MAX_TRIES = 20000;
 };
 
 #endif // PROGRAM_H

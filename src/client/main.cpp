@@ -19,11 +19,9 @@
 #define WRAPPING 1
 
 /* / *****!SECTION
-
 Fix bug when hanging up while handshaking to reset on call boolean in call_gui class
-
-
 ******/
+
 static Config *conf = Config::get_instance();
 
 int main(int argc, char *argv[]) {

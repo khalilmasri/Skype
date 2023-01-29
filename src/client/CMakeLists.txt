@@ -56,14 +56,6 @@ file(GLOB RESOURCES "../../misc/icons/resource.qrc")
 # Define CMAKE_BINARY_DIR for the destination of the binary 
 set(CMAKE_BINARY_DIR "../../bin")
 
-
-# linux flags
-if(LINUX)
-  set(LINUX_COMPILE FLAGS "-lz -lswresample -lva-drm -lva-x11 -lva -lvdpau -lX11 -llzma  -lmp3lame ")
-else()
-  set(LINUX_COMPILE FLAGS "")
-endif()
-
 # Define the output to CMAKE_BINARY_DIR declared above
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR})
 
@@ -107,17 +99,30 @@ include_directories(${SDL2_INCLUDE_DIRS})
 include_directories(${OpenCV_INCLUDE_DIRS})
 
 # Linking the libraries
-target_link_libraries(${PROJECT_NAME} PRIVATE
-                      Qt${QT_VERSION_MAJOR}::Widgets
-                      Qt${QT_VERSION_MAJOR}::Multimedia 
-                      Qt${QT_VERSION_MAJOR}::MultimediaWidgets
-                      # AV
-                      ${AVCODEC_LIBRARY}
-                      ${AVUTIL_LIBRARY}
-                      ${SDL2_LIBRARIES}
-                      ${OpenCV_LIBS}
-                      ${LINUX_COMPILE_FLAGS}
-                    )
+if(LINUX)
+  target_link_libraries(${PROJECT_NAME} PRIVATE
+                        Qt${QT_VERSION_MAJOR}::Widgets
+                        Qt${QT_VERSION_MAJOR}::Multimedia 
+                        Qt${QT_VERSION_MAJOR}::MultimediaWidgets
+                        # AV
+                        ${AVCODEC_LIBRARY}
+                        ${AVUTIL_LIBRARY}
+                        ${SDL2_LIBRARIES}
+                        ${OpenCV_LIBS}
+                        -lz -lswresample -lva-drm -lva-x11 -lva -lvdpau -lX11 -llzma  -lmp3lame
+                      )
+else()  
+  target_link_libraries(${PROJECT_NAME} PRIVATE
+                        Qt${QT_VERSION_MAJOR}::Widgets
+                        Qt${QT_VERSION_MAJOR}::Multimedia 
+                        Qt${QT_VERSION_MAJOR}::MultimediaWidgets
+                        # AV
+                        ${AVCODEC_LIBRARY}
+                        ${AVUTIL_LIBRARY}
+                        ${SDL2_LIBRARIES}
+                        ${OpenCV_LIBS}
+                      )
+endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
     # MACOSX_BUNDLE_SHORT_VERSION_STRING ${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}

@@ -22,7 +22,6 @@
 
 CallGui::CallGui(QWidget *parent) : QDialog(parent), m_ui(new Ui::CallGui) {
   m_ui->setupUi(this);
-  m_menu = new MenuGui();
 }
 
 CallGui::~CallGui() { delete m_ui; }
@@ -31,40 +30,26 @@ CallGui::~CallGui() { delete m_ui; }
 
 void CallGui::call_accept(QString &t_username) {
   this->setWindowTitle("Call with " + t_username);
-  m_ui->webcam->setChecked(true);
 
   this->show();
 }
 
 void CallGui::call_init(int t_contact_id, QString &t_username) {
   this->setWindowTitle("Call with " + t_username);
-  m_ui->webcam->setChecked(true);
   this->show();
 
   Job job = {Job::CONNECT};
   job.m_intValue = t_contact_id;
   job.m_valid = false;
   JobBus::create(job);
-}
-
-void CallGui::video_init(int t_contact_id, QString &t_username) {
-  this->setWindowTitle("Call with " + t_username);
-  this->show();
-  Job job = {Job::CONNECT};
-  job.m_intValue = t_contact_id;
-  job.m_valid = false;
-  JobBus::create(job);
-
-  JobBus::create({Job::WEBCAM});
 }
 
 void CallGui::video_stream(VideoPlayback::VideoQueuePtr t_stream_queue) {
     QThread *video_stream = QThread::create([t_stream_queue, this]() {
     cv::Mat frame;
     size_t trials = 0;
-    while (!m_stop_stream) {
 
-      //  frame = cv::Mat(); // initial again?
+    while (!m_stop_stream) {
 
       if (trials > VideoPlayback::m_MID_PLAYBACK_THROTTLE) {
         LOG_TRACE("Throttling video playback to 50ms");
@@ -87,11 +72,8 @@ void CallGui::video_stream(VideoPlayback::VideoQueuePtr t_stream_queue) {
         try {
           QImage frame_draw = mat_to_qimage_ref(frame, QImage::Format_RGB888);
           cv::cvtColor(frame, frame, cv::COLOR_BGR2RGB);
-          //  QImage frame_draw(static_cast<const unsigned char*>(frame.data),
-          //  frame.cols * 3, frame.rows * 3, QImage::Format_RGB888);
           m_ui->camera->setPixmap(QPixmap::fromImage(frame_draw));
           m_ui->camera->resize(m_ui->camera->pixmap().size());
-          qDebug() << m_ui->camera->pixmap().size();
           trials = 0;
           Webcam::wait();
         } catch (...) {
@@ -123,15 +105,8 @@ QImage CallGui::mat_to_qimage_ref(cv::Mat &mat, QImage::Format format) {
 
 // ***** SLOTS ***** //
 
-void CallGui::on_webcam_clicked() { JobBus::create({Job::WEBCAM}); }
-
 void CallGui::on_hangup_clicked() {
   JobBus::create({Job::HANGUP});
   m_stop_stream = true;
   this->hide();
-}
-
-void CallGui::on_menu_clicked() {
-  m_menu->refresh_devices();
-  m_menu->show();
 }

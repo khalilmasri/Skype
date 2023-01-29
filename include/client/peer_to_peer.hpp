@@ -80,9 +80,10 @@ class P2P {
   void          hole_punch(Request &t_req);
 
   /* Constants */
-  const static std::string m_DELIM;
-  const static std::string m_LOCAL;
-  const static std::size_t m_MAX_PING_TRIALS;
+  const inline static std::string m_DELIM            = " ";
+  const inline static std::string m_LOCAL            = "LOCAL";
+  const inline static std::size_t m_MAX_PING_TRIALS  = 5;
+  const inline static std::size_t m_MAX_PUNCH_TRIALS = 20;
 };
 
 #endif

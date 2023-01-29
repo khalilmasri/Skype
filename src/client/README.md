@@ -82,12 +82,12 @@ If new user registration, click new user and proceed to new user creation page, 
         
 ### Chat Window:
 
-        The chat window is a simple UI which shows the name of the current contact window at the top left. and has audio and video call buttons at the top         right when that contact is online.
+        The chat window is a simple UI which shows the name of the current contact window at the top left. and has a call button at the top         right when that contact is online.
         Bottom has a text message toolbar which allows for sending messages when the contact is both online and offline, and the main chat window which             will display the correspondance with said contact.
         
 ### Audio/Video Call Window:
         
-        This window will appear when either video or audio call is requested by the user, or if incoming call is received. 
+        This window will appear when a call is requested by the user, or if incoming call is received. 
         Every action will be confirmed by notification messages in the UI, within a call the user has option to turn on or off video calling, audio calling         will always be active in either, until call is terminated by either the hangup button or the close window button in top left. 
         
 ### Logging Out:
