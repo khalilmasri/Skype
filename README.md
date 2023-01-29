@@ -1,3 +1,28 @@
+# Welcome to My Ftp (FTP Server in C++)
+***
+
+Authors: 
+
+Pedro Botsaris (www.github.com/Pbotsaris)
+Chris Dallat (www.github.com/chrisdallat)
+Khalil Masree (www.github.com/khalilmasri)
+
+
+## Task
+
+Create a Skype like server and client.
+
+## Description
+
+Create skype like server client
+
+## Installation
+
+check below and in src/client/README.md
+
+## Usage
+
+check below and in src/client/README.md
 # Skype
 
 The Skype application is divided between two building blocks - [Client](https://github.com/khalilmasri/Skype/tree/main/src/client) and [server](https://github.com/khalilmasri/Skype/tree/main/src/server).
