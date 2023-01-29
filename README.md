@@ -1,29 +1,23 @@
-# Welcome to My Ftp (FTP Server in C++)
-***
+# Welcome to My Skype
 
 Authors: 
 
-Pedro Botsaris (www.github.com/Pbotsaris)
-Chris Dallat (www.github.com/chrisdallat)
-Khalil Masree (www.github.com/khalilmasri)
-
+* [Pedro Botsaris](www.github.com/Pbotsaris)
+* [Chris Dallat](www.github.com/chrisdallat)
+* [Khalil Masree](www.github.com/khalilmasri)
 
 ## Task
 
 Create a Skype like server and client.
 
+The project will have the following features:
+* Registration
+* Login
+* Contacts (Add/Remove/Search)
+* Video calling
+* Audio calling
+
 ## Description
-
-Create skype like server client
-
-## Installation
-
-check below and in src/client/README.md
-
-## Usage
-
-check below and in src/client/README.md
-# Skype
 
 The Skype application is divided between two building blocks - [Client](https://github.com/khalilmasri/Skype/tree/main/src/client) and [server](https://github.com/khalilmasri/Skype/tree/main/src/server).
 
@@ -46,8 +40,11 @@ You must allow IPs in your local network. For exemple, if you router IP is `192.
 
     sudo ufw allow from 192.168.178.0/24
 
-###  Build System
+## Installation
 
+check below and in [src/client/README.md](https://github.com/khalilmasri/Skype/blob/main/src/client/README.md)
+
+## Usage
 The build is done using CMake and to facilitate this process we use the script `./build.sh`. This script will
 produce and run 3 binaries - `./build/bin/server`,  `./build/bin/client` and `./build/bin/test_client`. 
 
@@ -78,7 +75,7 @@ Cleaning. `clean-all` will remove all build files requiring  `./build.sh --gen`.
            ./build.sh --clean
            ./build.sh --clean-bin
            ./build.sh --clean-all
-
+           
 ### Shared code
 
 The code in `src/shared` and `include/shared` is shared between the client and server.
