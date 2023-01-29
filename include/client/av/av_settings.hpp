@@ -96,7 +96,7 @@ private:
   static VideoSettings *m_instance;
 
   std::string m_converter_type = ".jpeg";
-  int m_bitrate = 40000;
+  int m_bitrate = 4000;
   int m_height = 480;
   int m_width = 640;
   int m_framerate = 25;
