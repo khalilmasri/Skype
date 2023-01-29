@@ -10,7 +10,7 @@
 
 Call::Call()
     : m_audio_stream(m_webcam), m_video_stream(m_webcam),
-      m_video_playback(m_webcam) {
+      m_audio_playback(), m_video_playback(m_webcam) {
 
   m_audio_stream.set_stream_type(AVStream::Audio);
   m_video_stream.set_stream_type(AVStream::Video);

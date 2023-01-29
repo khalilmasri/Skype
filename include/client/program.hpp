@@ -39,6 +39,8 @@ private: // Methods
 	// slots
 	void job_login(Job &t_job);
 	void switch_to_chat();
+
+  static const int m_MAX_TRIES = 20000;
 };
 
 #endif // PROGRAM_H

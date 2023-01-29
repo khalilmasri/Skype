@@ -16,7 +16,6 @@
 
 class Client {
 
-
 public:
 
   using CallPtr = std::unique_ptr<Call>;
@@ -74,7 +73,7 @@ private:
 	inline static Chat          m_chat;
 
   /* Call object has became a pointer so we can reinitialize it at runtime */
-	static CallPtr              m_call;
+	static CallPtr              m_call;  
 
 	static bool valid_response(Reply::Code t_code, std::string& t_res);
 };

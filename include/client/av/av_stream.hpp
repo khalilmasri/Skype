@@ -37,7 +37,7 @@ private:
   Status             m_status = Stopped;
 
   AudioConverter     m_converter;
-  Webcam             &m_webcam; // webcam lives in the parent call class;
+ Webcam              &m_webcam; // webcam lives in the parent call class;
   StreamType         m_stream_type;
 
   void validate();

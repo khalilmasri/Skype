@@ -31,16 +31,22 @@ Program::Program()
 
 	m_welcome->show();
 
+  int tries = 0;
+
 	bool res = m_client.init();
-	while(false == res)
-	{
+	while(false == res) {
 	res = m_client.init();
 	usleep(300);
+  tries++;
+
+  if (tries >= m_MAX_TRIES){
+    QMessageBox::warning(nullptr, "Error", "Could not connect to server.", QMessageBox::Ok);
+    exit(1);
+   }
 	}
 	
 	QThread *bus_loop = QThread::create(&JobBus::handle);
 	bus_loop->start();
-
 }
 
 Program::~Program()
