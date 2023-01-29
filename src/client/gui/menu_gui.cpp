@@ -1,6 +1,7 @@
 #include "menu_gui.hpp"
 #include "audio_device_config.hpp"
 #include "logger.hpp"
+#include "client.hpp"
 #include "ui/ui_menu.h"
 #include <QMediaDevices>
 #include <QCameraDevice>
@@ -80,6 +81,7 @@ void MenuGui::on_input_drop_currentIndexChanged(int index)
 	m_temp_input_index = index;
 }
 
+
 void MenuGui::on_accept_clicked()
 {	
 	LOG_DEBUG("Input : %d | Output : %d", m_temp_input_index, m_temp_output_index);
@@ -88,6 +90,8 @@ void MenuGui::on_accept_clicked()
 		LOG_TRACE("Changed input device to [%s]", m_ui->input_drop->itemText(m_temp_input_index).toStdString().c_str());
 		m_config->select_input(m_temp_input_index);
 		m_temp_input_index = -1;
+
+    Client::reinit_call();
 	}
 
 	if (-1 != m_temp_output_index)

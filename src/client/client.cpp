@@ -61,6 +61,8 @@ fail:
   return false;
 }
 
+void Client::reinit_call() { Client::m_call = std::make_unique<Call>(); }
+
 void Client::client_exit(Job &t_job) {
 
   LOG_INFO("Disconnecting from server.");
@@ -259,9 +261,7 @@ void Client::call_reject(Job &t_job) {
   t_job.m_command = Job::DISCARD;
 }
 
-void Client::call_hangup(Job &t_job) {
-  m_call->hangup(t_job);
-}
+void Client::call_hangup(Job &t_job) { m_call->hangup(t_job); }
 
 void Client::call_awaiting(Job &t_job) {
   if (t_job.m_valid == true) {

@@ -61,6 +61,9 @@ public:
 	static void call_awaiting               (Job &t_job);
 	static void call_cleanup                (Job &_);
 
+  // Static
+  static void reinit_call();
+
 	// Client commands
 	static void client_exit                 (Job &t_job);
 	inline static Accounts      m_user;

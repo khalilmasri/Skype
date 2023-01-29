@@ -14,6 +14,8 @@ Call::Call()
 
   m_audio_stream.set_stream_type(AVStream::Audio);
   m_video_stream.set_stream_type(AVStream::Video);
+
+  LOG_INFO("Instantiating call!");
 }
 
 void Call::connect(Job &t_job) {
